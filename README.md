@@ -11,3 +11,8 @@ Assuming NPM is already installed:
 ## 2. Run!
 
     node app
+
+## Run the tests
+
+    sudo npm install -g expresso
+    expresso
