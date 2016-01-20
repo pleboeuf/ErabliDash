@@ -5,54 +5,23 @@ exports.Device = function(id, name, lastEventSerial) {
   this.id = id;
   this.name = name;
   this.lastEventSerial = lastEventSerial;
-}
-exports.Dashboard = function(db, uri, WebSocketClient) {
-  var Device = exports.Device;
-  var devices = null;
-
-  function db_run(sql, params) {
-    return new Promise(function(resolve, reject) {
-      db.serialize(function() {
-        db.run(sql, params, function(err) {
-          if (err == null) {
-            resolve();
-          } else {
-            reject(err);
-          }
-        });
-      });
-    });
+  this.updateFrom = function(dev) {
+    this.lastEventSerial = dev.lastEventSerial;
+    this.name = dev.name;
+    return this;
   }
+}
+exports.Dashboard = function(uri, WebSocketClient) {
+  var Device = exports.Device;
+  var devices = [];
 
   function addDevice(device) {
-    return insertDevice(device).then(function(device) {
-      devices.push(device);
-    });
-  }
-
-  function insertDevice(device) {
-    var sql = "insert into devices (device_id, device_name, last_serial_no) values (?, ?, ?)";
-    return db_run(sql, [device.id, device.name, device.lastEventSerial]).then(function() {
-      return device;
-    });
+    devices.push(device);
+    return Promise.resolve(device);
   }
 
   function getDevices() {
-    if (devices != null) {
-      return Promise.resolve(devices);
-    }
-    return new Promise(function(resolve, reject) {
-      db.all("select * from devices", [], function(err, devs) {
-        if (err) {
-          console.error(err);
-          reject(err);
-        }
-        devices = devs.map(function(dev) {
-          return new Device(dev.device_id, dev.device_name, dev.last_serial_no);
-        });
-        resolve(devices);
-      });
-    });
+    return Promise.resolve(devices);
   }
 
   function getDevice(deviceId) {
@@ -64,9 +33,8 @@ exports.Dashboard = function(db, uri, WebSocketClient) {
   }
 
   function updateDevice(device) {
-    var sql = "update devices set last_serial_no = ? where device_id = ?";
-    return db_run(sql, [device.lastEventSerial, device.id]).then(function() {
-      return device;
+    return getDevice(device.id).then(function(dev) {
+      return dev.updateFrom(device);
     });
   }
 
@@ -91,7 +59,7 @@ exports.Dashboard = function(db, uri, WebSocketClient) {
       } else {
         if (device.lastEventSerial < serialNo) {
           device.lastEventSerial = serialNo;
-          console.log("Updating device " + device.id);
+          console.log("Updating device " + device.id + " to " + serialNo);
           return updateDevice(device);
         }
       }
@@ -147,6 +115,7 @@ exports.Dashboard = function(db, uri, WebSocketClient) {
       }).catch(function(err) {
         console.error(err);
       });
-    }
+    },
+    "getDevice": getDevice
   }
 };
