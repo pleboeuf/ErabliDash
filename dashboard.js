@@ -2,7 +2,6 @@ const fs = require('fs');
 const Promise = require('promise');
 var filename = 'data/dashboard.json';
 
-// TODO Use http://docs.sequelizejs.com/en/latest/api/sequelize/
 exports.Device = function(id, name, lastEventSerial) {
   this.id = id;
   this.name = name;
@@ -52,6 +51,16 @@ exports.Dashboard = function(uri, WebSocketClient) {
     }
   }
 
+  function connect() {
+    client.connect(uri, 'event-stream');
+  }
+  var connectBackoff = 500;
+
+  function reconnect() {
+    connectBackoff = Math.min(connectBackoff * 2, 1000 * 60);
+    setTimeout(connect, connectBackoff);
+  }
+
   function handleMessage(message) {
     var deviceId = message.coreid;
     message.data = JSON.parse(message.data);
@@ -64,7 +73,7 @@ exports.Dashboard = function(uri, WebSocketClient) {
       } else {
         if (device.lastEventSerial < serialNo) {
           device.lastEventSerial = serialNo;
-          console.log("Updating device " + device.id + " to " + serialNo);
+          //console.log("Updating device " + device.id + " to " + serialNo);
           return updateDevice(device);
         }
       }
@@ -79,16 +88,20 @@ exports.Dashboard = function(uri, WebSocketClient) {
   });
   client.on('connectFailed', function(error) {
     console.log('Connect Error: ' + error.toString());
+    reconnect();
   });
   client.on('connect', function(con) {
     connection = con;
+    connectBackoff = 1;
     console.log('WebSocket Client Connected');
     onConnectSuccess(connection);
     connection.on('error', function(error) {
       console.log("Connection Error: " + error.toString());
+      reconnect();
     });
     connection.on('close', function() {
       console.log('event-stream Connection Closed');
+      reconnect();
     });
     connection.on('message', function(message) {
       if (message.type === 'utf8') {
@@ -170,7 +183,7 @@ exports.Dashboard = function(uri, WebSocketClient) {
       return init();
     },
     "connect": function() {
-      client.connect(uri, 'event-stream');
+      connect();
       return connectPromise;
     },
     "update": function() {
