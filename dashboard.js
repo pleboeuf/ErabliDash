@@ -1,4 +1,5 @@
-var Promise = require('promise');
+const fs = require('fs');
+const Promise = require('promise');
 
 // TODO Use http://docs.sequelizejs.com/en/latest/api/sequelize/
 exports.Device = function(id, name, lastEventSerial) {
@@ -101,7 +102,36 @@ exports.Dashboard = function(uri, WebSocketClient) {
     });
   });
 
+  function init() {
+    var readFile = Promise.denodeify(fs.readFile);
+    var filename = 'data/dashboard.json';
+    return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
+      console.log("Loading " + filename);
+      return load(dashData);
+    }).catch(function(err) {
+      if (err.errno == 34) {
+        var filename = 'dashboard-init.json';
+        console.log("Dashboard data not found. Initializing from " + filename);
+        return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
+          return load(dashData);
+          console.log("Loaded: " + filename);
+        });
+      } else {
+        throw err;
+      }
+    });
+  }
+
+  function load(data) {
+    devices = data.devices.map(function(dev) {
+      return new Device(dev.id, dev.name, dev.lastEventSerial);
+    });
+  }
+
   return {
+    "init": function() {
+      return init();
+    },
     "connect": function() {
       client.connect(uri, 'event-stream');
       return connectPromise;
