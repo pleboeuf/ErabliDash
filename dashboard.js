@@ -1,5 +1,6 @@
 const fs = require('fs');
 const Promise = require('promise');
+var filename = 'data/dashboard.json';
 
 // TODO Use http://docs.sequelizejs.com/en/latest/api/sequelize/
 exports.Device = function(id, name, lastEventSerial) {
@@ -14,7 +15,9 @@ exports.Device = function(id, name, lastEventSerial) {
 }
 exports.Dashboard = function(uri, WebSocketClient) {
   var Device = exports.Device;
+  var eventsSinceStore = 0;
   var devices = [];
+  var tanks = [];
 
   function addDevice(device) {
     devices.push(device);
@@ -54,6 +57,7 @@ exports.Dashboard = function(uri, WebSocketClient) {
     message.data = JSON.parse(message.data);
     var serialNo = message.data.noSerie;
     return getDevice(deviceId).then(function(device) {
+      eventsSinceStore++;
       if (device === undefined) {
         console.log("Device " + deviceId + " is new!");
         return addDevice(new Device(deviceId, "New" + deviceId, serialNo));
@@ -104,7 +108,6 @@ exports.Dashboard = function(uri, WebSocketClient) {
 
   function init() {
     var readFile = Promise.denodeify(fs.readFile);
-    var filename = 'data/dashboard.json';
     return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
       console.log("Loading " + filename);
       return load(dashData);
@@ -126,6 +129,40 @@ exports.Dashboard = function(uri, WebSocketClient) {
     devices = data.devices.map(function(dev) {
       return new Device(dev.id, dev.name, dev.lastEventSerial);
     });
+    tanks = data.tanks;
+  }
+
+  function store() {
+    var writeFile = Promise.denodeify(fs.writeFile);
+    var data = {
+      "devices": devices,
+      "tanks": tanks
+    };
+    dataString = JSON.stringify(data, null, 2)
+    var events = eventsSinceStore;
+    writeFile(filename, dataString, "utf8").then(function() {
+      // Counter may be incremented if a message was received while storing.
+      eventsSinceStore = eventsSinceStore - events;
+      console.log("Stored " + filename + " with " + events + " new events.");
+    });
+  }
+
+  function checkStore() {
+    if (eventsSinceStore > 100) {
+      stop();
+      store();
+      start();
+    }
+  }
+
+  var storeInterval;
+
+  function start() {
+    storeInterval = setInterval(checkStore, 1000 * 5);
+  }
+
+  function stop() {
+    clearInterval(storeInterval);
   }
 
   return {
@@ -145,6 +182,9 @@ exports.Dashboard = function(uri, WebSocketClient) {
       }).catch(function(err) {
         console.error(err);
       });
+    },
+    "start": function() {
+      return start();
     },
     "getDevice": getDevice
   }
