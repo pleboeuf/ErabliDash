@@ -2,11 +2,13 @@ const fs = require('fs');
 const Promise = require('promise');
 var filename = 'data/dashboard.json';
 
-exports.Device = function(id, name, lastEventSerial) {
+exports.Device = function(id, name, generationId, lastEventSerial) {
   this.id = id;
   this.name = name;
+  this.generationId = generationId;
   this.lastEventSerial = lastEventSerial;
   this.updateFrom = function(dev) {
+    this.generationId = dev.generationId;
     this.lastEventSerial = dev.lastEventSerial;
     this.name = dev.name;
     return this;
@@ -47,6 +49,7 @@ exports.Dashboard = function(config, WebSocketClient) {
       connection.sendUTF(JSON.stringify({
         "command": "query",
         "device": device.id,
+        "generation": device.generationId,
         "after": device.lastEventSerial
       }));
     }
@@ -66,16 +69,28 @@ exports.Dashboard = function(config, WebSocketClient) {
     var deviceId = message.coreid;
     message.data = JSON.parse(message.data);
     var serialNo = message.data.noSerie;
+    var generationId = message.data.eGenTS;
     return getDevice(deviceId).then(function(device) {
       eventsSinceStore++;
       if (device === undefined) {
         console.log("Device " + deviceId + " is new!");
-        return addDevice(new Device(deviceId, "New" + deviceId, serialNo));
+        return addDevice(new Device(deviceId, "New" + deviceId, generationId, serialNo));
       } else {
-        if (device.lastEventSerial < serialNo) {
+        if (generationId != device.generationId) {
+          if (generationId > device.generationId) {
+            console.warn("Device %s started a new generation of events: %s Accepting provided serial number: %s (was at %s, %s)", deviceId, generationId, serialNo, device.generationId, device.lastEventSerial);
+            device.generationId = generationId;
+            device.lastEventSerial = serialNo;
+            return updateDevice(device);
+          } else {
+            Promise.reject("Received event for old generation (%s) of device %s, which is now at generation %s. Ignored!", generationId, deviceId, device.generationId);
+            ("ignored message");
+          }
+        } else if (device.lastEventSerial < serialNo) {
           device.lastEventSerial = serialNo;
-          //console.log("Updating device " + device.id + " to " + serialNo);
           return updateDevice(device);
+        } else {
+          Promise.reject("Received old event for device %s: %d, %s", deviceId, serialNo, generationId);
         }
       }
     });
@@ -148,7 +163,7 @@ exports.Dashboard = function(config, WebSocketClient) {
 
   function load(data) {
     devices = data.devices.map(function(dev) {
-      return new Device(dev.id, dev.name, dev.lastEventSerial);
+      return new Device(dev.id, dev.name, dev.generationId, dev.lastEventSerial);
     });
     tanks = data.tanks;
   }

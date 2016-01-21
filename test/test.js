@@ -25,8 +25,9 @@ function makeWsClient() {
   };
 }
 
-function makeMessage(deviceId, serialNo) {
+function makeMessage(deviceId, generationId, serialNo) {
   var data = {
+    "eGenTS": generationId,
     "noSerie": serialNo
   };
   var message = {
@@ -51,7 +52,7 @@ describe('Dashboard', function() {
 
   it('should store new device received', function() {
     return dashboard.connect().then(function(connection) {
-      return connection.fakeReceive(makeMessage(2, 1)).then(function() {
+      return connection.fakeReceive(makeMessage(2, 1, 1)).then(function() {
         return dashboard.getDevice(2).then(function(device) {
           assert.equal(1, device.lastEventSerial);
         });
@@ -61,8 +62,8 @@ describe('Dashboard', function() {
 
   it('should update serial of device when receiving new event', function() {
     return dashboard.connect().then(function(connection) {
-      return connection.fakeReceive(makeMessage(20, 1)).then(function() {
-        return connection.fakeReceive(makeMessage(20, 2)).then(function() {
+      return connection.fakeReceive(makeMessage(20, 1, 1)).then(function() {
+        return connection.fakeReceive(makeMessage(20, 1, 2)).then(function() {
           return dashboard.getDevice(20).then(function(device) {
             assert.equal(2, device.lastEventSerial);
           });
@@ -74,9 +75,34 @@ describe('Dashboard', function() {
   it('should update serial after requesting updates', function() {
     return dashboard.connect().then(function(connection) {
       return dashboard.update().then(function() {
-        return connection.fakeReceive(makeMessage(1, 2)).then(function() {
+        return connection.fakeReceive(makeMessage(1, 1, 2)).then(function() {
           return dashboard.getDevice(1).then(function(device) {
             assert.equal(2, device.lastEventSerial);
+          });
+        });
+      });
+    });
+  });
+
+  it('should update generation ID when receiving greater ID', function() {
+    return dashboard.connect().then(function(connection) {
+      return connection.fakeReceive(makeMessage(1, 1, 2)).then(function() {
+        return connection.fakeReceive(makeMessage(1, 2, 1)).then(function() {
+          return dashboard.getDevice(1).then(function(device) {
+            assert.equal(2, device.generationId);
+            assert.equal(1, device.lastEventSerial);
+          });
+        });
+      });
+    });
+  });
+
+  it('should ignore generation ID when receiving lower ID', function() {
+    return dashboard.connect().then(function(connection) {
+      return connection.fakeReceive(makeMessage(1, 1, 2)).then(function() {
+        return connection.fakeReceive(makeMessage(1, 2, 1)).then(function() {
+          return dashboard.getDevice(1).then(function(device) {
+            assert.equal(2, device.generationId);
           });
         });
       });
