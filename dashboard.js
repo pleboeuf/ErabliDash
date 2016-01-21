@@ -1,6 +1,6 @@
 const fs = require('fs');
+const util = require('util');
 const Promise = require('promise');
-var filename = 'data/dashboard.json';
 
 exports.Device = function(id, name, generationId, lastEventSerial) {
   this.id = id;
@@ -16,10 +16,19 @@ exports.Device = function(id, name, generationId, lastEventSerial) {
 }
 exports.Dashboard = function(config, WebSocketClient) {
   var Device = exports.Device;
+
   var uri = config.collectors[0].uri;
+  var filename = config.store.filename;
+
   var eventsSinceStore = 0;
   var devices = [];
   var tanks = [];
+
+  function getTank(name) {
+    return tanks.filter(function(tank) {
+      return tank.name == name;
+    }).shift();
+  }
 
   function addDevice(device) {
     devices.push(device);
@@ -65,6 +74,23 @@ exports.Dashboard = function(config, WebSocketClient) {
     setTimeout(connect, connectBackoff);
   }
 
+  function handleEvent(device, event) {
+    var data = event.data;
+    tanks.forEach(function(tank) {
+      if (tank.deviceName == device.name) {
+        if (data.eName == "brunelle/prod/sonde/US100/Distance") {
+          tank.rawValue = data.eData;
+          tank.lastUpdatedAt = event.published_at;
+        } else if (data.eName == "brunelle/prod/sonde/US100/Temperature") {
+          tank.temperature = data.eData;
+        } else {
+          console.warn("Unknown data type for tank %s: %s", tank.name, data.eName);
+        }
+      }
+    });
+    return Promise.resolve(null);
+  }
+
   function handleMessage(message) {
     var deviceId = message.coreid;
     message.data = JSON.parse(message.data);
@@ -74,23 +100,30 @@ exports.Dashboard = function(config, WebSocketClient) {
       eventsSinceStore++;
       if (device === undefined) {
         console.log("Device " + deviceId + " is new!");
-        return addDevice(new Device(deviceId, "New" + deviceId, generationId, serialNo));
+        return addDevice(new Device(deviceId, "New" + deviceId, generationId, serialNo)).then(handleEvent);
       } else {
-        if (generationId != device.generationId) {
+        var handleEventFunc = function() {
+          handleEvent(device, message)
+        };
+        if (typeof device.generationId === 'undefined') {
+          console.log("First event received for device %s (%s,%s)", deviceId, generationId, serialNo);
+          device.generationId = generationId;
+          device.lastEventSerial = serialNo;
+          return updateDevice(device).then(handleEventFunc);
+        } else if (generationId != device.generationId) {
           if (generationId > device.generationId) {
             console.warn("Device %s started a new generation of events: %s Accepting provided serial number: %s (was at %s, %s)", deviceId, generationId, serialNo, device.generationId, device.lastEventSerial);
             device.generationId = generationId;
             device.lastEventSerial = serialNo;
-            return updateDevice(device);
+            return updateDevice(device).then(handleEventFunc);
           } else {
-            Promise.reject("Received event for old generation (%s) of device %s, which is now at generation %s. Ignored!", generationId, deviceId, device.generationId);
-            ("ignored message");
+            return Promise.reject(util.format("Received event for old generation (%s) of device %s, which is now at generation %s. Ignored!", generationId, deviceId, device.generationId));
           }
         } else if (device.lastEventSerial < serialNo) {
           device.lastEventSerial = serialNo;
-          return updateDevice(device);
+          return updateDevice(device).then(handleEventFunc);
         } else {
-          Promise.reject("Received old event for device %s: %d, %s", deviceId, serialNo, generationId);
+          return Promise.reject(util.format("Received old event for device %s: %d, %s", deviceId, serialNo, generationId));
         }
       }
     });
@@ -142,12 +175,12 @@ exports.Dashboard = function(config, WebSocketClient) {
       return load(dashData);
     }).catch(function(err) {
       if (err.errno == 34) {
-        var filename = 'dashboard-init.json';
-        console.log("Dashboard data not found. Initializing from " + filename);
-        return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
-          return load(dashData);
-          console.log("Loaded: " + filename);
-        });
+        console.log("Dashboard data not found. Initializing.");
+        var initData = {
+          "devices": config.devices,
+          "tanks": config.tanks
+        }
+        return load(initData);
       } else {
         throw err;
       }
@@ -219,8 +252,7 @@ exports.Dashboard = function(config, WebSocketClient) {
       return start();
     },
     "getDevice": getDevice,
-    "getData": function() {
-      return getData();
-    }
+    "getTank": getTank,
+    "getData": getData
   }
 };
