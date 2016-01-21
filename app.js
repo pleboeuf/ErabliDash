@@ -9,3 +9,20 @@ dashboard.init().then(function() {
 }).catch(function(err) {
   console.error(err);
 });
+var express = require('express');
+var path = require('path');
+var app = express();
+app.use(app.router);
+app.use(express.logger());
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/', express.static(path.join(__dirname, 'index.html')));
+app.get('/data.json', function(req, res) {
+  res.setHeader("Content-Type", "text/plain");
+  res.send(JSON.stringify(dashboard.getData(), null, 2));
+});
+var http = require('http');
+var port = config.port || '3000';
+app.set('port', port);
+var server = http.createServer(app);
+server.listen(port);
+console.log('HTTP Server started: http://localhost:' + port);

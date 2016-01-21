@@ -139,6 +139,13 @@ exports.Dashboard = function(config, WebSocketClient) {
     });
   }
 
+  function getData() {
+    return {
+      "devices": devices,
+      "tanks": tanks
+    };
+  }
+
   function load(data) {
     devices = data.devices.map(function(dev) {
       return new Device(dev.id, dev.name, dev.lastEventSerial);
@@ -148,11 +155,7 @@ exports.Dashboard = function(config, WebSocketClient) {
 
   function store() {
     var writeFile = Promise.denodeify(fs.writeFile);
-    var data = {
-      "devices": devices,
-      "tanks": tanks
-    };
-    dataString = JSON.stringify(data, null, 2)
+    dataString = JSON.stringify(getData(), null, 2)
     var events = eventsSinceStore;
     writeFile(filename, dataString, "utf8").then(function() {
       // Counter may be incremented if a message was received while storing.
@@ -200,6 +203,9 @@ exports.Dashboard = function(config, WebSocketClient) {
     "start": function() {
       return start();
     },
-    "getDevice": getDevice
+    "getDevice": getDevice,
+    "getData": function() {
+      return getData();
+    }
   }
 };
