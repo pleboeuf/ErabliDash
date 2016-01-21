@@ -14,5 +14,5 @@ Assuming NPM is already installed:
 
 ## Run the tests
 
-    sudo npm install -g expresso
-    expresso
+    sudo npm install -g mocha
+    mocha

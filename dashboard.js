@@ -1,58 +1,30 @@
-var Promise = require('promise');
+const fs = require('fs');
+const Promise = require('promise');
+var filename = 'data/dashboard.json';
 
-// TODO Use http://docs.sequelizejs.com/en/latest/api/sequelize/
 exports.Device = function(id, name, lastEventSerial) {
   this.id = id;
   this.name = name;
   this.lastEventSerial = lastEventSerial;
-}
-exports.Dashboard = function(db, uri, WebSocketClient) {
-  var Device = exports.Device;
-  var devices = null;
-
-  function db_run(sql, params) {
-    return new Promise(function(resolve, reject) {
-      db.serialize(function() {
-        db.run(sql, params, function(err) {
-          if (err == null) {
-            resolve();
-          } else {
-            reject(err);
-          }
-        });
-      });
-    });
+  this.updateFrom = function(dev) {
+    this.lastEventSerial = dev.lastEventSerial;
+    this.name = dev.name;
+    return this;
   }
+}
+exports.Dashboard = function(uri, WebSocketClient) {
+  var Device = exports.Device;
+  var eventsSinceStore = 0;
+  var devices = [];
+  var tanks = [];
 
   function addDevice(device) {
-    return insertDevice(device).then(function(device) {
-      devices.push(device);
-    });
-  }
-
-  function insertDevice(device) {
-    var sql = "insert into devices (device_id, device_name, last_serial_no) values (?, ?, ?)";
-    return db_run(sql, [device.id, device.name, device.lastEventSerial]).then(function() {
-      return device;
-    });
+    devices.push(device);
+    return Promise.resolve(device);
   }
 
   function getDevices() {
-    if (devices != null) {
-      return Promise.resolve(devices);
-    }
-    return new Promise(function(resolve, reject) {
-      db.all("select * from devices", [], function(err, devs) {
-        if (err) {
-          console.error(err);
-          reject(err);
-        }
-        devices = devs.map(function(dev) {
-          return new Device(dev.device_id, dev.device_name, dev.last_serial_no);
-        });
-        resolve(devices);
-      });
-    });
+    return Promise.resolve(devices);
   }
 
   function getDevice(deviceId) {
@@ -64,9 +36,8 @@ exports.Dashboard = function(db, uri, WebSocketClient) {
   }
 
   function updateDevice(device) {
-    var sql = "update devices set last_serial_no = ? where device_id = ?";
-    return db_run(sql, [device.lastEventSerial, device.id]).then(function() {
-      return device;
+    return getDevice(device.id).then(function(dev) {
+      return dev.updateFrom(device);
     });
   }
 
@@ -80,18 +51,29 @@ exports.Dashboard = function(db, uri, WebSocketClient) {
     }
   }
 
+  function connect() {
+    client.connect(uri, 'event-stream');
+  }
+  var connectBackoff = 500;
+
+  function reconnect() {
+    connectBackoff = Math.min(connectBackoff * 2, 1000 * 60);
+    setTimeout(connect, connectBackoff);
+  }
+
   function handleMessage(message) {
     var deviceId = message.coreid;
     message.data = JSON.parse(message.data);
     var serialNo = message.data.noSerie;
     return getDevice(deviceId).then(function(device) {
+      eventsSinceStore++;
       if (device === undefined) {
         console.log("Device " + deviceId + " is new!");
         return addDevice(new Device(deviceId, "New" + deviceId, serialNo));
       } else {
         if (device.lastEventSerial < serialNo) {
           device.lastEventSerial = serialNo;
-          console.log("Updating device " + device.id);
+          //console.log("Updating device " + device.id + " to " + serialNo);
           return updateDevice(device);
         }
       }
@@ -106,16 +88,20 @@ exports.Dashboard = function(db, uri, WebSocketClient) {
   });
   client.on('connectFailed', function(error) {
     console.log('Connect Error: ' + error.toString());
+    reconnect();
   });
   client.on('connect', function(con) {
     connection = con;
+    connectBackoff = 1;
     console.log('WebSocket Client Connected');
     onConnectSuccess(connection);
     connection.on('error', function(error) {
       console.log("Connection Error: " + error.toString());
+      reconnect();
     });
     connection.on('close', function() {
       console.log('event-stream Connection Closed');
+      reconnect();
     });
     connection.on('message', function(message) {
       if (message.type === 'utf8') {
@@ -133,9 +119,71 @@ exports.Dashboard = function(db, uri, WebSocketClient) {
     });
   });
 
+  function init() {
+    var readFile = Promise.denodeify(fs.readFile);
+    return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
+      console.log("Loading " + filename);
+      return load(dashData);
+    }).catch(function(err) {
+      if (err.errno == 34) {
+        var filename = 'dashboard-init.json';
+        console.log("Dashboard data not found. Initializing from " + filename);
+        return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
+          return load(dashData);
+          console.log("Loaded: " + filename);
+        });
+      } else {
+        throw err;
+      }
+    });
+  }
+
+  function load(data) {
+    devices = data.devices.map(function(dev) {
+      return new Device(dev.id, dev.name, dev.lastEventSerial);
+    });
+    tanks = data.tanks;
+  }
+
+  function store() {
+    var writeFile = Promise.denodeify(fs.writeFile);
+    var data = {
+      "devices": devices,
+      "tanks": tanks
+    };
+    dataString = JSON.stringify(data, null, 2)
+    var events = eventsSinceStore;
+    writeFile(filename, dataString, "utf8").then(function() {
+      // Counter may be incremented if a message was received while storing.
+      eventsSinceStore = eventsSinceStore - events;
+      console.log("Stored " + filename + " with " + events + " new events.");
+    });
+  }
+
+  function checkStore() {
+    if (eventsSinceStore > 100) {
+      stop();
+      store();
+      start();
+    }
+  }
+
+  var storeInterval;
+
+  function start() {
+    storeInterval = setInterval(checkStore, 1000 * 5);
+  }
+
+  function stop() {
+    clearInterval(storeInterval);
+  }
+
   return {
+    "init": function() {
+      return init();
+    },
     "connect": function() {
-      client.connect(uri, 'event-stream');
+      connect();
       return connectPromise;
     },
     "update": function() {
@@ -147,6 +195,10 @@ exports.Dashboard = function(db, uri, WebSocketClient) {
       }).catch(function(err) {
         console.error(err);
       });
-    }
+    },
+    "start": function() {
+      return start();
+    },
+    "getDevice": getDevice
   }
 };

@@ -1,27 +1,7 @@
-var deviceRowInDb = {
-  "device_id": "1",
-  "last_serial_no": 10
-};
+var assert = require("assert");
 
-function makeDb() {
-  return {
-    "runs": [],
-    "serialize": function(callback) {
-      callback.call(this);
-    },
-    "run": function(sql, params, callback) {
-      console.log("run(" + sql + ", " + params + ")");
-      this.runs.push([sql, params]);
-      callback.call(this, null);
-    },
-    "all": function(sql, params, callback) {
-      console.log("Query: " + sql + " [" + params + "]");
-      callback.call(this, null, [deviceRowInDb]);
-    }
-  };
-}
-
-function makeWsClient(callbacks, onConnect) {
+function makeWsClient() {
+  var callbacks = {};
   return function() {
     var client = {
       "connection": this,
@@ -33,7 +13,6 @@ function makeWsClient(callbacks, onConnect) {
       "connect": function() {
         this.connected = true;
         callbacks['connect'].call(client, client);
-        onConnect(client, client);
       },
       "sendUTF": function(message) {
         console.log("Sending: " + message);
@@ -61,60 +40,42 @@ function makeMessage(deviceId, serialNo) {
   return wsMessage;
 }
 
-exports['dashboard.connect() receives new device'] = function(beforeExit, assert) {
-  var db = makeDb();
-  var callbacks = {};
-  var ws = makeWsClient(callbacks, function(client, connection) {
-    client.fakeReceive(makeMessage(2));
-  });
-  var dashboard = require('../dashboard.js').Dashboard(db, 'ws://localhost/', ws);
-  dashboard.connect();
-  this.on('exit', function() {
-    assert.equal(db.runs.length, 1);
-  });
-};
+describe('Dashboard', function() {
+  var ws = makeWsClient();
+  var dashboard = require('../dashboard.js').Dashboard('ws://localhost/', ws);
 
-exports['dashboard.connect() receives new device then same serial'] = function(beforeExit, assert) {
-  var db = makeDb();
-  var callbacks = {};
-  var ws = makeWsClient(callbacks, function(client, connection) {
-    client.fakeReceive(makeMessage(10, 1)).then(function() {
-      client.fakeReceive(makeMessage(10, 1));
+  it('should store new device received', function() {
+    return dashboard.connect().then(function(connection) {
+      return connection.fakeReceive(makeMessage(2, 1)).then(function() {
+        return dashboard.getDevice(2).then(function(device) {
+          assert.equal(1, device.lastEventSerial);
+        });
+      });
     });
   });
-  var dashboard = require('../dashboard.js').Dashboard(db, 'ws://localhost/', ws);
-  dashboard.connect();
-  this.on('exit', function() {
-    assert.equal(db.runs.length, 1);
-  });
-};
 
-exports['dashboard.connect() receives new device then new serial'] = function(beforeExit, assert) {
-  var db = makeDb();
-  var callbacks = {};
-  var ws = makeWsClient(callbacks, function(client, connection) {
-    client.fakeReceive(makeMessage(20, 1)).then(function() {
-      client.fakeReceive(makeMessage(20, 2));
+  it('should update serial of device when receiving new event', function() {
+    return dashboard.connect().then(function(connection) {
+      return connection.fakeReceive(makeMessage(20, 1)).then(function() {
+        return connection.fakeReceive(makeMessage(20, 2)).then(function() {
+          return dashboard.getDevice(20).then(function(device) {
+            assert.equal(2, device.lastEventSerial);
+          });
+        });
+      });
     });
   });
-  var dashboard = require('../dashboard.js').Dashboard(db, 'ws://localhost/', ws);
-  dashboard.connect();
-  this.on('exit', function() {
-    assert.equal(db.runs.length, 2);
-  });
-};
 
-exports['dashboard.update() receives events'] = function(beforeExit, assert) {
-  var db = makeDb();
-  var callbacks = {};
-  var ws = makeWsClient(callbacks, function(client, connection) {});
-  var dashboard = require('../dashboard.js').Dashboard(db, 'ws://localhost/', ws);
-  dashboard.connect().then(function(connection) {
-    dashboard.update().then(function() {
-      connection.fakeReceive(makeMessage(deviceRowInDb.device_id, deviceRowInDb.last_serial_no + 1));
+  it('should update serial after requesting updates', function() {
+    return dashboard.connect().then(function(connection) {
+      return dashboard.update().then(function() {
+        return connection.fakeReceive(makeMessage(1, 2)).then(function() {
+          return dashboard.getDevice(1).then(function(device) {
+            assert.equal(2, device.lastEventSerial);
+          });
+        });
+      });
     });
   });
-  this.on('exit', function() {
-    assert.equal(db.runs.length, 1);
-  });
-};
+
+});

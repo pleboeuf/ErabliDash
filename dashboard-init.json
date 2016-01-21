@@ -1,0 +1,26 @@
+{
+  "devices": [{
+    "id": "1f003f000747343337373738",
+    "name": "DeviceA",
+    "lastEventSerial": null
+  }, {
+    "id": "3a0025000847343337373738",
+    "name": "DeviceB",
+    "lastEventSerial": null
+  }, {
+    "id": "3a0037000c47343233323032",
+    "name": "DeviceC",
+    "lastEventSerial": null
+  }],
+  "tanks": [{
+    "name": "TankA",
+    "deviceName": "DeviceA",
+    "rawValue": null,
+    "lastUpdatedAt": null
+  }, {
+    "name": "TankB",
+    "deviceName": "DeviceB",
+    "rawValue": null,
+    "lastUpdatedAt": null
+  }]
+}
