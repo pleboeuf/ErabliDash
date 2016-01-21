@@ -1,22 +1,34 @@
 const fs = require('fs');
+const util = require('util');
 const Promise = require('promise');
-var filename = 'data/dashboard.json';
 
-exports.Device = function(id, name, lastEventSerial) {
+exports.Device = function(id, name, generationId, lastEventSerial) {
   this.id = id;
   this.name = name;
+  this.generationId = generationId;
   this.lastEventSerial = lastEventSerial;
   this.updateFrom = function(dev) {
+    this.generationId = dev.generationId;
     this.lastEventSerial = dev.lastEventSerial;
     this.name = dev.name;
     return this;
   }
 }
-exports.Dashboard = function(uri, WebSocketClient) {
+exports.Dashboard = function(config, WebSocketClient) {
   var Device = exports.Device;
+
+  var uri = config.collectors[0].uri;
+  var filename = config.store.filename;
+
   var eventsSinceStore = 0;
   var devices = [];
   var tanks = [];
+
+  function getTank(name) {
+    return tanks.filter(function(tank) {
+      return tank.name == name;
+    }).shift();
+  }
 
   function addDevice(device) {
     devices.push(device);
@@ -46,6 +58,7 @@ exports.Dashboard = function(uri, WebSocketClient) {
       connection.sendUTF(JSON.stringify({
         "command": "query",
         "device": device.id,
+        "generation": device.generationId,
         "after": device.lastEventSerial
       }));
     }
@@ -61,20 +74,56 @@ exports.Dashboard = function(uri, WebSocketClient) {
     setTimeout(connect, connectBackoff);
   }
 
+  function handleEvent(device, event) {
+    var data = event.data;
+    tanks.forEach(function(tank) {
+      if (tank.deviceName == device.name) {
+        if (data.eName == "brunelle/prod/sonde/US100/Distance") {
+          tank.rawValue = data.eData;
+          tank.lastUpdatedAt = event.published_at;
+        } else if (data.eName == "brunelle/prod/sonde/US100/Temperature") {
+          tank.temperature = data.eData;
+        } else {
+          console.warn("Unknown data type for tank %s: %s", tank.name, data.eName);
+        }
+      }
+    });
+    return Promise.resolve(null);
+  }
+
   function handleMessage(message) {
     var deviceId = message.coreid;
     message.data = JSON.parse(message.data);
     var serialNo = message.data.noSerie;
+    var generationId = message.data.eGenTS;
     return getDevice(deviceId).then(function(device) {
       eventsSinceStore++;
       if (device === undefined) {
         console.log("Device " + deviceId + " is new!");
-        return addDevice(new Device(deviceId, "New" + deviceId, serialNo));
+        return addDevice(new Device(deviceId, "New" + deviceId, generationId, serialNo)).then(handleEvent);
       } else {
-        if (device.lastEventSerial < serialNo) {
+        var handleEventFunc = function() {
+          handleEvent(device, message)
+        };
+        if (typeof device.generationId === 'undefined') {
+          console.log("First event received for device %s (%s,%s)", deviceId, generationId, serialNo);
+          device.generationId = generationId;
           device.lastEventSerial = serialNo;
-          //console.log("Updating device " + device.id + " to " + serialNo);
-          return updateDevice(device);
+          return updateDevice(device).then(handleEventFunc);
+        } else if (generationId != device.generationId) {
+          if (generationId > device.generationId) {
+            console.warn("Device %s started a new generation of events: %s Accepting provided serial number: %s (was at %s, %s)", deviceId, generationId, serialNo, device.generationId, device.lastEventSerial);
+            device.generationId = generationId;
+            device.lastEventSerial = serialNo;
+            return updateDevice(device).then(handleEventFunc);
+          } else {
+            return Promise.reject(util.format("Received event for old generation (%s) of device %s, which is now at generation %s. Ignored!", generationId, deviceId, device.generationId));
+          }
+        } else if (device.lastEventSerial < serialNo) {
+          device.lastEventSerial = serialNo;
+          return updateDevice(device).then(handleEventFunc);
+        } else {
+          return Promise.reject(util.format("Received old event for device %s: %d, %s", deviceId, serialNo, generationId));
         }
       }
     });
@@ -93,7 +142,7 @@ exports.Dashboard = function(uri, WebSocketClient) {
   client.on('connect', function(con) {
     connection = con;
     connectBackoff = 1;
-    console.log('WebSocket Client Connected');
+    console.log('WebSocket Client Connected to: ' + uri);
     onConnectSuccess(connection);
     connection.on('error', function(error) {
       console.log("Connection Error: " + error.toString());
@@ -126,32 +175,35 @@ exports.Dashboard = function(uri, WebSocketClient) {
       return load(dashData);
     }).catch(function(err) {
       if (err.errno == 34) {
-        var filename = 'dashboard-init.json';
-        console.log("Dashboard data not found. Initializing from " + filename);
-        return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
-          return load(dashData);
-          console.log("Loaded: " + filename);
-        });
+        console.log("Dashboard data not found. Initializing.");
+        var initData = {
+          "devices": config.devices,
+          "tanks": config.tanks
+        }
+        return load(initData);
       } else {
         throw err;
       }
     });
   }
 
+  function getData() {
+    return {
+      "devices": devices,
+      "tanks": tanks
+    };
+  }
+
   function load(data) {
     devices = data.devices.map(function(dev) {
-      return new Device(dev.id, dev.name, dev.lastEventSerial);
+      return new Device(dev.id, dev.name, dev.generationId, dev.lastEventSerial);
     });
     tanks = data.tanks;
   }
 
   function store() {
     var writeFile = Promise.denodeify(fs.writeFile);
-    var data = {
-      "devices": devices,
-      "tanks": tanks
-    };
-    dataString = JSON.stringify(data, null, 2)
+    dataString = JSON.stringify(getData(), null, 2)
     var events = eventsSinceStore;
     writeFile(filename, dataString, "utf8").then(function() {
       // Counter may be incremented if a message was received while storing.
@@ -199,6 +251,8 @@ exports.Dashboard = function(uri, WebSocketClient) {
     "start": function() {
       return start();
     },
-    "getDevice": getDevice
+    "getDevice": getDevice,
+    "getTank": getTank,
+    "getData": getData
   }
 };

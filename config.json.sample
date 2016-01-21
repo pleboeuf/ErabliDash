@@ -1,0 +1,28 @@
+{
+  "port": 3000,
+  "collectors": [{
+    "uri": "ws://localhost:8150/"
+  }],
+  "store": {
+    "filename": "data/dashboard.json"
+  },
+  "devices": [{
+    "id": "1f003f000747343337373738",
+    "name": "DeviceA"
+  }, {
+    "id": "3a0025000847343337373738",
+    "name": "DeviceB"
+  }, {
+    "id": "3a0037000c47343233323032",
+    "name": "DeviceC"
+  }],
+  "tanks": [{
+    "name": "TankA",
+    "deviceName": "DeviceA"
+  }, {
+    "name": "TankB",
+    "deviceName": "DeviceB"
+  }]
+}
+
+}
