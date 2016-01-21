@@ -1,6 +1,6 @@
-var uri = 'ws://localhost:8150/';
 var WebSocketClient = require('websocket').client;
-var dashboard = require('./dashboard.js').Dashboard(uri, WebSocketClient);
+var config = require('./config.json');
+var dashboard = require('./dashboard.js').Dashboard(config, WebSocketClient);
 dashboard.init().then(function() {
   return dashboard.connect().then(function() {
     dashboard.start();

@@ -12,8 +12,9 @@ exports.Device = function(id, name, lastEventSerial) {
     return this;
   }
 }
-exports.Dashboard = function(uri, WebSocketClient) {
+exports.Dashboard = function(config, WebSocketClient) {
   var Device = exports.Device;
+  var uri = config.collectors[0].uri;
   var eventsSinceStore = 0;
   var devices = [];
   var tanks = [];
@@ -93,7 +94,7 @@ exports.Dashboard = function(uri, WebSocketClient) {
   client.on('connect', function(con) {
     connection = con;
     connectBackoff = 1;
-    console.log('WebSocket Client Connected');
+    console.log('WebSocket Client Connected to: ' + uri);
     onConnectSuccess(connection);
     connection.on('error', function(error) {
       console.log("Connection Error: " + error.toString());

@@ -42,7 +42,12 @@ function makeMessage(deviceId, serialNo) {
 
 describe('Dashboard', function() {
   var ws = makeWsClient();
-  var dashboard = require('../dashboard.js').Dashboard('ws://localhost/', ws);
+  var config = {
+    "collectors": [{
+      "uri": 'ws://localhost/'
+    }]
+  };
+  var dashboard = require('../dashboard.js').Dashboard(config, ws);
 
   it('should store new device received', function() {
     return dashboard.connect().then(function(connection) {
