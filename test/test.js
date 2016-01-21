@@ -84,6 +84,18 @@ describe('Dashboard', function() {
     });
   });
 
+  it('should ignore event with old serial number', function() {
+    return dashboard.connect().then(function(connection) {
+      return connection.fakeReceive(makeMessage(1, 1, 2)).then(function() {
+        return connection.fakeReceive(makeMessage(1, 1, 1)).then(function() {
+          return dashboard.getDevice(1).then(function(device) {
+            assert.equal(2, device.lastEventSerial);
+          });
+        });
+      });
+    });
+  });
+
   it('should update generation ID when receiving greater ID', function() {
     return dashboard.connect().then(function(connection) {
       return connection.fakeReceive(makeMessage(1, 1, 2)).then(function() {
