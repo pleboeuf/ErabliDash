@@ -58,24 +58,27 @@ describe('Dashboard', function() {
       "filename": "/tmp/dashboard.json"
     }
   };
-  var dashboard = require('../dashboard.js').Dashboard(config, ws);
 
   it('should store new device received', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
     return dashboard.connect().then(function(connection) {
       return connection.fakeReceive(makeMessage(2, 1, 1)).then(function() {
         return dashboard.getDevice(2).then(function(device) {
           assert.equal(1, device.lastEventSerial);
+          assert.equal(1, dashboard.getEventsSinceStore());
         });
       });
     });
   });
 
   it('should update serial of device when receiving new event', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
     return dashboard.connect().then(function(connection) {
       return connection.fakeReceive(makeMessage(20, 1, 1)).then(function() {
         return connection.fakeReceive(makeMessage(20, 1, 2)).then(function() {
           return dashboard.getDevice(20).then(function(device) {
             assert.equal(2, device.lastEventSerial);
+            assert.equal(2, dashboard.getEventsSinceStore());
           });
         });
       });
@@ -83,6 +86,7 @@ describe('Dashboard', function() {
   });
 
   it('should update serial after requesting updates', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
     return dashboard.connect().then(function(connection) {
       return dashboard.update().then(function() {
         return connection.fakeReceive(makeMessage(1, 1, 2)).then(function() {
@@ -95,6 +99,7 @@ describe('Dashboard', function() {
   });
 
   it('should ignore event with old serial number', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
     return dashboard.connect().then(function(connection) {
       return connection.fakeReceive(makeMessage(1, 1, 2)).then(function() {
         return connection.fakeReceive(makeMessage(1, 1, 1)).then(function() {
@@ -107,6 +112,7 @@ describe('Dashboard', function() {
   });
 
   it('should update generation ID when receiving greater ID', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
     return dashboard.connect().then(function(connection) {
       return connection.fakeReceive(makeMessage(1, 1, 2)).then(function() {
         return connection.fakeReceive(makeMessage(1, 2, 1)).then(function() {
@@ -120,6 +126,7 @@ describe('Dashboard', function() {
   });
 
   it('should ignore generation ID when receiving lower ID', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
     return dashboard.connect().then(function(connection) {
       return connection.fakeReceive(makeMessage(1, 1, 2)).then(function() {
         return connection.fakeReceive(makeMessage(1, 2, 1)).then(function() {

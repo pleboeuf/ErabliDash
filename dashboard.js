@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const util = require('util');
 const Promise = require('promise');
 
@@ -23,6 +24,15 @@ exports.Dashboard = function(config, WebSocketClient) {
   var eventsSinceStore = 0;
   var devices = [];
   var tanks = [];
+
+  var dir = path.dirname(filename);
+  fs.exists(dir, function(exists) {
+    if (!exists) {
+      fs.mkdir(dir, new function(err) {
+        console.error(err);
+      });
+    }
+  });
 
   function getTank(name) {
     return tanks.filter(function(tank) {
@@ -205,10 +215,13 @@ exports.Dashboard = function(config, WebSocketClient) {
     var writeFile = Promise.denodeify(fs.writeFile);
     dataString = JSON.stringify(getData(), null, 2)
     var events = eventsSinceStore;
-    writeFile(filename, dataString, "utf8").then(function() {
+    console.log("Writing to %s after %d events.", filename, events);
+    return writeFile(filename, dataString, "utf8").then(function() {
       // Counter may be incremented if a message was received while storing.
       eventsSinceStore = eventsSinceStore - events;
-      console.log("Stored " + filename + " with " + events + " new events.");
+      console.log("Wrote " + filename + " with " + events + " new events.");
+    }).catch(function(err) {
+      console.error(err);
     });
   }
 
@@ -253,6 +266,9 @@ exports.Dashboard = function(config, WebSocketClient) {
     },
     "getDevice": getDevice,
     "getTank": getTank,
-    "getData": getData
+    "getData": getData,
+    "getEventsSinceStore": function() {
+      return eventsSinceStore;
+    }
   }
 };
