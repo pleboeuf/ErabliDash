@@ -21,6 +21,7 @@ exports.Dashboard = function(config, WebSocketClient) {
   var uri = config.collectors[0].uri;
   var filename = config.store.filename;
 
+  var listeners = [];
   var eventsSinceStore = 0;
   var devices = [];
   var tanks = [];
@@ -98,7 +99,15 @@ exports.Dashboard = function(config, WebSocketClient) {
         }
       }
     });
+    publishData();
     return Promise.resolve(null);
+  }
+
+  function publishData() {
+    console.log("Publishing data");
+    listeners.forEach(function(listener) {
+      listener.call(listener, getData());
+    });
   }
 
   function handleMessage(message) {
@@ -269,6 +278,9 @@ exports.Dashboard = function(config, WebSocketClient) {
     "getData": getData,
     "getEventsSinceStore": function() {
       return eventsSinceStore;
+    },
+    "onChange": function(listener) {
+      listeners.push(listener);
     }
   }
 };
