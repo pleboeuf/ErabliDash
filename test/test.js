@@ -30,7 +30,7 @@ function makeMessage(deviceId, generationId, serialNo, optionalData) {
     optionalData = {};
   }
   var data = {
-    "eGenTS": generationId,
+    "generation": generationId,
     "noSerie": serialNo
   };
   for (var attrname in optionalData) {
@@ -161,7 +161,7 @@ describe('Dashboard with tank A', function() {
 
   it('should update tank level when receiving water level', function() {
     var msg = makeMessage(1, 1, 1, {
-      "eName": "brunelle/prod/sonde/US100/Distance",
+      "eName": "sensor/level",
       "eData": 444,
     });
     return dashboard.init().then(function(connection) {
