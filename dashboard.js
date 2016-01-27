@@ -88,10 +88,10 @@ exports.Dashboard = function(config, WebSocketClient) {
     var data = event.data;
     tanks.forEach(function(tank) {
       if (tank.deviceName == device.name) {
-        if (data.eName == "brunelle/prod/sonde/US100/Distance") {
+        if (data.eName == "sensor/level") {
           tank.rawValue = data.eData;
           tank.lastUpdatedAt = event.published_at;
-        } else if (data.eName == "brunelle/prod/sonde/US100/Temperature") {
+        } else if (data.eName == "sensor/ambienTemp") {
           tank.temperature = data.eData;
         } else {
           console.warn("Unknown data type for tank %s: %s", tank.name, data.eName);
