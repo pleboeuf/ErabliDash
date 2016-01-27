@@ -1,1 +1,46 @@
-See <a href="/data.json">data.json</a> for now.
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+    <title>ErabliCollecteur</title>
+    <script language="javascript" type="text/javascript">
+      function wsUri(path) {
+        var l = window.location;
+        return ((l.protocol === "https:") ? "wss://" : "ws://") + l.hostname + (((l.port != 80) && (l.port != 443)) ? ":" + l.port : "") + l.pathname + path;
+      }
+      var tanksElement;
+      var websocket;
+      function onLoad() {
+        tanksElement = document.getElementById("tanks");
+        console.log('Ready to open socket.');
+        openSocket();
+      }
+      function openSocket() {
+        websocket = new WebSocket(wsUri(""), "dashboard-stream");
+        websocket.onopen = function(evt) {
+          console.log('Socket opened.');
+        };
+        websocket.onclose = function(evt) {
+          console.log('Socket closed.');
+        };
+        websocket.onmessage = function(msg) {
+          console.log("Received message: %s", msg);
+          tanksElement.innerHTML = 'Data: ' + msg.data;
+        };
+        websocket.onerror = function(evt) {
+          console.console.error('Error:' + evt);
+        };
+      }
+      window.addEventListener("load", onLoad, false);
+    </script>
+    <style>
+    </style>
+  </head>
+  <body onload="onLoad()">
+    <h1>ErabliDash</h1>
+    See <a href="/data.json">data.json</a> for the raw data.
+    <h2>Tank Levels</h2>
+    <div id="tanks"/>
+  </body>
+</html>
