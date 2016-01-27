@@ -105,7 +105,7 @@ exports.Dashboard = function(config, WebSocketClient) {
     var deviceId = message.coreid;
     message.data = JSON.parse(message.data);
     var serialNo = message.data.noSerie;
-    var generationId = message.data.eGenTS;
+    var generationId = message.data.generation;
     return getDevice(deviceId).then(function(device) {
       eventsSinceStore++;
       if (device === undefined) {
