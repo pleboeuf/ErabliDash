@@ -7,20 +7,88 @@
     "filename": "data/dashboard.json"
   },
   "devices": [{
-    "id": "1f003f000747343337373738",
-    "name": "DeviceA"
+    "name": "EB-PV1",
+    "description": "Pompe et valve #1",
+    "id": "230021000447343233323032"
   }, {
-    "id": "3a0025000847343337373738",
-    "name": "DeviceB"
+    "name": "EB-PV2",
+    "description": "Pompe et valve #2",
+    "id": "330027001547343433313338"
   }, {
-    "id": "3a0037000c47343233323032",
-    "name": "DeviceC"
+    "name": "EB-PV3",
+    "description": "Pompe et valve #3",
+    "id": "3a0037000c47343233323032"
+  }, {
+    "name": "EB-RS1",
+    "description": "Réservoir de sève #1",
+    "id": "1f003f000747343337373738"
+  }, {
+    "name": "EB-RS2",
+    "description": "Réservoir de sève #2",
+    "id": "240045001447343338333633"
+  }, {
+    "name": "EB-RF2",
+    "description": "Réservoir de filtrat #2",
+    "id": "250024000d47343432313031"
+  }, {
+    "name": "EB-RSP1",
+    "description": "Réservoir de sève pump house #1",
+    "id": "3a0025000847343337373738"
+  }, {
+    "name": "EB-RSP2",
+    "description": "Réservoir de sève pump house #2",
+    "id": "2f0023000547343138333038"
   }],
   "tanks": [{
-    "name": "TankA",
-    "deviceName": "DeviceA"
+    "code": "RS1",
+    "name": "Réservoir de sève #1",
+    "device": "EB-RS1"
   }, {
-    "name": "TankB",
-    "deviceName": "DeviceB"
+    "code": "RS2",
+    "name": "Réservoir de sève #2",
+    "device": "EB-RS2"
+  }, {
+    "code": "RSP1",
+    "name": "Réservoir de sève pump house #1",
+    "device": "EB-RSP1"
+  }, {
+    "code": "RSP2",
+    "name": "Réservoir de sève pump house #2",
+    "device": "EB-RSP2"
+  }, {
+    "code": "RF2",
+    "name": "Réservoir de filtrat #2",
+    "device": "EB-RF2"
+  }],
+  "valves": [{
+    "code": "V1",
+    "device": "EB-PV1"
+  }, {
+    "code": "V2",
+    "device": "EB-PV2"
+  }, {
+    "code": "V3",
+    "device": "EB-PV3"
+  }, {
+    "code": "VaD3",
+    "device": "EB-RSP1"
+  }, {
+    "code": "VaD4",
+    "device": "EB-RSP2"
+  }, {
+    "code": "VaS1",
+    "device": "EB-RS1"
+  }, {
+    "code": "VaS2",
+    "device": "EB-RS2"
+  }, {
+    "code": "VaS3",
+    "device": "EB-RSP1"
+  }, {
+    "code": "VaS4",
+    "device": "EB-RSP2"
+  }, {
+    "code": "VaTK",
+    "device": "EB-RF2"
   }]
 }
