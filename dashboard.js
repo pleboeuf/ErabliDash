@@ -25,6 +25,7 @@ exports.Tank = function(attrs) {
     return Math.PI * Math.pow(self.diameter / 2, 2) * self.length;
   }
   self.getFill = function() {
+    // All measures in millimeters
     var h = self.sensorHeight - self.rawValue;
     var d = self.diameter;
     var r = d / 2;
@@ -33,6 +34,7 @@ exports.Tank = function(attrs) {
 }
 exports.Dashboard = function(config, WebSocketClient) {
   var Device = exports.Device;
+  var Tank = exports.Tank;
 
   var uri = config.collectors[0].uri;
   var filename = config.store.filename;
@@ -236,7 +238,12 @@ exports.Dashboard = function(config, WebSocketClient) {
   function getData() {
     return {
       "devices": devices,
-      "tanks": tanks,
+      "tanks": tanks.map(function(tank) {
+        tank = _.extend({}, tank);
+        tank.capacity = tank.getCapacity();
+        tank.fill = tank.getFill();
+        return tank;
+      }),
       "valves": valves
     };
   }
@@ -255,7 +262,8 @@ exports.Dashboard = function(config, WebSocketClient) {
         return tank.code == tankData.code;
       }).shift();
       console.log("Loading configured tank '%s' - '%s' with raw level of %s, last updated at %s", tank.code, tank.name, tank.rawValue, tank.lastUpdatedAt);
-      return _.extend(tank, _.omit(tankData, 'code', 'name', 'device'));
+      var attrsFromConfig = ['name', 'device', 'shape', 'orientation', 'length', 'diameter', 'sensorHeight'];
+      return new Tank(_.extend(tank, _.omit(tankData, attrsFromConfig)));
     });
     valves = config.valves.map(function(valve) {
       var valveData = data.valves.filter(function(valveData) {
