@@ -154,7 +154,11 @@ describe('Dashboard with tank A', function() {
     }],
     "tanks": [{
       "name": "Tank A",
-      "deviceName": "Device A"
+      "device": "Device A"
+    }],
+    "valves": [{
+      "code": "V1",
+      "device": "Device A"
     }]
   };
   var dashboard = require('../dashboard.js').Dashboard(config, ws);
@@ -175,4 +179,25 @@ describe('Dashboard with tank A', function() {
     });
   });
 
+});
+
+describe('Cylinder tank', function() {
+  var Tank = require('../dashboard.js').Tank;
+  var tank = new Tank({
+    "code": "T1",
+    "name": "Tank 1",
+    "device": "Device 1",
+    "shape": "cylinder",
+    "orientation": "horizontal",
+    "length": 1 / Math.PI,
+    "diameter": 2,
+    "sensorHeight": 2,
+    "rawValue": 1
+  });
+  it('should have a capacity', function() {
+    assert.equal(1, tank.getCapacity());
+  });
+  it('should be half capacity when half filled', function() {
+    assert.equal(0.5, tank.getFill());
+  });
 });

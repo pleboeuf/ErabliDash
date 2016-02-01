@@ -15,17 +15,30 @@
     var websocket;
     var chart;
     var chartData;
-    var options = {
-      width: 1200,
-      height: 300,
-      redFrom: 900,
-      redTo: 1000,
-      yellowFrom: 750,
-      yellowTo: 900,
-      minorTicks: 5,
-      max: 1000
-    };
-    var tankCodes = ['RS1', 'RS2', 'RSP1', 'RSP2', 'RF2'];
+
+    var tankDefs = [{
+      code: "RS1",
+      capacity: 22838471510,
+      capacity_gallons: 5500
+    }, {
+      code: "RS2",
+      capacity: 18671367473
+    }, {
+      code: "RSP1",
+      capacity: 1000
+    }, {
+      code: "RSP2",
+      capacity: 1000
+    }, {
+      code: "RF2",
+      capacity: 1000
+    }];
+
+    var litersPerGallon = 3.78541178;
+
+    function ml2gallons(ml) {
+      return Math.ceil(ml / 1000 / 1000 / litersPerGallon);
+    }
 
     function onLoad() {
       jsonElement = document.getElementById("json");
@@ -39,13 +52,30 @@
 
     function onChartLoad() {
       console.log('Google Charts loaded. Drawing gauge.');
-      chartData = google.visualization.arrayToDataTable([
-        ['Label', 'Value']
-      ].concat(tankCodes.map(function(code) {
-        return [code, 0];
-      })));
-      chart = new google.visualization.Gauge(document.getElementById('chart_div'));
-      chart.draw(chartData, options);
+      var chart_div = document.getElementById('chart_div');
+      tankDefs.forEach(function(tank) {
+        var gaugeDiv = document.createElement("div");
+        gaugeDiv.setAttribute('class', 'tankgauge');
+        chart_div.appendChild(gaugeDiv);
+        tank.chartData = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          [tank.code, 0]
+        ]);
+        tank.chart = new google.visualization.Gauge(gaugeDiv);
+        var max = ml2gallons(tank.capacity);
+        tank.options = {
+          width: 200,
+          height: 200,
+          redFrom: max * 0.9,
+          redTo: max,
+          yellowFrom: max * 0.75,
+          yellowTo: max * 0.9,
+          minorTicks: 5,
+          max: max
+        };
+        console.log("Tank %s capacity: ", tank.code, tank.capacity);
+        tank.chart.draw(tank.chartData, tank.options);
+      });
       console.log('Drawing done. Opening socket.');
       openSocket();
     }
@@ -62,14 +92,15 @@
         // console.log("Received message: " + msg.data);
         var data = JSON.parse(msg.data);
         jsonElement.innerHTML = '<pre>' + JSON.stringify(data, null, 4) + '</pre>';
-        tankCodes.forEach(function(code, index) {
-          var tank = data.tanks.filter(function(tank) {
-            return tank.code == code;
+        tankDefs.forEach(function(tankDef, index) {
+          var tank = data.tanks.filter(function(tankData) {
+            return tankData.code == tankDef.code;
           }).shift();
-          console.log("Tank %s at %d: %s", code, index, tank.rawValue);
-          chartData.setValue(index, 1, tank.rawValue);
+          console.log("Tank %s at %d: %s", tankDef.code, index, tank.fill);
+          var value = (tank.fill == null ? 0 : ml2gallons(tank.fill));
+          tankDef.chartData.setValue(0, 1, value);
+          tankDef.chart.draw(tankDef.chartData, tankDef.options);
         });
-        chart.draw(chartData, options);
       };
       websocket.onerror = function(evt) {
         console.console.error('Error:' + evt);
@@ -78,7 +109,8 @@
     window.addEventListener("load", onLoad, false);
   </script>
   <style>
-
+    .tankgauge {
+    }
   </style>
 </head>
 

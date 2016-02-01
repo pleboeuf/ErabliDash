@@ -42,23 +42,46 @@
   "tanks": [{
     "code": "RS1",
     "name": "Réservoir de sève #1",
-    "device": "EB-RS1"
+    "device": "EB-RS1",
+    "shape": "cylinder",
+    "orientation": "horizontal",
+    "length": 10668,
+    "diameter": 1651,
+    "sensorHeight": 1651
   }, {
     "code": "RS2",
     "name": "Réservoir de sève #2",
-    "device": "EB-RS2"
+    "device": "EB-RS2",
+    "shape": "cylinder",
+    "orientation": "horizontal",
+    "length": 7010.4,
+    "diameter": 1841.5,
+    "sensorHeight": 1841.5
   }, {
     "code": "RSP1",
     "name": "Réservoir de sève pump house #1",
-    "device": "EB-RSP1"
+    "device": "EB-RSP1",
+    "shape": "u",
+    "length": 3657.6,
+    "diameter": -1,
+    "sensorHeight": -1
   }, {
     "code": "RSP2",
     "name": "Réservoir de sève pump house #2",
-    "device": "EB-RSP2"
+    "device": "EB-RSP2",
+    "shape": "u",
+    "length": 3657.6,
+    "diameter": -1,
+    "sensorHeight": -1
   }, {
     "code": "RF2",
     "name": "Réservoir de filtrat #2",
-    "device": "EB-RF2"
+    "device": "EB-RF2",
+    "shape": "cylinder",
+    "orientation": "horizontal",
+    "length": 4267.2,
+    "diameter": 1841.5,
+    "sensorHeight": 1841.5
   }],
   "valves": [{
     "code": "V1",
