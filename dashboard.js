@@ -18,6 +18,19 @@ exports.Device = function(id, name, generationId, lastEventSerial) {
     return this;
   }
 }
+exports.Tank = function(attrs) {
+  var self = this;
+  _.extend(self, attrs);
+  self.getCapacity = function() {
+    return Math.PI * Math.pow(self.diameter / 2, 2) * self.length;
+  }
+  self.getFill = function() {
+    var h = self.sensorHeight - self.rawValue;
+    var d = self.diameter;
+    var r = d / 2;
+    return (Math.pow(d / 2, 2) * Math.acos((r - h) / r) - (r - h) * Math.sqrt(d * h - Math.pow(h, 2))) * self.length;
+  }
+}
 exports.Dashboard = function(config, WebSocketClient) {
   var Device = exports.Device;
 
