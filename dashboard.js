@@ -2,6 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const util = require('util');
 const Promise = require('promise');
+const _ = require('underscore');
+var readFile = Promise.denodeify(fs.readFile);
+var writeFile = Promise.denodeify(fs.writeFile);
 
 exports.Device = function(id, name, generationId, lastEventSerial) {
   this.id = id;
@@ -25,6 +28,7 @@ exports.Dashboard = function(config, WebSocketClient) {
   var eventsSinceStore = 0;
   var devices = [];
   var tanks = [];
+  var valves = [];
 
   var dir = path.dirname(filename);
   fs.exists(dir, function(exists) {
@@ -66,6 +70,7 @@ exports.Dashboard = function(config, WebSocketClient) {
 
   function requestEvents(device) {
     if (connection.connected) {
+      console.log("Requesting events from device %s (%s) at %s,%s", device.name, device.id, device.generationId, device.lastEventSerial);
       connection.sendUTF(JSON.stringify({
         "command": "query",
         "device": device.id,
@@ -87,24 +92,33 @@ exports.Dashboard = function(config, WebSocketClient) {
 
   function handleEvent(device, event) {
     var data = event.data;
-    tanks.forEach(function(tank) {
-      if (tank.deviceName == device.name) {
-        if (data.eName == "sensor/level") {
-          tank.rawValue = data.eData;
-          tank.lastUpdatedAt = event.published_at;
-        } else if (data.eName == "sensor/ambienTemp") {
-          tank.temperature = data.eData;
-        } else {
-          console.warn("Unknown data type for tank %s: %s", tank.name, data.eName);
+    var name = data.eName;
+    var value = data.eData;
+    if (name == "sensor/ambientTemp") {
+      device.ambientTemp = value;
+    } else if (name == "sensor/sensorTemp") {
+      device.sensorTemp = value;
+    } else if (data.eName == "sensor/enclosureTemp") {
+      device.enclosureTemp = value;
+    } else if (data.eName == "output/enclosureHeating") {
+      device.enclosureHeating = value;
+    } else {
+      tanks.forEach(function(tank) {
+        if (tank.device == device.name) {
+          if (data.eName == "sensor/level") {
+            tank.rawValue = data.eData;
+            tank.lastUpdatedAt = event.published_at;
+          } else {
+            console.warn("Unknown data type for tank %s: %s", tank.name, data.eName);
+          }
         }
-      }
-    });
+      });
+    }
     publishData();
     return Promise.resolve(null);
   }
 
   function publishData() {
-    console.log("Publishing data");
     listeners.forEach(function(listener) {
       listener.call(listener, getData());
     });
@@ -188,18 +202,18 @@ exports.Dashboard = function(config, WebSocketClient) {
   });
 
   function init() {
-    var readFile = Promise.denodeify(fs.readFile);
+    var configData = {
+      "devices": config.devices,
+      "tanks": config.tanks,
+      "valves": config.valves
+    }
     return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
       console.log("Loading " + filename);
-      return load(dashData);
+      return load(configData, dashData);
     }).catch(function(err) {
       if (err.errno == 34) {
         console.log("Dashboard data not found. Initializing.");
-        var initData = {
-          "devices": config.devices,
-          "tanks": config.tanks
-        }
-        return load(initData);
+        return load(configData, configData);
       } else {
         throw err;
       }
@@ -209,19 +223,37 @@ exports.Dashboard = function(config, WebSocketClient) {
   function getData() {
     return {
       "devices": devices,
-      "tanks": tanks
+      "tanks": tanks,
+      "valves": valves
     };
   }
 
-  function load(data) {
-    devices = data.devices.map(function(dev) {
-      return new Device(dev.id, dev.name, dev.generationId, dev.lastEventSerial);
+  function load(config, data) {
+    console.log(data);
+    devices = config.devices.map(function(dev) {
+      var deviceData = data.devices.filter(function(devData) {
+        return devData.id == dev.id;
+      }).shift();
+      console.log("Loading configured device '%s' - '%s' (%s) at %s,%s", dev.name, dev.description, dev.id, deviceData.generationId, deviceData.lastEventSerial);
+      return new Device(dev.id, dev.name, deviceData.generationId, deviceData.lastEventSerial);
     });
-    tanks = data.tanks;
+    tanks = config.tanks.map(function(tank) {
+      var tankData = data.tanks.filter(function(tankData) {
+        return tank.code == tankData.code;
+      }).shift();
+      console.log("Loading configured tank '%s' - '%s' with raw level of %s, last updated at %s", tank.code, tank.name, tank.rawValue, tank.lastUpdatedAt);
+      return _.extend(tank, _.omit(tankData, 'code', 'name', 'device'));
+    });
+    valves = config.valves.map(function(valve) {
+      var valveData = data.valves.filter(function(valveData) {
+        return valve.code == valveData.code;
+      }).shift();
+      console.log("Loading configured valve '%s' on device '%s'", valve.code, valve.device);
+      return _.extend(valve, _.omit(valveData, 'code', 'name', 'device'));
+    });
   }
 
   function store() {
-    var writeFile = Promise.denodeify(fs.writeFile);
     dataString = JSON.stringify(getData(), null, 2)
     var events = eventsSinceStore;
     console.log("Writing to %s after %d events.", filename, events);

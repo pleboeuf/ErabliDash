@@ -60,9 +60,35 @@
     "name": "Réservoir de filtrat #2",
     "device": "EB-RF2"
   }],
-  "valves":[
-  {
-    "name": ""
-  }
-  ]
+  "valves": [{
+    "code": "V1",
+    "device": "EB-PV1"
+  }, {
+    "code": "V2",
+    "device": "EB-PV2"
+  }, {
+    "code": "V3",
+    "device": "EB-PV3"
+  }, {
+    "code": "VaD3",
+    "device": "EB-RSP1"
+  }, {
+    "code": "VaD4",
+    "device": "EB-RSP2"
+  }, {
+    "code": "VaS1",
+    "device": "EB-RS1"
+  }, {
+    "code": "VaS2",
+    "device": "EB-RS2"
+  }, {
+    "code": "VaS3",
+    "device": "EB-RSP1"
+  }, {
+    "code": "VaS4",
+    "device": "EB-RSP2"
+  }, {
+    "code": "VaTK",
+    "device": "EB-RF2"
+  }]
 }
