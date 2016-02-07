@@ -99,6 +99,9 @@
       };
       websocket.onclose = function(evt) {
         console.log('Socket closed.');
+        setTimeout(function() {
+          openSocket();
+        }, 5000);
       };
       websocket.onmessage = function(msg) {
         // console.log("Received message: " + msg.data);
