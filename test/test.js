@@ -154,7 +154,9 @@ describe('Dashboard with tank A', function() {
     }],
     "tanks": [{
       "name": "Tank A",
-      "device": "Device A"
+      "device": "Device A",
+      "shape": "cylinder",
+      "orientation": "horizontal",
     }],
     "valves": [{
       "code": "V1",
@@ -189,15 +191,15 @@ describe('Cylinder tank', function() {
     "device": "Device 1",
     "shape": "cylinder",
     "orientation": "horizontal",
-    "length": 1 / Math.PI,
-    "diameter": 2,
-    "sensorHeight": 2,
-    "rawValue": 1
+    "length": 1000 / Math.PI,
+    "diameter": 2000,
+    "sensorHeight": 2000,
+    "rawValue": 1000
   });
   it('should have a capacity', function() {
-    assert.equal(1, tank.getCapacity());
+    assert.equal(1000, tank.getCapacity());
   });
   it('should be half capacity when half filled', function() {
-    assert.equal(0.5, tank.getFill());
+    assert.equal(500, tank.getFill());
   });
 });
