@@ -12,6 +12,7 @@
       return ((l.protocol === "https:") ? "wss://" : "ws://") + l.hostname + (((l.port != 80) && (l.port != 443)) ? ":" + l.port : "") + l.pathname + path;
     }
     var jsonElement;
+    var activityElement;
     var websocket;
     var chart;
     var chartData;
@@ -50,6 +51,7 @@
 
     function onLoad() {
       jsonElement = document.getElementById("json");
+      activityElement = document.getElementById("activity");
 
       google.charts.load('current', {
         'packages': ['gauge']
@@ -97,9 +99,13 @@
       };
       websocket.onclose = function(evt) {
         console.log('Socket closed.');
+        setTimeout(function() {
+          openSocket();
+        }, 5000);
       };
       websocket.onmessage = function(msg) {
         // console.log("Received message: " + msg.data);
+        showActivity();
         var data = JSON.parse(msg.data);
         jsonElement.innerHTML = '<pre>' + JSON.stringify(data, null, 4) + '</pre>';
         tankDefs.forEach(function(tankDef, index) {
@@ -117,16 +123,36 @@
         console.console.error('Error:' + evt);
       };
     }
+
+    function showActivity() {
+      activityElement.setAttribute('class', 'active');
+      setTimeout(function() {
+        activityElement.setAttribute('class', 'inactive');
+      }, 200);
+    }
+
     window.addEventListener("load", onLoad, false);
   </script>
   <style>
     .tankgauge {}
+
+    #activity {
+      display: inline;
+    }
+
+    .active {
+      background-color: green;
+    }
+
+    .inactive {
+      background-color: lightgray;
+    }
   </style>
 </head>
 
 <body>
   <h1>ErabliDash</h1> See <a href="/data.json">data.json</a> for the raw data.
-  <h2>Tank Levels</h2>
+  <h2><div id="activity" class="inactive">&nbsp;&nbsp;&nbsp;</div> Tank Levels</h2>
   <div id="chart_div" style="width: 400px; height: 120px;"></div>
   <div id="json" style="display: none" />
 </body>

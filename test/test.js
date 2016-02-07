@@ -203,3 +203,21 @@ describe('Cylinder tank', function() {
     assert.equal(500, tank.getFill());
   });
 });
+
+describe('U-shaped tank', function() {
+  var Tank = require('../dashboard.js').Tank;
+  var tank = new Tank({
+    "code": "T2",
+    "name": "Tank 2",
+    "device": "Device 2",
+    "shape": "u",
+    "length": 1000 / Math.PI,
+    "diameter": 2000,
+    "totalHeight": 1000 + 1000 * Math.PI,
+    "sensorHeight": 2000,
+    "rawValue": 1000
+  });
+  it('should have a capacity', function() {
+    assert.equal(2500, tank.getCapacity());
+  });
+});

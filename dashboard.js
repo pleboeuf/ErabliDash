@@ -23,20 +23,35 @@ var HorizontalCylindricTank = function(self) {
     return Math.PI * Math.pow(self.diameter / 2000, 2) * self.length;
   }
   self.getFill = function() {
-    // All measures in millimeters
-    var h = (self.sensorHeight - self.rawValue) / 1000;
-    var d = self.diameter / 1000;
-    var r = d / 2;
-    return (Math.pow(r, 2) * Math.acos((r - h) / r) - (r - h) * Math.sqrt(d * h - Math.pow(h, 2))) * self.length;
+    var h = self.sensorHeight - self.rawValue;
+    return HorizontalCylindricTank.getFill(h, self.diameter, self.length);
   }
+}
+HorizontalCylindricTank.getFill = function(level, diameter, length) {
+  // All measures in millimeters
+  var h = level / 1000;
+  var d = diameter / 1000;
+  var r = d / 2;
+  return (Math.pow(r, 2) * Math.acos((r - h) / r) - (r - h) * Math.sqrt(d * h - Math.pow(h, 2))) * length;
 }
 var UShapedTank = function(self) {
   self.getCapacity = function() {
-    return 1;
+    return getFill(self.totalHeight);
   }
   self.getFill = function() {
+    return getFill(self.sensorHeight - self.rawValue);
+  }
+  function getFill(level) {
     // All measures in millimeters
-    return 1;
+    return getBottomFill(level) + getTopFill(level);
+  }
+  function getBottomFill(level) {
+    level = Math.min(level, self.diameter / 2);
+    return HorizontalCylindricTank.getFill(level, self.diameter, self.length);
+  }
+  function getTopFill(level) {
+    level = Math.max(0, level - self.diameter / 2);
+    return self.diameter / 100 * self.length / 100 * level / 100;
   }
 }
 exports.Tank = function(attrs) {
