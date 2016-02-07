@@ -17,27 +17,35 @@
     var chartData;
 
     var tankDefs = [{
+      // Note: Capacity in Liters
       code: "RS1",
-      capacity: 22838471510,
+      capacity: 1,
       capacity_gallons: 5500
     }, {
       code: "RS2",
-      capacity: 18671367473
+      capacity: 1
     }, {
       code: "RSP1",
-      capacity: 1000
+      capacity: 1
     }, {
       code: "RSP2",
-      capacity: 1000
+      capacity: 1
+    }, {
+      code: "RF1",
+      capacity: 1
     }, {
       code: "RF2",
-      capacity: 1000
+      capacity: 1
+    }, {
+      code: "RC1",
+      capacity: 1
+    }, {
+      code: "RC2",
+      capacity: 1
     }];
 
-    var litersPerGallon = 3.78541178;
-
-    function ml2gallons(ml) {
-      return Math.ceil(ml / 1000 / 1000 / litersPerGallon);
+    function liters2gallons(liters) {
+      return Math.ceil(liters / 3.78541178);
     }
 
     function onLoad() {
@@ -48,6 +56,14 @@
       });
       google.charts.setOnLoadCallback(onChartLoad);
       console.log('Waiting for Google Charts to load.');
+    }
+
+    function setOptionsCapacity(options, capacity) {
+      options.redFrom = capacity * 0.9;
+      options.redTo = capacity;
+      options.yellowFrom = capacity * 0.75;
+      options.yellowTo = capacity * 0.9;
+      options.max = capacity;
     }
 
     function onChartLoad() {
@@ -62,17 +78,11 @@
           [tank.code, 0]
         ]);
         tank.chart = new google.visualization.Gauge(gaugeDiv);
-        var max = ml2gallons(tank.capacity);
         tank.options = {
           width: 200,
-          height: 200,
-          redFrom: max * 0.9,
-          redTo: max,
-          yellowFrom: max * 0.75,
-          yellowTo: max * 0.9,
-          minorTicks: 5,
-          max: max
+          height: 200
         };
+        setOptionsCapacity(tank.options, liters2gallons(tank.capacity));
         console.log("Tank %s capacity: ", tank.code, tank.capacity);
         tank.chart.draw(tank.chartData, tank.options);
       });
@@ -97,7 +107,8 @@
             return tankData.code == tankDef.code;
           }).shift();
           console.log("Tank %s at %d: %s", tankDef.code, index, tank.fill);
-          var value = (tank.fill == null ? 0 : ml2gallons(tank.fill));
+          setOptionsCapacity(tankDef.options, liters2gallons(tank.capacity));
+          var value = (tank.fill == null ? 0 : liters2gallons(tank.fill));
           tankDef.chartData.setValue(0, 1, value);
           tankDef.chart.draw(tankDef.chartData, tankDef.options);
         });
@@ -109,8 +120,7 @@
     window.addEventListener("load", onLoad, false);
   </script>
   <style>
-    .tankgauge {
-    }
+    .tankgauge {}
   </style>
 </head>
 

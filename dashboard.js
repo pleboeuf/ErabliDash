@@ -18,18 +18,36 @@ exports.Device = function(id, name, generationId, lastEventSerial) {
     return this;
   }
 }
-exports.Tank = function(attrs) {
-  var self = this;
-  _.extend(self, attrs);
+var HorizontalCylindricTank = function(self) {
   self.getCapacity = function() {
-    return Math.PI * Math.pow(self.diameter / 2, 2) * self.length;
+    return Math.PI * Math.pow(self.diameter / 2000, 2) * self.length;
   }
   self.getFill = function() {
     // All measures in millimeters
-    var h = self.sensorHeight - self.rawValue;
-    var d = self.diameter;
+    var h = (self.sensorHeight - self.rawValue) / 1000;
+    var d = self.diameter / 1000;
     var r = d / 2;
-    return (Math.pow(d / 2, 2) * Math.acos((r - h) / r) - (r - h) * Math.sqrt(d * h - Math.pow(h, 2))) * self.length;
+    return (Math.pow(r, 2) * Math.acos((r - h) / r) - (r - h) * Math.sqrt(d * h - Math.pow(h, 2))) * self.length;
+  }
+}
+var UShapedTank = function(self) {
+  self.getCapacity = function() {
+    return 1;
+  }
+  self.getFill = function() {
+    // All measures in millimeters
+    return 1;
+  }
+}
+exports.Tank = function(attrs) {
+  var self = this;
+  _.extend(self, attrs);
+  if (self.shape == 'cylinder' && self.orientation == 'horizontal') {
+    HorizontalCylindricTank(self);
+  } else if (self.shape == 'u') {
+    UShapedTank(self);
+  } else {
+    throw 'Unsupported tank (shape: ' + self.shape + ', ' + self.orientation + ')';
   }
 }
 exports.Dashboard = function(config, WebSocketClient) {
@@ -254,6 +272,9 @@ exports.Dashboard = function(config, WebSocketClient) {
       var deviceData = data.devices.filter(function(devData) {
         return devData.id == dev.id;
       }).shift();
+      if (!deviceData) {
+        deviceData = {};
+      }
       console.log("Loading configured device '%s' - '%s' (%s) at %s,%s", dev.name, dev.description, dev.id, deviceData.generationId, deviceData.lastEventSerial);
       return new Device(dev.id, dev.name, deviceData.generationId, deviceData.lastEventSerial);
     });
