@@ -67,13 +67,20 @@
         contentsElement.setAttribute('class', 'tankcontents');
         tankElement.appendChild(contentsElement);
 
-        document.getElementById('tanks').appendChild(tankElement);
+        // Add measured contents (percent)
+        var percentElement = document.createElement('td');
+        percentElement.setAttribute('id', 'tank_' + tank.code + '_percent');
+        percentElement.setAttribute('class', 'tankpercent');
+        tankElement.appendChild(percentElement);
+
+        document.getElementById('tanklist').appendChild(tankElement);
       });
     }
 
     function populateTankLabels() {
       tankDefs.forEach(function(tank) {
         document.getElementById('tank_' + tank.code + '_contents').innerHTML = liters2gallons(tank.contents);
+        document.getElementById('tank_' + tank.code + '_percent').innerHTML = (tank.contents / tank.capacity * 100).toFixed(0) + ' %';
       });
     }
 
@@ -85,7 +92,7 @@
         if (document.getElementById(deviceElemId) == null) {
           var deviceElem = document.createElement("tr");
           deviceElem.setAttribute('id', deviceElemId);
-          document.getElementById('devices').appendChild(deviceElem);
+          document.getElementById('devicelist').appendChild(deviceElem);
 
           var nameElement = document.createElement("td");
           nameElement.innerHTML = device.name;
@@ -128,6 +135,7 @@
             return tankData.code == tankDef.code;
           }).shift();
           tankDef.contents = (tank.fill == null ? 0 : liters2gallons(tank.fill));
+          tankDef.capacity = tank.capacity;
           console.log("Tank %s at %d: %s", tankDef.code, index, tankDef.contents);
           populateTankLabels();
 
@@ -153,8 +161,14 @@
       padding: 0.2em;
     }
 
-    .tankcontents {
+    .tankcontents,
+    .tankpercent {
       text-align: right;
+    }
+
+    #tanks {
+      float: left;
+      padding-right: 2em;
     }
   </style>
 </head>
@@ -162,20 +176,25 @@
 <body>
   <h1>ErabliDash (numeric)</h1>
   <div>See <a href="/data.json">data.json</a> for the raw data.</div>
-  <h3>Tanks</h3>
-  <table id="tanks">
-    <tr>
-      <th>Code</th>
-      <th>Gallons</th>
-    </tr>
-  </table>
-  <h3>Devices</h3>
-  <table id="devices">
-    <tr>
-      <th>Name</th>
-      <th>Last updated</th>
-    </tr>
-  </table>
+  <div id="tanks">
+    <h3>Tanks</h3>
+    <table id="tanklist">
+      <tr>
+        <th>Code</th>
+        <th>Gallons</th>
+        <th>%</th>
+      </tr>
+    </table>
+  </div>
+  <div id="devices">
+    <h3>Devices</h3>
+    <table id="devicelist">
+      <tr>
+        <th>Name</th>
+        <th>Last updated</th>
+      </tr>
+    </table>
+  </div>
 </body>
 
 </html>
