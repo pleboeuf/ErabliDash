@@ -39,6 +39,8 @@
       capacity: 1
     }];
 
+    var devices = [];
+
     function liters2gallons(liters) {
       return Math.ceil(liters / 3.78541178);
     }
@@ -74,6 +76,30 @@
       });
     }
 
+    function displayDevices() {
+      devices.forEach(function(device) {
+        var lastUpdatedAtElemId = 'device_' + device.name + '_lastUpdatedAt';
+        var lastUpdatedAtElem;
+        var deviceElemId = 'device_' + device.name;
+        if (document.getElementById(deviceElemId) == null) {
+          var deviceElem = document.createElement("tr");
+          deviceElem.setAttribute('id', deviceElemId);
+          document.getElementById('devices').appendChild(deviceElem);
+
+          var nameElement = document.createElement("td");
+          nameElement.innerHTML = device.name;
+          deviceElem.appendChild(nameElement);
+
+          lastUpdatedAtElem = document.createElement('td');
+          lastUpdatedAtElem.setAttribute('id', lastUpdatedAtElemId);
+          deviceElem.appendChild(lastUpdatedAtElem);
+        } else {
+          lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
+        }
+        lastUpdatedAtElem.innerHTML = device.lastEventSerial;
+      });
+    }
+
     function openSocket() {
       websocket = new WebSocket(wsUri(""), "dashboard-stream");
       websocket.onopen = function(evt) {
@@ -94,6 +120,9 @@
           tankDef.contents = (tank.fill == null ? 0 : liters2gallons(tank.fill));
           console.log("Tank %s at %d: %s", tankDef.code, index, tankDef.contents);
           populateTankLabels();
+
+          devices = data.devices;
+          displayDevices();
         });
       };
       websocket.onerror = function(evt) {
@@ -113,6 +142,7 @@
       border: 1px solid #DDD;
       padding: 0.2em;
     }
+
     .tankcontents {
       text-align: right;
     }
@@ -127,6 +157,13 @@
     <tr>
       <th>Code</th>
       <th>Gallons</th>
+    </tr>
+  </table>
+  <h3>Devices</h3>
+  <table id="devices">
+    <tr>
+      <th>Name</th>
+      <th>Last serial</th>
     </tr>
   </table>
 </body>
