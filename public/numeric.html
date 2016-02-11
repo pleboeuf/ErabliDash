@@ -67,6 +67,12 @@
         contentsElement.setAttribute('class', 'tankcontents');
         tankElement.appendChild(contentsElement);
 
+        // Add measured contents (percent)
+        var percentElement = document.createElement('td');
+        percentElement.setAttribute('id', 'tank_' + tank.code + '_percent');
+        percentElement.setAttribute('class', 'tankpercent');
+        tankElement.appendChild(percentElement);
+
         document.getElementById('tanks').appendChild(tankElement);
       });
     }
@@ -74,6 +80,7 @@
     function populateTankLabels() {
       tankDefs.forEach(function(tank) {
         document.getElementById('tank_' + tank.code + '_contents').innerHTML = liters2gallons(tank.contents);
+        document.getElementById('tank_' + tank.code + '_percent').innerHTML = (tank.contents / tank.capacity * 100).toFixed(0) + ' %';
       });
     }
 
@@ -128,6 +135,7 @@
             return tankData.code == tankDef.code;
           }).shift();
           tankDef.contents = (tank.fill == null ? 0 : liters2gallons(tank.fill));
+          tankDef.capacity = tank.capacity;
           console.log("Tank %s at %d: %s", tankDef.code, index, tankDef.contents);
           populateTankLabels();
 
@@ -153,7 +161,7 @@
       padding: 0.2em;
     }
 
-    .tankcontents {
+    .tankcontents, .tankpercent {
       text-align: right;
     }
   </style>
@@ -167,6 +175,7 @@
     <tr>
       <th>Code</th>
       <th>Gallons</th>
+      <th>%</th>
     </tr>
   </table>
   <h3>Devices</h3>
