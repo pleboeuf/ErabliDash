@@ -61,6 +61,12 @@
         nameElement.innerHTML = tank.code;
         tankElement.appendChild(nameElement);
 
+        // Add raw value (millimeters)
+        var rawValueElement = document.createElement('td');
+        rawValueElement.setAttribute('id', 'tank_' + tank.code + '_rawvalue');
+        rawValueElement.setAttribute('class', 'rawvalue');
+        tankElement.appendChild(rawValueElement);
+
         // Add measured contents (gallons)
         var contentsElement = document.createElement('td');
         contentsElement.setAttribute('id', 'tank_' + tank.code + '_contents');
@@ -79,6 +85,7 @@
 
     function populateTankLabels() {
       tankDefs.forEach(function(tank) {
+        document.getElementById('tank_' + tank.code + '_rawvalue').innerHTML = tank.rawValue;
         document.getElementById('tank_' + tank.code + '_contents').innerHTML = liters2gallons(tank.contents);
         document.getElementById('tank_' + tank.code + '_percent').innerHTML = (tank.contents / tank.capacity * 100).toFixed(0) + ' %';
       });
@@ -87,6 +94,8 @@
     function displayDevices() {
       devices.forEach(function(device) {
         var lastUpdatedAtElemId = 'device_' + device.name + '_lastUpdatedAt';
+        var generationElemId = 'device_' + device.name + '_generationId';
+        var serialElemId = 'device_' + device.name + '_serial';
         var lastUpdatedAtElem;
         var deviceElemId = 'device_' + device.name;
         if (document.getElementById(deviceElemId) == null) {
@@ -101,8 +110,18 @@
           lastUpdatedAtElem = document.createElement('td');
           lastUpdatedAtElem.setAttribute('id', lastUpdatedAtElemId);
           deviceElem.appendChild(lastUpdatedAtElem);
+
+          generationElem = document.createElement('td');
+          generationElem.setAttribute('id', generationElemId);
+          deviceElem.appendChild(generationElem);
+
+          serialElem = document.createElement('td');
+          serialElem.setAttribute('id', serialElemId);
+          deviceElem.appendChild(serialElem);
         } else {
           lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
+          generationElem = document.getElementById(generationElemId);
+          serialElem = document.getElementById(serialElemId);
         }
         var ageInMinutes = Math.floor(Math.abs((Date.now() - new Date(device.lastUpdatedAt).getTime()) / 1000 / 60));
         var ageDisplay = '';
@@ -114,6 +133,8 @@
           ageDisplay = ageInMinutes + ' minutes ago';
         }
         lastUpdatedAtElem.innerHTML = ageDisplay;
+        generationElem.innerHTML = device.generationId;
+        serialElem.innerHTML = device.lastEventSerial;
       });
     }
 
@@ -134,6 +155,7 @@
           var tank = data.tanks.filter(function(tankData) {
             return tankData.code == tankDef.code;
           }).shift();
+          tankDef.rawValue = tank.rawValue;
           tankDef.contents = (tank.fill == null ? 0 : liters2gallons(tank.fill));
           tankDef.capacity = tank.capacity;
           console.log("Tank %s at %d: %s", tankDef.code, index, tankDef.contents);
@@ -181,6 +203,7 @@
     <table id="tanklist">
       <tr>
         <th>Code</th>
+        <th>mm</th>
         <th>Gallons</th>
         <th>%</th>
       </tr>
@@ -192,6 +215,8 @@
       <tr>
         <th>Name</th>
         <th>Last updated</th>
+        <th>Generation</th>
+        <th>Serial</th>
       </tr>
     </table>
   </div>
