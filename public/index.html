@@ -73,6 +73,7 @@
       var chart_div = document.getElementById('chart_div');
       tankDefs.forEach(function(tank) {
         var gaugeDiv = document.createElement("div");
+        gaugeDiv.setAttribute('id', 'tank_' + tank.code + '_gauge');
         gaugeDiv.setAttribute('class', 'tankgauge');
         chart_div.appendChild(gaugeDiv);
         tank.chartData = google.visualization.arrayToDataTable([
@@ -85,7 +86,6 @@
           height: 200
         };
         setOptionsCapacity(tank.options, liters2gallons(tank.capacity));
-        console.log("Tank %s capacity: ", tank.code, tank.capacity);
         tank.chart.draw(tank.chartData, tank.options);
       });
       console.log('Drawing done. Opening socket.');
@@ -128,7 +128,7 @@
       activityElement.setAttribute('class', 'active');
       setTimeout(function() {
         activityElement.setAttribute('class', 'inactive');
-      }, 200);
+      }, 5000);
     }
 
     window.addEventListener("load", onLoad, false);
@@ -151,7 +151,7 @@
 </head>
 
 <body>
-  <h1>ErabliDash</h1> See <a href="/data.json">data.json</a> for the raw data.
+  <h1>ErabliDash</h1> See <a href="/data.json">data.json</a> for the raw data, or go to the <a href="/numeric.html">numeric view</a>.
   <h2><div id="activity" class="inactive">&nbsp;&nbsp;&nbsp;</div> Tank Levels</h2>
   <div id="chart_div" style="width: 400px; height: 120px;"></div>
   <div id="json" style="display: none" />
