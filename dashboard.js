@@ -142,6 +142,7 @@ exports.Dashboard = function(config, WebSocketClient) {
     var data = event.data;
     var name = data.eName;
     var value = data.eData;
+    device.lastUpdatedAt = event.published_at;
     if (name == "sensor/ambientTemp") {
       device.ambientTemp = value;
     } else if (name == "sensor/sensorTemp") {

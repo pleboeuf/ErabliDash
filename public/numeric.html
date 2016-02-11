@@ -48,6 +48,7 @@
     function onLoad() {
       createTankLabels();
       openSocket();
+      setTimeout(displayDevices, 10000);
     }
 
     function createTankLabels() {
@@ -96,7 +97,16 @@
         } else {
           lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
         }
-        lastUpdatedAtElem.innerHTML = device.lastEventSerial;
+        var ageInMinutes = Math.floor(Math.abs((Date.now() - new Date(device.lastUpdatedAt).getTime()) / 1000 / 60));
+        var ageDisplay = '';
+        if (ageInMinutes == 0) {
+          ageDisplay = 'now';
+        } else if (ageInMinutes == 1) {
+          ageDisplay = 'one minute ago';
+        } else if (ageInMinutes > 1) {
+          ageDisplay = ageInMinutes + ' minutes ago';
+        }
+        lastUpdatedAtElem.innerHTML = ageDisplay;
       });
     }
 
@@ -163,7 +173,7 @@
   <table id="devices">
     <tr>
       <th>Name</th>
-      <th>Last serial</th>
+      <th>Last updated</th>
     </tr>
   </table>
 </body>
