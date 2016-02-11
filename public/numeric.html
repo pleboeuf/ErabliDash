@@ -1,0 +1,134 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>ErabliDash (numeric)</title>
+  <script language="javascript" type="text/javascript">
+    function wsUri(path) {
+      var l = window.location;
+      return ((l.protocol === "https:") ? "wss://" : "ws://") + l.hostname + (((l.port != 80) && (l.port != 443)) ? ":" + l.port : "") + l.pathname + path;
+    }
+    var jsonElement;
+    var websocket;
+
+    var tankDefs = [{
+      // Note: Capacity in Liters
+      code: "RS1",
+      capacity: 1,
+    }, {
+      code: "RS2",
+      capacity: 1
+    }, {
+      code: "RSP1",
+      capacity: 1
+    }, {
+      code: "RSP2",
+      capacity: 1
+    }, {
+      code: "RF1",
+      capacity: 1
+    }, {
+      code: "RF2",
+      capacity: 1
+    }, {
+      code: "RC1",
+      capacity: 1
+    }, {
+      code: "RC2",
+      capacity: 1
+    }];
+
+    function liters2gallons(liters) {
+      return Math.ceil(liters / 3.78541178);
+    }
+
+    function onLoad() {
+      createTankLabels();
+      openSocket();
+    }
+
+    function createTankLabels() {
+      tankDefs.forEach(function(tank) {
+        var tankElement = document.createElement("tr");
+
+        // Add tank name
+        var nameElement = document.createElement("td");
+        nameElement.setAttribute('class', 'tankname');
+        nameElement.innerHTML = tank.code;
+        tankElement.appendChild(nameElement);
+
+        // Add measured contents (gallons)
+        var contentsElement = document.createElement('td');
+        contentsElement.setAttribute('id', 'tank_' + tank.code + '_contents');
+        contentsElement.setAttribute('class', 'tankcontents');
+        tankElement.appendChild(contentsElement);
+
+        document.getElementById('tanks').appendChild(tankElement);
+      });
+    }
+
+    function populateTankLabels() {
+      tankDefs.forEach(function(tank) {
+        document.getElementById('tank_' + tank.code + '_contents').innerHTML = liters2gallons(tank.contents);
+      });
+    }
+
+    function openSocket() {
+      websocket = new WebSocket(wsUri(""), "dashboard-stream");
+      websocket.onopen = function(evt) {
+        console.log('Socket opened.');
+      };
+      websocket.onclose = function(evt) {
+        console.log('Socket closed.');
+        setTimeout(function() {
+          openSocket();
+        }, 5000);
+      };
+      websocket.onmessage = function(msg) {
+        var data = JSON.parse(msg.data);
+        tankDefs.forEach(function(tankDef, index) {
+          var tank = data.tanks.filter(function(tankData) {
+            return tankData.code == tankDef.code;
+          }).shift();
+          tankDef.contents = (tank.fill == null ? 0 : liters2gallons(tank.fill));
+          console.log("Tank %s at %d: %s", tankDef.code, index, tankDef.contents);
+          populateTankLabels();
+        });
+      };
+      websocket.onerror = function(evt) {
+        console.console.error('Error:' + evt);
+      };
+    }
+    window.addEventListener("load", onLoad, false);
+  </script>
+  <style>
+    table {
+      border-collapse: collapse;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid #DDD;
+      padding: 0.2em;
+    }
+    .tankcontents {
+      text-align: right;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>ErabliDash (numeric)</h1>
+  <div>See <a href="/data.json">data.json</a> for the raw data.</div>
+  <h3>Tanks</h3>
+  <table id="tanks">
+    <tr>
+      <th>Code</th>
+      <th>Gallons</th>
+    </tr>
+  </table>
+</body>
+
+</html>

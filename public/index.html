@@ -58,6 +58,30 @@
       });
       google.charts.setOnLoadCallback(onChartLoad);
       console.log('Waiting for Google Charts to load.');
+      populateTankLabels();
+    }
+
+    function populateTankLabels() {
+      tankDefs.forEach(function(tank) {
+        var valueDiv = document.getElementById('tank_' + tank.code + '_value');
+        if (valueDiv === undefined) {
+          var gaugeDiv = document.getElementById('tank_' + tank.code + '_value');
+          valueDiv = document.createElement("div");
+        }
+        chart_div.appendChild(gaugeDiv);
+        tank.chartData = google.visualization.arrayToDataTable([
+          ['Label', 'Value'],
+          [tank.code, 0]
+        ]);
+        tank.chart = new google.visualization.Gauge(gaugeDiv);
+        tank.options = {
+          width: 200,
+          height: 200
+        };
+        setOptionsCapacity(tank.options, liters2gallons(tank.capacity));
+        //console.log("Tank %s capacity: ", tank.code, tank.capacity);
+        tank.chart.draw(tank.chartData, tank.options);
+      });
     }
 
     function setOptionsCapacity(options, capacity) {
@@ -73,6 +97,7 @@
       var chart_div = document.getElementById('chart_div');
       tankDefs.forEach(function(tank) {
         var gaugeDiv = document.createElement("div");
+        gaugeDiv.setAttribute('id', 'tank_' + tank.code + '_gauge');
         gaugeDiv.setAttribute('class', 'tankgauge');
         chart_div.appendChild(gaugeDiv);
         tank.chartData = google.visualization.arrayToDataTable([
@@ -85,7 +110,7 @@
           height: 200
         };
         setOptionsCapacity(tank.options, liters2gallons(tank.capacity));
-        console.log("Tank %s capacity: ", tank.code, tank.capacity);
+        //console.log("Tank %s capacity: ", tank.code, tank.capacity);
         tank.chart.draw(tank.chartData, tank.options);
       });
       console.log('Drawing done. Opening socket.');
@@ -128,7 +153,7 @@
       activityElement.setAttribute('class', 'active');
       setTimeout(function() {
         activityElement.setAttribute('class', 'inactive');
-      }, 200);
+      }, 5000);
     }
 
     window.addEventListener("load", onLoad, false);
