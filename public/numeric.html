@@ -87,6 +87,8 @@
     function displayDevices() {
       devices.forEach(function(device) {
         var lastUpdatedAtElemId = 'device_' + device.name + '_lastUpdatedAt';
+        var generationElemId = 'device_' + device.name + '_generationId';
+        var serialElemId = 'device_' + device.name + '_serial';
         var lastUpdatedAtElem;
         var deviceElemId = 'device_' + device.name;
         if (document.getElementById(deviceElemId) == null) {
@@ -101,8 +103,18 @@
           lastUpdatedAtElem = document.createElement('td');
           lastUpdatedAtElem.setAttribute('id', lastUpdatedAtElemId);
           deviceElem.appendChild(lastUpdatedAtElem);
+
+          generationElem = document.createElement('td');
+          generationElem.setAttribute('id', generationElemId);
+          deviceElem.appendChild(generationElem);
+
+          serialElem = document.createElement('td');
+          serialElem.setAttribute('id', serialElemId);
+          deviceElem.appendChild(serialElem);
         } else {
           lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
+          generationElem = document.getElementById(generationElemId);
+          serialElem = document.getElementById(serialElemId);
         }
         var ageInMinutes = Math.floor(Math.abs((Date.now() - new Date(device.lastUpdatedAt).getTime()) / 1000 / 60));
         var ageDisplay = '';
@@ -114,6 +126,8 @@
           ageDisplay = ageInMinutes + ' minutes ago';
         }
         lastUpdatedAtElem.innerHTML = ageDisplay;
+        generationElem.innerHTML = device.generationId;
+        serialElem.innerHTML = device.lastEventSerial;
       });
     }
 
@@ -192,6 +206,8 @@
       <tr>
         <th>Name</th>
         <th>Last updated</th>
+        <th>Generation</th>
+        <th>Serial</th>
       </tr>
     </table>
   </div>
