@@ -61,6 +61,12 @@
         nameElement.innerHTML = tank.code;
         tankElement.appendChild(nameElement);
 
+        // Add raw value (millimeters)
+        var rawValueElement = document.createElement('td');
+        rawValueElement.setAttribute('id', 'tank_' + tank.code + '_rawvalue');
+        rawValueElement.setAttribute('class', 'rawvalue');
+        tankElement.appendChild(rawValueElement);
+
         // Add measured contents (gallons)
         var contentsElement = document.createElement('td');
         contentsElement.setAttribute('id', 'tank_' + tank.code + '_contents');
@@ -79,6 +85,7 @@
 
     function populateTankLabels() {
       tankDefs.forEach(function(tank) {
+        document.getElementById('tank_' + tank.code + '_rawvalue').innerHTML = tank.rawValue;
         document.getElementById('tank_' + tank.code + '_contents').innerHTML = liters2gallons(tank.contents);
         document.getElementById('tank_' + tank.code + '_percent').innerHTML = (tank.contents / tank.capacity * 100).toFixed(0) + ' %';
       });
@@ -148,6 +155,7 @@
           var tank = data.tanks.filter(function(tankData) {
             return tankData.code == tankDef.code;
           }).shift();
+          tankDef.rawValue = tank.rawValue;
           tankDef.contents = (tank.fill == null ? 0 : liters2gallons(tank.fill));
           tankDef.capacity = tank.capacity;
           console.log("Tank %s at %d: %s", tankDef.code, index, tankDef.contents);
@@ -195,6 +203,7 @@
     <table id="tanklist">
       <tr>
         <th>Code</th>
+        <th>mm</th>
         <th>Gallons</th>
         <th>%</th>
       </tr>
