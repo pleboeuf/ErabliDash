@@ -76,7 +76,7 @@
     "shape": "u",
     "length": 3657,
     "diameter": 1219,
-    "totalHeigth": 1067,
+    "totalHeight": 1067,
     "sensorHeight": 1130
   }, {
     "code": "RSP2",
@@ -85,7 +85,7 @@
     "shape": "u",
     "length": 3657,
     "diameter": 1219,
-    "totalHeigth": 1067,
+    "totalHeight": 1067,
     "sensorHeight": 1130
   }, {
     "code": "RF1",
@@ -94,7 +94,7 @@
     "shape": "u",
     "length": 4877,
     "diameter": 1524,
-    "totalHeigth": 1676,
+    "totalHeight": 1676,
     "sensorHeight": 1740
   }, {
     "code": "RF2",
@@ -112,7 +112,7 @@
     "shape": "u",
     "length": 3658,
     "diameter": 914,
-    "totalHeigth": 1219,
+    "totalHeight": 1219,
     "sensorHeight": 1283
   }, {
     "code": "RC2",
@@ -121,7 +121,7 @@
     "shape": "u",
     "length": 3658,
     "diameter": 914,
-    "totalHeigth": 1219,
+    "totalHeight": 1219,
     "sensorHeight": 1283
   }],
   "valves": [{

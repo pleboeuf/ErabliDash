@@ -299,7 +299,7 @@ exports.Dashboard = function(config, WebSocketClient) {
         return tank.code == tankData.code;
       }).shift();
       console.log("Loading configured tank '%s' - '%s' with raw level of %s, last updated at %s", tank.code, tank.name, tank.rawValue, tank.lastUpdatedAt);
-      var attrsFromConfig = ['name', 'device', 'shape', 'orientation', 'length', 'diameter', 'sensorHeight'];
+      var attrsFromConfig = ['name', 'device', 'shape', 'orientation', 'length', 'diameter', 'sensorHeight', 'totalHeight'];
       return new Tank(_.extend(tank, _.omit(tankData, attrsFromConfig)));
     });
     valves = config.valves.map(function(valve) {
