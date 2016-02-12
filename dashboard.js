@@ -141,10 +141,24 @@ exports.Dashboard = function(config, WebSocketClient) {
     setTimeout(connect, connectBackoff);
   }
 
-  function getValve(device, identifier) {
-    return valves.filter(function(valve) {
+  function getValveOfDevice(device, identifier) {
+    var valve = valves.filter(function(valve) {
       return valve.device == device.name && valve.identifier == identifier;
-    });
+    }).shift();
+    if (valve === undefined) {
+      throw "Device " + device.name + " has no valve with identifier " + identifier;
+    }
+    return valve;
+  }
+  
+  function getValveByCode(code) {
+    var valve = valves.filter(function(valve) {
+      return valve.code == code;
+    }).shift();
+    if (valve === undefined) {
+      throw "No valve with code " + code + " is defined";
+    }
+    return valve;
   }
 
   function handleEvent(device, event) {
@@ -161,13 +175,13 @@ exports.Dashboard = function(config, WebSocketClient) {
     } else if (name == "output/enclosureHeating") {
       device.enclosureHeating = value;
     } else if (name == "sensor/openSensorV1") {
-      getValve(device, 1).position = 1;
+      getValveOfDevice(device, 1).position = 1;
     } else if (name == "sensor/closeSensorV1") {
-      getValve(device, 1).position = 0;
+      getValveOfDevice(device, 1).position = 0;
     } else if (name == "sensor/openSensorV2") {
-      getValve(device, 2).position = 1;
+      getValveOfDevice(device, 2).position = 1;
     } else if (name == "sensor/closeSensorV2") {
-      getValve(device, 2).position = 0;
+      getValveOfDevice(device, 2).position = 0;
     } else if (name == "sensor/level") {
       tanks.forEach(function(tank) {
         if (tank.device == device.name) {
@@ -251,7 +265,7 @@ exports.Dashboard = function(config, WebSocketClient) {
     });
     connection.on('message', function(message) {
       if (message.type === 'utf8') {
-        console.log("Received: '" + message.utf8Data + "'");
+        //console.log("Received: '" + message.utf8Data + "'");
         try {
           return handleMessage(JSON.parse(message.utf8Data)).catch(function(err) {
             console.error(err);
@@ -380,6 +394,7 @@ exports.Dashboard = function(config, WebSocketClient) {
     },
     "getDevice": getDevice,
     "getTank": getTank,
+    "getValve": getValveByCode,
     "getData": getData,
     "getEventsSinceStore": function() {
       return eventsSinceStore;

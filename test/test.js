@@ -158,10 +158,7 @@ describe('Dashboard with tank A', function() {
       "shape": "cylinder",
       "orientation": "horizontal",
     }],
-    "valves": [{
-      "code": "V1",
-      "device": "Device A"
-    }]
+    "valves": []
   };
   var dashboard = require('../dashboard.js').Dashboard(config, ws);
 
@@ -234,5 +231,48 @@ describe('U-shaped tank', function() {
     tank.diameter = 1219;
     tank.length = 3657;
     assert.equal(4174, Math.ceil(tank.getCapacity()));
+  });
+});
+
+describe('Dashboard with valve', function() {
+  var ws = makeWsClient();
+  var config = {
+    "collectors": [{
+      "uri": 'ws://localhost/'
+    }],
+    "store": {
+      "filename": "/tmp/dashboard.json"
+    },
+    "devices": [{
+      "id": "1",
+      "name": "Device A"
+    }],
+    "tanks": [],
+    "valves": [{
+      "code": "V1",
+      "device": "Device A",
+      "identifier": 1
+    }]
+  };
+  var dashboard = require('../dashboard.js').Dashboard(config, ws);
+  it('should have undefined position at the beginning', function() {
+    return dashboard.init().then(function(connection) {
+      var valve = dashboard.getValve("V1");
+      assert.equal(undefined, valve.position);
+    });
+  });
+  it('should have a closed position after a close event', function() {
+    var msg = makeMessage(1, 1, 1, {
+      "eName": "sensor/closeSensorV1",
+      "eData": 0,
+    });
+    return dashboard.init().then(function(connection) {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(msg).then(function() {
+          var valve = dashboard.getValve("V1");
+          assert.equal(0, valve.position);
+        });
+      });
+    });
   });
 });
