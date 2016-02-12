@@ -41,14 +41,17 @@ var UShapedTank = function(self) {
   self.getFill = function() {
     return getFill(self.sensorHeight - self.rawValue);
   }
+
   function getFill(level) {
     // All measures in millimeters
     return getBottomFill(level) + getTopFill(level);
   }
+
   function getBottomFill(level) {
     level = Math.min(level, self.diameter / 2);
     return HorizontalCylindricTank.getFill(level, self.diameter, self.length);
   }
+
   function getTopFill(level) {
     level = Math.max(0, level - self.diameter / 2);
     return self.diameter / 100 * self.length / 100 * level / 100;
@@ -138,6 +141,12 @@ exports.Dashboard = function(config, WebSocketClient) {
     setTimeout(connect, connectBackoff);
   }
 
+  function getValve(device, identifier) {
+    return valves.filter(function(valve) {
+      return valve.device == device.name && valve.identifier == identifier;
+    });
+  }
+
   function handleEvent(device, event) {
     var data = event.data;
     var name = data.eName;
@@ -147,21 +156,27 @@ exports.Dashboard = function(config, WebSocketClient) {
       device.ambientTemp = value;
     } else if (name == "sensor/sensorTemp") {
       device.sensorTemp = value;
-    } else if (data.eName == "sensor/enclosureTemp") {
+    } else if (name == "sensor/enclosureTemp") {
       device.enclosureTemp = value;
-    } else if (data.eName == "output/enclosureHeating") {
+    } else if (name == "output/enclosureHeating") {
       device.enclosureHeating = value;
-    } else {
+    } else if (name == "sensor/openSensorV1") {
+      getValve(device, 1).position = 1;
+    } else if (name == "sensor/closeSensorV1") {
+      getValve(device, 1).position = 0;
+    } else if (name == "sensor/openSensorV2") {
+      getValve(device, 2).position = 1;
+    } else if (name == "sensor/closeSensorV2") {
+      getValve(device, 2).position = 0;
+    } else if (name == "sensor/level") {
       tanks.forEach(function(tank) {
         if (tank.device == device.name) {
-          if (data.eName == "sensor/level") {
-            tank.rawValue = data.eData;
-            tank.lastUpdatedAt = event.published_at;
-          } else {
-            console.warn("Unknown data type for tank %s: %s", tank.name, data.eName);
-          }
+          tank.rawValue = data.eData;
+          tank.lastUpdatedAt = event.published_at;
         }
       });
+    } else {
+      console.warn("Unknown event name from %s: %s", device.name, data.eName);
     }
     publishData();
     return Promise.resolve(null);
