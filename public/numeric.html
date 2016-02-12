@@ -40,9 +40,10 @@
     }];
 
     var devices = [];
+    var valves = [];
 
     function liters2gallons(liters) {
-      return Math.ceil(liters / 3.78541178);
+      return Math.ceil(liters / 4.54609188);
     }
 
     function onLoad() {
@@ -145,6 +146,30 @@
       });
     }
 
+    function displayValves() {
+      valves.forEach(function(valve) {
+        var positionElem;
+        var positionElemId = 'valve_' + valve.code + '_position';
+        var valveElemId = 'valve_' + valve.code;
+        if (document.getElementById(valveElemId) == null) {
+          var valveElem = document.createElement("tr");
+          valveElem.setAttribute('id', valveElemId);
+          document.getElementById('valvelist').appendChild(valveElem);
+
+          var codeElement = document.createElement("td");
+          codeElement.innerHTML = valve.code;
+          valveElem.appendChild(codeElement);
+
+          positionElem = document.createElement('td');
+          positionElem.setAttribute('id', positionElemId);
+          valveElem.appendChild(positionElem);
+        } else {
+          positionElem = document.getElementById(positionElemId);
+        }
+        positionElem.innerHTML = valve.position;
+      });
+    }
+
     function openSocket() {
       websocket = new WebSocket(wsUri(""), "dashboard-stream");
       websocket.onopen = function(evt) {
@@ -169,7 +194,9 @@
           populateTankLabels();
 
           devices = data.devices;
+          valves = data.valves;
           displayDevices();
+          displayValves();
         });
       };
       websocket.onerror = function(evt) {
@@ -195,7 +222,7 @@
       text-align: right;
     }
 
-    #tanks {
+    #tanks, #valves {
       float: left;
       padding-right: 2em;
     }
@@ -205,15 +232,28 @@
 <body>
   <h1>ErabliDash (numeric)</h1>
   <div>See <a href="/data.json">data.json</a> for the raw data.</div>
+  <div id="valves">
+    <h3>Valves</h3>
+    <table id="valvelist">
+      <tr>
+        <th>Name</th>
+        <th>Position</th>
+      </tr>
+    </table>
+  </div>
   <div id="tanks">
     <h3>Tanks</h3>
     <table id="tanklist">
       <tr>
         <th>Code</th>
-        <th>Reading<br/>(mm)</th>
-        <th>Capacity<br/>(gal)</th>
-        <th>Contents<br/>(gal)</th>
-        <th>Contents<br/>(%)</th>
+        <th>Reading
+          <br/>(mm)</th>
+        <th>Capacity
+          <br/>(gal)</th>
+        <th>Contents
+          <br/>(gal)</th>
+        <th>Contents
+          <br/>(%)</th>
       </tr>
     </table>
   </div>
