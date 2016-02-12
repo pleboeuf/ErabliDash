@@ -220,4 +220,19 @@ describe('U-shaped tank', function() {
   it('should have a capacity', function() {
     assert.equal(2500, tank.getCapacity());
   });
+  it('should be empty when raw value equals to sensor height', function() {
+    tank.rawValue = tank.sensorHeight;
+    assert.equal(0, tank.getFill());
+  });
+  it('should be full when raw value equals sensor height minus total height', function() {
+    tank.rawValue = tank.sensorHeight - tank.totalHeight;
+    assert.equal(tank.getCapacity(), tank.getFill());
+  });
+  it('should have expected capacity', function() {
+    tank.sensorHeight = 1130;
+    tank.totalHeight = 1067;
+    tank.diameter = 1219;
+    tank.length = 3657;
+    assert.equal(4174, Math.ceil(tank.getCapacity()));
+  });
 });
