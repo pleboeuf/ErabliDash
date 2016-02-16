@@ -68,6 +68,13 @@ exports.Tank = function(attrs) {
     throw 'Unsupported tank (shape: ' + self.shape + ', ' + self.orientation + ')';
   }
 }
+exports.VacuumSensor = function(attrs) {
+  var self = this;
+  _.extend(self, attrs);
+  self.getValue = function() {
+    return self.value;
+  }
+}
 exports.Dashboard = function(config, WebSocketClient) {
   var Device = exports.Device;
   var Tank = exports.Tank;
@@ -80,6 +87,7 @@ exports.Dashboard = function(config, WebSocketClient) {
   var devices = [];
   var tanks = [];
   var valves = [];
+  var vacuumSensors = [];
 
   var dir = path.dirname(filename);
   fs.exists(dir, function(exists) {
@@ -150,7 +158,7 @@ exports.Dashboard = function(config, WebSocketClient) {
     }
     return valve;
   }
-  
+
   function getValveByCode(code) {
     var valve = valves.filter(function(valve) {
       return valve.code == code;
@@ -283,7 +291,8 @@ exports.Dashboard = function(config, WebSocketClient) {
     var configData = {
       "devices": config.devices,
       "tanks": config.tanks,
-      "valves": config.valves
+      "valves": config.valves,
+      "vacuum": config.vacuum
     }
     return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
       console.log("Loading " + filename);
@@ -307,7 +316,8 @@ exports.Dashboard = function(config, WebSocketClient) {
         tank.fill = tank.getFill();
         return tank;
       }),
-      "valves": valves
+      "valves": valves,
+      "vacuum": vacuumSensors
     };
   }
 
@@ -337,6 +347,16 @@ exports.Dashboard = function(config, WebSocketClient) {
       }).shift();
       console.log("Loading configured valve '%s' on device '%s'", valve.code, valve.device);
       return _.extend(valve, _.omit(valveData, 'code', 'name', 'device'));
+    });
+    vacuumSensors = config.vacuum.map(function(sensor) {
+      if (!data.vacuum) {
+        return sensor;
+      }
+      var sensorData = data.vacuum.filter(function(sensorData) {
+        return sensorConfig.code == sensorData.code;
+      }).shift();
+      console.log("Loading configured vacuum sensor '%s' on device '%s'", sensor.code, sensor.device);
+      return _.extend(sensor, _.omit(sensorData, 'code', 'device'));
     });
   }
 
