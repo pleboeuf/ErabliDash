@@ -59,7 +59,7 @@
     "orientation": "horizontal",
     "length": 10718,
     "diameter": 1651,
-    "sensorHeight": 1829
+    "sensorHeight": 1733
   }, {
     "code": "RS2",
     "name": "Réservoir de sève #2",
@@ -68,7 +68,7 @@
     "orientation": "horizontal",
     "length": 7010,
     "diameter": 1842,
-    "sensorHeight": 1981
+    "sensorHeight": 1813
   }, {
     "code": "RSP1",
     "name": "Réservoir de sève pump house #1",
@@ -111,18 +111,18 @@
     "device": "EB-RC1",
     "shape": "u",
     "length": 3658,
-    "diameter": 914,
-    "totalHeight": 1219,
-    "sensorHeight": 1283
+    "diameter": 1219,
+    "totalHeight": 914,
+    "sensorHeight": 986
   }, {
     "code": "RC2",
     "name": "Réservoir de concentré #2",
     "device": "EB-RC2",
     "shape": "u",
     "length": 3658,
-    "diameter": 914,
-    "totalHeight": 1219,
-    "sensorHeight": 1283
+    "diameter": 1219,
+    "totalHeight": 914,
+    "sensorHeight": 968
   }],
   "valves": [{
     "code": "VaS1",
@@ -139,11 +139,11 @@
   }, {
     "code": "VaF2",
     "device": "EB-RF2",
-    "identifier": 2
+    "identifier": 1
   }, {
     "code": "VaEC",
     "device": "EB-RF2",
-    "identifier": 1
+    "identifier": 2
   }, {
     "code": "VaS3",
     "device": "EB-RSP1",
