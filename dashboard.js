@@ -203,15 +203,19 @@ exports.Dashboard = function(config, WebSocketClient) {
     } else if (name == "output/enclosureHeating") {
       device.enclosureHeating = value;
     } else if (name == "sensor/vacuum") {
-      device.vacuum = value /100;
+      device.vacuumValue = value / 100;
+    }else if (name == "pump/T1") {
+      device.pumpState = (value == 0 ? "Marche": "Arrêt");
+    }else if (name == "pump/T2") {
+      device.pumpState = (value == 1 ? "Arrêt": device.pumpState);
     } else if (name == "sensor/openSensorV1") {
-      getValveOfDevice(device, 1).position = 1;
+      getValveOfDevice(device, 1).position = (value == 0 ? "Ouvert": "???");
     } else if (name == "sensor/closeSensorV1") {
-      getValveOfDevice(device, 1).position = 0;
+      getValveOfDevice(device, 1).position = (value == 0 ? "Fermé": getValveOfDevice(device, 1).position);
     } else if (name == "sensor/openSensorV2") {
-      getValveOfDevice(device, 2).position = 1;
+      getValveOfDevice(device, 2).position = (value == 0 ? "Ouvert": "???");
     } else if (name == "sensor/closeSensorV2") {
-      getValveOfDevice(device, 2).position = 0;
+      getValveOfDevice(device, 2).position = (value == 0 ? "Fermé": getValveOfDevice(device, 2).position);
     } else if (name == "sensor/level") {
       tanks.forEach(function(tank) {
         if (tank.device == device.name) {
