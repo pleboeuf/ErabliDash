@@ -169,6 +169,26 @@ exports.Dashboard = function(config, WebSocketClient) {
     return valve;
   }
 
+  function getVacuumSensorOfDevice(device) {
+    var sensor = vacuumSensors.filter(function(sensor) {
+      return sensor.device == device.name;
+    }).shift();
+    if (sensor === undefined) {
+      throw "Device " + device.name + " has no vacuum sensor";
+    }
+    return sensor;
+  }
+
+  function getVacuumSensorByCode(code) {
+    var sensor = vacuumSensors.filter(function(sensor) {
+      return sensor.code == code;
+    }).shift();
+    if (sensor === undefined) {
+      throw "Dashboard has no vacuum sensor with code " + code;
+    }
+    return sensor;
+  }
+
   function handleEvent(device, event) {
     var data = event.data;
     var name = data.eName;
@@ -197,6 +217,10 @@ exports.Dashboard = function(config, WebSocketClient) {
           tank.lastUpdatedAt = event.published_at;
         }
       });
+    } else if (name == "sensor/vacuum") {
+      var sensor = getVacuumSensorOfDevice(device);
+      sensor.value = data.eData;
+      sensor.lastUpdatedAt = event.published_at;
     } else {
       console.warn("Unknown event name from %s: %s", device.name, data.eName);
     }
@@ -353,7 +377,7 @@ exports.Dashboard = function(config, WebSocketClient) {
         return sensor;
       }
       var sensorData = data.vacuum.filter(function(sensorData) {
-        return sensorConfig.code == sensorData.code;
+        return sensor.code == sensorData.code;
       }).shift();
       console.log("Loading configured vacuum sensor '%s' on device '%s'", sensor.code, sensor.device);
       return _.extend(sensor, _.omit(sensorData, 'code', 'device'));
@@ -415,6 +439,7 @@ exports.Dashboard = function(config, WebSocketClient) {
     "getDevice": getDevice,
     "getTank": getTank,
     "getValve": getValveByCode,
+    "getVacuumSensorByCode": getVacuumSensorByCode,
     "getData": getData,
     "getEventsSinceStore": function() {
       return eventsSinceStore;

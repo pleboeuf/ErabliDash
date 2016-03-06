@@ -276,3 +276,40 @@ describe('Dashboard with valve', function() {
     });
   });
 });
+
+describe('Dashboard with vacuum sensor', function() {
+  var ws = makeWsClient();
+  var config = {
+    "collectors": [{
+      "uri": 'ws://localhost/'
+    }],
+    "store": {
+      "filename": "/tmp/dashboard.json"
+    },
+    "devices": [{
+      "id": "1",
+      "name": "Device A"
+    }],
+    "tanks": [],
+    "valves": [],
+    "vacuum": {
+      "code": "V1",
+      "device": "Device A"
+    }
+  };
+  var dashboard = require('../dashboard.js').Dashboard(config, ws);
+  it('should have a value after an event', function() {
+    var msg = makeMessage(1, 1, 1, {
+      "eName": "sensor/vacuum",
+      "eData": 100,
+    });
+    return dashboard.init().then(function(connection) {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(msg).then(function() {
+          var valve = dashboard.getVacuumSensorOfDevice("Device A");
+          assert.equal(0, valve.position);
+        });
+      });
+    });
+  });
+});
