@@ -125,45 +125,41 @@
     "sensorHeight": 1283
   }],
   "valves": [{
-    "code": "V1",
-    "device": "EB-PV1",
+    "code": "VaS1",
+    "device": "EB-RS1",
+    "identifier": 1
+  },{
+    "code": "VaTK",
+    "device": "EB-RS1",
+    "identifier": 2
+  },{
+    "code": "VaS2",
+    "device": "EB-RS2",
     "identifier": 1
   }, {
-    "code": "V2",
-    "device": "EB-PV2",
+    "code": "VaF2",
+    "device": "EB-RF2",
     "identifier": 1
   }, {
-    "code": "V3",
-    "device": "EB-PV3",
+    "code": "VaEC",
+    "device": "EB-RF2",
+    "identifier": 2
+  }, {
+    "code": "VaS3",
+    "device": "EB-RSP1",
     "identifier": 1
   }, {
     "code": "VaD3",
     "device": "EB-RSP1",
     "identifier": 2
   }, {
-    "code": "VaD4",
-    "device": "EB-RSP2",
-    "identifier": 2
-  }, {
-    "code": "VaS1",
-    "device": "EB-RS1",
-    "identifier": 1
-  }, {
-    "code": "VaS2",
-    "device": "EB-RS2",
-    "identifier": 1
-  }, {
-    "code": "VaS3",
-    "device": "EB-RSP1",
-    "identifier": 1
-  }, {
     "code": "VaS4",
     "device": "EB-RSP2",
     "identifier": 1
   }, {
-    "code": "VaTK",
-    "device": "EB-RF2",
-    "identifier": 1
+    "code": "VaD4",
+    "device": "EB-RSP2",
+    "identifier": 2
   }],
   "vacuum": [{
     "code": "PV1",

@@ -188,9 +188,9 @@
             return tankData.code == tankDef.code;
           }).shift();
           tankDef.rawValue = tank.rawValue;
-          tankDef.contents = (tank.fill == null ? 0 : liters2gallons(tank.fill));
+          tankDef.contents = (tank.fill == null ? 0 : tank.fill);
           tankDef.capacity = tank.capacity;
-          console.log("Tank %s at %d: %s", tankDef.code, index, tankDef.contents);
+          console.log("Tank %s at %d: %s, raw= %s", tankDef.code, index, tankDef.contents, tankDef.rawValue);
           populateTankLabels();
 
           devices = data.devices;
@@ -265,6 +265,31 @@
         <th>Last updated</th>
         <th>Generation</th>
         <th>Serial</th>
+      </tr>
+    </table>
+  </div>
+  <div id="vacuums">
+    <h3>Vacuum</h3>
+    <table id="devicelist">
+      <tr>
+        <th>Name</th>
+        <th>Vacuum (po. Hg)</th>
+      </tr>
+    </table>
+  </div>
+  <div id="temperatures">
+    <h3>Températures</h3>
+    <table id="devicelist">
+      <tr>
+        <th>Name</th>
+        <th>Enclosure
+          <br/>(C)</th>
+        <th>Heating
+          <br/>On/Off</th>
+        <th>US100
+          <br/>(C)</th>
+        <th>Ambient
+          <br/>(C)</th>
       </tr>
     </table>
   </div>

@@ -196,12 +196,14 @@ exports.Dashboard = function(config, WebSocketClient) {
     device.lastUpdatedAt = event.published_at;
     if (name == "sensor/ambientTemp") {
       device.ambientTemp = value;
-    } else if (name == "sensor/sensorTemp") {
+    } else if (name == "sensor/US100sensorTemp") {
       device.sensorTemp = value;
     } else if (name == "sensor/enclosureTemp") {
       device.enclosureTemp = value;
     } else if (name == "output/enclosureHeating") {
       device.enclosureHeating = value;
+    } else if (name == "sensor/vacuum") {
+      device.vacuum = value /100;
     } else if (name == "sensor/openSensorV1") {
       getValveOfDevice(device, 1).position = 1;
     } else if (name == "sensor/closeSensorV1") {
