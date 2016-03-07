@@ -240,10 +240,6 @@ exports.Dashboard = function(config, WebSocketClient) {
     return pump;
   }
 
-  function updatePumpState(pump, event, value) {
-    pump.state = value;
-  }
-
   function handleEvent(device, event) {
     var data = event.data;
     var name = data.eName;
