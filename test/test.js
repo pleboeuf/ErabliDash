@@ -313,3 +313,39 @@ describe('Dashboard with vacuum sensor', function() {
     });
   });
 });
+
+describe('Pump with one cycle', function() {
+  var Pump = require('../dashboard.js').Pump;
+  var pump = new Pump();
+  var event = {
+    "generationId": 1,
+    "serialNo": 1,
+    "data": {
+      "eData": 1,
+      "timer": 0
+    }
+  };
+
+  // T0
+  pump.update(event);
+
+  // T1
+  event.serialNo = event.serialNo + 1;
+  event.data.eData = 0;
+  event.data.timer = 1000 * 4;
+  pump.update(event);
+
+  // T2
+  event.serialNo = event.serialNo + 1;
+  event.data.eData = 1;
+  event.data.timer += 1000 * 1;
+  pump.update(event);
+
+  it('should be OFF', function() {
+    assert.equal(0, pump.state);
+  });
+
+  it('should have 1/5 duty cycle', function() {
+    assert.equal(1 / 5, pump.dutyCycle);
+  });
+});

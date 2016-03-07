@@ -175,7 +175,9 @@
     function displayPumps() {
       pumps.forEach(function(pump) {
         var stateElem;
-        var stateElemId =  'pump_' + pump.code + '_state';
+        var stateElemId = 'pump_' + pump.code + '_state';
+        var dutyElem;
+        var dutyElemId = 'pump_' + pump.code + '_duty';
         var pumpElemId = 'pump_' + pump.code;
         if (document.getElementById(pumpElemId) == null) {
           var pumpElem = document.createElement("tr");
@@ -189,17 +191,24 @@
           stateElem = document.createElement('td');
           stateElem.setAttribute('id', stateElemId);
           pumpElem.appendChild(stateElem);
+
+          dutyElem = document.createElement('td');
+          dutyElem.setAttribute('id', dutyElemId);
+          dutyElem.setAttribute('class', 'pumpduty');
+          pumpElem.appendChild(dutyElem);
         } else {
           stateElem = document.getElementById(stateElemId);
+          dutyElem = document.getElementById(dutyElemId);
         }
-        stateElem.innerHTML = (pump.state == 1 ? 'ON' : 'OFF');
+        stateElem.innerHTML = pump.state ? 'ON' : 'OFF';
+        dutyElem.innerHTML = (pump.duty * 100).toFixed(0) + ' %';
       });
     }
 
     function displayVacuum() {
       vacuums.forEach(function(vacuum) {
         var valueElem;
-        var valueElemId =  'vacuum_' + vacuum.code + '_value';
+        var valueElemId = 'vacuum_' + vacuum.code + '_value';
         var vacuumElemId = 'vacuum_' + vacuum.code;
         if (document.getElementById(vacuumElemId) == null) {
           var vacuumElem = document.createElement("tr");
@@ -274,11 +283,13 @@
     .tankcontents,
     .tankpercent,
     .rawvalue,
-    .tankcapacity {
+    .tankcapacity,
+    .pumpduty {
       text-align: right;
     }
 
-    #tanks, #valves {
+    #tanks,
+    #valves {
       float: left;
       padding-right: 2em;
     }
@@ -329,7 +340,8 @@
     <table id="pumplist">
       <tr>
         <th>Name</th>
-        <th>État</th>
+        <th>State</th>
+        <th>Duty</th>
       </tr>
     </table>
   </div>

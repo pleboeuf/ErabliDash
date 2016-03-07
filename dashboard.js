@@ -75,6 +75,46 @@ exports.VacuumSensor = function(attrs) {
     return self.value;
   }
 }
+var PumpEvent = function(generationId, serialNo, data) {
+  var self = this;
+  self.generationId = generationId;
+  self.serialNo = serialNo;
+  _.extend(self, data);
+};
+PumpEvent.comparator = function(a, b) {
+  if (a.generationId != b.generationId) {
+    return a.generationId - b.generationId;
+  } else {
+    return a.serialNo - b.serialNo;
+  }
+};
+var Pump = exports.Pump = function(pumpConfig) {
+  var self = this;
+  _.extend(self, pumpConfig);
+  var events = [];
+  self.load = function(pumpData) {
+    console.log("Loading configured pump '%s' on device '%s'", self.code, self.device);
+    return _.extend(self, _.omit(pumpData, 'code', 'device'));
+  }
+  self.update = function(event) {
+    self.state = event.data.eData == 0;
+    var pumpEvent = new PumpEvent(event.generationId, event.serialNo, {
+      "timer": event.data.timer,
+      "state": self.state
+    });
+    events.push(pumpEvent);
+    while (events.length > 3) {
+      events.shift();
+    }
+    if (events.length == 3 && !events[0].state && events[1].state && !events[2].state) {
+      self.cycleEnded(events[0], events[1], events[2]);
+    }
+  }
+  self.cycleEnded = function(t0Event, t1Event, t2Event) {
+    self.duty = (t2Event.timer - t1Event.timer) / (t2Event.timer - t0Event.timer);
+    console.log("Pump cycle ended: " + (t1Event.timer - t0Event.timer) + " ms off, then " + (t2Event.timer - t1Event.timer) + " ms on (" + (self.duty * 100).toFixed(0) + "% duty)");
+  }
+};
 exports.Dashboard = function(config, WebSocketClient) {
   var Device = exports.Device;
   var Tank = exports.Tank;
@@ -218,9 +258,9 @@ exports.Dashboard = function(config, WebSocketClient) {
       sensor.rawValue = data.eData;
       sensor.lastUpdatedAt = event.published_at;
     } else if (name == "pump/T1") {
-      getPumpOfDevice(device).state = value;
+      getPumpOfDevice(device).update(event, value);
     } else if (name == "pump/T2") {
-      getPumpOfDevice(device).state = value;
+      getPumpOfDevice(device).update(event, value);
     } else if (name == "sensor/openSensorV1") {
       getValveOfDevice(device, 1).position = (value == 0 ? "Ouvert" : "???");
     } else if (name == "sensor/closeSensorV1") {
@@ -401,14 +441,15 @@ exports.Dashboard = function(config, WebSocketClient) {
       return _.extend(sensor, _.omit(sensorData, 'code', 'device'));
     });
     pumps = config.pumps.map(function(pump) {
+      pump = new Pump(pump);
       if (!data.pumps) {
         return pump;
       }
       var pumpData = data.pumps.filter(function(pumpData) {
         return pump.code == pumpData.code;
       }).shift();
-      console.log("Loading configured pump '%s' on device '%s'", pump.code, pump.device);
-      return _.extend(pump, _.omit(pumpData, 'code', 'device'));
+      pump.load(pumpData);
+      return pump;
     });
   }
 
