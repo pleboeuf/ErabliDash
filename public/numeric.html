@@ -41,7 +41,7 @@
 
     var devices = [];
     var valves = [];
-    // var pumps = [];
+    var pumps = [];
     var vacuums = [];
 
     function liters2gallons(liters) {
@@ -172,10 +172,10 @@
       });
     }
 
-    function displayPump() {
-      valves.forEach(function(pump) {
+    function displayPumps() {
+      pumps.forEach(function(pump) {
         var stateElem;
-        var stateElemId =  'pump_' + pump.code + 'state';
+        var stateElemId =  'pump_' + pump.code + '_state';
         var pumpElemId = 'pump_' + pump.code;
         if (document.getElementById(pumpElemId) == null) {
           var pumpElem = document.createElement("tr");
@@ -192,7 +192,7 @@
         } else {
           stateElem = document.getElementById(stateElemId);
         }
-        stateElem.innerHTML = pump.pumpState;
+        stateElem.innerHTML = (pump.state == 1 ? 'ON' : 'OFF');
       });
     }
 
@@ -246,9 +246,10 @@
           devices = data.devices;
           valves = data.valves;
           vacuums = data.vacuum;
+          pumps = data.pumps;
           displayDevices();
           displayValves();
-          // displayPump();
+          displayPumps();
           displayVacuum();
         });
       };
