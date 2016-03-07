@@ -321,7 +321,7 @@ describe('Pump with one cycle', function() {
     "generationId": 1,
     "serialNo": 1,
     "data": {
-      "eData": 0,
+      "eData": 1,
       "timer": 0
     }
   };
@@ -331,13 +331,13 @@ describe('Pump with one cycle', function() {
 
   // T1
   event.serialNo = event.serialNo + 1;
-  event.data.eData = 1;
+  event.data.eData = 0;
   event.data.timer = 1000 * 4;
   pump.update(event);
 
   // T2
   event.serialNo = event.serialNo + 1;
-  event.data.eData = 0;
+  event.data.eData = 1;
   event.data.timer += 1000 * 1;
   pump.update(event);
 

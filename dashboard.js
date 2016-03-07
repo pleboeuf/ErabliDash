@@ -3,7 +3,6 @@ const path = require('path');
 const util = require('util');
 const Promise = require('promise');
 const _ = require('underscore');
-const SortedSet = require('js-sorted-set');
 var readFile = Promise.denodeify(fs.readFile);
 var writeFile = Promise.denodeify(fs.writeFile);
 
@@ -92,39 +91,28 @@ PumpEvent.comparator = function(a, b) {
 var Pump = exports.Pump = function(pumpConfig) {
   var self = this;
   _.extend(self, pumpConfig);
-  var events = new SortedSet({
-    comparator: PumpEvent.comparator
-  });
+  var events = [];
   self.load = function(pumpData) {
     console.log("Loading configured pump '%s' on device '%s'", self.code, self.device);
     return _.extend(self, _.omit(pumpData, 'code', 'device'));
   }
   self.update = function(event) {
-    self.state = event.data.eData;
+    self.state = event.data.eData == 0;
     var pumpEvent = new PumpEvent(event.generationId, event.serialNo, {
       "timer": event.data.timer,
       "state": self.state
     });
-    events.insert(pumpEvent);
-    console.log(events.map(function(x) { return x; }));
-    if (pumpEvent.state == 0) {
-      var t2Event = pumpEvent;
-      console.log("t2 " + JSON.stringify(t2Event));
-      var iterator = events.findIterator(t2Event);
-      iterator = iterator.previous();
-      if (iterator != null) {
-        var t1Event = iterator.value();
-        iterator = iterator.previous();
-        if (iterator != null) {
-          var t0Event = iterator.value();
-          self.cycleEnded(t0Event, t1Event, t2Event);
-        }
-      }
+    events.push(pumpEvent);
+    while (events.length > 3) {
+      events.shift();
+    }
+    if (events.length == 3 && !events[0].state && events[1].state && !events[2].state) {
+      self.cycleEnded(events[0], events[1], events[2]);
     }
   }
   self.cycleEnded = function(t0Event, t1Event, t2Event) {
-    console.log("Cycle ended: " + (t1Event.timer - t0Event.timer) + "ms off, then " + (t2Event.timer - t1Event.timer) + "ms on");
-    self.dutyCycle = (t2Event.timer - t1Event.timer) / (t2Event.timer - t0Event.timer);
+    self.duty = (t2Event.timer - t1Event.timer) / (t2Event.timer - t0Event.timer);
+    console.log("Pump cycle ended: " + (t1Event.timer - t0Event.timer) + " ms off, then " + (t2Event.timer - t1Event.timer) + " ms on (" + (self.duty * 100).toFixed(0) + "% duty)");
   }
 };
 exports.Dashboard = function(config, WebSocketClient) {
