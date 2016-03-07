@@ -88,6 +88,7 @@ exports.Dashboard = function(config, WebSocketClient) {
   var tanks = [];
   var valves = [];
   var vacuumSensors = [];
+  var pumps = [];
 
   var dir = path.dirname(filename);
   fs.exists(dir, function(exists) {
@@ -189,6 +190,16 @@ exports.Dashboard = function(config, WebSocketClient) {
     return sensor;
   }
 
+  function getPumpOfDevice(device) {
+    var pump = pumps.filter(function(pump) {
+      return pump.device == device.name;
+    }).shift();
+    if (pump === undefined) {
+      throw "Device " + device.name + " has no pump";
+    }
+    return pump;
+  }
+
   function handleEvent(device, event) {
     var data = event.data;
     var name = data.eName;
@@ -206,18 +217,18 @@ exports.Dashboard = function(config, WebSocketClient) {
       var sensor = getVacuumSensorOfDevice(device);
       sensor.rawValue = data.eData;
       sensor.lastUpdatedAt = event.published_at;
-    }else if (name == "pump/T1") {
-      device.pumpState = (value == 0 ? "Marche": "Arrêt");
-    }else if (name == "pump/T2") {
-      device.pumpState = (value == 1 ? "Arrêt": device.pumpState);
+    } else if (name == "pump/T1") {
+      getPumpOfDevice(device).state = value;
+    } else if (name == "pump/T2") {
+      getPumpOfDevice(device).state = value;
     } else if (name == "sensor/openSensorV1") {
-      getValveOfDevice(device, 1).position = (value == 0 ? "Ouvert": "???");
+      getValveOfDevice(device, 1).position = (value == 0 ? "Ouvert" : "???");
     } else if (name == "sensor/closeSensorV1") {
-      getValveOfDevice(device, 1).position = (value == 0 ? "Fermé": getValveOfDevice(device, 1).position);
+      getValveOfDevice(device, 1).position = (value == 0 ? "Fermé" : getValveOfDevice(device, 1).position);
     } else if (name == "sensor/openSensorV2") {
-      getValveOfDevice(device, 2).position = (value == 0 ? "Ouvert": "???");
+      getValveOfDevice(device, 2).position = (value == 0 ? "Ouvert" : "???");
     } else if (name == "sensor/closeSensorV2") {
-      getValveOfDevice(device, 2).position = (value == 0 ? "Fermé": getValveOfDevice(device, 2).position);
+      getValveOfDevice(device, 2).position = (value == 0 ? "Fermé" : getValveOfDevice(device, 2).position);
     } else if (name == "sensor/level") {
       tanks.forEach(function(tank) {
         if (tank.device == device.name) {
@@ -321,7 +332,8 @@ exports.Dashboard = function(config, WebSocketClient) {
       "devices": config.devices,
       "tanks": config.tanks,
       "valves": config.valves,
-      "vacuum": config.vacuum
+      "vacuum": config.vacuum,
+      "pumps": config.pumps
     }
     return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
       console.log("Loading " + filename);
@@ -346,7 +358,8 @@ exports.Dashboard = function(config, WebSocketClient) {
         return tank;
       }),
       "valves": valves,
-      "vacuum": vacuumSensors
+      "vacuum": vacuumSensors,
+      "pumps": pumps
     };
   }
 
@@ -386,6 +399,16 @@ exports.Dashboard = function(config, WebSocketClient) {
       }).shift();
       console.log("Loading configured vacuum sensor '%s' on device '%s'", sensor.code, sensor.device);
       return _.extend(sensor, _.omit(sensorData, 'code', 'device'));
+    });
+    pumps = config.pumps.map(function(pump) {
+      if (!data.pumps) {
+        return pump;
+      }
+      var pumpData = data.pumps.filter(function(pumpData) {
+        return pump.code == pumpData.code;
+      }).shift();
+      console.log("Loading configured pump '%s' on device '%s'", pump.code, pump.device);
+      return _.extend(pump, _.omit(pumpData, 'code', 'device'));
     });
   }
 

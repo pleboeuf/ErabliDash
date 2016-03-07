@@ -7,7 +7,7 @@ dashboard.init().then(function() {
     return dashboard.update();
   });
 }).catch(function(err) {
-  console.error(err);
+  console.error("Error stating dashboard: ", err.stack);
 });
 var express = require('express');
 var path = require('path');
