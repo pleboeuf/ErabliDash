@@ -68,6 +68,13 @@ exports.Tank = function(attrs) {
     throw 'Unsupported tank (shape: ' + self.shape + ', ' + self.orientation + ')';
   }
 }
+exports.VacuumSensor = function(attrs) {
+  var self = this;
+  _.extend(self, attrs);
+  self.getValue = function() {
+    return self.value;
+  }
+}
 exports.Dashboard = function(config, WebSocketClient) {
   var Device = exports.Device;
   var Tank = exports.Tank;
@@ -80,6 +87,7 @@ exports.Dashboard = function(config, WebSocketClient) {
   var devices = [];
   var tanks = [];
   var valves = [];
+  var vacuumSensors = [];
 
   var dir = path.dirname(filename);
   fs.exists(dir, function(exists) {
@@ -161,6 +169,26 @@ exports.Dashboard = function(config, WebSocketClient) {
     return valve;
   }
 
+  function getVacuumSensorOfDevice(device) {
+    var sensor = vacuumSensors.filter(function(sensor) {
+      return sensor.device == device.name;
+    }).shift();
+    if (sensor === undefined) {
+      throw "Device " + device.name + " has no vacuum sensor";
+    }
+    return sensor;
+  }
+
+  function getVacuumSensorByCode(code) {
+    var sensor = vacuumSensors.filter(function(sensor) {
+      return sensor.code == code;
+    }).shift();
+    if (sensor === undefined) {
+      throw "Dashboard has no vacuum sensor with code " + code;
+    }
+    return sensor;
+  }
+
   function handleEvent(device, event) {
     var data = event.data;
     var name = data.eName;
@@ -175,15 +203,21 @@ exports.Dashboard = function(config, WebSocketClient) {
     } else if (name == "output/enclosureHeating") {
       device.enclosureHeating = value;
     } else if (name == "sensor/vacuum") {
-      device.vacuum = value /100;
+      var sensor = getVacuumSensorOfDevice(device);
+      sensor.rawValue = data.eData;
+      sensor.lastUpdatedAt = event.published_at;
+    }else if (name == "pump/T1") {
+      device.pumpState = (value == 0 ? "Marche": "Arrêt");
+    }else if (name == "pump/T2") {
+      device.pumpState = (value == 1 ? "Arrêt": device.pumpState);
     } else if (name == "sensor/openSensorV1") {
-      getValveOfDevice(device, 1).position = 1;
+      getValveOfDevice(device, 1).position = (value == 0 ? "Ouvert": "???");
     } else if (name == "sensor/closeSensorV1") {
-      getValveOfDevice(device, 1).position = 0;
+      getValveOfDevice(device, 1).position = (value == 0 ? "Fermé": getValveOfDevice(device, 1).position);
     } else if (name == "sensor/openSensorV2") {
-      getValveOfDevice(device, 2).position = 1;
+      getValveOfDevice(device, 2).position = (value == 0 ? "Ouvert": "???");
     } else if (name == "sensor/closeSensorV2") {
-      getValveOfDevice(device, 2).position = 0;
+      getValveOfDevice(device, 2).position = (value == 0 ? "Fermé": getValveOfDevice(device, 2).position);
     } else if (name == "sensor/level") {
       tanks.forEach(function(tank) {
         if (tank.device == device.name) {
@@ -236,6 +270,7 @@ exports.Dashboard = function(config, WebSocketClient) {
           device.lastEventSerial = serialNo;
           return updateDevice(device).then(handleEventFunc);
         } else {
+          console.log(message);
           return Promise.reject(util.format("Received old event for device %s: %d, %s", deviceId, serialNo, generationId));
         }
       }
@@ -285,7 +320,8 @@ exports.Dashboard = function(config, WebSocketClient) {
     var configData = {
       "devices": config.devices,
       "tanks": config.tanks,
-      "valves": config.valves
+      "valves": config.valves,
+      "vacuum": config.vacuum
     }
     return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
       console.log("Loading " + filename);
@@ -309,7 +345,8 @@ exports.Dashboard = function(config, WebSocketClient) {
         tank.fill = tank.getFill();
         return tank;
       }),
-      "valves": valves
+      "valves": valves,
+      "vacuum": vacuumSensors
     };
   }
 
@@ -339,6 +376,16 @@ exports.Dashboard = function(config, WebSocketClient) {
       }).shift();
       console.log("Loading configured valve '%s' on device '%s'", valve.code, valve.device);
       return _.extend(valve, _.omit(valveData, 'code', 'name', 'device'));
+    });
+    vacuumSensors = config.vacuum.map(function(sensor) {
+      if (!data.vacuum) {
+        return sensor;
+      }
+      var sensorData = data.vacuum.filter(function(sensorData) {
+        return sensor.code == sensorData.code;
+      }).shift();
+      console.log("Loading configured vacuum sensor '%s' on device '%s'", sensor.code, sensor.device);
+      return _.extend(sensor, _.omit(sensorData, 'code', 'device'));
     });
   }
 
@@ -397,6 +444,7 @@ exports.Dashboard = function(config, WebSocketClient) {
     "getDevice": getDevice,
     "getTank": getTank,
     "getValve": getValveByCode,
+    "getVacuumSensorByCode": getVacuumSensorByCode,
     "getData": getData,
     "getEventsSinceStore": function() {
       return eventsSinceStore;

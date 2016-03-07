@@ -3,3 +3,5 @@ dashboard.sqlite3
 dashboard.sqlite3-journal
 data
 config.json
+log
+pid

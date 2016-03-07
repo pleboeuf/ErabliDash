@@ -8,15 +8,15 @@
   },
   "devices": [{
     "name": "EB-PV1",
-    "description": "Pompe et valve #1",
+    "description": "Pompe et vide relâcheur #1",
     "id": "230021000447343233323032"
   }, {
     "name": "EB-PV2",
-    "description": "Pompe et valve #2",
+    "description": "Pompe et vide relâcheur #2",
     "id": "330027001547343433313338"
   }, {
     "name": "EB-PV3",
-    "description": "Pompe et valve #3",
+    "description": "Pompe et vide relâcheur #3",
     "id": "3a0037000c47343233323032"
   }, {
     "name": "EB-RS1",
@@ -59,7 +59,7 @@
     "orientation": "horizontal",
     "length": 10718,
     "diameter": 1651,
-    "sensorHeight": 1905
+    "sensorHeight": 1733
   }, {
     "code": "RS2",
     "name": "Réservoir de sève #2",
@@ -67,8 +67,8 @@
     "shape": "cylinder",
     "orientation": "horizontal",
     "length": 7010,
-    "diameter": 1841,
-    "sensorHeight": 1968
+    "diameter": 1842,
+    "sensorHeight": 1813
   }, {
     "code": "RSP1",
     "name": "Réservoir de sève pump house #1",
@@ -77,7 +77,7 @@
     "length": 3657,
     "diameter": 1219,
     "totalHeight": 1067,
-    "sensorHeight": 1130
+    "sensorHeight": 1140
   }, {
     "code": "RSP2",
     "name": "Réservoir de sève pump house #2",
@@ -86,7 +86,7 @@
     "length": 3657,
     "diameter": 1219,
     "totalHeight": 1067,
-    "sensorHeight": 1130
+    "sensorHeight": 1137
   }, {
     "code": "RF1",
     "name": "Réservoir de filtrat #1",
@@ -104,25 +104,25 @@
     "orientation": "horizontal",
     "length": 4267,
     "diameter": 1842,
-    "sensorHeight": 1968
+    "sensorHeight": 1981
   }, {
     "code": "RC1",
     "name": "Réservoir de concentré #1",
     "device": "EB-RC1",
     "shape": "u",
     "length": 3658,
-    "diameter": 914,
-    "totalHeight": 1219,
-    "sensorHeight": 1283
+    "diameter": 1219,
+    "totalHeight": 914,
+    "sensorHeight": 986
   }, {
     "code": "RC2",
     "name": "Réservoir de concentré #2",
     "device": "EB-RC2",
     "shape": "u",
     "length": 3658,
-    "diameter": 914,
-    "totalHeight": 1219,
-    "sensorHeight": 1283
+    "diameter": 1219,
+    "totalHeight": 914,
+    "sensorHeight": 968
   }],
   "valves": [{
     "code": "VaS1",
@@ -160,5 +160,50 @@
     "code": "VaD4",
     "device": "EB-RSP2",
     "identifier": 2
+  }],
+  "vacuum": [{
+    "code": "Vac1",
+    "device": "EB-PV1"
+  }, {
+    "code": "Vac2",
+    "device": "EB-PV2"
+  }, {
+    "code": "Vac3",
+    "device": "EB-PV3"
+  }],
+  "pompes": [{
+    "name": "P1",
+    "device": "EB-PV1"
+  }, {
+    "name": "P2",
+    "device": "EB-PV2"
+  },{
+    "name": "P3",
+    "device": "EB-PV3"
+  }],
+  "temperatures": [{
+    "name": "RS1",
+    "device": "EB-RS1"
+  }, {
+    "name": "RS2",
+    "device": "EB-RS2"
+  },{
+    "name": "RF1",
+    "device": "EB-RF1"
+  },{
+    "name": "RF2",
+    "device": "EB-RF2"
+  },{
+    "name": "RSP1",
+    "device": "EB-RSP1"
+  },{
+    "name": "RSP2",
+    "device": "EB-RSP2"
+  },{
+    "name": "RC1",
+    "device": "EB-RC1"
+  },{
+    "name": "RC2",
+    "device": "EB-RC2"
   }]
 }
