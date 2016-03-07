@@ -42,7 +42,7 @@
     var devices = [];
     var valves = [];
     // var pumps = [];
-    // var vacuums = [];
+    var vacuums = [];
 
     function liters2gallons(liters) {
       return Math.ceil(liters / 4.54609188);
@@ -197,9 +197,9 @@
     }
 
     function displayVacuum() {
-      valves.forEach(function(device) {
-        var stateElem;
-        var stateElemId =  'vacuum_' + vacuum.code + 'state';
+      vacuums.forEach(function(vacuum) {
+        var valueElem;
+        var valueElemId =  'vacuum_' + vacuum.code + '_value';
         var vacuumElemId = 'vacuum_' + vacuum.code;
         if (document.getElementById(vacuumElemId) == null) {
           var vacuumElem = document.createElement("tr");
@@ -207,19 +207,18 @@
           document.getElementById('vacuumlist').appendChild(vacuumElem);
 
           var codeElement = document.createElement("td");
-          codeElement.innerHTML = device.code;
+          codeElement.innerHTML = vacuum.code;
           vacuumElem.appendChild(codeElement);
 
-          stateElem = document.createElement('td');
-          stateElem.setAttribute('id', stateElemId);
-          vacuumElem.appendChild(stateElem);
+          valueElem = document.createElement('td');
+          valueElem.setAttribute('id', valueElemId);
+          vacuumElem.appendChild(valueElem);
         } else {
-          stateElem = document.getElementById(stateElemId);
+          valueElem = document.getElementById(valueElemId);
         }
-        stateElem.innerHTML = device.vacuumValue;
+        valueElem.innerHTML = vacuum.rawValue / 100;
       });
     }
-
 
     function openSocket() {
       websocket = new WebSocket(wsUri(""), "dashboard-stream");
@@ -246,10 +245,11 @@
 
           devices = data.devices;
           valves = data.valves;
+          vacuums = data.vacuum;
           displayDevices();
           displayValves();
           // displayPump();
-          // displayVacuum();
+          displayVacuum();
         });
       };
       websocket.onerror = function(evt) {

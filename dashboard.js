@@ -203,7 +203,9 @@ exports.Dashboard = function(config, WebSocketClient) {
     } else if (name == "output/enclosureHeating") {
       device.enclosureHeating = value;
     } else if (name == "sensor/vacuum") {
-      device.vacuumValue = value / 100;
+      var sensor = getVacuumSensorOfDevice(device);
+      sensor.rawValue = data.eData;
+      sensor.lastUpdatedAt = event.published_at;
     }else if (name == "pump/T1") {
       device.pumpState = (value == 0 ? "Marche": "Arrêt");
     }else if (name == "pump/T2") {
@@ -223,10 +225,6 @@ exports.Dashboard = function(config, WebSocketClient) {
           tank.lastUpdatedAt = event.published_at;
         }
       });
-    } else if (name == "sensor/vacuum") {
-      var sensor = getVacuumSensorOfDevice(device);
-      sensor.value = data.eData;
-      sensor.lastUpdatedAt = event.published_at;
     } else {
       console.warn("Unknown event name from %s: %s", device.name, data.eName);
     }
@@ -272,6 +270,7 @@ exports.Dashboard = function(config, WebSocketClient) {
           device.lastEventSerial = serialNo;
           return updateDevice(device).then(handleEventFunc);
         } else {
+          console.log(message);
           return Promise.reject(util.format("Received old event for device %s: %d, %s", deviceId, serialNo, generationId));
         }
       }

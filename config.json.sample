@@ -162,22 +162,12 @@
     "identifier": 2
   }],
   "vacuum": [{
-    "code": "PV1",
-    "device": "EB-PV1"
-  }, {
-    "code": "PV2",
-    "device": "EB-PV2"
-  }, {
-    "code": "PV3",
-    "device": "EB-PV3"
-  }],
-  "vide": [{
     "code": "Vac1",
     "device": "EB-PV1"
   }, {
     "code": "Vac2",
     "device": "EB-PV2"
-  },{
+  }, {
     "code": "Vac3",
     "device": "EB-PV3"
   }],
