@@ -1,0 +1,22 @@
+{
+  "name": "ErabliDash",
+  "description": "Dashboard",
+  "main": "app.js",
+  "authors": [
+    "Nicolas Marchildon <nicolas@marchildon.net>"
+  ],
+  "license": "Proprietary",
+  "homepage": "https://github.com/elecnix/ErabliDash",
+  "moduleType": [],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^2.2.1"
+  }
+}
