@@ -1,5 +1,6 @@
 <!DOCTYPE HTML>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <title>ErabliDash (numeric)</title>
@@ -50,55 +51,70 @@
     }
 
     function onLoad() {
-      createTankLabels();
       openSocket();
       setTimeout(displayDevices, 10000);
     }
 
-    function createTankLabels() {
+    function displayTanks() {
       tankDefs.forEach(function(tank) {
-        var tankElement = document.createElement("tr");
+        var tankElementId = 'tank_' + tank.code;
 
-        // Add tank name
-        var nameElement = document.createElement("td");
-        nameElement.setAttribute('class', 'tankname');
-        nameElement.innerHTML = tank.code;
-        tankElement.appendChild(nameElement);
+        var contentsElementId = tankElementId + '_contents';
+        var contentsElement;
 
-        // Add measured contents (gallons)
-        var contentsElement = document.createElement('td');
-        contentsElement.setAttribute('id', 'tank_' + tank.code + '_contents');
-        contentsElement.setAttribute('class', 'tankcontents');
-        tankElement.appendChild(contentsElement);
+        var percentElementId = tankElementId + '_percent';
+        var percentElement;
 
-        // Add measured contents (percent)
-        var percentElement = document.createElement('td');
-        percentElement.setAttribute('id', 'tank_' + tank.code + '_percent');
-        percentElement.setAttribute('class', 'tankpercent');
-        tankElement.appendChild(percentElement);
+        var rawValueElementId = tankElementId + '_rawvalue';
+        var rawValueElement;
 
-        // Add raw value (millimeters)
-        var rawValueElement = document.createElement('td');
-        rawValueElement.setAttribute('id', 'tank_' + tank.code + '_rawvalue');
-        rawValueElement.setAttribute('class', 'rawvalue');
-        tankElement.appendChild(rawValueElement);
+        var capacityElementId = tankElementId + '_capacity';
+        var capacityElement;
 
-        // Add capacity (gallons)
-        var capacityElement = document.createElement('td');
-        capacityElement.setAttribute('id', 'tank_' + tank.code + '_capacity');
-        capacityElement.setAttribute('class', 'tankcapacity');
-        tankElement.appendChild(capacityElement);
+        if (document.getElementById(tankElementId) == null) {
+          var tankElement = document.createElement("tr");
+          tankElement.setAttribute('id', tankElementId);
+          // Add tank name
+          var nameElement = document.createElement("td");
+          nameElement.setAttribute('class', 'tankname');
+          nameElement.innerHTML = tank.code;
+          tankElement.appendChild(nameElement);
 
-        document.getElementById('tanklist').appendChild(tankElement);
-      });
-    }
+          // Add measured contents (gallons)
+          contentsElement = document.createElement('td');
+          contentsElement.setAttribute('id', contentsElementId);
+          contentsElement.setAttribute('class', 'tankcontents');
+          tankElement.appendChild(contentsElement);
 
-    function populateTankLabels() {
-      tankDefs.forEach(function(tank) {
-        document.getElementById('tank_' + tank.code + '_contents').innerHTML = liters2gallons(tank.contents);
-        document.getElementById('tank_' + tank.code + '_percent').innerHTML = (tank.contents / tank.capacity * 100).toFixed(0) + ' %';
-        document.getElementById('tank_' + tank.code + '_rawvalue').innerHTML = tank.rawValue;
-        document.getElementById('tank_' + tank.code + '_capacity').innerHTML = liters2gallons(tank.capacity);
+          // Add measured contents (percent)
+          percentElement = document.createElement('td');
+          percentElement.setAttribute('id', percentElementId);
+          percentElement.setAttribute('class', 'tankpercent');
+          tankElement.appendChild(percentElement);
+
+          // Add raw value (millimeters)
+          rawValueElement = document.createElement('td');
+          rawValueElement.setAttribute('id', rawValueElementId);
+          rawValueElement.setAttribute('class', 'rawvalue');
+          tankElement.appendChild(rawValueElement);
+
+          // Add capacity (gallons)
+          capacityElement = document.createElement('td');
+          capacityElement.setAttribute('id', capacityElementId);
+          capacityElement.setAttribute('class', 'tankcapacity');
+          tankElement.appendChild(capacityElement);
+
+          document.getElementById('tanklist').appendChild(tankElement);
+        } else {
+          contentsElement = document.getElementById(contentsElementId);
+          percentElement = document.getElementById(percentElementId);
+          rawValueElement = document.getElementById(rawValueElementId);
+          capacityElement = document.getElementById(capacityElementId);
+        }
+        contentsElement.innerHTML = liters2gallons(tank.contents);
+        percentElement.innerHTML = (tank.contents / tank.capacity * 100).toFixed(0) + ' %';
+        rawValueElement.innerHTML = tank.rawValue;
+        capacityElement.innerHTML = liters2gallons(tank.capacity);
       });
     }
 
@@ -260,13 +276,13 @@
           tankDef.contents = (tank.fill == null ? 0 : tank.fill);
           tankDef.capacity = tank.capacity;
           console.log("Tank %s at %d: %s, raw= %s", tankDef.code, index, tankDef.contents, tankDef.rawValue);
-          populateTankLabels();
 
           devices = data.devices;
           valves = data.valves;
           vacuums = data.vacuum;
           pumps = data.pumps;
           displayDevices();
+          displayTanks();
           displayValves();
           displayPumps();
           displayVacuum();
