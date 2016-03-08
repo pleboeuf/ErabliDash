@@ -15,6 +15,7 @@ var app = express();
 app.use(app.router);
 app.use(express.logger());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/bower_components', express.static(path.join(__dirname, 'bower_components')));
 app.use('/', express.static(path.join(__dirname, 'index.html')));
 app.get('/data.json', function(req, res) {
   res.setHeader("Content-Type", "text/plain");
