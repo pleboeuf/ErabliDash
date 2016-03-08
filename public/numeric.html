@@ -4,7 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <title>ErabliDash (numeric)</title>
-  <script src="/bower_components/jquery/src/jquery.js">
+  <script src="/bower_components/jquery/dist/jquery.min.js">
+  </script>
+  <script src="/bower_components/peity/jquery.peity.min.js">
   </script>
   <script language="javascript" type="text/javascript">
     function wsUri(path) {
@@ -58,6 +60,7 @@
     function displayTanks() {
       tankDefs.forEach(function(tank) {
         var tankElementId = 'tank_' + tank.code;
+        var tankElement = document.getElementById(tankElementId);
 
         var contentsElementId = tankElementId + '_contents';
         var contentsElement;
@@ -71,9 +74,10 @@
         var capacityElementId = tankElementId + '_capacity';
         var capacityElement;
 
-        if (document.getElementById(tankElementId) == null) {
-          var tankElement = document.createElement("tr");
+        if (tankElement == null) {
+          tankElement = document.createElement("tr");
           tankElement.setAttribute('id', tankElementId);
+          tankElement.setAttribute('class', "tank");
           // Add tank name
           var nameElement = document.createElement("td");
           nameElement.setAttribute('class', 'tankname');
@@ -111,11 +115,20 @@
           rawValueElement = document.getElementById(rawValueElementId);
           capacityElement = document.getElementById(capacityElementId);
         }
+        var tankPercent = (tank.contents / tank.capacity * 100).toFixed(0);
+        tankElement.setAttribute('data-percent', tankPercent);
         contentsElement.innerHTML = liters2gallons(tank.contents);
-        percentElement.innerHTML = (tank.contents / tank.capacity * 100).toFixed(0) + ' %';
+        percentElement.innerHTML = tankPercent + " % ";
         rawValueElement.innerHTML = tank.rawValue;
         capacityElement.innerHTML = liters2gallons(tank.capacity);
+
+        var gaugeElement = document.createElement('span');
+        gaugeElement.innerHTML = tankPercent + '/100';
+        gaugeElement.setAttribute('class', 'tankgauge');
+        gaugeElement.setAttribute('data-peity', '{ "fill": ["black", "#eeeeee"], "innerRadius": 0, "radius": 8 }');
+        percentElement.appendChild(gaugeElement);
       });
+      $(".tankgauge").peity("pie");
     }
 
     function displayDevices() {
