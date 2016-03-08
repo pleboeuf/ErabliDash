@@ -178,6 +178,8 @@
         var stateElemId = 'pump_' + pump.code + '_state';
         var dutyElem;
         var dutyElemId = 'pump_' + pump.code + '_duty';
+        var rateElem;
+        var rateElemId = 'pump_' + pump.code + '_rate';
         var pumpElemId = 'pump_' + pump.code;
         if (document.getElementById(pumpElemId) == null) {
           var pumpElem = document.createElement("tr");
@@ -196,12 +198,19 @@
           dutyElem.setAttribute('id', dutyElemId);
           dutyElem.setAttribute('class', 'pumpduty');
           pumpElem.appendChild(dutyElem);
+
+          rateElem = document.createElement('td');
+          rateElem.setAttribute('id', rateElemId);
+          rateElem.setAttribute('class', 'pumprate');
+          pumpElem.appendChild(rateElem);
         } else {
           stateElem = document.getElementById(stateElemId);
           dutyElem = document.getElementById(dutyElemId);
+          rateElem = document.getElementById(rateElemId);
         }
         stateElem.innerHTML = pump.state ? 'ON' : 'OFF';
-        dutyElem.innerHTML = (pump.duty * 100).toFixed(0) + ' %';
+        dutyElem.innerHTML = (pump.duty * 100).toFixed(1);
+        rateElem.innerHTML = (pump.duty * pump.capacity_gph).toFixed(0);
       });
     }
 
@@ -284,7 +293,8 @@
     .tankpercent,
     .rawvalue,
     .tankcapacity,
-    .pumpduty {
+    .pumpduty,
+    .pumprate {
       text-align: right;
     }
 
@@ -341,7 +351,8 @@
       <tr>
         <th>Name</th>
         <th>State</th>
-        <th>Duty</th>
+        <th>Duty<br/>(%)</th>
+        <th>Rate<br/>(GPH)</th>
       </tr>
     </table>
   </div>
@@ -350,7 +361,7 @@
     <table id="vacuumlist">
       <tr>
         <th>Name</th>
-        <th>Vacuum (po. Hg)</th>
+        <th>Vacuum<br/>(inHg)</th>
       </tr>
     </table>
   </div>

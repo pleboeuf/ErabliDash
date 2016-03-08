@@ -173,13 +173,16 @@
   }],
   "pumps": [{
     "code": "P1",
-    "device": "EB-PV1"
+    "device": "EB-PV1",
+    "capacity_gph": 2995.28
   }, {
     "code": "P2",
-    "device": "EB-PV2"
+    "device": "EB-PV2",
+    "capacity_gph": 2133.27
   },{
     "code": "P3",
-    "device": "EB-PV3"
+    "device": "EB-PV3",
+    "capacity_gph": 5370.67
   }],
   "temperatures": [{
     "name": "RS1",
