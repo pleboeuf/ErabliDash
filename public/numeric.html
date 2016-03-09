@@ -128,7 +128,17 @@
         gaugeElement.setAttribute('data-peity', '{ "fill": ["black", "#eeeeee"], "innerRadius": 0, "radius": 8 }');
         percentElement.appendChild(gaugeElement);
       });
-      $(".tankgauge").peity("pie");
+      $(".tankgauge").peity("pie", {
+        "fill": function(value, index, values) {
+          if (index > 0)
+            return "#eeeeee";
+          if (values[0] > 90)
+            return "red";
+          if (values[0] > 75)
+            return "orange";
+          return "green";
+        }
+      });
     }
 
     function displayDevices() {
@@ -381,8 +391,10 @@
       <tr>
         <th>Name</th>
         <th>State</th>
-        <th>Duty<br/>(%)</th>
-        <th>Rate<br/>(GPH)</th>
+        <th>Duty
+          <br/>(%)</th>
+        <th>Rate
+          <br/>(GPH)</th>
       </tr>
     </table>
   </div>
@@ -391,7 +403,8 @@
     <table id="vacuumlist">
       <tr>
         <th>Name</th>
-        <th>Vacuum<br/>(inHg)</th>
+        <th>Vacuum
+          <br/>(inHg)</th>
       </tr>
     </table>
   </div>
