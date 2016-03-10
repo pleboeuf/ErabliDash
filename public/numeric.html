@@ -343,6 +343,11 @@
       float: left;
       padding-right: 2em;
     }
+
+    #vacuum-frame {
+      border: 1px solid #cccccc;
+      margin: 0.5em;
+    }
   </style>
 </head>
 
@@ -407,6 +412,7 @@
           <br/>(inHg)</th>
       </tr>
     </table>
+    <iframe id="vacuum-frame" width="450" height="260" src="http://api.thingspeak.com/channels/91922/charts/1?width=450&height=260&results=60&dynamic=true&title=Moving-Vacuum"></iframe>
   </div>
   <div id="temperatures">
     <h3>Températures</h3>
