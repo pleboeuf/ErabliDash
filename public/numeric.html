@@ -177,10 +177,8 @@
         var ageDisplay = '';
         if (ageInMinutes == 0) {
           ageDisplay = 'now';
-        } else if (ageInMinutes == 1) {
-          ageDisplay = 'one minute ago';
-        } else if (ageInMinutes > 1) {
-          ageDisplay = ageInMinutes + ' minutes ago';
+        } else if (ageInMinutes > 0) {
+          ageDisplay = ageInMinutes + ' min.';
         }
         lastUpdatedAtElem.innerHTML = ageDisplay;
         generationElem.innerHTML = device.generationId;
@@ -319,10 +317,10 @@
   </script>
   <style>
     table {
+      border-style: none;
       border-collapse: collapse;
     }
 
-    table,
     th,
     td {
       border: 1px solid #DDD;
@@ -384,35 +382,50 @@
     <table id="devicelist">
       <tr>
         <th>Name</th>
-        <th>Last updated</th>
+        <th>Updated</th>
         <th>Generation</th>
         <th>Serial</th>
       </tr>
     </table>
   </div>
-  <div id="pumps">
-    <h3>Pompes</h3>
-    <table id="pumplist">
+  <div id="PVx">
+    <table id="pumpVac">
       <tr>
-        <th>Name</th>
-        <th>State</th>
-        <th>Duty
-          <br/>(%)</th>
-        <th>Rate
-          <br/>(GPH)</th>
-      </tr>
+      <td style="border-style:none">
+        <div id="pumps">
+          <h3>Pompes</h3>
+          <table id="pumplist">
+            <tr>
+              <th>Name</th>
+              <th>State</th>
+              <th>Duty
+                <br/>(%)</th>
+              <th>Rate
+                <br/>(GPH)</th>
+            </tr>
+          </table>
+        </div>
+      </td>
+      <td style="border-style:none">
+
+      </td>
+      <td style="border-style:none">
+        <div id="vacuums">
+          <h3>Vacuum</h3>
+          <table id="vacuumlist">
+            <tr>
+              <th>Name</th>
+              <th>Vacuum
+                <br/>(inHg)</th>
+            </tr>
+          </table>
+        </div>
+      </td>
+      <td style="border-style:none">
+        <iframe id="vacuum-frame" width="450" height="260" src="http://api.thingspeak.com/channels/91922/charts/1?width=450&height=260&results=60&dynamic=true&title=Moving-Vacuum"></iframe>
+      </td>
+    </tr>
     </table>
-  </div>
-  <div id="vacuums">
-    <h3>Vacuum</h3>
-    <table id="vacuumlist">
-      <tr>
-        <th>Name</th>
-        <th>Vacuum
-          <br/>(inHg)</th>
-      </tr>
-    </table>
-    <iframe id="vacuum-frame" width="450" height="260" src="http://api.thingspeak.com/channels/91922/charts/1?width=450&height=260&results=60&dynamic=true&title=Moving-Vacuum"></iframe>
   </div>
   <div id="temperatures">
     <h3>Températures</h3>
