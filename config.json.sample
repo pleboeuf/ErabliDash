@@ -182,7 +182,7 @@
   },{
     "code": "P3",
     "device": "EB-PV3",
-    "capacity_gph": 5370.67
+    "capacity_gph": 3118.95
   }],
   "temperatures": [{
     "name": "RS1",
