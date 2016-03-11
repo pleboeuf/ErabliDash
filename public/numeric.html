@@ -211,6 +211,7 @@
     }
 
     function displayPumps() {
+      var totalRate = 0;
       pumps.forEach(function(pump) {
         var stateElem;
         var stateElemId = 'pump_' + pump.code + '_state';
@@ -222,7 +223,8 @@
         if (document.getElementById(pumpElemId) == null) {
           var pumpElem = document.createElement("tr");
           pumpElem.setAttribute('id', pumpElemId);
-          document.getElementById('pumplist').appendChild(pumpElem);
+          var totalRow = document.getElementById('pumptotalrow');
+          totalRow.parentElement.insertBefore(pumpElem, totalRow);
 
           var codeElement = document.createElement("td");
           codeElement.innerHTML = pump.code;
@@ -246,10 +248,13 @@
           dutyElem = document.getElementById(dutyElemId);
           rateElem = document.getElementById(rateElemId);
         }
+        var rate = (pump.duty * pump.capacity_gph);
+        totalRate += rate;
         stateElem.innerHTML = pump.state ? 'ON' : 'OFF';
         dutyElem.innerHTML = (pump.duty * 100).toFixed(1);
-        rateElem.innerHTML = (pump.duty * pump.capacity_gph).toFixed(0);
+        rateElem.innerHTML = rate.toFixed(0);
       });
+      document.getElementById('pumptotalrate').innerHTML = totalRate.toFixed(0);
     }
 
     function displayVacuum() {
@@ -391,40 +396,46 @@
   <div id="PVx">
     <table id="pumpVac">
       <tr>
-      <td style="border-style:none">
-        <div id="pumps">
-          <h3>Pompes</h3>
-          <table id="pumplist">
-            <tr>
-              <th>Name</th>
-              <th>State</th>
-              <th>Duty
-                <br/>(%)</th>
-              <th>Rate
-                <br/>(GPH)</th>
-            </tr>
-          </table>
-        </div>
-      </td>
-      <td style="border-style:none">
+        <td style="border-style:none">
+          <div id="pumps">
+            <h3>Pompes</h3>
+            <table id="pumplist">
+              <tr>
+                <th>Name</th>
+                <th>State</th>
+                <th>Duty
+                  <br/>(%)</th>
+                <th>Rate
+                  <br/>(GPH)</th>
+              </tr>
+              <tr id="pumptotalrow">
+                <td>Total</td>
+                <td></td>
+                <td></td>
+                <td id="pumptotalrate" class="pumprate"></td>
+              </tr>
+            </table>
+          </div>
+        </td>
+        <td style="border-style:none">
 
-      </td>
-      <td style="border-style:none">
-        <div id="vacuums">
-          <h3>Vacuum</h3>
-          <table id="vacuumlist">
-            <tr>
-              <th>Name</th>
-              <th>Vacuum
-                <br/>(inHg)</th>
-            </tr>
-          </table>
-        </div>
-      </td>
-      <td style="border-style:none">
-        <iframe id="vacuum-frame" width="450" height="260" src="http://api.thingspeak.com/channels/91922/charts/1?width=450&height=260&results=60&dynamic=true&title=Moving-Vacuum"></iframe>
-      </td>
-    </tr>
+        </td>
+        <td style="border-style:none">
+          <div id="vacuums">
+            <h3>Vacuum</h3>
+            <table id="vacuumlist">
+              <tr>
+                <th>Name</th>
+                <th>Vacuum
+                  <br/>(inHg)</th>
+              </tr>
+            </table>
+          </div>
+        </td>
+        <td style="border-style:none">
+          <iframe id="vacuum-frame" width="450" height="260" src="http://api.thingspeak.com/channels/91922/charts/1?width=450&height=260&results=60&dynamic=true&title=Moving-Vacuum"></iframe>
+        </td>
+      </tr>
     </table>
   </div>
   <div id="temperatures">
