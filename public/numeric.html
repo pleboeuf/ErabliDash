@@ -173,7 +173,7 @@
           generationElem = document.getElementById(generationElemId);
           serialElem = document.getElementById(serialElemId);
         }
-        var ageInMinutes = Math.floor(Math.abs((Date.now() - new Date(device.lastUpdatedAt).getTime()) / 1000 / 60));
+        var ageInMinutes = Math.floor(getMinutesAgo(new Date(device.lastUpdatedAt)));
         var ageDisplay = '';
         if (ageInMinutes == 0) {
           ageDisplay = 'now';
@@ -184,6 +184,10 @@
         generationElem.innerHTML = device.generationId;
         serialElem.innerHTML = device.lastEventSerial;
       });
+    }
+
+    function getMinutesAgo(date) {
+      return(Math.abs((Date.now() - new Date(date).getTime()) / 1000 / 60));
     }
 
     function displayValves() {
@@ -249,6 +253,9 @@
           rateElem = document.getElementById(rateElemId);
         }
         var rate = (pump.duty * pump.capacity_gph);
+        if (getMinutesAgo(new Date(pump.lastStoppedAt)) > 60) {
+          rate = 0;
+        }
         totalRate += rate;
         stateElem.innerHTML = pump.state ? 'ON' : 'OFF';
         dutyElem.innerHTML = (pump.duty * 100).toFixed(1);
