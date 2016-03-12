@@ -112,6 +112,7 @@ var Pump = exports.Pump = function(pumpConfig) {
   }
   self.cycleEnded = function(t0Event, t1Event, t2Event) {
     self.duty = (t2Event.timer - t1Event.timer) / (t2Event.timer - t0Event.timer);
+    self.lastStoppedAt = t2Event.timer;
     console.log("Pump cycle ended: " + (t1Event.timer - t0Event.timer) + " ms off, then " + (t2Event.timer - t1Event.timer) + " ms on (" + (self.duty * 100).toFixed(0) + "% duty)");
   }
 };
