@@ -16,7 +16,33 @@
     var jsonElement;
     var websocket;
 
-    var tanks = [];
+    var tankDefs = [{
+      // Note: Capacity in Liters
+      code: "RS1",
+      capacity: 1,
+    }, {
+      code: "RS2",
+      capacity: 1
+    }, {
+      code: "RSP1",
+      capacity: 1
+    }, {
+      code: "RSP2",
+      capacity: 1
+    }, {
+      code: "RF1",
+      capacity: 1
+    }, {
+      code: "RF2",
+      capacity: 1
+    }, {
+      code: "RC1",
+      capacity: 1
+    }, {
+      code: "RC2",
+      capacity: 1
+    }];
+
     var devices = [];
     var valves = [];
     var pumps = [];
@@ -32,7 +58,7 @@
     }
 
     function displayTanks() {
-      tanks.forEach(function(tank) {
+      tankDefs.forEach(function(tank) {
         var tankElementId = 'tank_' + tank.code;
         var tankElement = document.getElementById(tankElementId);
 
@@ -228,7 +254,7 @@
         }
         var rate = (pump.duty * pump.capacity_gph);
         if (getMinutesAgo(new Date(pump.lastStoppedAt)) > 60) {
-          rate = 0;
+        
         }
         totalRate += rate;
         stateElem.innerHTML = pump.state ? 'ON' : 'OFF';
@@ -275,10 +301,14 @@
       };
       websocket.onmessage = function(msg) {
         var data = JSON.parse(msg.data);
-        tanks = data.tanks;
-        tanks.forEach(function(tank, index) {
-          tank.contents = (tank.fill == null ? 0 : tank.fill);
-          console.log("Tank %s at %d: %s, raw= %s", tank.code, index, tank.contents, tank.rawValue);
+        tankDefs.forEach(function(tankDef, index) {
+          var tank = data.tanks.filter(function(tankData) {
+            return tankData.code == tankDef.code;
+          }).shift();
+          tankDef.rawValue = tank.rawValue;
+          tankDef.contents = (tank.fill == null ? 0 : tank.fill);
+          tankDef.capacity = tank.capacity;
+          console.log("Tank %s at %d: %s, raw= %s", tankDef.code, index, tankDef.contents, tankDef.rawValue);
 
           devices = data.devices;
           valves = data.valves;
