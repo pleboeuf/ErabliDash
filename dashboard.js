@@ -415,6 +415,7 @@ exports.Dashboard = function(config, WebSocketClient) {
       console.log("Loading configured device '%s' - '%s' (%s) at %s,%s", dev.name, dev.description, dev.id, deviceData.generationId, deviceData.lastEventSerial);
       return new Device(dev.id, dev.name, deviceData.generationId, deviceData.lastEventSerial);
     });
+
     tanks = config.tanks.map(function(tank) {
       var tankData = data.tanks.filter(function(tankData) {
         return tank.code == tankData.code;
@@ -423,6 +424,7 @@ exports.Dashboard = function(config, WebSocketClient) {
       var attrsFromConfig = ['name', 'device', 'shape', 'orientation', 'length', 'diameter', 'sensorHeight', 'totalHeight'];
       return new Tank(_.extend(tank, _.omit(tankData, attrsFromConfig)));
     });
+
     valves = config.valves.map(function(valve) {
       var valveData = data.valves.filter(function(valveData) {
         return valve.code == valveData.code;
@@ -430,16 +432,18 @@ exports.Dashboard = function(config, WebSocketClient) {
       console.log("Loading configured valve '%s' on device '%s'", valve.code, valve.device);
       return _.extend(valve, _.omit(valveData, 'code', 'name', 'device'));
     });
+
     vacuumSensors = config.vacuum.map(function(sensor) {
-      if (!data.vacuum) {
-        return sensor;
-      }
       var sensorData = data.vacuum.filter(function(sensorData) {
         return sensor.code == sensorData.code;
       }).shift();
+      if (!data.vacuum) {
+        return sensor;
+      }
       console.log("Loading configured vacuum sensor '%s' on device '%s'", sensor.code, sensor.device);
       return _.extend(sensor, _.omit(sensorData, 'code', 'device'));
     });
+    
     pumps = config.pumps.map(function(pump) {
       pump = new Pump(pump);
       if (!data.pumps) {

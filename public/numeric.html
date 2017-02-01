@@ -24,10 +24,16 @@
       code: "RS2",
       capacity: 1
     }, {
-      code: "RSP1",
+      code: "RS3",
       capacity: 1
     }, {
-      code: "RSP2",
+      code: "RS4",
+      capacity: 1
+    }, {
+      code: "RS5",
+      capacity: 1
+    }, {
+      code: "RS6",
       capacity: 1
     }, {
       code: "RF1",
@@ -40,6 +46,9 @@
       capacity: 1
     }, {
       code: "RC2",
+      capacity: 1
+    }, {
+      code: "RHC",
       capacity: 1
     }];
 
@@ -348,6 +357,9 @@
       text-align: right;
     }
 
+    #PVx,
+    #vacuums,
+    #temperatures,
     #tanks,
     #valves {
       float: left;
@@ -364,7 +376,8 @@
 <body>
   <h1>ErabliDash (numeric)</h1>
   <div>See <a href="/data.json">data.json</a> for the raw data.</div>
-  <div id="valves">
+
+  <div id="valves", style="background-color: rgb(255,255,255);">
     <h3>Valves</h3>
     <table id="valvelist">
       <tr>
@@ -373,8 +386,9 @@
       </tr>
     </table>
   </div>
-  <div id="tanks">
-    <h3>Tanks</h3>
+
+  <div id="tanks", style="background-color: rgb(255,255,255);">
+    <h3>Reservoirs</h3>
     <table id="tanklist">
       <tr>
         <th>Code</th>
@@ -389,7 +403,8 @@
       </tr>
     </table>
   </div>
-  <div id="devices">
+
+  <div id="devices", style="background-color: rgb(255,255,255);">
     <h3>Devices</h3>
     <table id="devicelist">
       <tr>
@@ -400,7 +415,8 @@
       </tr>
     </table>
   </div>
-  <div id="PVx">
+
+  <div id="PVx", style="background-color: rgb(255,255,255);">
     <table id="pumpVac">
       <tr>
         <td style="border-style:none">
@@ -424,28 +440,25 @@
             </table>
           </div>
         </td>
-        <td style="border-style:none">
-
-        </td>
-        <td style="border-style:none">
-          <div id="vacuums">
-            <h3>Vacuum</h3>
-            <table id="vacuumlist">
-              <tr>
-                <th>Name</th>
-                <th>Vacuum
-                  <br/>(inHg)</th>
-              </tr>
-            </table>
-          </div>
-        </td>
-        <td style="border-style:none">
-          <iframe id="vacuum-frame" width="450" height="260" src="http://api.thingspeak.com/channels/91922/charts/1?width=450&height=260&results=60&dynamic=true&title=Moving-Vacuum"></iframe>
-        </td>
       </tr>
     </table>
   </div>
-  <div id="temperatures">
+
+  <div id="vacuums", style="background-color: rgb(255,255,255);">
+    <h3>Vacuum</h3>
+    <table id="vacuumlist">
+      <tr>
+        <th>Name</th>
+        <th>Vacuum
+          <br/>(inHg)</th>
+      </tr>
+    </table>
+    <h3> </h3>
+    <h3> </h3>
+    <h3> </h3>
+  </div>
+
+  <div id="temperatures", style="background-color: rgb(255,255,255);">
     <h3>Températures</h3>
     <table id="temperaturelist">
       <tr>
@@ -454,11 +467,12 @@
           <br/>(C)</th>
         <th>US100
           <br/>(C)</th>
-        <th>Ambient
+        <th>Extérieur
           <br/>(C)</th>
       </tr>
     </table>
   </div>
+
 </body>
 
 </html>
