@@ -61,7 +61,7 @@
   }, {
     "name": "EB-RF2",
     "description": "Réservoir de filtrat #2",
-    "id": "250024000d47343432313031"
+    "id": "3a002e000347343337373739"
   }, {
     "name": "EB-RC1",
     "description": "Réservoir de concentré 1",
@@ -82,6 +82,10 @@
     "name": "EB-PT2",
     "description": "Pompe de transfert 2 - Pump House",
     "id": "2b0031001047343432313031"
+  }, {
+    "name": "EB-VEcTk",
+    "description": "Valves VaEC et VaTk",
+    "id": "4b001b000b51353335323535"
   }],
 
   "tanks": [{
@@ -190,7 +194,7 @@
     "device": "EB-RS1",
     "identifier": 1
   }, {
-    "code": "VaTK",
+    "code": "VaDS1",
     "device": "EB-RS1",
     "identifier": 2
   }, {
@@ -198,15 +202,27 @@
     "device": "EB-RS2",
     "identifier": 1
   }, {
+    "code": "VaDS2",
+    "device": "EB-RS2",
+    "identifier": 2
+  }, {
     "code": "VaS3",
     "device": "EB-RS3",
     "identifier": 1
+  }, {
+    "code": "VaDS3",
+    "device": "EB-RS3",
+    "identifier": 2
   }, {
     "code": "VaS4",
     "device": "EB-RS4",
     "identifier": 1
   }, {
-    "code": "VaDS5",
+    "code": "VaDS4",
+    "device": "EB-RS4",
+    "identifier": 2
+  }, {
+    "code": "VaS5",
     "device": "EB-RS5",
     "identifier": 1
   }, {
@@ -226,8 +242,16 @@
     "device": "EB-RF2",
     "identifier": 1
   }, {
-    "code": "VaEC",
+    "code": "VaDF2",
     "device": "EB-RF2",
+    "identifier": 2
+  }, {
+    "code": "VaEC",
+    "device": "EB-VEcTk",
+    "identifier": 1
+  }, {
+    "code": "VaTk",
+    "device": "EB-VEcTk",
     "identifier": 2
   }],
 
@@ -240,6 +264,15 @@
   },{
     "code": "Vac3",
     "device": "EB-P3"
+  },{
+    "code": "V1",
+    "device": "EB-V1"
+  },{
+    "code": "V2",
+    "device": "EB-V2"
+  },{
+    "code": "V3",
+    "device": "EB-V3"
   }],
 
   "pumps": [{
@@ -260,58 +293,58 @@
   }],
 
   "temperatures": [{
-    "name": "RS1",
+    "code": "RS1",
     "device": "EB-RS1",
     "enclosure": 0,
     "US100sensor":0,
     "exterior": 0
   }, {
-    "name": "RS2",
+    "code": "RS2",
     "device": "EB-RS2",
     "enclosure": 0,
     "US100sensor":0
   },{
-    "name": "RS3",
+    "code": "RS3",
     "device": "EB-RS3",
     "enclosure": 0,
     "US100sensor":0
   },{
-    "name": "RS4",
+    "code": "RS4",
     "device": "EB-RS4",
     "enclosure": 0,
     "US100sensor":0
   },{
-    "name": "RS5",
+    "code": "RS5",
     "device": "EB-RS5",
     "enclosure": 0,
     "US100sensor":0
   },{
-    "name": "RS6",
+    "code": "RS6",
     "device": "EB-RS6",
     "enclosure": 0,
     "US100sensor":0
   },{
-    "name": "RC1",
+    "code": "RC1",
     "device": "EB-RC1",
     "enclosure": 0,
     "US100sensor":0
   },{
-    "name": "RC2",
+    "code": "RC2",
     "device": "EB-RC2",
     "enclosure": 0,
     "US100sensor":0
   },{
-    "name": "RF1",
+    "code": "RF1",
     "device": "EB-RF1",
     "enclosure": 0,
     "US100sensor":0
   },{
-    "name": "RF2",
+    "code": "RF2",
     "device": "EB-RF2",
     "enclosure": 0,
     "US100sensor":0
   },{
-    "name": "RHC",
+    "code": "RHC",
     "device": "EB-RHC",
     "enclosure": 0
   }]

@@ -297,6 +297,45 @@
       });
     }
 
+    function displayTemperatures() {
+      devices.forEach(function(device) {
+        var ambientTempElemId = 'device_' + device.name + '_ambientTemp';
+        var enclosureTempElemId = 'device_' + device.name + '_enclosureTemp';
+        var sensorUS100TempElemId = 'device_' + device.name + '_sensorTemp';
+        var lastUpdatedAtElem;
+        var deviceElemId = 'device_' + device.name;
+        if (document.getElementById(deviceElemId) == null) {
+          var deviceElem = document.createElement("tr");
+          deviceElem.setAttribute('id', deviceElemId);
+          document.getElementById('temperaturelist').appendChild(deviceElem);
+
+          var nameElement = document.createElement("td");
+          nameElement.innerHTML = device.name;
+          deviceElem.appendChild(nameElement);
+
+          ambientTempElem = document.createElement('td');
+          ambientTempElem.setAttribute('id', ambientTempElemId);
+          deviceElem.appendChild(ambientTempElem);
+
+          enclosureTempElem = document.createElement('td');
+          enclosureTempElem.setAttribute('id', enclosureTempElemId);
+          deviceElem.appendChild(enclosureTempElem);
+
+          sensorUS100TempElem = document.createElement('td');
+          sensorUS100TempElem.setAttribute('id', sensorUS100TempElemId);
+          deviceElem.appendChild(sensorUS100TempElem);
+        } else {
+          ambientTempElem = document.getElementById(ambientTempElemId);
+          enclosureTempElem = document.getElementById(enclosureTempElemId);
+          sensorUS100TempElem = document.getElementById(sensorUS100TempElemId);
+        }
+
+        ambientTempElem.innerHTML = device.ambientTempElemId;
+        enclosureTempElem.innerHTML = device.enclosureTempElemId;
+        sensorUS100TempElem.innerHTML = device.sensorTemp;
+      });
+    }
+
     function openSocket() {
       websocket = new WebSocket(wsUri(""), "dashboard-stream");
       websocket.onopen = function(evt) {
@@ -323,11 +362,13 @@
           valves = data.valves;
           vacuums = data.vacuum;
           pumps = data.pumps;
+          temperatures = data.temperatures;
           displayDevices();
           displayTanks();
           displayValves();
           displayPumps();
           displayVacuum();
+          // displayTemperatures();
         });
       };
       websocket.onerror = function(evt) {
@@ -459,7 +500,7 @@
   </div>
 
   <div id="temperatures", style="background-color: rgb(255,255,255);">
-    <h3>Températures</h3>
+    <h3>Temperatures</h3>
     <table id="temperaturelist">
       <tr>
         <th>Name</th>

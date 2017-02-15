@@ -75,6 +75,14 @@ exports.VacuumSensor = function(attrs) {
     return self.value;
   }
 }
+// exports.Temperatures = function(attrs) {
+//   var self = this;
+//   _.extend(self, attrs);
+//   self.getValue = function() {
+//     return self.value;
+//   }
+// }
+
 var PumpEvent = function(generationId, serialNo, data) {
   var self = this;
   self.generationId = generationId;
@@ -129,6 +137,7 @@ exports.Dashboard = function(config, WebSocketClient) {
   var valves = [];
   var vacuumSensors = [];
   var pumps = [];
+  var temperatures = [];
 
   var dir = path.dirname(filename);
   fs.exists(dir, function(exists) {
@@ -239,6 +248,16 @@ exports.Dashboard = function(config, WebSocketClient) {
     }
     return pump;
   }
+
+  // function getVacuumSensorByCode(code) {
+  //   var sensor = vacuumSensors.filter(function(sensor) {
+  //     return sensor.code == code;
+  //   }).shift();
+  //   if (sensor === undefined) {
+  //     throw "Dashboard has no vacuum sensor with code " + code;
+  //   }
+  //   return sensor;
+  // }
 
   function handleEvent(device, event) {
     var data = event.data;
@@ -374,6 +393,7 @@ exports.Dashboard = function(config, WebSocketClient) {
       "valves": config.valves,
       "vacuum": config.vacuum,
       "pumps": config.pumps
+      // "temperatures": config.temperatures
     }
     return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
       console.log("Loading " + filename);
@@ -400,6 +420,7 @@ exports.Dashboard = function(config, WebSocketClient) {
       "valves": valves,
       "vacuum": vacuumSensors,
       "pumps": pumps
+      // "temperatures": temperatures
     };
   }
 
@@ -455,6 +476,17 @@ exports.Dashboard = function(config, WebSocketClient) {
       pump.load(pumpData);
       return pump;
     });
+
+    // temperatures = config.temperatures.map(function(tempSensor) {
+    //   var tempSensorData = data.temperatures.filter(function(tempSensorData) {
+    //     return temperatures.code == temperatureData.code;
+    //   }).shift();
+    //   if (!data.temperatures) {
+    //     return tempSensor;
+    //   }
+    //   console.log("Loading configured temperature sensor '%s' on device '%s'", tempSensor.code, tempSensor.device);
+    //   return _.extend(tempSensor, _.omit(tempSensorData, 'code', 'device'));
+    // });
   }
 
   function store() {
