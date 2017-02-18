@@ -189,6 +189,11 @@
         } else if (ageInMinutes > 0) {
           ageDisplay = ageInMinutes + ' min.';
         }
+        if (ageInMinutes > 9){
+          lastUpdatedAtElem.style.color = "#ff0000";
+        } else {
+          lastUpdatedAtElem.style.color = "#000000";          
+        }
         lastUpdatedAtElem.innerHTML = ageDisplay;
         generationElem.innerHTML = device.generationId;
         serialElem.innerHTML = device.lastEventSerial;
@@ -220,11 +225,22 @@
           positionElem = document.getElementById(positionElemId);
         }
         positionElem.innerHTML = valve.position;
+        if (valve.position == "Ouverte") {
+          positionElem.style.backgroundColor = "#00ff00"; // Vert
+        } else if (valve.position == "Fermé"){
+          positionElem.style.backgroundColor = "#ff3f3f"; // Rouge
+        } else if (valve.position == "Partiel"){
+          positionElem.style.backgroundColor = "#ffff00"; // Jaune
+        } else if (valve.position == "Erreur"){
+          positionElem.style.backgroundColor = "#bfbfff"; // Bleu
+        } 
       });
     }
 
     function displayPumps() {
       var totalRate = 0;
+      var gph = 0;
+      var pumpDuty = 0;
       pumps.forEach(function(pump) {
         var stateElem;
         var stateElemId = 'pump_' + pump.code + '_state';
@@ -262,12 +278,19 @@
           rateElem = document.getElementById(rateElemId);
         }
         var rate = (pump.duty * pump.capacity_gph);
-        if (getMinutesAgo(new Date(pump.lastStoppedAt)) > 60) {
-        
-        }
+        // if (getMinutesAgo(new Date(pump.lastStoppedAt)) > 30) {
+        // } else {
+        // }
         totalRate += rate;
         stateElem.innerHTML = pump.state ? 'ON' : 'OFF';
-        dutyElem.innerHTML = (pump.duty * 100).toFixed(1);
+        if (pump.state == 1) 
+        {
+          stateElem.style.backgroundColor = "#00ff00";
+        } else {
+          stateElem.style.backgroundColor = "#ff3f3f";
+        }
+        pumpDuty = (pump.duty * 100).toFixed(1);
+        dutyElem.innerHTML = pumpDuty;
         rateElem.innerHTML = rate.toFixed(0);
       });
       document.getElementById('pumptotalrate').innerHTML = totalRate.toFixed(0);
@@ -385,7 +408,7 @@
 
     th,
     td {
-      border: 1px solid #DDD;
+      border: 1px solid #BBB;
       padding: 0.2em;
     }
 
@@ -414,11 +437,11 @@
   </style>
 </head>
 
-<body>
+<body style="background-color: #E6E6E6;">
   <h1>ErabliDash (numeric)</h1>
   <div>See <a href="/data.json">data.json</a> for the raw data.</div>
 
-  <div id="valves", style="background-color: rgb(255,255,255);">
+  <div id="valves">
     <h3>Valves</h3>
     <table id="valvelist">
       <tr>
@@ -428,7 +451,7 @@
     </table>
   </div>
 
-  <div id="tanks", style="background-color: rgb(255,255,255);">
+  <div id="tanks", style="background-color: #E6E6E6;">
     <h3>Reservoirs</h3>
     <table id="tanklist">
       <tr>
@@ -445,7 +468,7 @@
     </table>
   </div>
 
-  <div id="devices", style="background-color: rgb(255,255,255);">
+  <div id="devices", style="background-color: #E6E6E6;">
     <h3>Devices</h3>
     <table id="devicelist">
       <tr>
@@ -457,7 +480,7 @@
     </table>
   </div>
 
-  <div id="PVx", style="background-color: rgb(255,255,255);">
+  <div id="PVx", style="background-color: #E6E6E6;">
     <table id="pumpVac">
       <tr>
         <td style="border-style:none">
@@ -485,7 +508,7 @@
     </table>
   </div>
 
-  <div id="vacuums", style="background-color: rgb(255,255,255);">
+  <div id="vacuums", style="background-color: #E6E6E6;">
     <h3>Vacuum</h3>
     <table id="vacuumlist">
       <tr>
@@ -499,7 +522,7 @@
     <h3> </h3>
   </div>
 
-  <div id="temperatures", style="background-color: rgb(255,255,255);">
+  <div id="temperatures", style="background-color: #E6E6E6;">
     <h3>Temperatures</h3>
     <table id="temperaturelist">
       <tr>

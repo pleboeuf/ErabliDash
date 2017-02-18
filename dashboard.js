@@ -263,6 +263,7 @@ exports.Dashboard = function(config, WebSocketClient) {
     var data = event.data;
     var name = data.eName;
     var value = data.eData;
+    var positionCode = ["Erreur", "Ouverte", "Fermé", "Partiel"];
     device.lastUpdatedAt = event.published_at;
     if (name == "sensor/ambientTemp") {
       device.ambientTemp = value;
@@ -280,6 +281,7 @@ exports.Dashboard = function(config, WebSocketClient) {
       getPumpOfDevice(device).update(event, value);
     } else if (name == "pump/T2") {
       getPumpOfDevice(device).update(event, value);
+
     } else if (name == "sensor/openSensorV1") {
       getValveOfDevice(device, 1).position = (value == 0 ? "Ouvert" : "???");
     } else if (name == "sensor/closeSensorV1") {
@@ -288,6 +290,13 @@ exports.Dashboard = function(config, WebSocketClient) {
       getValveOfDevice(device, 2).position = (value == 0 ? "Ouvert" : "???");
     } else if (name == "sensor/closeSensorV2") {
       getValveOfDevice(device, 2).position = (value == 0 ? "Fermé" : getValveOfDevice(device, 2).position);
+
+    } else if (name == "sensor/Valve1Pos") {
+      getValveOfDevice(device, 1).position = positionCode[value];
+    } else if (name == "sensor/Valve2Pos") {
+      getValveOfDevice(device, 2).position = positionCode[value];
+
+
     } else if (name == "sensor/level") {
       tanks.forEach(function(tank) {
         if (tank.device == device.name) {
