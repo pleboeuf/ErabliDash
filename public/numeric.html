@@ -130,7 +130,9 @@
         percentElement.innerHTML = tankPercent + " % ";
         rawValueElement.innerHTML = tank.rawValue;
         capacityElement.innerHTML = liters2gallons(tank.capacity);
-
+        if (tank.rawValue < 5){
+          contentsElement.innerHTML = "----";
+        }
         var gaugeElement = document.createElement('span');
         gaugeElement.innerHTML = tankPercent + '/100';
         gaugeElement.setAttribute('class', 'tankgauge');
@@ -225,7 +227,7 @@
           positionElem = document.getElementById(positionElemId);
         }
         positionElem.innerHTML = valve.position;
-        if (valve.position == "Ouverte") {
+        if ((valve.position == "Ouvert") || (valve.position == "Ouverte")) {
           positionElem.style.backgroundColor = "#00ff00"; // Vert
         } else if (valve.position == "Fermé"){
           positionElem.style.backgroundColor = "#ff3f3f"; // Rouge
@@ -278,10 +280,17 @@
           rateElem = document.getElementById(rateElemId);
         }
         var rate = (pump.duty * pump.capacity_gph);
-        // if (getMinutesAgo(new Date(pump.lastStoppedAt)) > 30) {
-        // } else {
-        // }
-        totalRate += rate;
+        if (pump.code == "P1" || pump.code == "P2" || pump.code == "P3"){
+            totalRate += rate;
+        }
+/*        var ageInMinutes = Math.floor(getMinutesAgo(new Date(device.(pump.code).lastUpdatedAt)));
+        console.log("ageInMinutes= " + ageInMinutes);
+        if (ageInMinutes > 9){
+          rateElem.style.color = "#ff0000";
+        } else {
+          rateElem.style.color = "#000000";          
+        }
+*/
         stateElem.innerHTML = pump.state ? 'ON' : 'OFF';
         if (pump.state == 1) 
         {
@@ -290,10 +299,10 @@
           stateElem.style.backgroundColor = "#ff3f3f";
         }
         pumpDuty = (pump.duty * 100).toFixed(1);
-        dutyElem.innerHTML = pumpDuty;
-        rateElem.innerHTML = rate.toFixed(0);
+        dutyElem.innerHTML = parseFloat(pumpDuty) || "";
+        rateElem.innerHTML = parseInt(rate) || "";
       });
-      document.getElementById('pumptotalrate').innerHTML = totalRate.toFixed(0);
+      document.getElementById('pumptotalrate').innerHTML = parseInt(totalRate) || 0;
     }
 
     function displayVacuum() {
@@ -379,7 +388,7 @@
           tankDef.rawValue = tank.rawValue;
           tankDef.contents = (tank.fill == null ? 0 : tank.fill);
           tankDef.capacity = tank.capacity;
-          console.log("Tank %s at %d: %s, raw= %s", tankDef.code, index, tankDef.contents, tankDef.rawValue);
+          // console.log("Tank %s at %d: %s, raw= %s", tankDef.code, index, tankDef.contents, tankDef.rawValue);
 
           devices = data.devices;
           valves = data.valves;
@@ -438,7 +447,7 @@
 </head>
 
 <body style="background-color: #E6E6E6;">
-  <h1>ErabliDash (numeric)</h1>
+  <h1>Tableau de bord</h1>
   <div>See <a href="/data.json">data.json</a> for the raw data.</div>
 
   <div id="valves">
@@ -446,7 +455,7 @@
     <table id="valvelist">
       <tr>
         <th>Name</th>
-        <th>Position</th>
+        <th id="valvesPos">Position</th>
       </tr>
     </table>
   </div>
@@ -468,22 +477,11 @@
     </table>
   </div>
 
-  <div id="devices", style="background-color: #E6E6E6;">
-    <h3>Devices</h3>
-    <table id="devicelist">
-      <tr>
-        <th>Name</th>
-        <th>Updated</th>
-        <th>Generation</th>
-        <th>Serial</th>
-      </tr>
-    </table>
-  </div>
-
   <div id="PVx", style="background-color: #E6E6E6;">
     <table id="pumpVac">
       <tr>
         <td style="border-style:none">
+
           <div id="pumps">
             <h3>Pompes</h3>
             <table id="pumplist">
@@ -503,37 +501,65 @@
               </tr>
             </table>
           </div>
+
+          <div id="vacuums", style="background-color: #E6E6E6;">
+            <h3>Vacuum</h3>
+            <table id="vacuumlist">
+              <tr>
+                <th>Name</th>
+                <th>Vacuum
+                  <br/>(inHg)</th>
+              </tr>
+            </table>
+            <h3> </h3>
+            <h3> </h3>
+            <h3> </h3>
+          </div>
+
         </td>
       </tr>
     </table>
   </div>
 
-  <div id="vacuums", style="background-color: #E6E6E6;">
-    <h3>Vacuum</h3>
-    <table id="vacuumlist">
+  <div id="devAndTemp", style="background-color: #E6E6E6;">
+    <table id="devTemp">
       <tr>
-        <th>Name</th>
-        <th>Vacuum
-          <br/>(inHg)</th>
-      </tr>
-    </table>
-    <h3> </h3>
-    <h3> </h3>
-    <h3> </h3>
-  </div>
-
-  <div id="temperatures", style="background-color: #E6E6E6;">
-    <h3>Temperatures</h3>
-    <table id="temperaturelist">
-      <tr>
-        <th>Name</th>
-        <th>Enclosure
-          <br/>(C)</th>
-        <th>US100
-          <br/>(C)</th>
-        <th>Extérieur
-          <br/>(C)</th>
-      </tr>
+        <td style="border-style:none">
+          <div id="devices">
+            <table id="dev">
+              <tr>
+                <td style="border-style:none">
+                  <h3>Devices</h3>
+                  <table id="devicelist">
+                    <tr>
+                      <th>Name</th>
+                      <th>Updated</th>
+                      <th>Generation</th>
+                      <th>Serial</th>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </td>
+<!--         <td style="border-style:none">
+          <div id="temperatures">
+            <h3>Temperatures</h3>
+            <table id="temperaturelist">
+              <tr>
+                <th>Name</th>
+                <th>Enclosure
+                  <br/>(C)</th>
+                <th>US100
+                  <br/>(C)</th>
+                <th>Extérieur
+                  <br/>(C)</th>
+              </tr>
+            </table>
+          </div>
+        </td>
+ -->      </tr>
     </table>
   </div>
 

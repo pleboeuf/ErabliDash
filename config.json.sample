@@ -37,7 +37,7 @@
   }, {
     "name": "EB-RS2",
     "description": "Réservoir de sève #2",
-    "id": "240045001447343338333633"
+    "id": "240051000a51353335323535"
   }, {
     "name": "EB-RS3",
     "description": "Réservoir de sève #3",
@@ -75,17 +75,13 @@
     "description": "Réservoir d'huile a chauffage",
     "id": "230031000247343337373739"
   }, {
-    "name": "EB-PT1",
-    "description": "Pompe de transfert 1",
-    "id": "330024001347343339383037"
-  }, {
     "name": "EB-PT2",
     "description": "Pompe de transfert 2 - Pump House",
     "id": "2b0031001047343432313031"
   }, {
     "name": "EB-VEcTk",
     "description": "Valves VaEC et VaTk",
-    "id": "4b001b000b51353335323535"
+    "id": "1a0049000a51353335323535"
   }],
 
   "tanks": [{
@@ -96,7 +92,7 @@
     "orientation": "horizontal",
     "length": 10718,
     "diameter": 1651,
-    "sensorHeight": 1733
+    "sensorHeight": 1738
   }, {
     "code": "RS2",
     "name": "Réservoir de sève #2",
@@ -105,7 +101,7 @@
     "orientation": "horizontal",
     "length": 7010,
     "diameter": 1842,
-    "sensorHeight": 1813
+    "sensorHeight": 1863
   }, {
     "code": "RS3",
     "name": "Réservoir de sève #3",
@@ -159,7 +155,7 @@
     "orientation": "horizontal",
     "length": 4267,
     "diameter": 1842,
-    "sensorHeight": 1981
+    "sensorHeight": 1872
   }, {
     "code": "RC1",
     "name": "Réservoir de concentré #1",
@@ -256,40 +252,44 @@
   }],
 
   "vacuum": [{
-    "code": "Vac1",
+    "code": "Rel1",
     "device": "EB-P1"
   }, {
-    "code": "Vac2",
+    "code": "Rel2",
     "device": "EB-P2"
   },{
-    "code": "Vac3",
+    "code": "Rel3",
     "device": "EB-P3"
-  },{
-    "code": "V1",
-    "device": "EB-V1"
-  },{
-    "code": "V2",
-    "device": "EB-V2"
-  },{
-    "code": "V3",
-    "device": "EB-V3"
   }],
 
   "pumps": [{
     "code": "P1",
-    "device": "EB-P1"
+    "device": "EB-P1",
+    "capacity_gph": 2995
   }, {
     "code": "P2",
-    "device": "EB-P2"
+    "device": "EB-P2",
+    "capacity_gph": 3032
   },{
     "code": "P3",
-    "device": "EB-P3"
-  }, {
-    "code": "PT1",
-    "device": "EB-PT1"
+    "device": "EB-P3",
+    "capacity_gph": 3055
   }, {
     "code": "PT2",
-    "device": "EB-PT2"
+    "device": "EB-PT2",
+    "capacity_gph": 0
+  }, {
+    "code": "Vide1",
+    "device": "EB-V1",
+    "capacity_gph": 0
+  }, {
+    "code": "Vide2",
+    "device": "EB-V2",
+    "capacity_gph": 0
+  }, {
+    "code": "Vide3",
+    "device": "EB-V3",
+    "capacity_gph": 0
   }],
 
   "temperatures": [{
