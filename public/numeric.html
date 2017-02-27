@@ -307,6 +307,7 @@
 
     function displayVacuum() {
       vacuums.forEach(function(vacuum) {
+        var vacuumValue = 0;
         var valueElem;
         var valueElemId = 'vacuum_' + vacuum.code + '_value';
         var vacuumElemId = 'vacuum_' + vacuum.code;
@@ -325,7 +326,9 @@
         } else {
           valueElem = document.getElementById(valueElemId);
         }
-        valueElem.innerHTML = vacuum.rawValue / 100;
+        vacuumValue = (vacuum.rawValue + vacuum.offset) / 100;
+        valueElem.innerHTML = vacuumValue.toFixed(1);
+        valueElem.style.textAlign = "right";
       });
     }
 

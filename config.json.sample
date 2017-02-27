@@ -253,13 +253,16 @@
 
   "vacuum": [{
     "code": "Rel1",
-    "device": "EB-P1"
+    "device": "EB-P1",
+    "offset": 113
   }, {
     "code": "Rel2",
-    "device": "EB-P2"
+    "device": "EB-P2",
+    "offset": 15
   },{
     "code": "Rel3",
-    "device": "EB-P3"
+    "device": "EB-P3",
+    "offset": 67
   }],
 
   "pumps": [{
