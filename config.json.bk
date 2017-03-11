@@ -33,7 +33,7 @@
   }, {
     "name": "EB-RS1",
     "description": "Réservoir de sève #1",
-    "id": "1f003f000747343337373738"
+    "id": "340030000a51353335323536"
   }, {
     "name": "EB-RS2",
     "description": "Réservoir de sève #2",
@@ -92,7 +92,9 @@
     "orientation": "horizontal",
     "length": 10718,
     "diameter": 1651,
-    "sensorHeight": 1738
+    "sensorHeight": 1738,
+    "output": "VaS1",
+    "drain": "VaDS1"
   }, {
     "code": "RS2",
     "name": "Réservoir de sève #2",
@@ -101,25 +103,31 @@
     "orientation": "horizontal",
     "length": 7010,
     "diameter": 1842,
-    "sensorHeight": 1863
+    "sensorHeight": 1863,
+    "output": "VaS2",
+    "drain": "VaDS2"
   }, {
     "code": "RS3",
     "name": "Réservoir de sève #3",
     "device": "EB-RS3",
     "shape": "cylinder",
     "orientation": "horizontal",
-    "length": 4180,
-    "diameter": 3000,
-    "sensorHeight": 2700
+    "length": 4128,
+    "diameter": 2438,
+    "sensorHeight": 2292,
+    "output": "VaS3",
+    "drain": "VaDS3"
   }, {
     "code": "RS4",
     "name": "Réservoir de sève #4",
     "device": "EB-RS4",
     "shape": "cylinder",
     "orientation": "horizontal",
-    "length": 4825,
-    "diameter": 3000,
-    "sensorHeight": 2700
+    "length": 3353,
+    "diameter": 2438,
+    "sensorHeight": 2292,
+    "output": "VaS4",
+    "drain": "VaDS4"
   }, {
     "code": "RS5",
     "name": "Réservoir de sève pump house #1",
@@ -128,7 +136,9 @@
     "length": 3657,
     "diameter": 1219,
     "totalHeight": 1067,
-    "sensorHeight": 1140
+    "sensorHeight": 1140,
+    "output": "VaS5",
+    "drain": "VaDS5"
   }, {
     "code": "RS6",
     "name": "Réservoir de sève pump house #2",
@@ -137,16 +147,9 @@
     "length": 3657,
     "diameter": 1219,
     "totalHeight": 1067,
-    "sensorHeight": 1137
-  }, {
-    "code": "RF1",
-    "name": "Réservoir de filtrat #1",
-    "device": "EB-RF1",
-    "shape": "u",
-    "length": 4877,
-    "diameter": 1524,
-    "totalHeight": 1676,
-    "sensorHeight": 1740
+    "sensorHeight": 1137,
+    "output": "VaS6",
+    "drain": "VaDS6"
   }, {
     "code": "RF2",
     "name": "Réservoir de filtrat #2",
@@ -155,7 +158,20 @@
     "orientation": "horizontal",
     "length": 4267,
     "diameter": 1842,
-    "sensorHeight": 1872
+    "sensorHeight": 1872,
+    "output": "VaF2",
+    "drain": "VaDF2"
+  }, {
+    "code": "RF1",
+    "name": "Réservoir de filtrat #1",
+    "device": "EB-RF1",
+    "shape": "u",
+    "length": 4877,
+    "diameter": 1524,
+    "totalHeight": 1676,
+    "sensorHeight": 1740,
+    "output": "none",
+    "drain": "none"
   }, {
     "code": "RC1",
     "name": "Réservoir de concentré #1",
@@ -164,7 +180,9 @@
     "length": 3658,
     "diameter": 1219,
     "totalHeight": 914,
-    "sensorHeight": 986
+    "sensorHeight": 986,
+    "output": "none",
+    "drain": "none"
   }, {
     "code": "RC2",
     "name": "Réservoir de concentré #2",
@@ -173,7 +191,9 @@
     "length": 3658,
     "diameter": 1219,
     "totalHeight": 914,
-    "sensorHeight": 968
+    "sensorHeight": 968,
+    "output": "none",
+    "drain": "none"
   }, {
     "code": "RHC",
     "name": "Réservoir huile a chauffage",
@@ -182,7 +202,9 @@
     "orientation": "horizontal",
     "length": 3000,
     "diameter": 1500,
-    "sensorHeight": 1500
+    "sensorHeight": 1500,
+    "output": "none",
+    "drain": "none"
   }],
 
   "valves": [{

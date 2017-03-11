@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>ErabliDash (numeric)</title>
+  <title>Tableau de bord (numeric)</title>
   <script src="/bower_components/jquery/dist/jquery.min.js">
   </script>
   <script src="/bower_components/peity/jquery.peity.min.js">
@@ -70,22 +70,16 @@
       tankDefs.forEach(function(tank) {
         var tankElementId = 'tank_' + tank.code;
         var tankElement = document.getElementById(tankElementId);
-
         var contentsElementId = tankElementId + '_contents';
         var contentsElement;
-
         var percentElementId = tankElementId + '_percent';
         var percentElement;
-
         var rawValueElementId = tankElementId + '_rawvalue';
         var rawValueElement;
-
         var capacityElementId = tankElementId + '_capacity';
         var capacityElement;
-
         var outputElementId = tankElementId + '_output';
         var outputElement;
-
         var drainElementId = tankElementId + '_drain';
         var drainElement;
 
@@ -98,35 +92,30 @@
           var nameElement = document.createElement("td");
           nameElement.setAttribute('class', 'tankname');
           nameElement.innerHTML = tank.code;
-          nameElement.style.backgroundColor = "#d0d0d0"; // gris
           tankElement.appendChild(nameElement);
 
           // Add measured contents (gallons)
           contentsElement = document.createElement('td');
           contentsElement.setAttribute('id', contentsElementId);
           contentsElement.setAttribute('class', 'tankcontents');
-          contentsElement.style.backgroundColor = "#d0d0d0"; // gris
           tankElement.appendChild(contentsElement);
 
           // Add measured contents (percent)
           percentElement = document.createElement('td');
           percentElement.setAttribute('id', percentElementId);
           percentElement.setAttribute('class', 'tankpercent');
-          percentElement.style.backgroundColor = "#d0d0d0"; // gris
           tankElement.appendChild(percentElement);
 
           // Add output valve status
           outputElement = document.createElement('td');
           outputElement.setAttribute('id', outputElementId);
           outputElement.setAttribute('class', 'tankoutput');
-          outputElement.style.backgroundColor = "#d0d0d0"; // gris
           tankElement.appendChild(outputElement);
 
           // Add drain valve status
           drainElement = document.createElement('td');
           drainElement.setAttribute('id', drainElementId);
           drainElement.setAttribute('class', 'tankdrain');
-          drainElement.style.backgroundColor = "#d0d0d0"; // gris
           tankElement.appendChild(drainElement);
 
           // Add raw value (millimeters)
@@ -168,27 +157,28 @@
         gaugeElement.setAttribute('data-peity', '{ "fill": ["black", "#eeeeee"], "innerRadius": 0, "radius": 8 }');
         percentElement.appendChild(gaugeElement);
 
-        // Copy the output valve state fron the valve table
-        if (!(tank.output == "none" || tank.output == undefined)){
+        // Copy the output valve state from the valve table
+        if (tank.output !== "none" && tank.output !== undefined){
           var outValveElemId = "valve_" + tank.output + "_position";
           var outValvePosElem = document.getElementById(outValveElemId);
           var outValvePos = outValvePosElem.innerHTML;
-          if (!(typeof(outValvePos) == null)){
+          if (typeof outValvePos !== null){
             outputElement.innerHTML = outValvePos;
             setIndicatorColor(outputElement, outValvePos);
           }
         }
  
         // Copy the drain valve state from the valve table
-        if (!(tank.drain == "none" || tank.drain == undefined)){
+        if (tank.drain !== "none" && tank.drain !== undefined){
           var drainValveElemId = "valve_" + tank.drain + "_position";
           var drainValvePosElem = document.getElementById(drainValveElemId);
           var drainValvePos = drainValvePosElem.innerHTML;
-          if (!(typeof(drainValvePos) == null)){
+          if (typeof drainValvePos !== null){
             drainElement.innerHTML = drainValvePos;
             setIndicatorColor(drainElement, drainValvePos);
           }
         }
+
       });
       $(".tankgauge").peity("pie", {
         "fill": function(value, index, values) {
@@ -201,6 +191,7 @@
           return "green";
         }
       });
+
     }
 
     function displayDevices() {
@@ -243,9 +234,9 @@
           ageDisplay = ageInMinutes + ' min.';
         }
         if (ageInMinutes > 9){
-          lastUpdatedAtElem.style.color = "#ff0000";
+          lastUpdatedAtElem.style.color = "red";
         } else {
-          lastUpdatedAtElem.style.color = "#000000";          
+          lastUpdatedAtElem.style.color = "black";          
         }
         lastUpdatedAtElem.innerHTML = ageDisplay;
         generationElem.innerHTML = device.generationId;
@@ -279,6 +270,24 @@
         }
         positionElem.innerHTML = valve.position;
         setIndicatorColor(positionElem, valve.position);
+        // Copy valve VaEC postion to Autres Valves table
+        if (valve.code == "VaEC"){
+          var VaECElemId = valve.code + "_position"; 
+          var VaECElem = document.getElementById(VaECElemId);
+          if (typeof VaECElem !== "undefined" && VaECElem !== null) {
+            VaECElem.innerHTML = valve.position;
+            setIndicatorColor(VaECElem, valve.position);
+          }
+        }
+        // Copy valve VaTk postion to Autres Valves table
+        if (valve.code == "VaTk"){
+          var VaTkElemId = valve.code + "_position"; 
+          var VaTkElem = document.getElementById(VaTkElemId);
+          if (typeof VaTkElem !== "undefined" && VaTkElem !== null){
+            VaTkElem.innerHTML = valve.position;           
+            setIndicatorColor(VaTkElem, valve.position);
+          }
+        }
       });
     }
 
@@ -302,10 +311,12 @@
 
           var codeElement = document.createElement("td");
           codeElement.innerHTML = pump.code;
+          pumpElem.setAttribute('class', 'pumpcode');
           pumpElem.appendChild(codeElement);
 
           stateElem = document.createElement('td');
           stateElem.setAttribute('id', stateElemId);
+          stateElem.setAttribute('class', 'pumpstate');
           pumpElem.appendChild(stateElem);
 
           dutyElem = document.createElement('td');
@@ -348,10 +359,12 @@
 
           var codeElement = document.createElement("td");
           codeElement.innerHTML = vacuum.code;
+          codeElement.setAttribute('class', 'vacuumcode');
           vacuumElem.appendChild(codeElement);
 
           valueElem = document.createElement('td');
           valueElem.setAttribute('id', valueElemId);
+          valueElem.setAttribute('class', 'vacuumvalue');
           vacuumElem.appendChild(valueElem);
         } else {
           valueElem = document.getElementById(valueElemId);
@@ -403,17 +416,17 @@
 
     function setIndicatorColor(IndicatorElem, IndicatorValue){
       if ((IndicatorValue == "Ouvert") || (IndicatorValue == "Ouverte")) {
-          IndicatorElem.style.backgroundColor = "#00ff00"; // Vert
+          IndicatorElem.style.backgroundColor = "lime"; // Vert lime
         } else if (IndicatorValue == "Fermé"){
           IndicatorElem.style.backgroundColor = "#ff3f3f"; // Rouge
         } else if (IndicatorValue == "Partiel"){
-          IndicatorElem.style.backgroundColor = "#ffff00"; // Jaune
+          IndicatorElem.style.backgroundColor = "yellow"; // Jaune
         } else if (IndicatorValue == "Erreur"){
           IndicatorElem.style.backgroundColor = "#bfbfff"; // Bleu
         } else if (IndicatorValue == "OFF" || IndicatorValue == 0){
           IndicatorElem.style.backgroundColor = "#ff3f3f"; // Rouge
         } else if (IndicatorValue == "ON" || IndicatorValue == 1){
-          IndicatorElem.style.backgroundColor = "#00ff00"; // Vert
+          IndicatorElem.style.backgroundColor = "lime"; // Vert
       } 
     }
 
@@ -473,8 +486,30 @@
       padding: 0.2em;
     }
 
+    th.darker,
+    td.darker {
+      background-color: silver;
+    }
+
+    td.lighter,
+    tr.lighter {
+      background-color: #d0d0d0;
+    }
+
+    .tankname {
+      background-color: #d0d0d0;
+      font-weight: lighter;      
+    }
+
+    .tank {
+      border-bottom: solid #ffffff;
+      border-bottom-width: : "1px";
+    }
+
     .tankcontents,
     .tankpercent,
+    .tankoutput,
+    .tankdrain,
     .rawvalue,
     .tankcapacity,
     .pumpduty,
@@ -482,28 +517,108 @@
       text-align: right;
     }
 
+    .tankcontents,
+    .tankpercent,
+    .tankoutput,
+    .tankdrain,
+    .pumpcode,
+    .pumpduty,
+    .pumprate,
+    .vacuumcode,
+    .vacuumvalue {
+      background-color: #d0d0d0;
+    }
+
     #PVx,
     #vacuums,
     #temperatures,
     #tanks,
+    #valveOther,
     #valves {
       float: left;
       padding-right: 2em;
     }
 
-    #vacuum-frame {
-      border: 1px solid #cccccc;
-      margin: 0.5em;
-    }
   </style>
 </head>
 
 
 <body style="background-color: #E6E6E6;">
   <h1>Érablière Brunelle (test) </h1>
-  <div>See <a href="/data.json">data.json</a> for the raw data.</div>
+  <div>Voir <a href="/data.json">data.json</a> pour les données brutes.</div>
+  <div id="tanks", style="background-color: #E6E6E6;">
+    <h3>Réservoirs</h3>
+    <table id="tanklist">
+      <tr>
+        <th class="darker">Code</th>
+        <th class="darker">Contenu
+          <br/>(gal)</th>
+        <th class="darker">Contenu
+          <br/>(%)</th>
+        <th class="darker">Valve
+          <br/>Sortie</th>
+        <th class="darker">Valve
+          <br/>Drain</th>
+        <th>Lecture
+          <br/>(mm)</th>
+        <th>Capacité
+          <br/>(gal)</th>
+      </tr>
+    </table>
+    <h3> Autres valves</h3>
+    <table id="valveOther">
+      <tr>
+        <th class="darker">Code</th>
+        <th class="darker">Description</th>
+        <th class="darker", id="valvesPos">Position</th>
+      </tr>
+      <tr class="lighter">
+        <td>VaEC</td>
+        <td>Valve Entré cabane</td>
+        <td id="VaEC_position">????</td>
+      </tr>
+      <tr class="lighter">
+        <td>VaTk</td>
+        <td>Valve Tanker</td>
+        <td id="VaTk_position">????</td>
+      </tr>
+    </table>
+  </div>
 
-  <div id="valves">
+  <div id="PVx">
+    <div id="pumps">
+      <h3>Pompes</h3>
+      <table id="pumplist">
+        <tr>
+          <th class="darker">Nom</th>
+          <th class="darker">Etat</th>
+          <th class="darker">Util.
+            <br/>(%)</th>
+          <th class="darker">Débit
+            <br/>(GPH)</th>
+        </tr>
+        <tr id="pumptotalrow" class="lighter">
+          <td>Total</td>
+          <td></td>
+          <td></td>
+          <td id="pumptotalrate" class="pumprate"></td>
+        </tr>
+      </table>
+    </div>
+
+    <div id="vacuums">
+      <h3>Vacuum</h3>
+      <table id="vacuumlist">
+        <tr>
+          <th class="darker">Nom</th>
+          <th class="darker">Vacuum
+            <br/>(inHg)</th>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div id="valves", style="visibility: hidden;">
     <h3>Valves</h3>
     <table id="valvelist">
       <tr>
@@ -513,72 +628,7 @@
     </table>
   </div>
 
-  <div id="tanks", style="background-color: #E6E6E6;">
-    <h3>Reservoirs</h3>
-    <table id="tanklist">
-      <tr>
-        <th style="background-color: #d0d0d0;">Code</th>
-        <th style="background-color: #d0d0d0;">Contents
-          <br/>(gal)</th>
-        <th style="background-color: #d0d0d0;">Contents
-          <br/>(%)</th>
-        <th style="background-color: #d0d0d0;">Valve
-          <br/>Sortie</th>
-        <th style="background-color: #d0d0d0;">Valve
-          <br/>Drain</th>
-        <th>Reading
-          <br/>(mm)</th>
-        <th>Capacity
-          <br/>(gal)</th>
-      </tr>
-    </table>
-  </div>
-
-  <div id="PVx", style="background-color: #E6E6E6;">
-    <table id="pumpVac">
-      <tr>
-        <td style="border-style:none">
-
-          <div id="pumps">
-            <h3>Pompes</h3>
-            <table id="pumplist">
-              <tr>
-                <th>Name</th>
-                <th>State</th>
-                <th>Duty
-                  <br/>(%)</th>
-                <th>Rate
-                  <br/>(GPH)</th>
-              </tr>
-              <tr id="pumptotalrow">
-                <td>Total</td>
-                <td></td>
-                <td></td>
-                <td id="pumptotalrate" class="pumprate"></td>
-              </tr>
-            </table>
-          </div>
-
-          <div id="vacuums", style="background-color: #E6E6E6;">
-            <h3>Vacuum</h3>
-            <table id="vacuumlist">
-              <tr>
-                <th>Name</th>
-                <th>Vacuum
-                  <br/>(inHg)</th>
-              </tr>
-            </table>
-            <h3> </h3>
-            <h3> </h3>
-            <h3> </h3>
-          </div>
-
-        </td>
-      </tr>
-    </table>
-  </div>
-
-  <div id="devAndTemp", style="background-color: #E6E6E6;">
+  <div id="devAndTemp", style="visibility: hidden;>
     <table id="devTemp">
       <tr>
         <td style="border-style:none">
@@ -616,10 +666,14 @@
             </table>
           </div>
         </td>
- -->      </tr>
+ -->     
+      </tr>
     </table>
   </div>
 
 </body>
+<footer>
+  <div>Voir <a href="/data.json">data.json</a> pour les données brutes.</div>
+</footer>
 
 </html>
