@@ -203,6 +203,8 @@
     }
 
     function displayDevices() {
+      var oldestAge = 0;
+      var ageDisplayTop = '';
       devices.forEach(function(device) {
         var lastUpdatedAtElemId = 'device_' + device.name + '_lastUpdatedAt';
         var generationElemId = 'device_' + device.name + '_generationId';
@@ -252,19 +254,16 @@
 
         // Display the yongest age at the top of the screen. 
         // If more than 5 min. there's a problem.
-        var ageDisplayTop = '';
-        if (ageInMinutes == 0) {
-          ageDisplayTop = 'Ok';
-        } else if (ageInMinutes > 0) {
-          ageDisplayTop = ageInMinutes + ' min.';
-        }
+        oldestAge = Math.max(ageInMinutes, oldestAge);
+        ageDisplayTop = oldestAge + ' min.';
+        // console.log('oldestAge: ' + oldestAge + ', ageDisplayTop; ' + ageDisplayTop);
         var lastestUpdateElement = document.getElementById("lastestUpdate");
-        lastestUpdateElement.innerHTML = ageDisplayTop;
-        if (ageInMinutes > maximumAge){
-          lastestUpdateElement.innerHTML = 'Collecteur arreté!';
+        if (oldestAge > maximumAge){
+          lastestUpdateElement.innerHTML = 'Délais anormal!';
           lastestUpdateElement.style.color = "FireBrick";
         } else {
-          lastestUpdateElement.innerHTML = 'Ok';
+          lastestUpdateElement.innerHTML = 'Délais ' + 'Ok';
+          // lastestUpdateElement.innerHTML = 'Ok';
           lastestUpdateElement.style.color = "white";
         }
 
@@ -548,6 +547,11 @@
         console.console.error('Error:' + evt);
       };
     }
+
+    // setTimeout(function(){
+    //    window.location.reload(1);
+    // }, 60000);
+
     window.addEventListener("load", onLoad, false);
 
   </script>
@@ -591,10 +595,14 @@
       border-bottom: solid #ffffff;
     }
 
+    .V_position,
+    .tankoutput,
+    .tankdrain{
+      text-align: center;
+    }
+
     .tankcontents,
     .tankpercent,
-    .tankoutput,
-    .tankdrain,
     .rawvalue,
     .tankcapacity,
     .pumpduty,
@@ -631,7 +639,7 @@
   <div class="w3-container w3-theme", style="width: 100%; height: 70px; display: inline-block;"> 
     <h1 class="w3-display-topmiddle">Érablière&nbsp;Brunelle</h1>
     <div class="w3-display-topleft w3-margin-left"><h2 id="tempExt">0&#176;C<br/></h2></div>
-    <div class="w3-display-topright", style="padding-right: 16px;height: 60px;"><h2 id="lastestUpdate">now</h2></div>
+    <div class="w3-display-topright", style="padding-right: 16px;height: 60px;"><h2 id="lastestUpdate"></h2></div>
   </div>
 
   <div class="w3-container", style="width: 100%;"> 
@@ -654,46 +662,50 @@
             <br/>(gal)</th>
         </tr>
       </table>
-      <h3> Autres valves</h3>
-      <table id="valveOther">
+
+      <h3>Autres Valves</h3>
+      <table id="EntC" >
         <tr>
           <th class="darker">Code</th>
           <th class="darker">Description</th>
-          <th class="darker", id="valvesPos">Position</th>
+          <th class="darker">Position</th>
         </tr>
-        <tr class="lighter">
-          <td>VaEC</td>
-          <td>Valve Entré cabane</td>
-          <td id="VaEC_position">????</td>
+        <tr>
+          <td class="lighter">VaEC</td>
+          <td class="lighter">Valve Entré Cabane</td>
+          <td class="lighter", id="VaEC_position"> </td>
         </tr>
-        <tr class="lighter">
-          <td>VaTk</td>
-          <td>Valve Tanker</td>
-          <td id="VaTk_position">????</td>
+        <tr>
+          <td class="lighter">VaTk</td>
+          <td class="lighter">Valve Tanker</td>
+          <td  class="lighter", id="VaTk_position"></td>
         </tr>
       </table>
-    </div>
+  </div> <!-- id="tanks" -->
 
     <div id="PVx">
+
       <div id="pumps">
         <h3>Pompes</h3>
         <table id="pumplist">
           <tr>
             <th class="darker">Nom</th>
-            <th class="darker">Etat</th>
+            <th class="darker V_position">Etat</th>
             <th class="darker">Util.
               <br/>(%)</th>
             <th class="darker">Débit
               <br/>(GPH)</th>
           </tr>
-          <tr id="pumptotalrow" class="lighter">
+          <tr id="pumptotalrow", class="lighter">
             <td>Total</td>
             <td></td>
             <td></td>
-            <td id="pumptotalrate" class="pumprate"></td>
+            <td id="pumptotalrate", class="pumprate", style="font-weight: bold;"></td>
           </tr>
         </table>
       </div>
+
+    </div> <!-- id="PVx" -->
 
       <div id="vacuums">
         <h3>Vacuum</h3>
@@ -705,7 +717,7 @@
           </tr>
         </table>
       </div>
-    </div>
+
   </div>
 
   <div class="w3-container">
@@ -736,11 +748,10 @@
     </div>
   </div>
 
-  <div class="w3-container w3-half", id="valves", style="visibility: hidden;">
+  <div class="w3-container w3-quarter", id="valves", style="visibility: hidden;">
     <table id="devValves", class="w3-table w3-striped w3-bordered">
       <tr>
         <td>
-
           <h3>Valves</h3>
           <table id="valvelist">
             <tr>
@@ -748,11 +759,12 @@
               <th id="valvesPos">Position</th>
             </tr>
           </table>
-
         </td>
       </tr>
     </table>
   </div>
+
+
 </body>
 <footer>
 </footer>
