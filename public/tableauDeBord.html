@@ -1,13 +1,14 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
 
 <head>
   <meta charset="UTF-8">
-  <title>Tableau de bord (numeric)</title>
-  <script src="/bower_components/jquery/dist/jquery.min.js">
-  </script>
-  <script src="/bower_components/peity/jquery.peity.min.js">
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/lib/w3.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-grey.css">
+  <title>Tableau de bord</title>
+  <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="/bower_components/peity/jquery.peity.min.js"></script>
   <script language="javascript" type="text/javascript">
     function wsUri(path) {
       var l = window.location;
@@ -24,6 +25,9 @@
       code: "RS2",
       capacity: 1
     }, {
+      code: "RF2",
+      capacity: 1
+    }, {
       code: "RS3",
       capacity: 1
     }, {
@@ -34,9 +38,6 @@
       capacity: 1
     }, {
       code: "RS6",
-      capacity: 1
-    }, {
-      code: "RF2",
       capacity: 1
     }, {
       code: "RF1",
@@ -56,6 +57,8 @@
     var valves = [];
     var pumps = [];
     var vacuums = [];
+    var tempAge = 0;
+    const maximumAge = 5;
 
     function liters2gallons(liters) {
       return Math.ceil(liters / 4.54609188);
@@ -92,6 +95,9 @@
           var nameElement = document.createElement("td");
           nameElement.setAttribute('class', 'tankname');
           nameElement.innerHTML = tank.code;
+          if (tank.code == "RS5" || tank.code == "RS6"){
+            nameElement.innerHTML = tank.code + "-ph";
+          }
           tankElement.appendChild(nameElement);
 
           // Add measured contents (gallons)
@@ -178,6 +184,8 @@
             setIndicatorColor(drainElement, drainValvePos);
           }
         }
+        // Set color of line based on device lastUpdatedAt
+        setAgeColor(tankElement, tank.device);
 
       });
       $(".tankgauge").peity("pie", {
@@ -195,6 +203,8 @@
     }
 
     function displayDevices() {
+      var oldestAge = 0;
+      var ageDisplayTop = '';
       devices.forEach(function(device) {
         var lastUpdatedAtElemId = 'device_' + device.name + '_lastUpdatedAt';
         var generationElemId = 'device_' + device.name + '_generationId';
@@ -233,14 +243,42 @@
         } else if (ageInMinutes > 0) {
           ageDisplay = ageInMinutes + ' min.';
         }
-        if (ageInMinutes > 9){
-          lastUpdatedAtElem.style.color = "red";
+        if (ageInMinutes > maximumAge){
+          lastUpdatedAtElem.style.color = "FireBrick";
         } else {
           lastUpdatedAtElem.style.color = "black";          
         }
         lastUpdatedAtElem.innerHTML = ageDisplay;
         generationElem.innerHTML = device.generationId;
         serialElem.innerHTML = device.lastEventSerial;
+
+        // Display the yongest age at the top of the screen. 
+        // If more than 5 min. there's a problem.
+        oldestAge = Math.max(ageInMinutes, oldestAge);
+        ageDisplayTop = oldestAge + ' min.';
+        // console.log('oldestAge: ' + oldestAge + ', ageDisplayTop; ' + ageDisplayTop);
+        var lastestUpdateElement = document.getElementById("lastestUpdate");
+        if (oldestAge > maximumAge){
+          lastestUpdateElement.innerHTML = 'Délais anormal!';
+          lastestUpdateElement.style.color = "FireBrick";
+        } else {
+          lastestUpdateElement.innerHTML = 'Délais ' + 'Ok';
+          // lastestUpdateElement.innerHTML = 'Ok';
+          lastestUpdateElement.style.color = "white";
+        }
+
+        // Display outside temperature if available on device RS1
+        if (device.name.includes("RS1")){
+          var ambient = device.ambientTemp;
+          var tempExtElem = document.getElementById("tempExt");
+          if (typeof tempExtElem !== "undefined" && tempExtElem !== null) {
+            if (device.ambientTemp !== 99 && device.ambientTemp !== -127){
+              tempExtElem.innerHTML = device.ambientTemp + "°C";
+            } else {
+              tempExtElem.innerHTML = "---°C";
+            }
+          }
+        }
       });
     }
 
@@ -296,6 +334,8 @@
       var gph = 0;
       var pumpDuty = 0;
       pumps.forEach(function(pump) {
+        var codeElement;
+        var codeElementId = 'pump_' + pump.code;
         var stateElem;
         var stateElemId = 'pump_' + pump.code + '_state';
         var dutyElem;
@@ -303,13 +343,14 @@
         var rateElem;
         var rateElemId = 'pump_' + pump.code + '_rate';
         var pumpElemId = 'pump_' + pump.code;
+        var pumpElem = document.getElementById(pumpElemId);
         if (document.getElementById(pumpElemId) == null) {
           var pumpElem = document.createElement("tr");
           pumpElem.setAttribute('id', pumpElemId);
           var totalRow = document.getElementById('pumptotalrow');
           totalRow.parentElement.insertBefore(pumpElem, totalRow);
 
-          var codeElement = document.createElement("td");
+          codeElement = document.createElement("td");
           codeElement.innerHTML = pump.code;
           pumpElem.setAttribute('class', 'pumpcode');
           pumpElem.appendChild(codeElement);
@@ -342,8 +383,12 @@
           dutyElem.innerHTML = parseFloat(pumpDuty) || "";
           rateElem.innerHTML = parseInt(rate) || "";
         }
+        // Set color of line based on device lastUpdatedAt
+        setAgeColor(pumpElem, pump.device);
+
       });
-      document.getElementById('pumptotalrate').innerHTML = parseInt(totalRate) || 0;
+      var totalRateElem = document.getElementById('pumptotalrate');
+      totalRateElem.innerHTML = parseInt(totalRate) || 0;
     }
 
     function displayVacuum() {
@@ -430,6 +475,35 @@
       } 
     }
 
+    function setAgeColor(displayElem, deviceDevice) {
+      try {
+        var lastUpdatedAtElemId = 'device_' + deviceDevice + '_lastUpdatedAt';
+        var lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
+        displayElem.style.color = lastUpdatedAtElem.style.color;
+      }
+      catch(err) {
+        console.log("lastUpdatedAtElemId: " + lastUpdatedAtElemId + " " +err);
+      }
+    }
+
+    function toggleTablesVisibility(thisTable){
+      var btnElem = document.getElementById(thisTable + "TblBtn");
+      var TableElem = document.getElementById(thisTable);
+      if (TableElem.style.visibility == "hidden"){
+        TableElem.style.visibility = "visible";
+        btnElem.innerHTML = "Cacher les " + thisTable;
+      } else if(TableElem.style.visibility == "visible"){
+        btnElem.innerHTML = "Voir les " + thisTable;
+        TableElem.style.visibility = "hidden";
+      }
+    }
+
+    // Toggle status color
+    function toggleStatusColor(){
+      var statusElem = document.getElementById("lastestUpdate");
+      statusElem.style.backgroundColor = (statusElem.style.backgroundColor == '' ? '#4CAF50' : '');
+    }
+
     function openSocket() {
       websocket = new WebSocket(wsUri(""), "dashboard-stream");
       websocket.onopen = function(evt) {
@@ -447,6 +521,7 @@
           var tank = data.tanks.filter(function(tankData) {
             return tankData.code == tankDef.code;
           }).shift();
+          tankDef.device = tank.device;
           tankDef.rawValue = tank.rawValue;
           tankDef.contents = (tank.fill == null ? 0 : tank.fill);
           tankDef.capacity = tank.capacity;
@@ -459,22 +534,38 @@
           vacuums = data.vacuum;
           pumps = data.pumps;
           temperatures = data.temperatures;
-          displayDevices();
-          displayValves();
-          displayTanks();
-          displayPumps();
-          displayVacuum();
           // displayTemperatures();
         });
+        displayDevices();
+        displayValves();
+        displayTanks();
+        displayPumps();
+        displayVacuum();
+        toggleStatusColor();
       };
       websocket.onerror = function(evt) {
         console.console.error('Error:' + evt);
       };
     }
+
+    // setTimeout(function(){
+    //    window.location.reload(1);
+    // }, 60000);
+
     window.addEventListener("load", onLoad, false);
 
   </script>
   <style>
+    body {
+      background-color: #E6E6E6;
+/*      background-image:url("/images/background.png");
+*/    }
+
+    background-image {
+        opacity: 0.25;
+        filter: alpha(opacity=25); /* For IE8 and earlier */
+    }
+
     table {
       border-style: none;
       /*border-collapse: collapse;*/
@@ -498,18 +589,20 @@
 
     .tankname {
       background-color: #d0d0d0;
-      font-weight: lighter;      
     }
 
     .tank {
       border-bottom: solid #ffffff;
-      border-bottom-width: : "1px";
+    }
+
+    .V_position,
+    .tankoutput,
+    .tankdrain{
+      text-align: center;
     }
 
     .tankcontents,
     .tankpercent,
-    .tankoutput,
-    .tankdrain,
     .rawvalue,
     .tankcapacity,
     .pumpduty,
@@ -539,141 +632,141 @@
       padding-right: 2em;
     }
 
-  </style>
+</style>
 </head>
 
-
-<body style="background-color: #E6E6E6;">
-  <h1>Érablière Brunelle (test) </h1>
-  <div>Voir <a href="/data.json">data.json</a> pour les données brutes.</div>
-  <div id="tanks", style="background-color: #E6E6E6;">
-    <h3>Réservoirs</h3>
-    <table id="tanklist">
-      <tr>
-        <th class="darker">Code</th>
-        <th class="darker">Contenu
-          <br/>(gal)</th>
-        <th class="darker">Contenu
-          <br/>(%)</th>
-        <th class="darker">Valve
-          <br/>Sortie</th>
-        <th class="darker">Valve
-          <br/>Drain</th>
-        <th>Lecture
-          <br/>(mm)</th>
-        <th>Capacité
-          <br/>(gal)</th>
-      </tr>
-    </table>
-    <h3> Autres valves</h3>
-    <table id="valveOther">
-      <tr>
-        <th class="darker">Code</th>
-        <th class="darker">Description</th>
-        <th class="darker", id="valvesPos">Position</th>
-      </tr>
-      <tr class="lighter">
-        <td>VaEC</td>
-        <td>Valve Entré cabane</td>
-        <td id="VaEC_position">????</td>
-      </tr>
-      <tr class="lighter">
-        <td>VaTk</td>
-        <td>Valve Tanker</td>
-        <td id="VaTk_position">????</td>
-      </tr>
-    </table>
+<body>
+  <div class="w3-container w3-theme", style="width: 100%; height: 70px; display: inline-block;"> 
+    <h1 class="w3-display-topmiddle">Érablière&nbsp;Brunelle</h1>
+    <div class="w3-display-topleft w3-margin-left"><h2 id="tempExt">0&#176;C<br/></h2></div>
+    <div class="w3-display-topright", style="padding-right: 16px;height: 60px;"><h2 id="lastestUpdate"></h2></div>
   </div>
 
-  <div id="PVx">
-    <div id="pumps">
-      <h3>Pompes</h3>
-      <table id="pumplist">
+  <div class="w3-container", style="width: 100%;"> 
+    <div id="tanks">
+      <h3>Réservoirs</h3>
+      <table id="tanklist">
         <tr>
-          <th class="darker">Nom</th>
-          <th class="darker">Etat</th>
-          <th class="darker">Util.
+          <th class="darker">Code</th>
+          <th class="darker">Contenu
+            <br/>(gal)</th>
+          <th class="darker">Contenu
             <br/>(%)</th>
-          <th class="darker">Débit
-            <br/>(GPH)</th>
-        </tr>
-        <tr id="pumptotalrow" class="lighter">
-          <td>Total</td>
-          <td></td>
-          <td></td>
-          <td id="pumptotalrate" class="pumprate"></td>
+          <th class="darker">Valve
+            <br/>Sortie</th>
+          <th class="darker">Valve
+            <br/>Drain</th>
+          <th>Lecture
+            <br/>(mm)</th>
+          <th>Capacité
+            <br/>(gal)</th>
         </tr>
       </table>
-    </div>
 
-    <div id="vacuums">
-      <h3>Vacuum</h3>
-      <table id="vacuumlist">
+      <h3>Autres Valves</h3>
+      <table id="EntC" >
         <tr>
-          <th class="darker">Nom</th>
-          <th class="darker">Vacuum
-            <br/>(inHg)</th>
+          <th class="darker">Code</th>
+          <th class="darker">Description</th>
+          <th class="darker">Position</th>
+        </tr>
+        <tr>
+          <td class="lighter">VaEC</td>
+          <td class="lighter">Valve Entré Cabane</td>
+          <td class="lighter", id="VaEC_position"> </td>
+        </tr>
+        <tr>
+          <td class="lighter">VaTk</td>
+          <td class="lighter">Valve Tanker</td>
+          <td  class="lighter", id="VaTk_position"></td>
         </tr>
       </table>
-    </div>
+  </div> <!-- id="tanks" -->
+
+    <div id="PVx">
+
+      <div id="pumps">
+        <h3>Pompes</h3>
+        <table id="pumplist">
+          <tr>
+            <th class="darker">Nom</th>
+            <th class="darker V_position">Etat</th>
+            <th class="darker">Util.
+              <br/>(%)</th>
+            <th class="darker">Débit
+              <br/>(GPH)</th>
+          </tr>
+          <tr id="pumptotalrow", class="lighter">
+            <td>Total</td>
+            <td></td>
+            <td></td>
+            <td id="pumptotalrate", class="pumprate", style="font-weight: bold;"></td>
+          </tr>
+        </table>
+      </div>
+
+    </div> <!-- id="PVx" -->
+
+      <div id="vacuums">
+        <h3>Vacuum</h3>
+        <table id="vacuumlist">
+          <tr>
+            <th class="darker">Nom</th>
+            <th class="darker">Vacuum
+              <br/>(inHg)</th>
+          </tr>
+        </table>
+      </div>
+
   </div>
 
-  <div id="valves", style="visibility: hidden;">
-    <h3>Valves</h3>
-    <table id="valvelist">
-      <tr>
-        <th>Name</th>
-        <th id="valvesPos">Position</th>
-      </tr>
-    </table>
+  <div class="w3-container">
+    <p></p>
+    <a class="w3-btn" href="/data.json">Voir données brutes</a>
+    <button id="devicesTblBtn", class="w3-btn" onclick="toggleTablesVisibility('devices')">Voir les devices</button>
+    <button id="valvesTblBtn", class="w3-btn" onclick="toggleTablesVisibility('valves')">Voir les valves</button>
   </div>
-
-  <div id="devAndTemp", style="visibility: hidden;>
-    <table id="devTemp">
-      <tr>
-        <td style="border-style:none">
-          <div id="devices">
-            <table id="dev">
-              <tr>
-                <td style="border-style:none">
-                  <h3>Devices</h3>
-                  <table id="devicelist">
-                    <tr>
-                      <th>Name</th>
-                      <th>Updated</th>
-                      <th>Generation</th>
-                      <th>Serial</th>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-          </div>
-        </td>
-<!--         <td style="border-style:none">
-          <div id="temperatures">
-            <h3>Temperatures</h3>
-            <table id="temperaturelist">
+            
+    <div class="w3-container w3-half", id="devices", style="visibility: hidden;">
+      <table id="dev", class="w3-table w3-striped w3-bordered">
+        <tr>
+          <td>
+ 
+            <h3>Devices</h3>
+            <table id="devicelist">
               <tr>
                 <th>Name</th>
-                <th>Enclosure
-                  <br/>(C)</th>
-                <th>US100
-                  <br/>(C)</th>
-                <th>Extérieur
-                  <br/>(C)</th>
+                <th>Updated</th>
+                <th>Generation</th>
+                <th>Serial</th>
               </tr>
             </table>
-          </div>
+
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="w3-container w3-quarter", id="valves", style="visibility: hidden;">
+    <table id="devValves", class="w3-table w3-striped w3-bordered">
+      <tr>
+        <td>
+          <h3>Valves</h3>
+          <table id="valvelist">
+            <tr>
+              <th>Name</th>
+              <th id="valvesPos">Position</th>
+            </tr>
+          </table>
         </td>
- -->     
       </tr>
     </table>
   </div>
+
 
 </body>
 <footer>
-  <div>Voir <a href="/data.json">data.json</a> pour les données brutes.</div>
 </footer>
 
 </html>

@@ -446,13 +446,13 @@
           vacuums = data.vacuum;
           pumps = data.pumps;
           temperatures = data.temperatures;
-          displayDevices();
-          displayValves();
-          displayTanks();
-          displayPumps();
-          displayVacuum();
-          // displayTemperatures();
         });
+        displayDevices();
+        displayValves();
+        displayTanks();
+        displayPumps();
+        displayVacuum();
+        // displayTemperatures();
       };
       websocket.onerror = function(evt) {
         console.console.error('Error:' + evt);
