@@ -259,10 +259,10 @@
         // console.log('oldestAge: ' + oldestAge + ', ageDisplayTop; ' + ageDisplayTop);
         var lastestUpdateElement = document.getElementById("lastestUpdate");
         if (oldestAge > maximumAge){
-          lastestUpdateElement.innerHTML = 'Délais anormal!';
+          lastestUpdateElement.innerHTML = 'Délais: anormal';
           lastestUpdateElement.style.color = "FireBrick";
         } else {
-          lastestUpdateElement.innerHTML = 'Délais ' + 'Ok';
+          lastestUpdateElement.innerHTML = 'Délais: normal';
           // lastestUpdateElement.innerHTML = 'Ok';
           lastestUpdateElement.style.color = "white";
         }
@@ -502,6 +502,9 @@
     function toggleStatusColor(){
       var statusElem = document.getElementById("lastestUpdate");
       statusElem.style.backgroundColor = (statusElem.style.backgroundColor == '' ? '#4CAF50' : '');
+      setTimeout(function(){
+        statusElem.style.backgroundColor = (statusElem.style.backgroundColor == '' ? '#4CAF50' : '');
+      }, 500);
     }
 
     function openSocket() {
@@ -534,13 +537,13 @@
           vacuums = data.vacuum;
           pumps = data.pumps;
           temperatures = data.temperatures;
-          // displayTemperatures();
         });
         displayDevices();
         displayValves();
         displayTanks();
         displayPumps();
         displayVacuum();
+        // displayTemperatures();
         toggleStatusColor();
       };
       websocket.onerror = function(evt) {
@@ -548,9 +551,9 @@
       };
     }
 
-    // setTimeout(function(){
-    //    window.location.reload(1);
-    // }, 60000);
+    setTimeout(function(){
+       window.location.reload(1);
+    }, 120000);
 
     window.addEventListener("load", onLoad, false);
 
