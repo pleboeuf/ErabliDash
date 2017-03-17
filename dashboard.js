@@ -18,6 +18,7 @@ exports.Device = function(id, name, generationId, lastEventSerial) {
     return this;
   }
 }
+
 var HorizontalCylindricTank = function(self) {
   self.getCapacity = function() {
     return Math.PI * Math.pow(self.diameter / 2000, 2) * self.length;
@@ -27,6 +28,7 @@ var HorizontalCylindricTank = function(self) {
     return HorizontalCylindricTank.getFill(h, self.diameter, self.length);
   }
 }
+
 HorizontalCylindricTank.getFill = function(level, diameter, length) {
   // All measures in millimeters
   var h = level / 1000;
@@ -34,6 +36,7 @@ HorizontalCylindricTank.getFill = function(level, diameter, length) {
   var r = d / 2;
   return (Math.pow(r, 2) * Math.acos((r - h) / r) - (r - h) * Math.sqrt(d * h - Math.pow(h, 2))) * length;
 }
+
 var UShapedTank = function(self) {
   self.getCapacity = function() {
     return getFill(self.totalHeight);
@@ -57,6 +60,7 @@ var UShapedTank = function(self) {
     return self.diameter / 100 * self.length / 100 * level / 100;
   }
 }
+
 exports.Tank = function(attrs) {
   var self = this;
   _.extend(self, attrs);
@@ -68,6 +72,7 @@ exports.Tank = function(attrs) {
     throw 'Unsupported tank (shape: ' + self.shape + ', ' + self.orientation + ')';
   }
 }
+
 exports.VacuumSensor = function(attrs) {
   var self = this;
   _.extend(self, attrs);
@@ -89,6 +94,7 @@ var PumpEvent = function(generationId, serialNo, data) {
   self.serialNo = serialNo;
   _.extend(self, data);
 };
+
 PumpEvent.comparator = function(a, b) {
   if (a.generationId != b.generationId) {
     return a.generationId - b.generationId;
@@ -96,6 +102,7 @@ PumpEvent.comparator = function(a, b) {
     return a.serialNo - b.serialNo;
   }
 };
+
 var Pump = exports.Pump = function(pumpConfig) {
   var self = this;
   _.extend(self, pumpConfig);
@@ -123,6 +130,7 @@ var Pump = exports.Pump = function(pumpConfig) {
     console.log("Pump cycle ended: " + (t1Event.timer - t0Event.timer) + " ms off, then " + (t2Event.timer - t1Event.timer) + " ms on (" + (self.duty * 100).toFixed(0) + "% duty)");
   }
 };
+
 exports.Dashboard = function(config, WebSocketClient) {
   var Device = exports.Device;
   var Tank = exports.Tank;

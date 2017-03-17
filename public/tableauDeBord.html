@@ -96,7 +96,7 @@
           nameElement.setAttribute('class', 'tankname');
           nameElement.innerHTML = tank.code;
           if (tank.code == "RS5" || tank.code == "RS6"){
-            nameElement.innerHTML = tank.code + "-ph";
+            nameElement.innerHTML = tank.code + " (ph)";
           }
           tankElement.appendChild(nameElement);
 
@@ -259,20 +259,19 @@
         // console.log('oldestAge: ' + oldestAge + ', ageDisplayTop; ' + ageDisplayTop);
         var lastestUpdateElement = document.getElementById("lastestUpdate");
         if (oldestAge > maximumAge){
-          lastestUpdateElement.innerHTML = 'Délais: anormal';
+          lastestUpdateElement.innerHTML = 'Délais:</br>anormal';
           lastestUpdateElement.style.color = "FireBrick";
         } else {
-          lastestUpdateElement.innerHTML = 'Délais: normal';
+          lastestUpdateElement.innerHTML = 'Délais:</br>normal';
           // lastestUpdateElement.innerHTML = 'Ok';
           lastestUpdateElement.style.color = "white";
         }
 
         // Display outside temperature if available on device RS1
         if (device.name.includes("RS1")){
-          var ambient = device.ambientTemp;
           var tempExtElem = document.getElementById("tempExt");
           if (typeof tempExtElem !== "undefined" && tempExtElem !== null) {
-            if (device.ambientTemp !== 99 && device.ambientTemp !== -127){
+            if (typeof device.ambientTemp !== undefined && device.ambientTemp !== 99 && device.ambientTemp !== -127){
               tempExtElem.innerHTML = device.ambientTemp + "°C";
             } else {
               tempExtElem.innerHTML = "---°C";
@@ -403,7 +402,7 @@
           document.getElementById('vacuumlist').appendChild(vacuumElem);
 
           var codeElement = document.createElement("td");
-          codeElement.innerHTML = vacuum.code;
+          codeElement.innerHTML = vacuum.label;
           codeElement.setAttribute('class', 'vacuumcode');
           vacuumElem.appendChild(codeElement);
 
@@ -551,9 +550,9 @@
       };
     }
 
-    setTimeout(function(){
-       window.location.reload(1);
-    }, 120000);
+    // setTimeout(function(){
+    //    window.location.reload(1);
+    // }, 3600000);
 
     window.addEventListener("load", onLoad, false);
 
@@ -599,6 +598,7 @@
     }
 
     .V_position,
+    .pumpstate,
     .tankoutput,
     .tankdrain{
       text-align: center;
@@ -635,14 +635,14 @@
       padding-right: 2em;
     }
 
-</style>
+  </style>
 </head>
 
 <body>
-  <div class="w3-container w3-theme", style="width: 100%; height: 70px; display: inline-block;"> 
+  <div class="w3-display-container w3-theme w3-mobile", style="width: 100%; height: 70px; display: inline-block;"> 
     <h1 class="w3-display-topmiddle">Érablière&nbsp;Brunelle</h1>
-    <div class="w3-display-topleft w3-margin-left"><h2 id="tempExt">0&#176;C<br/></h2></div>
-    <div class="w3-display-topright", style="padding-right: 16px;height: 60px;"><h2 id="lastestUpdate"></h2></div>
+    <div class="w3-container w3-display-left"><h2 id="tempExt">0&#176;C<br/></h2></div>
+    <div class="w3-container w3-display-right", style="height: 80px;"><h4 id="lastestUpdate"></h4></div>
   </div>
 
   <div class="w3-container", style="width: 100%;"> 
@@ -667,7 +667,7 @@
       </table>
 
       <h3>Autres Valves</h3>
-      <table id="EntC" >
+      <table id="autreValves" >
         <tr>
           <th class="darker">Code</th>
           <th class="darker">Description</th>
@@ -676,12 +676,12 @@
         <tr>
           <td class="lighter">VaEC</td>
           <td class="lighter">Valve Entré Cabane</td>
-          <td class="lighter", id="VaEC_position"> </td>
+          <td class="lighter V_position", id="VaEC_position"> </td>
         </tr>
         <tr>
           <td class="lighter">VaTk</td>
           <td class="lighter">Valve Tanker</td>
-          <td  class="lighter", id="VaTk_position"></td>
+          <td  class="lighter V_position", id="VaTk_position"></td>
         </tr>
       </table>
   </div> <!-- id="tanks" -->
@@ -730,29 +730,28 @@
     <button id="valvesTblBtn", class="w3-btn" onclick="toggleTablesVisibility('valves')">Voir les valves</button>
   </div>
             
-    <div class="w3-container w3-half", id="devices", style="visibility: hidden;">
-      <table id="dev", class="w3-table w3-striped w3-bordered">
-        <tr>
-          <td>
- 
-            <h3>Devices</h3>
-            <table id="devicelist">
-              <tr>
-                <th>Name</th>
-                <th>Updated</th>
-                <th>Generation</th>
-                <th>Serial</th>
-              </tr>
-            </table>
+  <div class="w3-container w3-half">
+    <table id="devices", class="w3-table w3-striped w3-bordered", style="visibility: hidden;">
+      <tr>
+        <td>
 
-          </td>
-        </tr>
-      </table>
-    </div>
+          <h3>Devices</h3>
+          <table id="devicelist">
+            <tr>
+              <th>Name</th>
+              <th>Updated</th>
+              <th>Generation</th>
+              <th>Serial</th>
+            </tr>
+          </table>
+
+        </td>
+      </tr>
+    </table>
   </div>
 
-  <div class="w3-container w3-quarter", id="valves", style="visibility: hidden;">
-    <table id="devValves", class="w3-table w3-striped w3-bordered">
+  <div class="w3-container w3-quarter">
+    <table id="valves", class="w3-table w3-striped w3-bordered", style="visibility: hidden;">
       <tr>
         <td>
           <h3>Valves</h3>
@@ -766,7 +765,6 @@
       </tr>
     </table>
   </div>
-
 
 </body>
 <footer>
