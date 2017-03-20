@@ -114,7 +114,7 @@
     "orientation": "horizontal",
     "length": 4128,
     "diameter": 2438,
-    "sensorHeight": 2292,
+    "sensorHeight": 2227,
     "output": "VaS3",
     "drain": "VaDS3"
   }, {
@@ -125,7 +125,7 @@
     "orientation": "horizontal",
     "length": 3353,
     "diameter": 2438,
-    "sensorHeight": 2292,
+    "sensorHeight": 2005,
     "output": "VaS4",
     "drain": "VaDS4"
   }, {
@@ -201,7 +201,7 @@
     "shape": "cylinder",
     "orientation": "horizontal",
     "length": 3000,
-    "diameter": 1500,
+    "diameter": 1270,
     "sensorHeight": 1500,
     "output": "none",
     "drain": "none"
@@ -274,17 +274,20 @@
   }],
 
   "vacuum": [{
-    "code": "Rel1",
+    "code": "V1",
+    "label": "Rel1",
     "device": "EB-P1",
-    "offset": 113
+    "offset": 82
   }, {
-    "code": "Rel2",
+    "code": "V2",
+    "label": "Rel2",
     "device": "EB-P2",
-    "offset": 15
+    "offset": 58
   },{
-    "code": "Rel3",
+    "code": "V3",
+    "label": "Rel3",
     "device": "EB-P3",
-    "offset": 67
+    "offset": 0
   }],
 
   "pumps": [{
