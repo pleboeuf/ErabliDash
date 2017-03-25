@@ -114,7 +114,7 @@
     "orientation": "horizontal",
     "length": 4128,
     "diameter": 2438,
-    "sensorHeight": 2227,
+    "sensorHeight": 2292,
     "output": "VaS3",
     "drain": "VaDS3"
   }, {
@@ -125,7 +125,7 @@
     "orientation": "horizontal",
     "length": 3353,
     "diameter": 2438,
-    "sensorHeight": 2005,
+    "sensorHeight": 2292,
     "output": "VaS4",
     "drain": "VaDS4"
   }, {
@@ -301,7 +301,7 @@
   },{
     "code": "P3",
     "device": "EB-P3",
-    "capacity_gph": 3055
+    "capacity_gph": 2469
   }, {
     "code": "PT2",
     "device": "EB-PT2",
