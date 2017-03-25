@@ -159,8 +159,13 @@
         // Create the pie chart 
         var gaugeElement = document.createElement('span');
         gaugeElement.innerHTML = tankPercent + '/100';
-        gaugeElement.setAttribute('class', 'tankgauge');
-        gaugeElement.setAttribute('data-peity', '{ "fill": ["black", "#eeeeee"], "innerRadius": 0, "radius": 8 }');
+        if (tank.code == "RHC"){
+          gaugeElement.setAttribute('class', 'tankgaugeRHC');
+          gaugeElement.setAttribute('data-peity', '{ "fill": ["black", "#eeeeee"], "innerRadius": 0, "radius": 8 }');
+        } else {
+          gaugeElement.setAttribute('class', 'tankgauge');
+          gaugeElement.setAttribute('data-peity', '{ "fill": ["black", "#eeeeee"], "innerRadius": 0, "radius": 8 }');
+        }
         percentElement.appendChild(gaugeElement);
 
         // Copy the output valve state from the valve table
@@ -199,7 +204,17 @@
           return "green";
         }
       });
-
+      $(".tankgaugeRHC").peity("pie", {
+        "fill": function(value, index, values) {
+          if (index > 0)
+            return "#eeeeee";
+          if (values[0] < 20)
+            return "red";
+          if (values[0] < 30)
+            return "orange";
+          return "green";
+        }
+      });
     }
 
     function displayDevices() {
@@ -720,7 +735,7 @@
           </tr>
         </table>
       </div>
-
+      
   </div>
 
   <div class="w3-container">

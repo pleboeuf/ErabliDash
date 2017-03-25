@@ -5,6 +5,7 @@ const Promise = require('promise');
 const _ = require('underscore');
 var readFile = Promise.denodeify(fs.readFile);
 var writeFile = Promise.denodeify(fs.writeFile);
+var exec = require('child_process').exec;
 
 exports.Device = function(id, name, generationId, lastEventSerial) {
   this.id = id;
@@ -88,6 +89,14 @@ exports.VacuumSensor = function(attrs) {
 //   }
 // }
 
+var CouleeEvent = function(couleeNo, t_Start, t_Stop, state){
+  var self = this;
+  self.couleeNo = couleeNo;
+  self.t_Start = t_Start;
+  self.t_Stop = t_Stop;
+  self.state = state;
+}
+
 var PumpEvent = function(generationId, serialNo, data) {
   var self = this;
   self.generationId = generationId;
@@ -111,6 +120,9 @@ var Pump = exports.Pump = function(pumpConfig) {
     console.log("Loading configured pump '%s' on device '%s'", self.code, self.device);
     return _.extend(self, _.omit(pumpData, 'code', 'device'));
   }
+  self.updateDisplay = function(event){
+    self.state = event.data.eData == 0;
+  }
   self.update = function(event) {
     self.state = event.data.eData == 0;
     var pumpEvent = new PumpEvent(event.generationId, event.serialNo, {
@@ -126,7 +138,10 @@ var Pump = exports.Pump = function(pumpConfig) {
     }
   }
   self.cycleEnded = function(t0Event, t1Event, t2Event) {
-    self.duty = (t2Event.timer - t1Event.timer) / (t2Event.timer - t0Event.timer);
+    self.t_OFF = (t1Event.timer - t0Event.timer);
+    self.t_ON = (t2Event.timer - t1Event.timer);
+    self.duty = self.t_ON / (t2Event.timer - t0Event.timer);
+    self.volume = (self.t_ON /1000) * self.capacity_gph / 3600;
     console.log("Pump cycle ended: " + (t1Event.timer - t0Event.timer) + " ms off, then " + (t2Event.timer - t1Event.timer) + " ms on (" + (self.duty * 100).toFixed(0) + "% duty)");
   }
 };
@@ -289,6 +304,8 @@ exports.Dashboard = function(config, WebSocketClient) {
       getPumpOfDevice(device).update(event, value);
     } else if (name == "pump/T2") {
       getPumpOfDevice(device).update(event, value);
+    } else if (name == "pump/state") {
+      getPumpOfDevice(device).updateDisplay(event, value); 
 
     } else if (name == "sensor/openSensorV1") {
       getValveOfDevice(device, 1).position = (value == 0 ? "Ouvert" : "???");
@@ -528,9 +545,11 @@ exports.Dashboard = function(config, WebSocketClient) {
   }
 
   var storeInterval;
+  // var checkCollectierInterval;
 
   function start() {
     storeInterval = setInterval(checkStore, 1000 * 5);
+    // checkCollectierInterval = setInterval(checkCollecteur, 1000 * 60);
   }
 
   function stop() {
@@ -570,4 +589,20 @@ exports.Dashboard = function(config, WebSocketClient) {
       listeners.push(listener);
     }
   }
+
+  // function checkCollecteur(){
+  //   var child = exec('/etc/init.d/ErabliCollecteur status', function(error, stdout, stderr) {
+  //     // console.log("Checking Collector");
+  //     process.stdout.write(stdout);
+  //     process.stderr.write(stderr);
+  //     if (error !== null) console.log(error);
+  //     var isRunning = stdout.search("running");
+  //     if (isRunning > 0){
+  //       console.log("Collector is running");
+  //       return 0; //Collector is running Ok
+  //     } else {
+  //       return 1; //Collector not running
+  //     }
+  //   });
+  // }
 };
