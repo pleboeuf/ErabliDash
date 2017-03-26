@@ -5,6 +5,7 @@ const Promise = require('promise');
 const _ = require('underscore');
 var readFile = Promise.denodeify(fs.readFile);
 var writeFile = Promise.denodeify(fs.writeFile);
+var exists = Promise.denodeify(fs.exists);
 
 exports.Device = function(id, name, generationId, lastEventSerial) {
   this.id = id;
@@ -412,17 +413,15 @@ exports.Dashboard = function(config, WebSocketClient) {
       "pumps": config.pumps
       // "temperatures": config.temperatures
     }
-    return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
-      console.log("Loading " + filename);
-      return load(configData, dashData);
-    }).catch(function(err) {
-      if (err.errno == 34) {
+    return exists(filename, function (exists) {
+      if (exists) {
+        console.log("Loading " + filename);
+        return load(configData, dashData);
+      } else {
         console.log("Dashboard data not found. Initializing.");
         return load(configData, configData);
-      } else {
-        throw err;
       }
-    });
+    })
   }
 
   function getData() {

@@ -6,6 +6,10 @@
   "store": {
     "filename": "data/dashboard.json"
   },
+  "influxdb": {
+	  "host": "localhost",
+	  "port": 8096
+  },
   "devices": [{
     "name": "EB-P1",
     "description": "Pompe et vide relâcheur #1",
