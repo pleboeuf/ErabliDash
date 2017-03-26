@@ -5,6 +5,7 @@ const Promise = require('promise');
 const _ = require('underscore');
 var readFile = Promise.denodeify(fs.readFile);
 var writeFile = Promise.denodeify(fs.writeFile);
+var exists = Promise.denodeify(fs.exists);
 
 exports.Device = function(id, name, generationId, lastEventSerial) {
   this.id = id;
@@ -18,6 +19,7 @@ exports.Device = function(id, name, generationId, lastEventSerial) {
     return this;
   }
 }
+
 var HorizontalCylindricTank = function(self) {
   self.getCapacity = function() {
     return Math.PI * Math.pow(self.diameter / 2000, 2) * self.length;
@@ -27,6 +29,7 @@ var HorizontalCylindricTank = function(self) {
     return HorizontalCylindricTank.getFill(h, self.diameter, self.length);
   }
 }
+
 HorizontalCylindricTank.getFill = function(level, diameter, length) {
   // All measures in millimeters
   var h = level / 1000;
@@ -34,6 +37,7 @@ HorizontalCylindricTank.getFill = function(level, diameter, length) {
   var r = d / 2;
   return (Math.pow(r, 2) * Math.acos((r - h) / r) - (r - h) * Math.sqrt(d * h - Math.pow(h, 2))) * length;
 }
+
 var UShapedTank = function(self) {
   self.getCapacity = function() {
     return getFill(self.totalHeight);
@@ -57,6 +61,7 @@ var UShapedTank = function(self) {
     return self.diameter / 100 * self.length / 100 * level / 100;
   }
 }
+
 exports.Tank = function(attrs) {
   var self = this;
   _.extend(self, attrs);
@@ -68,6 +73,7 @@ exports.Tank = function(attrs) {
     throw 'Unsupported tank (shape: ' + self.shape + ', ' + self.orientation + ')';
   }
 }
+
 exports.VacuumSensor = function(attrs) {
   var self = this;
   _.extend(self, attrs);
@@ -75,12 +81,21 @@ exports.VacuumSensor = function(attrs) {
     return self.value;
   }
 }
+// exports.Temperatures = function(attrs) {
+//   var self = this;
+//   _.extend(self, attrs);
+//   self.getValue = function() {
+//     return self.value;
+//   }
+// }
+
 var PumpEvent = function(generationId, serialNo, data) {
   var self = this;
   self.generationId = generationId;
   self.serialNo = serialNo;
   _.extend(self, data);
 };
+
 PumpEvent.comparator = function(a, b) {
   if (a.generationId != b.generationId) {
     return a.generationId - b.generationId;
@@ -88,6 +103,7 @@ PumpEvent.comparator = function(a, b) {
     return a.serialNo - b.serialNo;
   }
 };
+
 var Pump = exports.Pump = function(pumpConfig) {
   var self = this;
   _.extend(self, pumpConfig);
@@ -112,10 +128,10 @@ var Pump = exports.Pump = function(pumpConfig) {
   }
   self.cycleEnded = function(t0Event, t1Event, t2Event) {
     self.duty = (t2Event.timer - t1Event.timer) / (t2Event.timer - t0Event.timer);
-    self.lastStoppedAt = t2Event.timer;
     console.log("Pump cycle ended: " + (t1Event.timer - t0Event.timer) + " ms off, then " + (t2Event.timer - t1Event.timer) + " ms on (" + (self.duty * 100).toFixed(0) + "% duty)");
   }
 };
+
 exports.Dashboard = function(config, WebSocketClient) {
   var Device = exports.Device;
   var Tank = exports.Tank;
@@ -130,6 +146,7 @@ exports.Dashboard = function(config, WebSocketClient) {
   var valves = [];
   var vacuumSensors = [];
   var pumps = [];
+  var temperatures = [];
 
   var dir = path.dirname(filename);
   fs.exists(dir, function(exists) {
@@ -241,10 +258,21 @@ exports.Dashboard = function(config, WebSocketClient) {
     return pump;
   }
 
+  // function getVacuumSensorByCode(code) {
+  //   var sensor = vacuumSensors.filter(function(sensor) {
+  //     return sensor.code == code;
+  //   }).shift();
+  //   if (sensor === undefined) {
+  //     throw "Dashboard has no vacuum sensor with code " + code;
+  //   }
+  //   return sensor;
+  // }
+
   function handleEvent(device, event) {
     var data = event.data;
     var name = data.eName;
     var value = data.eData;
+    var positionCode = ["Erreur", "Ouverte", "Fermé", "Partiel"];
     device.lastUpdatedAt = event.published_at;
     if (name == "sensor/ambientTemp") {
       device.ambientTemp = value;
@@ -262,6 +290,7 @@ exports.Dashboard = function(config, WebSocketClient) {
       getPumpOfDevice(device).update(event, value);
     } else if (name == "pump/T2") {
       getPumpOfDevice(device).update(event, value);
+
     } else if (name == "sensor/openSensorV1") {
       getValveOfDevice(device, 1).position = (value == 0 ? "Ouvert" : "???");
     } else if (name == "sensor/closeSensorV1") {
@@ -270,6 +299,13 @@ exports.Dashboard = function(config, WebSocketClient) {
       getValveOfDevice(device, 2).position = (value == 0 ? "Ouvert" : "???");
     } else if (name == "sensor/closeSensorV2") {
       getValveOfDevice(device, 2).position = (value == 0 ? "Fermé" : getValveOfDevice(device, 2).position);
+
+    } else if (name == "sensor/Valve1Pos") {
+      getValveOfDevice(device, 1).position = positionCode[value];
+    } else if (name == "sensor/Valve2Pos") {
+      getValveOfDevice(device, 2).position = positionCode[value];
+
+
     } else if (name == "sensor/level") {
       tanks.forEach(function(tank) {
         if (tank.device == device.name) {
@@ -299,7 +335,7 @@ exports.Dashboard = function(config, WebSocketClient) {
       eventsSinceStore++;
       if (device === undefined) {
         console.log("Device " + deviceId + " is new!");
-        return addDevice(new Device(deviceId, "New" + deviceId, generationId, serialNo)).then(handleEvent);
+//        return addDevice(new Device(deviceId, "New" + deviceId, generationId, serialNo)).then(handleEvent);
       } else {
         var handleEventFunc = function() {
           handleEvent(device, message)
@@ -375,18 +411,17 @@ exports.Dashboard = function(config, WebSocketClient) {
       "valves": config.valves,
       "vacuum": config.vacuum,
       "pumps": config.pumps
+      // "temperatures": config.temperatures
     }
-    return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
-      console.log("Loading " + filename);
-      return load(configData, dashData);
-    }).catch(function(err) {
-      if (err.errno == 34) {
+    return exists(filename, function (exists) {
+      if (exists) {
+        console.log("Loading " + filename);
+        return load(configData, dashData);
+      } else {
         console.log("Dashboard data not found. Initializing.");
         return load(configData, configData);
-      } else {
-        throw err;
       }
-    });
+    })
   }
 
   function getData() {
@@ -401,6 +436,7 @@ exports.Dashboard = function(config, WebSocketClient) {
       "valves": valves,
       "vacuum": vacuumSensors,
       "pumps": pumps
+      // "temperatures": temperatures
     };
   }
 
@@ -416,6 +452,7 @@ exports.Dashboard = function(config, WebSocketClient) {
       console.log("Loading configured device '%s' - '%s' (%s) at %s,%s", dev.name, dev.description, dev.id, deviceData.generationId, deviceData.lastEventSerial);
       return new Device(dev.id, dev.name, deviceData.generationId, deviceData.lastEventSerial);
     });
+
     tanks = config.tanks.map(function(tank) {
       var tankData = data.tanks.filter(function(tankData) {
         return tank.code == tankData.code;
@@ -424,6 +461,7 @@ exports.Dashboard = function(config, WebSocketClient) {
       var attrsFromConfig = ['name', 'device', 'shape', 'orientation', 'length', 'diameter', 'sensorHeight', 'totalHeight'];
       return new Tank(_.extend(tank, _.omit(tankData, attrsFromConfig)));
     });
+
     valves = config.valves.map(function(valve) {
       var valveData = data.valves.filter(function(valveData) {
         return valve.code == valveData.code;
@@ -431,16 +469,18 @@ exports.Dashboard = function(config, WebSocketClient) {
       console.log("Loading configured valve '%s' on device '%s'", valve.code, valve.device);
       return _.extend(valve, _.omit(valveData, 'code', 'name', 'device'));
     });
+
     vacuumSensors = config.vacuum.map(function(sensor) {
-      if (!data.vacuum) {
-        return sensor;
-      }
       var sensorData = data.vacuum.filter(function(sensorData) {
         return sensor.code == sensorData.code;
       }).shift();
+      if (!data.vacuum) {
+        return sensor;
+      }
       console.log("Loading configured vacuum sensor '%s' on device '%s'", sensor.code, sensor.device);
       return _.extend(sensor, _.omit(sensorData, 'code', 'device'));
     });
+    
     pumps = config.pumps.map(function(pump) {
       pump = new Pump(pump);
       if (!data.pumps) {
@@ -452,6 +492,17 @@ exports.Dashboard = function(config, WebSocketClient) {
       pump.load(pumpData);
       return pump;
     });
+
+    // temperatures = config.temperatures.map(function(tempSensor) {
+    //   var tempSensorData = data.temperatures.filter(function(tempSensorData) {
+    //     return temperatures.code == temperatureData.code;
+    //   }).shift();
+    //   if (!data.temperatures) {
+    //     return tempSensor;
+    //   }
+    //   console.log("Loading configured temperature sensor '%s' on device '%s'", tempSensor.code, tempSensor.device);
+    //   return _.extend(tempSensor, _.omit(tempSensorData, 'code', 'device'));
+    // });
   }
 
   function store() {
