@@ -60,7 +60,7 @@ wsServer.on('request', function(request) {
     });
     publishData(connection);
   } catch (exception) {
-    console.error(exception);
+    console.error("Error while handling request", exception);
   }
 });
 dashboard.onChange(function() {

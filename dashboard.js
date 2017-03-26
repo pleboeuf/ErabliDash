@@ -413,15 +413,19 @@ exports.Dashboard = function(config, WebSocketClient) {
       "pumps": config.pumps
       // "temperatures": config.temperatures
     }
-    return exists(filename, function (exists) {
+    return exists(filename).then(function (exists) {
       if (exists) {
         console.log("Loading " + filename);
-        return load(configData, dashData);
+        return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
+          return load(configData, dashData);
+        });
       } else {
         console.log("Dashboard data not found. Initializing.");
         return load(configData, configData);
       }
-    })
+    }).then(function() {
+      console.log("Completed initialization.");
+    });
   }
 
   function getData() {
@@ -441,7 +445,7 @@ exports.Dashboard = function(config, WebSocketClient) {
   }
 
   function load(config, data) {
-    console.log(data);
+    console.log("Configuration:", data);
     devices = config.devices.map(function(dev) {
       var deviceData = data.devices.filter(function(devData) {
         return devData.id == dev.id;

@@ -4,9 +4,10 @@ Application Node.js d'affichage des données de l'érablière, se connectant à 
 
 ## 1. Install node modules
 
-Assuming NPM is already installed:
+Assuming NPM and bower are already installed:
 
     npm install
+    bower install
 
 ## 2. Run!
 
