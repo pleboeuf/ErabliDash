@@ -345,6 +345,7 @@
 
     function displayPumps() {
       var totalRate = 0;
+      var totalRateRel = 0;
       var gph = 0;
       var pumpDuty = 0;
       pumps.forEach(function(pump) {
@@ -356,6 +357,8 @@
         var dutyElemId = 'pump_' + pump.code + '_duty';
         var rateElem;
         var rateElemId = 'pump_' + pump.code + '_rate';
+        var rateRelElem;
+        var rateRelElemId = 'pump_' + pump.code + '_rateRel';
         var pumpElemId = 'pump_' + pump.code;
         var pumpElem = document.getElementById(pumpElemId);
         if (document.getElementById(pumpElemId) == null) {
@@ -383,19 +386,27 @@
           rateElem.setAttribute('id', rateElemId);
           rateElem.setAttribute('class', 'pumprate');
           pumpElem.appendChild(rateElem);
+
+          rateRelElem = document.createElement('td');
+          rateRelElem.setAttribute('id', rateRelElemId);
+          rateRelElem.setAttribute('class', 'pumprateRel');
+          pumpElem.appendChild(rateRelElem);
         } else {
           stateElem = document.getElementById(stateElemId);
           dutyElem = document.getElementById(dutyElemId);
           rateElem = document.getElementById(rateElemId);
+          rateRelElem = document.getElementById(rateRelElemId);
         }
         stateElem.innerHTML = pump.state ? 'ON' : 'OFF';
         setIndicatorColor(stateElem, pump.state);
         var rate = (pump.duty * pump.capacity_gph);
         if (pump.code == "P1" || pump.code == "P2" || pump.code == "P3"){
           totalRate += rate;
-          pumpDuty = (pump.duty * 100).toFixed(1);
-          dutyElem.innerHTML = parseFloat(pumpDuty) || "";
+          totalRateRel += pump.debitRel;
+          pumpDuty = (pump.duty * 100);
+          dutyElem.innerHTML = parseFloat(pumpDuty).toFixed(1) || "";
           rateElem.innerHTML = parseInt(rate) || "";
+          rateRelElem.innerHTML = parseInt(pump.debitRel) || "";
         }
         // Set color of line based on device lastUpdatedAt
         setAgeColor(pumpElem, pump.device);
@@ -403,6 +414,9 @@
       });
       var totalRateElem = document.getElementById('pumptotalrate');
       totalRateElem.innerHTML = parseInt(totalRate) || 0;
+
+      var totalRateRelElem = document.getElementById('pumptotalrateRel');
+      totalRateRelElem.innerHTML = parseInt(totalRateRel) || 0;
     }
 
     function displayVacuum() {
@@ -624,7 +638,8 @@
     .rawvalue,
     .tankcapacity,
     .pumpduty,
-    .pumprate {
+    .pumprate,
+    .pumprateRel {
       text-align: right;
     }
 
@@ -713,12 +728,15 @@
               <br/>(%)</th>
             <th class="darker">Débit
               <br/>(GPH)</th>
+            <th class="darker">Débit Rel.
+              <br/>(GPH)</th>
           </tr>
           <tr id="pumptotalrow", class="lighter">
             <td>Total</td>
             <td></td>
             <td></td>
             <td id="pumptotalrate", class="pumprate", style="font-weight: bold;"></td>
+            <td id="pumptotalrateRel", class="pumprate", style="font-weight: bold;"></td>
           </tr>
         </table>
       </div>

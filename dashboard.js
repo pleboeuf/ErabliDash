@@ -133,12 +133,16 @@ var Pump = exports.Pump = function(pumpConfig) {
     while (events.length > 3) {
       events.shift();
     }
+    if (typeof self.t_OFF !== undefined && events.length > 1 && !events[0].state && events[1].state) {
+      self.debitRel = 60 * 60 * self.relacheur / (self.t_OFF / 1000);
+    }
     if (events.length == 3 && !events[0].state && events[1].state && !events[2].state) {
       self.cycleEnded(events[0], events[1], events[2]);
     }
   }
   self.cycleEnded = function(t0Event, t1Event, t2Event) {
     self.t_OFF = (t1Event.timer - t0Event.timer);
+    self.debitRel = 60 * 60 * self.relacheur / (self.t_OFF / 1000)
     self.t_ON = (t2Event.timer - t1Event.timer);
     self.duty = self.t_ON / (t2Event.timer - t0Event.timer);
     self.volume = (self.t_ON /1000) * self.capacity_gph / 3600;

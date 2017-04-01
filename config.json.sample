@@ -6,6 +6,10 @@
   "store": {
     "filename": "data/dashboard.json"
   },
+  "influxdb": {
+    "host": "erablicollecteur",
+    "port": 8096
+  },
   "devices": [{
     "name": "EB-P1",
     "description": "Pompe et vide relâcheur #1",
@@ -114,7 +118,7 @@
     "orientation": "horizontal",
     "length": 4128,
     "diameter": 2438,
-    "sensorHeight": 2292,
+    "sensorHeight": 2251,
     "output": "VaS3",
     "drain": "VaDS3"
   }, {
@@ -125,7 +129,7 @@
     "orientation": "horizontal",
     "length": 3353,
     "diameter": 2438,
-    "sensorHeight": 2292,
+    "sensorHeight": 2063,
     "output": "VaS4",
     "drain": "VaDS4"
   }, {
@@ -293,15 +297,18 @@
   "pumps": [{
     "code": "P1",
     "device": "EB-P1",
-    "capacity_gph": 2995
+    "capacity_gph": 2485, 
+    "relacheur": 15.54
   }, {
     "code": "P2",
     "device": "EB-P2",
-    "capacity_gph": 3032
+    "capacity_gph": 3085, 
+    "relacheur": 18.74
   },{
     "code": "P3",
     "device": "EB-P3",
-    "capacity_gph": 2469
+    "capacity_gph": 2467, 
+    "relacheur": 15.31
   }, {
     "code": "PT2",
     "device": "EB-PT2",
