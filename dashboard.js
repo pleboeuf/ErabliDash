@@ -290,6 +290,8 @@ exports.Dashboard = function(config, WebSocketClient) {
       getPumpOfDevice(device).update(event, value);
     } else if (name == "pump/T2") {
       getPumpOfDevice(device).update(event, value);
+    } else if (name == "pump/state") {
+      getPumpOfDevice(device).update(event, value);
 
     } else if (name == "sensor/openSensorV1") {
       getValveOfDevice(device, 1).position = (value == 0 ? "Ouvert" : "???");
@@ -484,7 +486,7 @@ exports.Dashboard = function(config, WebSocketClient) {
       console.log("Loading configured vacuum sensor '%s' on device '%s'", sensor.code, sensor.device);
       return _.extend(sensor, _.omit(sensorData, 'code', 'device'));
     });
-    
+
     pumps = config.pumps.map(function(pump) {
       pump = new Pump(pump);
       if (!data.pumps) {
