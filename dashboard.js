@@ -308,7 +308,9 @@ exports.Dashboard = function(config, WebSocketClient) {
     }  else if (name == "pump/warningRunTooLong") {
       getPumpOfDevice(device).run2long = true;
     }  else if (name == "pump/debutDeCoulee") {
-      getPumpOfDevice(device).couleeEnCour = true;
+      var pompe = getPumpOfDevice(device);
+      pompe.couleeEnCour = true;
+      pompe.debutDeCouleeTS = data.timestamp;
     }  else if (name == "pump/finDeCoulee") {
       var pompe = getPumpOfDevice(device);
       pompe.couleeEnCour = false;

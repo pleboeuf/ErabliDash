@@ -405,7 +405,7 @@
                 couleeActive = pump.couleeEnCour;
                 // console.log("pump.couleeEnCour = " + pump.couleeEnCour);
                 // console.log("couleeActive = " + couleeActive);
-                startCouleeCounter();
+                startCouleeCounter(pump.debutDeCouleeTS);
                 couleeTextElem.innerHTML = "Coulée en cours: ";
                 couleeElem.style.backgroundColor = "yellow";
                 couleeElem.style.color = "black";
@@ -604,9 +604,10 @@
 
     function pad ( val ) { return val > 9 ? val : "0" + val; }
 
-    function startCouleeCounter(){
+    function startCouleeCounter(date){
       couleTimer = setInterval( function(){
-          document.getElementById("c_secondes").innerHTML=":"+pad(++sec%60);
+          sec = parseInt(Math.abs((Date.now()/1e3 - new Date(date).getTime())));
+          document.getElementById("c_secondes").innerHTML=":"+pad(sec%60);
           document.getElementById("c_minutes").innerHTML=":"+pad(parseInt(sec/60,10));
           document.getElementById("c_heures").innerHTML="j:"+pad(parseInt(sec/3600,10));
           document.getElementById("c_jours").innerHTML=pad(parseInt(sec/86400,10));
