@@ -334,6 +334,8 @@
       var totalVolume = 0;
       var gph = 0;
       var pumpDuty = 0;
+      var dateStart;
+      allWaterPumps = [];
       pumps.forEach(function(pump) {
         var codeElement;
         var codeElementId = 'pump_' + pump.code;
@@ -396,39 +398,69 @@
           rateElem.innerHTML = parseInt(rate) || "";
           volumeElem.innerHTML = parseInt(volume) || "";
 
-// Gérer le message de coulée en cours
-          var couleeElem = document.getElementById("coulee");
-          var couleeTextElem = document.getElementById("c_text");
-          if (pump.couleeEnCour !== undefined && couleeActive !== undefined){
-            if (pump.couleeEnCour !== couleeActive){
-              if (pump.couleeEnCour){
-                couleeActive = pump.couleeEnCour;
-                // console.log("pump.couleeEnCour = " + pump.couleeEnCour);
-                // console.log("couleeActive = " + couleeActive);
-                startCouleeCounter(pump.debutDeCouleeTS);
-                couleeTextElem.innerHTML = "Coulée en cours: ";
-                couleeElem.style.backgroundColor = "yellow";
-                couleeElem.style.color = "black";
-              } else {
-                couleeActive = pump.couleeEnCour;
-                // console.log("else: pump.couleeEnCour = " + pump.couleeEnCour);
-                // console.log("else: couleeActive = " + couleeActive);
-                stopCouleeCounter();
-                couleeTextElem.innerHTML = "";
-                couleeElem.style.backgroundColor = "#989898";
-              }
+// Noter l'état de coulée des pompes. Mauvais code
+          if (pump.code == "P1"){
+            allWaterPumps[0] = pump.couleeEnCour;
+            if (allWaterPumps[0]){
+              dateStart = pump.debutDeCouleeTS;
             }
           }
-
+          else if (pump.code == "P2"){
+            allWaterPumps[1] = pump.couleeEnCour;
+            if (allWaterPumps[1]){
+              dateStart = pump.debutDeCouleeTS;
+            }
+          }
+          else if (pump.code == "P3"){
+            allWaterPumps[2] = pump.couleeEnCour;
+            if (allWaterPumps[2]){
+              dateStart = pump.debutDeCouleeTS;
+            }
+          }
+          else if (pump.code == "Ptest"){
+            allWaterPumps[3] = pump.couleeEnCour;
+            if (allWaterPumps[3]){
+              dateStart = pump.debutDeCouleeTS;
+            }
+          }
         }
         // Set color of line based on device lastUpdatedAt
         setAgeColor(pumpElem, pump.device);
 
       });
+      checkCouleeEnCour(allWaterPumps, dateStart); // Gérer le message de coulée en cours
       var totalRateElem = document.getElementById('pumptotalrate');
       totalRateElem.innerHTML = parseInt(totalRate) || 0;
       var totalVolumeElem = document.getElementById('volumetotal');
       totalVolumeElem.innerHTML = parseInt(totalVolume) || 0;
+    }
+
+    function checkCouleeEnCour(allWaterPumps, dateStart){
+      console.log(JSON.stringify(allWaterPumps));
+      var couleeElem = document.getElementById("coulee");
+      var couleeTextElem = document.getElementById("c_text");
+      var allPumpsCouleeState = allWaterPumps[0] || allWaterPumps[1] || allWaterPumps[2] || allWaterPumps[3];
+
+      if (allPumpsCouleeState !== undefined && couleeActive !== undefined){
+
+        if (allPumpsCouleeState !== couleeActive){ // Changement d'état
+          if (allPumpsCouleeState == true){
+            // console.log("startCouleeCounter: allPumpsCouleeState= " + allPumpsCouleeState + ", couleeActive= " + couleeActive);
+            couleeActive = allPumpsCouleeState;
+            startCouleeCounter(dateStart);
+            couleeTextElem.innerHTML = "Coulée en cours:  ";
+            couleeElem.style.backgroundColor = "yellow";
+            couleeElem.style.color = "black";
+          } else {
+            // console.log("   STOPCouleeCounter: allPumpsCouleeState= " + allPumpsCouleeState + ", couleeActive= " + couleeActive);
+            couleeActive = allPumpsCouleeState;
+            stopCouleeCounter();
+            couleeTextElem.innerHTML = "";
+            couleeElem.style.backgroundColor = "#9E9E9E";
+          }
+
+        }
+      }
     }
 
     function displayVacuum() {
@@ -606,11 +638,11 @@
 
     function startCouleeCounter(date){
       couleTimer = setInterval( function(){
-          sec = parseInt(Math.abs((Date.now()/1e3 - new Date(date).getTime())));
-          document.getElementById("c_secondes").innerHTML=":"+pad(sec%60);
-          document.getElementById("c_minutes").innerHTML=":"+pad(parseInt(sec/60,10));
-          document.getElementById("c_heures").innerHTML="j:"+pad(parseInt(sec/3600,10));
-          document.getElementById("c_jours").innerHTML=pad(parseInt(sec/86400,10));
+        sec = parseInt(Math.abs((Date.now()/1e3 - new Date(date).getTime())));
+        document.getElementById("c_secondes").innerHTML=":"+pad(sec%60);
+        document.getElementById("c_minutes").innerHTML=":"+pad(parseInt(sec/60,10));
+        document.getElementById("c_heures").innerHTML="j:"+pad(parseInt(sec/3600,10));
+        document.getElementById("c_jours").innerHTML=pad(parseInt(sec/86400,10));
       }, 1000);
       // console.log("Affichage début de coulée");
     }
