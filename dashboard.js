@@ -124,10 +124,13 @@ var Pump = exports.Pump = function(pumpConfig) {
     }
     if (events.length == 3 && !events[0].state && events[1].state && !events[2].state) {
       self.cycleEnded(events[0], events[1], events[2]);
+      // console.log("Check for cycleEnded");
     }
   }
+
   self.cycleEnded = function(t0Event, t1Event, t2Event) {
-    self.duty = (t2Event.timer - t1Event.timer) / (t2Event.timer - t0Event.timer);
+    // self.duty = (t2Event.timer - t1Event.timer) / (t2Event.timer - t0Event.timer);
+    // self.ONtime = t2Event.timer - t1Event.timer;
     console.log("Pump cycle ended: " + (t1Event.timer - t0Event.timer) + " ms off, then " + (t2Event.timer - t1Event.timer) + " ms on (" + (self.duty * 100).toFixed(0) + "% duty)");
   }
 };
@@ -272,7 +275,7 @@ exports.Dashboard = function(config, WebSocketClient) {
     var data = event.data;
     var name = data.eName;
     var value = data.eData;
-    var positionCode = ["Erreur", "Ouverte", "Fermé", "Partiel"];
+    var positionCode = ["Erreur", "Ouvert", "Fermé", "Partiel"];
     device.lastUpdatedAt = event.published_at;
     if (name == "sensor/ambientTemp") {
       device.ambientTemp = value;
@@ -289,18 +292,37 @@ exports.Dashboard = function(config, WebSocketClient) {
     } else if (name == "pump/T1") {
       getPumpOfDevice(device).update(event, value);
     } else if (name == "pump/T2") {
-      getPumpOfDevice(device).update(event, value);
+      var pompe = getPumpOfDevice(device);
+      pompe.update(event, value);
+      pompe.run2long = false;
     } else if (name == "pump/state") {
       getPumpOfDevice(device).update(event, value);
+    } else if (name == "pump/T2_ONtime") {
+      getPumpOfDevice(device).ONtime = value / 1000;
+    } else if (name == "pump/CurrentDutyCycle") {
+      getPumpOfDevice(device).duty = value / 1000;
+    } else if (name == "pump/endCycle") {
+      var pompe = getPumpOfDevice(device);
+      pompe.duty = value / 1000;
+      pompe.volume += pompe.ONtime * pompe.capacity_gph / 3600;
+    }  else if (name == "pump/warningRunTooLong") {
+      getPumpOfDevice(device).run2long = true;
+    }  else if (name == "pump/debutDeCoulee") {
+      getPumpOfDevice(device).couleeEnCour = true;
+    }  else if (name == "pump/finDeCoulee") {
+      var pompe = getPumpOfDevice(device);
+      pompe.couleeEnCour = false;
+      pompe.duty = 0;
+      pompe.volume = 0;
 
-    } else if (name == "sensor/openSensorV1") {
-      getValveOfDevice(device, 1).position = (value == 0 ? "Ouvert" : "???");
-    } else if (name == "sensor/closeSensorV1") {
-      getValveOfDevice(device, 1).position = (value == 0 ? "Fermé" : getValveOfDevice(device, 1).position);
-    } else if (name == "sensor/openSensorV2") {
-      getValveOfDevice(device, 2).position = (value == 0 ? "Ouvert" : "???");
-    } else if (name == "sensor/closeSensorV2") {
-      getValveOfDevice(device, 2).position = (value == 0 ? "Fermé" : getValveOfDevice(device, 2).position);
+    // } else if (name == "sensor/openSensorV1") {
+    //   getValveOfDevice(device, 1).position = (value == 0 ? "Ouvert" : "???");
+    // } else if (name == "sensor/closeSensorV1") {
+    //   getValveOfDevice(device, 1).position = (value == 0 ? "Fermé" : getValveOfDevice(device, 1).position);
+    // } else if (name == "sensor/openSensorV2") {
+    //   getValveOfDevice(device, 2).position = (value == 0 ? "Ouvert" : "???");
+    // } else if (name == "sensor/closeSensorV2") {
+    //   getValveOfDevice(device, 2).position = (value == 0 ? "Fermé" : getValveOfDevice(device, 2).position);
 
     } else if (name == "sensor/Valve1Pos") {
       getValveOfDevice(device, 1).position = positionCode[value];
