@@ -37,7 +37,7 @@
   }, {
     "name": "EB-RS1",
     "description": "Réservoir de sève #1",
-    "id": "340030000a51353335323536"
+    "id": "40003d001047343438323536"
   }, {
     "name": "EB-RS2",
     "description": "Réservoir de sève #2",
@@ -45,11 +45,11 @@
   }, {
     "name": "EB-RS3",
     "description": "Réservoir de sève #3",
-    "id": "33001a000547343233323032"
+    "id": "42003d000f51353532343635"
   }, {
     "name": "EB-RS4",
     "description": "Réservoir de sève #4",
-    "id": "3b0028000847343337373738"
+    "id": "4f003a000751353530373132"
   }, {
     "name": "EB-RS5",
     "description": "Réservoir de sève #5 - pump house",
@@ -65,7 +65,7 @@
   }, {
     "name": "EB-RF2",
     "description": "Réservoir de filtrat #2",
-    "id": "3a002e000347343337373739"
+    "id": "440047001051363036373538"
   }, {
     "name": "EB-RC1",
     "description": "Réservoir de concentré 1",
@@ -79,17 +79,17 @@
     "description": "Réservoir d'huile a chauffage",
     "id": "230031000247343337373739"
   }, {
+    "name": "EB-PT1",
+    "description": "Pompe de transfert 1 - Pump House",
+    "id": "330024001347343339383037"
+  }, {
     "name": "EB-PT2",
     "description": "Pompe de transfert 2 - Pump House",
     "id": "2b0031001047343432313031"
   }, {
     "name": "EB-VEcTk",
     "description": "Valves VaEC et VaTk",
-    "id": "1a0049000a51353335323535"
-  }, {
-    "name": "PL-Ph-A",
-    "description": "Dummy pump for test",
-    "id": "1f0042000447343337373738"
+    "id": "27001d000c47343438323536"
   }],
 
   "tanks": [{
