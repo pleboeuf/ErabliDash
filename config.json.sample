@@ -89,7 +89,7 @@
   }, {
     "name": "EB-VEcTk",
     "description": "Valves VaEC et VaTk",
-    "id": "27001d000c47343438323536"
+    "id": "400032000f47343438323536"
   }],
 
   "tanks": [{
@@ -311,11 +311,6 @@
     "label": "Pompe V3",
     "device": "EB-V3",
     "offset": 0
-  },{
-    "code": "Ptest",
-    "label": "Ptest",
-    "device": "PL-Ph-A",
-    "offset": 0
   }],
 
   "pumps": [{
@@ -337,6 +332,10 @@
     "duty": 0,
     "volume" : 0
   }, {
+    "code": "PT1",
+    "device": "EB-PT1",
+    "capacity_gph": 0
+  }, {
     "code": "PT2",
     "device": "EB-PT2",
     "capacity_gph": 0
@@ -352,12 +351,6 @@
     "code": "Vide3",
     "device": "EB-V3",
     "capacity_gph": 0
-  }, {
-    "code": "Ptest",
-    "device": "PL-Ph-A",
-    "capacity_gph": 3000,
-    "duty": 0,
-    "volume" : 0
   }],
 
   "temperatures": [{
