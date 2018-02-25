@@ -389,8 +389,8 @@
         stateElem.innerHTML = pump.state ? 'ON' : 'OFF';
         setIndicatorColor(stateElem, pump.state);
         if (pump.duty !== undefined){var rate = (pump.duty * pump.capacity_gph);}
-        if (pump.volume !== undefined){var volume = pump.volume;}
-        if (pump.code == "P1" || pump.code == "P2" || pump.code == "P3" || pump.code == "Ptest"){
+        if (pump.volume !== undefined){var volume = Math.abs(pump.volume);}
+        if (pump.code == "P1" || pump.code == "P2" || pump.code == "P3"){
           totalRate += rate;
           totalVolume += volume;
           pumpDuty = (pump.duty * 100).toFixed(1);
@@ -417,12 +417,12 @@
               dateStart = pump.debutDeCouleeTS;
             }
           }
-          else if (pump.code == "Ptest"){
-            allWaterPumps[3] = pump.couleeEnCour;
-            if (allWaterPumps[3]){
-              dateStart = pump.debutDeCouleeTS;
-            }
-          }
+          // else if (pump.code == "Ptest"){
+          //   allWaterPumps[3] = pump.couleeEnCour;
+          //   if (allWaterPumps[3]){
+          //     dateStart = pump.debutDeCouleeTS;
+          //   }
+          // }
         }
         // Set color of line based on device lastUpdatedAt
         setAgeColor(pumpElem, pump.device);
@@ -439,7 +439,7 @@
       console.log(JSON.stringify(allWaterPumps));
       var couleeElem = document.getElementById("coulee");
       var couleeTextElem = document.getElementById("c_text");
-      var allPumpsCouleeState = allWaterPumps[0] || allWaterPumps[1] || allWaterPumps[2] || allWaterPumps[3];
+      var allPumpsCouleeState = allWaterPumps[0] || allWaterPumps[1] || allWaterPumps[2];
 
       if (allPumpsCouleeState !== undefined && couleeActive !== undefined){
 
@@ -639,10 +639,10 @@
     function startCouleeCounter(date){
       couleTimer = setInterval( function(){
         sec = parseInt(Math.abs((Date.now()/1e3 - new Date(date).getTime())));
-        document.getElementById("c_secondes").innerHTML=":"+pad(sec%60);
-        document.getElementById("c_minutes").innerHTML=":"+pad(parseInt(sec/60,10));
-        document.getElementById("c_heures").innerHTML="j:"+pad(parseInt(sec/3600,10));
-        document.getElementById("c_jours").innerHTML=pad(parseInt(sec/86400,10));
+        // document.getElementById("c_secondes").innerHTML=":"+pad(sec%60);
+        // document.getElementById("c_minutes").innerHTML=":"+pad(parseInt(sec/60,10)%60);
+        // document.getElementById("c_heures").innerHTML="j:"+pad(parseInt(sec/3600,10)%24);
+        // document.getElementById("c_jours").innerHTML=pad(parseInt(sec/86400,10));
       }, 1000);
       // console.log("Affichage début de coulée");
     }
@@ -752,7 +752,7 @@
       <div class="w3-container w3-display-bottomleftt", style="width: 33%; height: 70px; display: inline-block;">
         <h1 class="w3-display-topleft", style="display: inline-block;">Érablière&nbsp;Brunelle</h1></div>
       <div class="w3-container w3-display-bottomright", style="width: 50%; height: 70px; display: inline-block;", id="coulee">
-        <h3 class="w3-display", style="display: inline-block;", id="c_text"></h2>
+        <h1 class="w3-display", style="display: inline-block;", id="c_text"></h1>
         <h3 class="w3-display", style="display: inline-block;", id="c_jours"></h2>
         <h3 class="w3-display", style="display: inline-block;", id="c_heures"></h2>
         <h3 class="w3-display", style="display: inline-block;", id="c_minutes"></h2>
