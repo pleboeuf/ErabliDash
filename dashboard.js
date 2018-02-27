@@ -298,7 +298,7 @@ exports.Dashboard = function(config, WebSocketClient) {
     } else if (name == "pump/state") {
       getPumpOfDevice(device).update(event, value);
     } else if (name == "pump/T2_ONtime") {
-      getPumpOfDevice(device).ONtime = value / 1000;
+      getPumpOfDevice(device).ONtime = Math.abs(value / 1000);
     } else if (name == "pump/CurrentDutyCycle") {
       getPumpOfDevice(device).duty = value / 1000;
     } else if (name == "pump/endCycle") {
