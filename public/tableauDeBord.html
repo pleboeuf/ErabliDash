@@ -455,7 +455,7 @@
             // console.log("   STOPCouleeCounter: allPumpsCouleeState= " + allPumpsCouleeState + ", couleeActive= " + couleeActive);
             couleeActive = allPumpsCouleeState;
             stopCouleeCounter();
-            couleeTextElem.innerHTML = "";
+            couleeTextElem.innerHTML = "Coulée en terminée:  ";
             couleeElem.style.backgroundColor = "#9E9E9E";
           }
 
@@ -639,20 +639,18 @@
     function startCouleeCounter(date){
       couleTimer = setInterval( function(){
         sec = parseInt(Math.abs((Date.now()/1e3 - new Date(date).getTime())));
-        // document.getElementById("c_secondes").innerHTML=":"+pad(sec%60);
-        // document.getElementById("c_minutes").innerHTML=":"+pad(parseInt(sec/60,10)%60);
-        // document.getElementById("c_heures").innerHTML="j:"+pad(parseInt(sec/3600,10)%24);
-        // document.getElementById("c_jours").innerHTML=pad(parseInt(sec/86400,10));
+        var timeStr = "</br> Durée: " + parseInt(sec/86400,10);
+        timeStr = timeStr + "j " + pad(parseInt(sec/3600,10)%24);
+        timeStr = timeStr + "h " + pad(parseInt(sec/60,10)%60);
+        timeStr = timeStr + "m " + pad(sec%60) + "s";
+        document.getElementById("compteurDeTemps").innerHTML= timeStr;
       }, 1000);
       // console.log("Affichage début de coulée");
     }
 
     function stopCouleeCounter(){
       clearInterval(couleTimer);
-      document.getElementById("c_secondes").innerHTML="";
-      document.getElementById("c_minutes").innerHTML="";
-      document.getElementById("c_heures").innerHTML="";
-      document.getElementById("c_jours").innerHTML="";
+      // document.getElementById("compteurDeTemps").innerHTML="";
       // console.log("Affichage fin de coulée");
     }
 
@@ -751,12 +749,9 @@
     <div class="w3-container w3-display-bottommiddle", style="width: 65%; height: 70px; display: inline-block;">
       <div class="w3-container w3-display-bottomleftt", style="width: 33%; height: 70px; display: inline-block;">
         <h1 class="w3-display-topleft", style="display: inline-block;">Érablière&nbsp;Brunelle</h1></div>
-      <div class="w3-container w3-display-bottomright", style="width: 50%; height: 70px; display: inline-block;", id="coulee">
-        <h1 class="w3-display", style="display: inline-block;", id="c_text"></h1>
-        <h3 class="w3-display", style="display: inline-block;", id="c_jours"></h2>
-        <h3 class="w3-display", style="display: inline-block;", id="c_heures"></h2>
-        <h3 class="w3-display", style="display: inline-block;", id="c_minutes"></h2>
-        <h3 class="w3-display", style="display: inline-block;", id="c_secondes"></h2>
+      <div class="w3-container w3-display-right", style="width: 50%; height: 70px;", id="coulee">
+        <h3 class="w3-display", style="display: inline; font-weight: bold;", id="c_text"></h3>
+        <h3 class="w3-display", style="display: inline;", id="compteurDeTemps"></h3>
       </div>
     </div>
     <div class="w3-container w3-display-left"><h2 id="tempExt">0&#176;C<br/></h2></div>
