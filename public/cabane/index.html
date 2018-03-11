@@ -1,0 +1,42 @@
+<!DOCTYPE html
+
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+
+    <head>
+        <title>Érablière Brunelle - Schéma de fonctionnement</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+
+
+        <script src="js/svg.js"></script>
+        <script src="js/valve.js"></script>
+        <script src="js/chargeLecture.js"></script>
+        <script src="js/chargeComposantesArray.js"></script>
+        <link rel="stylesheet" href="css/normalize.css">
+
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+        <link rel="stylesheet" href="css/newcss.css">
+
+
+    </head>
+    <body>
+        <div id="drawing"></div>
+        <a id="Pression_temperature" href="javascript:void(0)" >meteo</a>
+        <b id="Heure_coulee" href="javascript:void(0)" >heure</b>
+
+        <script>
+            var draw = SVG('drawing').size(1280, 989);
+            Background(draw, 1280, 989);
+            demarre(draw);
+            setInterval(chargelecture,2000);
+
+
+        </script>
+    </body>
+</html>
