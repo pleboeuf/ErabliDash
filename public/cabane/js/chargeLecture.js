@@ -27,9 +27,10 @@ function chargelecture() {
     var timestamp ;
     if ( location.port == 3001){
         myurl = "http://boilerhouse.ddns.net:3001/data.json";  //adapte le json pour la prod
-    }else
-    {
-        myurl= "test/data.json";                                   // pour le dev
+    } else if ( location.port == 3000){
+        myurl = "http://localhost:3000/data.json";
+    } else {
+        myurl= "test/data_local.json";                                   // pour le dev
     }
 
     //start ajax request
@@ -256,6 +257,3 @@ function TempEbulition(kPa) {
     //alert (mba + " mba = temp de " + temp) ;
     return (temp);
 }
-
-
-
