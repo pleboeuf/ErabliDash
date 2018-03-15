@@ -23,18 +23,19 @@ and open the template in the editor.
         <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
         <link rel="stylesheet" href="css/newcss.css">
 
-
     </head>
     <body>
         <div id="drawing"></div>
         <a id="Pression_temperature" href="javascript:void(0)" >meteo</a>
         <b id="Heure_coulee" href="javascript:void(0)" >heure</b>
+        <c id="Total_gallons" href="javascript:void(0)" >gallons</c>
+
 
         <script>
             var draw = SVG('drawing').size(1280, 989);
             Background(draw, 1280, 989);
             demarre(draw);
-            setInterval(chargelecture,2000);
+            setInterval(chargelecture,2000);  //refresh en millisec
 
 
         </script>

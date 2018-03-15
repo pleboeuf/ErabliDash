@@ -19,6 +19,8 @@ var STATION_METEO = "IQUBECBR2";  // station Mont Soleil a Bromont
 var mytime = 0;
 var MyDelayMeteo = 30*60*1000; // au 30 min
 
+var last_lect =0;
+
 function chargelecture() {
 // pour l instant shoot dans un <span id="results"></span>
     var myurl;
@@ -27,7 +29,7 @@ function chargelecture() {
         myurl = "http://boilerhouse.ddns.net:3001/data.json";  //adapte le json pour la prod
     }else
     {
-        myurl= "test/data_local.json";                                   // pour le dev
+        myurl= "test/data.json";                                   // pour le dev
     }
 
     //start ajax request
@@ -44,14 +46,18 @@ function chargelecture() {
             //data downloaded so we call parseJSON function
             //and pass downloaded data
             var jsonp = $.parseJSON(data);
-            timestamp = scantanks(jsonp.tanks);
+            scantanks(jsonp.tanks);
             scanvalve(jsonp.valves);
             scanpumps(jsonp.pumps);
             scanvacuum(jsonp.vacuum);
             var coulee = ( couleeEnCour ? "Coulée en cours" : "Pas de Coulée") ;
             var d = new Date();
             var n = d.toLocaleTimeString();
-            $('#Heure_coulee').html("hr "+n+ " lect "+ timestamp+"<br>" +coulee);   // met a jour le boutton Pression_temperature dans html
+            var n2 = new Date(last_lect);
+            var heure_lecture = n2.toLocaleTimeString();
+
+
+            $('#Heure_coulee').html("hr "+n+ " lect "+ heure_lecture +"<br>" +coulee);   // met a jour le boutton Pression_temperature dans html
 
         }
     });
@@ -75,20 +81,38 @@ function scanvacuum(arr) {
     });
 }
 
+function last_lecture(lect){
+    var d = Date.parse(lect);
+
+    if (d > last_lect) {
+        last_lect = d ;
+    }
+
+}
 function scanpumps(arr) {
 
     arr.forEach(function (no, i) {
+        last_lecture(no['lastUpdatedAt']);
+ //       if (toto > last_lect) last_lect = toto ;
+
         var nom = no['code'];
 //        if (nom === 'P1' && no['couleeEnCour'] === 'true' )  p = true ;
-        if (DebugON) console.log("pompe " + nom + " " + no['state'] + " "+no['couleeEnCour'])
+        if (DebugON) console.log("pompe " + nom + " state " + no['state'] + " coulee en cour "+no['couleeEnCour'])
         if (p[nom]) {
   //          if (p[nom] && (no['capacity_gph'] !== 0)) {
                 p[nom].changeState(no['state'],no['capacity_gph'],no['duty'],no['volume']);
             if (no['couleeEnCour'] === true ) p[nom].coulee = true;
+            p[nom].gph = no['capacity_gph']*no['duty'];
+            p[nom].gallons = no['volume'];
         }
    //     if (p[nom].search("Vide")) p[nom].changeState(no['state'])
 
     });
+    var gallonstotal = p['P1'].gallons + p['P2'].gallons + p['P3'].gallons;
+    var debittotal = p['P1'].gph + p['P2'].gph + p['P3'].gph;
+
+    $('#Total_gallons').html(gallonstotal.toFixed(0) + " g<br>"+debittotal.toFixed(0)+" gph");   // met a jour le boutton Pression_temperature dans html
+
     if (p['P1'].coulee || p['P2'].coulee || p['P3'].coulee ) {
         couleeEnCour = true ;
     } else {
@@ -98,6 +122,8 @@ function scanpumps(arr) {
 
 function scanvalve(arr) {
     arr.forEach(function (no, i) {
+        last_lecture(no['lastUpdatedAt']);
+
         var nom = no['code'];
         if (DebugON) console.log("valve " + nom + " " + no['position'])
         if (v[nom])
@@ -107,14 +133,15 @@ function scanvalve(arr) {
 }
 
 function scantanks(arr) {
-    var heure_lecture = "";
+
     litreToGalImp = 0.219969 ;  // litre -> gallon imperial
     arr.forEach(function (no, i) {
-        if (!heure_lecture){
+        last_lecture(no['lastUpdatedAt']);
+       /* if (!heure_lecture){
             var d = Date.parse(no['lastUpdatedAt']);
             var n = new Date(d);
             heure_lecture = n.toLocaleTimeString();
-        }
+        }*/
         var nom = no['code'];
         if (DebugON) console.log("reservoir  " + nom + " " + no['fill'])
         if (r[nom])
@@ -122,7 +149,7 @@ function scantanks(arr) {
 
 
     });
-    return(heure_lecture);
+//    return(heure_lecture);
 }
 
 
@@ -134,9 +161,9 @@ function outputPression(station) {
 
     if ((Date.now() - mytime) > MyDelayMeteo) {
         mytime = Date.now();
-        reponse = calcule(station);
+        calcule(station);
     }
-    if (DebugON) console.log("fin outputpression" + station + "  resultat " + reponse);
+    if (DebugON) console.log("fin outputpression " + station +" "+ (Date.now() - mytime) +" > " + MyDelayMeteo+ " " + ((Date.now() - mytime) > MyDelayMeteo) );
 
 }
 //
@@ -177,8 +204,10 @@ function calcule(station) {
                 var d = new Date();
                 var n2 = d.toLocaleTimeString();
                 var n1 = d.toLocaleDateString();
-                resultat2 = n1 +" "+ n2 + "</br> " + pressure_mb.toFixed(0) + " mb " + tendance + " ext " + temp_c.toFixed(1) + " oC </br>" +
+//                resultat2 = n1 +" "+ n2 + "</br> " + pressure_mb.toFixed(0) + " mb " + tendance + " ext " + temp_c.toFixed(1) + " oC </br>" +
                     ebuSirop.toFixed(1) + " oC " + tendance +" "+ ebuSiropF.toFixed(1) + " oF" ;
+                resultat2 = n1 +" "+ n2 + "</br> " + pressure_mb.toFixed(0) + " mb " + tendance + " ext " + temp_c.toFixed(1) + " oC </br>" +
+                     + ebuSiropF.toFixed(1) + " oF "+tendance ;
 
    //             if (DebugON) console.log("dans le try " +url+" "+ station + " ebulition  " + resultat2);
 

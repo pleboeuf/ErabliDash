@@ -35,15 +35,15 @@ function demarre(draw) {
     $.getJSON(url, function (data) {
 
         $.each(data.feed.entry, function (index, value) {
-            var myC = new Composante(value.gsx$type.$t,myNumber(value.gsx$x.$t), myNumber(value.gsx$y.$t),
+
+            myComposantes[value.gsx$composante.$t] =  new Composante(value.gsx$type.$t,myNumber(value.gsx$x.$t), myNumber(value.gsx$y.$t),
                     myNumber(value.gsx$dimx.$t), myNumber(value.gsx$dimy.$t), value.gsx$couleur.$t,
                     value.gsx$etat.$t,value.gsx$animation.$t);
 
-            myComposantes[value.gsx$composante.$t] = myC;
+
 
         });
-     //   if (DebugOn) console.log("output dans doit each " + output);
-        /////  $(".results").append(output);
+ 
 
         dessine(draw, myComposantes);
 
