@@ -90,6 +90,14 @@
     "name": "EB-VEcTk",
     "description": "Valves VaEC et VaTk",
     "id": "400032000f47343438323536"
+  }, {
+    "name": "PL-Ph-C",
+    "description": "Vacuum lignes F7 à F9",
+    "id": "2f0024000647343339373536"
+  }, {
+    "name": "EB-Elec-Dev1",
+    "description": "Vacuum lignes A1 à A4",
+    "id": "36004f000251353337353037"
   }],
 
   "tanks": [{
@@ -311,12 +319,82 @@
     "label": "Pompe V3",
     "device": "EB-V3",
     "offset": 0
+  },{
+    "code": "A1",
+    "label": "Ligne A1",
+    "device": "EB-Elec-Dev1",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "A2",
+    "label": "Ligne A2",
+    "device": "EB-Elec-Dev1",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "A3",
+    "label": "Ligne A3",
+    "device": "EB-Elec-Dev1",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "A4",
+    "label": "Ligne A4",
+    "device": "EB-Elec-Dev1",
+    "inputName": "vd",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "F7",
+    "label": "Ligne F7",
+    "device": "PL-Ph-C",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "F8",
+    "label": "Ligne F8",
+    "device": "PL-Ph-C",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "F9",
+    "label": "Ligne F9",
+    "device": "PL-Ph-C",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "H11",
+    "label": "Ligne H11",
+    "device": "PL-Ph-C",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "H12",
+    "label": "Ligne H12",
+    "device": "PL-Ph-C",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "H13",
+    "label": "Ligne H13",
+    "device": "PL-Ph-C",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
   }],
 
   "pumps": [{
     "code": "P1",
     "device": "EB-P1",
-    "capacity_gph": 2918,
+    "capacity_gph": 2919,
     "duty": 0,
     "volume" : 0
   }, {
@@ -328,7 +406,7 @@
   },{
     "code": "P3",
     "device": "EB-P3",
-    "capacity_gph": 2931,
+    "capacity_gph": 2651,
     "duty": 0,
     "volume" : 0
   }, {
@@ -351,63 +429,5 @@
     "code": "Vide3",
     "device": "EB-V3",
     "capacity_gph": 0
-  }],
-
-  "temperatures": [{
-    "code": "RS1",
-    "device": "EB-RS1",
-    "enclosure": 0,
-    "US100sensor":0,
-    "exterior": 0
-  }, {
-    "code": "RS2",
-    "device": "EB-RS2",
-    "enclosure": 0,
-    "US100sensor":0
-  },{
-    "code": "RS3",
-    "device": "EB-RS3",
-    "enclosure": 0,
-    "US100sensor":0
-  },{
-    "code": "RS4",
-    "device": "EB-RS4",
-    "enclosure": 0,
-    "US100sensor":0
-  },{
-    "code": "RS5",
-    "device": "EB-RS5",
-    "enclosure": 0,
-    "US100sensor":0
-  },{
-    "code": "RS6",
-    "device": "EB-RS6",
-    "enclosure": 0,
-    "US100sensor":0
-  },{
-    "code": "RC1",
-    "device": "EB-RC1",
-    "enclosure": 0,
-    "US100sensor":0
-  },{
-    "code": "RC2",
-    "device": "EB-RC2",
-    "enclosure": 0,
-    "US100sensor":0
-  },{
-    "code": "RF1",
-    "device": "EB-RF1",
-    "enclosure": 0,
-    "US100sensor":0
-  },{
-    "code": "RF2",
-    "device": "EB-RF2",
-    "enclosure": 0,
-    "US100sensor":0
-  },{
-    "code": "RHC",
-    "device": "EB-RHC",
-    "enclosure": 0
   }]
-
 }
