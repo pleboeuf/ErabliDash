@@ -16,14 +16,15 @@ var FILTRAT = '#00caca';
 var CONCENTRE = '#679966';
 var ROUGEPOMPE = '#cd0000';
 var ORANGE = '#efa300';
-var GRIS ='#d7d7d7'
+var GRIS ='#c5c5c5';
 var OPEN = 1;
 var CLOSE = 0;
 var PARTIEL = 2;
 var FLIP = -1;
-var ERREUR = 3
+var ERREUR = 3;
 var MaxSecPompeOn = 3*60*1000 ; // 3 min en millisec
-var MarioLaPolice = {family: 'Arial Black', size: 16 , fontWeight: 'bold'} ; //Arial Black
+var MarioLaPolice = { family: 'Arial Black',size: 16 } ; //Arial Black family: 'Arial Black',
+var MarioLaPoliceValve = { family: 'Arial Black',size: 15 } ; //Arial Black family: 'Arial Black',
 //Menlo, sans-serif
 //  DEBUG
 var AnimON = true ;
@@ -95,12 +96,6 @@ function testpourcent(ob) {
 
 }
 
-function testflip(ob) {
-    v[ob].changeEtat(FLIP);
-
-//    v['VaDF2'].changeEtat(OPEN);
-
-}
 
 function rndValue() {
     if (Math.random() > .5) {
@@ -108,7 +103,6 @@ function rndValue() {
     } else {
         return (Math.random() * 100).toFixed(1);
     }
-    ;
 }
 
 
@@ -140,8 +134,7 @@ function Valve(draw, nom, x, y, couleur, etat, dimx, dimy, anim) {
     if (this.anim !== "" && AnimON) {
         a[nom] = new Ligne(draw, anim);
         a[nom].d();  // cree puis dessine
-    };
-
+    }
     this.textNomValve = draw.plain(nom).cx(this.x).cy(this.y) - this.circ - 20;
 
 
@@ -166,11 +159,11 @@ function Valve(draw, nom, x, y, couleur, etat, dimx, dimy, anim) {
 
         if (textetat === "Erreur" || textetat === "Partiel") {
             this.changeCouleur(ROUGE);
-            etat = PARTIEL ;
+            this.etat = PARTIEL ;
         }
 
 
-        if (etat == PARTIEL) {
+        if (this.etat === PARTIEL) {
             this.partiel();
             if (this.anim !== "" && AnimON) {
                 a[nom].changeAnim(false);
@@ -178,14 +171,14 @@ function Valve(draw, nom, x, y, couleur, etat, dimx, dimy, anim) {
             }
         }
 
-        if (etat == OPEN) {
+        if (this.etat === OPEN) {
             this.changeCouleur(couleur);
             this.ouvre();
             if (this.anim !== "" && AnimON) {
                 a[nom].changeAnim(true);
             }
         }
-        if (etat == CLOSE) {
+        if (this.etat === CLOSE) {
             this.changeCouleur(couleur); // on ne change pas la couleur
             this.ferme();
             if (this.anim !== "" && AnimON) {
@@ -220,19 +213,19 @@ function Pompe(draw, nom, diam, x, y, couleur) {
     this.couleur = GRIS ; // couleur || VERT;
 
     this.coulee = false;
-    this.dateDepartPompe = undefined ; //new Date();
+    this.dateDepartPompe = 0 ; //new Date();
     this.gallons = 0;
     this.gph = 0;
 
 
 
-    this.textP = draw.plain("test").cx(this.x).cy(this.y);
+/*    this.textP = draw.plain("test").cx(this.x).cy(this.y).font(MarioLaPolice);
     this.textP.build(false);
-    this.textP2 = draw.plain("test").cx(this.x).cy(this.y);
+   this.textP2 = draw.plain("test").cx(this.x).cy(this.y + toffset + 20).font(MarioLaPolice);
     this.textP2.build(false);
-    this.textP3 = draw.plain("test").cx(this.x).cy(this.y);
+    this.textP3 = draw.plain("test").cx(this.x).cy(this.y + toffset + 40).font(MarioLaPolice);
     this.textP3.build(false);
-
+*/
     this.cblanc = draw.circle(this.diam).cx(this.x).cy(this.y).fill('#fff');
     this.c = draw.circle(this.diam).fill(this.couleur).opacity(0.3).cx(this.x).cy(this.y).stroke({
         color: this.couleur,
@@ -256,7 +249,7 @@ function Pompe(draw, nom, diam, x, y, couleur) {
         if (state === false) {
             op = 1;
             this.c.fill(GRIS);
-            this.dateDepartPompe = undefined ;      //reset le compteur
+            this.dateDepartPompe = 0 ;      //reset le compteur
         }
         if (state === true) {
             if (!this.dateDepartPompe) {
@@ -275,18 +268,24 @@ function Pompe(draw, nom, diam, x, y, couleur) {
          //
 
         }
-        var toffset = -20;
+        var toffset = 0;  //-20
         if (volume) {  // hack pas elegant pour pompe a vide  ... pas de texte  pas de volume  ...
-            this.textP.clear();
-            this.textP = draw.plain((duty * 100).toFixed(0) + "%").cx(this.x).cy(this.y + toffset).font(MarioLaPolice);
-            this.textP2.clear();
-            this.textP2 = draw.plain((capacity * duty).toFixed(0) + " g/h").cx(this.x).cy(this.y + toffset + 20).font(MarioLaPolice);
+//            this.textP.opacity(0);
+            if(textP) textP.clear();
+//            this.textP = draw.plain((duty * 100).toFixed(0) + "%").cx(this.x).cy(this.y + toffset);
+            var textP = draw.text((duty * 100).toFixed(0) + "%\n"+
+                (capacity * duty).toFixed(0) + " g/h\n"+volume.toFixed(0) + " g").font(MarioLaPolice).cx(this.x).cy(this.y + toffset);
+/*            this.textP2.opacity(0);
+//            this.textP2= undefined ;
+            this.textP2 = draw.plain((capacity * duty).toFixed(0) + " g/h").cx(this.x).cy(this.y + toffset + 20);
 //        if (contient > 0)
-            this.textP3.clear();
-            this.textP3 = draw.plain(volume.toFixed(0) + " g").cx(this.x).cy(this.y + toffset + 40).font(MarioLaPolice);
+            this.textP3.opacity(0);
+//            this.textP3 = undefined;
+            this.textP3 = draw.plain(volume.toFixed(0) + " g").cx(this.x).cy(this.y + toffset + 40);
+*/
 //        this.textP.text(parseInt(this.pourcent, 10) + "%").move(this.x,(this.y + toffset));
         }
-        this.c.opacity(op);
+//        this.c.opacity(op);
 
     };
 
@@ -299,22 +298,20 @@ function Vacuum(draw, nom, x, y, valeur) {
     this.x = x || 100;
 
     this.y = y || 100;
-    this.valeur = valeur || 0;
+//    this.valeur = valeur || 0;
 
 
 //    this.textV = draw.text(this.valeur+" in").cx(this.x).cy(this.y);
-    this.textV = draw.text(this.valeur + " in").move(this.x - 30, this.y).font(MarioLaPolice);
-    this.textV.build(false);
-
-//    this.textnom.click(function () {
-//        testpourcent(nom);
-//    });
+//    this.textV = draw.text(this.valeur + " in").move(this.x - 30, this.y).font(MarioLaPolice);
+//    this.textV.build(false);
 
 
     this.changeValeur = function (valeur) {
-        this.textV.clear();
-        this.textV = draw.text(valeur + " in").move(this.x - 30, this.y - 10).font(MarioLaPolice);
-        this.textV.opacity(1);
+        if (this.textV)this.textV.clear() ; //opacity(0);
+//        this.textV= undefined ;
+
+        this.textV = draw.text(valeur + " in").font(MarioLaPolice).move(this.x - 30, this.y - 10);
+//        this.textV.opacity(1);
 
     };
 
@@ -366,7 +363,6 @@ function Ligne(draw, anim) {
                 this.circ.pause();
             }
         }
-        ;
     };
 
     this.mypause = function () {
@@ -402,10 +398,11 @@ function Reservoir(draw, nom, diam, x, y, couleur) {
     var strokeWidth = 7.5 ; // cercle exterieur
     this.p = draw.path(dvide).fill({color: this.couleur, opacity: 0.8});
     // stroke({color: couleur, width: 5, opacity: 0.8});
-    this.textP = draw.text("test").move(this.x, this.y);
+/*    this.textP = draw.text("test").move(this.x, this.y).font(MarioLaPolice);
     this.textP.build(false);
-    this.textP2 = draw.text("test").move(this.x, this.y + 15);
+    this.textP2 = draw.text("test").move(this.x, this.y + 15).font(MarioLaPolice);
     this.textP2.build(false);
+*/
     this.cblanc = draw.circle(this.diam).cx(this.x).cy(this.y).fill('#fff');
     this.c = draw.circle(this.diam).fill(this.couleur).opacity(0.3).cx(this.x).cy(this.y).stroke({
         color: this.couleur , //this.couleur,
@@ -416,18 +413,7 @@ function Reservoir(draw, nom, diam, x, y, couleur) {
     this.textnom = draw.plain(nom).font(MarioLaPolice)
         .cx(this.x - this.diam * 0.6)
         .cy(this.y - this.diam * 0.6);
-    this.textnom.click(function () {
-        testpourcent(nom);
-    });
-    /*
-    this.d = function () {
-        this.c = draw.circle(this.diam).fill(this.couleur).cx(this.x).cy(this.y).opacity(0.4).stroke({
-            color: this.couleur, //this.couleur,
-            width: strokeWidth,
-            opacity: 1
-           });
-    };
-*/
+
     this.changeCouleur = function (newc) {
         this.couleur = newc;
         //this.d();
@@ -438,11 +424,12 @@ function Reservoir(draw, nom, diam, x, y, couleur) {
         mynewcolor = this.couleur ; // reservoir par default
         if (pourcent >= 75 && pourcent < 90){
             mynewcolor=VERT;
-        };
+        }
         if (pourcent >= 90){
             mynewcolor = ROUGE;
-        };
-      this.c.opacity(0);
+        }
+        this.c.opacity(0);
+//      this.c = undefined ;
       this.c = draw.circle(this.diam).fill({color:this.couleur,opacity:0.4}).cx(this.x).cy(this.y).stroke({
             color: mynewcolor , //this.couleur,
             width: strokeWidth,
@@ -452,12 +439,13 @@ function Reservoir(draw, nom, diam, x, y, couleur) {
     };
     this.changepourcent = function (pourcent, contient) {
         this.p.opacity(0); // efface le vieux
-        this.textP.opacity(0); // =  draw.plain( " ");
-        this.textP2.opacity(0); // =  draw.plain( " ");
-        this.pourcent = pourcent;
-        this.changePoutour(this.pourcent);
+//        this.textP.opacity(0); // =  draw.plain( " ");
+//        this.textP2.opacity(0); // =  draw.plain( " ");
+//        this.pourcent = pourcent;
+        this.changePoutour(pourcent);
+//        this.contient =
 
-        var arc = pourcentToArc(this.pourcent);
+        var arc = pourcentToArc(pourcent);
         var desc = describeArc(this.x, this.y, (this.diam-strokeWidth) / 2, 180 - arc / 2.0, 180 + arc / 2.0);
         //  var offset = parseFloat(desc.split(' ')[10])/2;
         //   if (DebugON) console.log( offset + " " +pourcent+ " pourcent " + describeArc(this.diam/2, this.diam/2, this.diam/2, 180-arc/2.0, 180+arc/2.0));
@@ -469,9 +457,14 @@ function Reservoir(draw, nom, diam, x, y, couleur) {
         //   path.fill(ROUGE);
         // ///path.cx(this.x);
         // ///path.cy(this.y+offset);
-        var toffset = this.pourcent > 50 ? 10 : -25;
-        this.textP = draw.plain(parseInt(this.pourcent, 10) + "%").cx(this.x).cy(this.y + toffset).font(MarioLaPolice);
-        if (contient > 0) this.textP2 = draw.plain( contient).cx(this.x).cy(this.y + toffset + 15 ).font(MarioLaPolice);
+        if (this.textP) this.textP.clear();
+        var toffset = pourcent > 50 ? 15 : -20;    // 10 -25
+        var txtpourcent_gal = parseInt(pourcent, 10) + "%\n"  ;
+        if (contient > 0) txtpourcent_gal = txtpourcent_gal + contient ;
+        this.textP = draw.text(txtpourcent_gal).font(MarioLaPolice).cx(this.x).cy(this.y + toffset);
+/*        this.textP = draw.plain(parseInt(this.pourcent, 10) + "%").cx(this.x).cy(this.y + toffset);
+        if (contient > 0) this.textP2 = draw.plain( contient).cx(this.x).cy(this.y + toffset + 15 );
+*/
 //        this.textP.text(parseInt(this.pourcent, 10) + "%").move(this.x,(this.y + toffset));
 
 

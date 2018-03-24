@@ -27,10 +27,9 @@ function chargelecture() {
     var timestamp ;
     if ( location.port == 3001){
         myurl = "http://boilerhouse.ddns.net:3001/data.json";  //adapte le json pour la prod
-    } else if ( location.port == 3000){
-        myurl = "http://localhost:3000/data.json";
-    } else {
-        myurl= "test/data_local.json";                                   // pour le dev
+    }else
+    {
+        myurl= "test/data.json";                                   // pour le dev
     }
 
     //start ajax request
@@ -46,10 +45,14 @@ function chargelecture() {
 
             //data downloaded so we call parseJSON function
             //and pass downloaded data
-            var jsonp = $.parseJSON(data);
+            var jsonp = JSON.parse(data);
+            // noinspection Annotator
             scantanks(jsonp.tanks);
+            // noinspection Annotator
             scanvalve(jsonp.valves);
+            // noinspection Annotator
             scanpumps(jsonp.pumps);
+            // noinspection Annotator
             scanvacuum(jsonp.vacuum);
             var coulee = ( couleeEnCour ? "Coulée en cours" : "Pas de Coulée") ;
             var d = new Date();
@@ -59,7 +62,7 @@ function chargelecture() {
 
 
             $('#Heure_coulee').html("hr "+n+ " lect "+ heure_lecture +"<br>" +coulee);   // met a jour le boutton Pression_temperature dans html
-
+            console.log("hr "+n+ " lect "+ heure_lecture );
         }
     });
     } catch (err) {
@@ -99,7 +102,7 @@ function scanpumps(arr) {
         var nom = no['code'];
 //        if (nom === 'P1' && no['couleeEnCour'] === 'true' )  p = true ;
         if (DebugON) console.log("pompe " + nom + " state " + no['state'] + " coulee en cour "+no['couleeEnCour'])
-        if (p[nom]) {
+        if (p[nom] && no['volume']) {
   //          if (p[nom] && (no['capacity_gph'] !== 0)) {
                 p[nom].changeState(no['state'],no['capacity_gph'],no['duty'],no['volume']);
             if (no['couleeEnCour'] === true ) p[nom].coulee = true;
@@ -257,3 +260,6 @@ function TempEbulition(kPa) {
     //alert (mba + " mba = temp de " + temp) ;
     return (temp);
 }
+
+
+

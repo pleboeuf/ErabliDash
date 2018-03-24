@@ -43,7 +43,7 @@ function demarre(draw) {
 
 
         });
- 
+
 
         dessine(draw, myComposantes);
 
