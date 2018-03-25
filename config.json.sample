@@ -333,7 +333,7 @@
   },{
     "code": "A2",
     "label": "Ligne A2",
-    "device": "EEB-VA1-4",
+    "device": "EB-VA1-4",
     "inputName": "vb",
     "rawValue": 0,
     "offset": 0

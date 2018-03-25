@@ -308,6 +308,8 @@ exports.Dashboard = function(config, WebSocketClient) {
           sensor.lastUpdatedAt = event.published_at;
           sensor.temp = data["temp"];
           sensor.lightIntensity = data["li"];
+          sensor.percentCharge = data["soc"];
+          sensor.batteryVolt = data["volt"];
         }
         catch (err){
           console.log ("Device " + device.name + " has no vacuum sensor");
