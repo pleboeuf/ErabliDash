@@ -241,6 +241,16 @@ exports.Dashboard = function(config, WebSocketClient) {
     return sensor;
   }
 
+  function getVacuumSensorOfLineVacuumDevice(device, input) {
+    var sensor = vacuumSensors.filter(function(sensor) {
+      return sensor.device == device.name;
+    });
+    if (sensor === undefined) {
+      throw "Device " + device.name + " has no vacuum sensor";
+    }
+    return sensor[input];
+  }
+
   function getVacuumSensorByCode(code) {
     var sensor = vacuumSensors.filter(function(sensor) {
       return sensor.code == code;
@@ -289,6 +299,21 @@ exports.Dashboard = function(config, WebSocketClient) {
       var sensor = getVacuumSensorOfDevice(device);
       sensor.rawValue = data.eData;
       sensor.lastUpdatedAt = event.published_at;
+
+    } else if (event.name == "Vacuum/Lignes") { // Special case for lines vacuum devices
+      for (var i = 0; i < 4; i++){
+        try {
+          var sensor = getVacuumSensorOfLineVacuumDevice(device, i);
+          sensor.rawValue = data[sensor.inputName] * 100;
+          sensor.lastUpdatedAt = event.published_at;
+          sensor.temp = data["temp"];
+          sensor.lightIntensity = data["li"];
+        }
+        catch (err){
+          console.log ("Device " + device.name + " has no vacuum sensor");
+        }
+    }
+
     } else if (name == "pump/T1") {
       getPumpOfDevice(device).update(event, value);
     } else if (name == "pump/T2") {
@@ -316,16 +341,6 @@ exports.Dashboard = function(config, WebSocketClient) {
       pompe.couleeEnCour = false;
       pompe.duty = 0;
       pompe.volume = 0;
-
-    // } else if (name == "sensor/openSensorV1") {
-    //   getValveOfDevice(device, 1).position = (value == 0 ? "Ouvert" : "???");
-    // } else if (name == "sensor/closeSensorV1") {
-    //   getValveOfDevice(device, 1).position = (value == 0 ? "Fermé" : getValveOfDevice(device, 1).position);
-    // } else if (name == "sensor/openSensorV2") {
-    //   getValveOfDevice(device, 2).position = (value == 0 ? "Ouvert" : "???");
-    // } else if (name == "sensor/closeSensorV2") {
-    //   getValveOfDevice(device, 2).position = (value == 0 ? "Fermé" : getValveOfDevice(device, 2).position);
-
     } else if (name == "sensor/Valve1Pos") {
       getValveOfDevice(device, 1).position = positionCode[value];
     } else if (name == "sensor/Valve2Pos") {
