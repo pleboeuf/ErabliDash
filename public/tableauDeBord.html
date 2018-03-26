@@ -59,7 +59,7 @@
     var vacuums = [];
     var couleeActive = false;
     var tempAge = 0;
-    const maximumAge = 5;
+    // const maximumAge = 5;
 
     function liters2gallons(liters) {
       return Math.ceil(liters / 4.54609188);
@@ -244,7 +244,7 @@
         } else if (ageInMinutes > 0) {
           ageDisplay = ageInMinutes + ' min.';
         }
-        if (ageInMinutes > maximumAge){
+        if (ageInMinutes > device.maximumAge){
           lastUpdatedAtElem.style.color = "FireBrick";
         } else {
           lastUpdatedAtElem.style.color = "black";
@@ -259,7 +259,7 @@
         ageDisplayTop = oldestAge + ' min.';
         // console.log('oldestAge: ' + oldestAge + ', ageDisplayTop; ' + ageDisplayTop);
         var lastestUpdateElement = document.getElementById("lastestUpdate");
-        if (oldestAge > maximumAge){
+        if (oldestAge > device.maximumAge){
           lastestUpdateElement.innerHTML = 'Délais:</br>anormal';
           lastestUpdateElement.style.color = "FireBrick";
         } else {
@@ -466,9 +466,15 @@
     function displayVacuum() {
       vacuums.forEach(function(vacuum) {
         var vacuumValue = 0;
+        var vacuumTemp = 0;
+        var vacuumCharge = 0;
+        var vacuumIllum = 0;
         var valueElem;
         var valueElemId = 'vacuum_' + vacuum.code + '_value';
         var vacuumElemId = 'vacuum_' + vacuum.code;
+        var tempElemId = 'vacuum_' + vacuum.code + '_temp';
+        var chargeElemId = 'vacuum_' + vacuum.code + '_percentCharge';
+        var illumElemId = 'vacuum_' + vacuum.code + '_lightIntensity';
         if (document.getElementById(vacuumElemId) == null) {
           var vacuumElem = document.createElement("tr");
           vacuumElem.setAttribute('id', vacuumElemId);
@@ -483,12 +489,49 @@
           valueElem.setAttribute('id', valueElemId);
           valueElem.setAttribute('class', 'vacuumvalue');
           vacuumElem.appendChild(valueElem);
+
+          // if('temp' in vacuum){
+          tempElem = document.createElement('td');
+          tempElem.setAttribute('id', tempElemId);
+          tempElem.setAttribute('class', 'vacuumtemp');
+          vacuumElem.appendChild(tempElem);
+          // }
+          // if('percentCharge' in vacuum){
+          chargeElem = document.createElement('td');
+          chargeElem.setAttribute('id', chargeElemId);
+          chargeElem.setAttribute('class', 'vacuumtemp');
+          vacuumElem.appendChild(chargeElem);
+          // }
+          // if('percentCharge' in vacuum){
+          illumElem = document.createElement('td');
+          illumElem.setAttribute('id', illumElemId);
+          illumElem.setAttribute('class', 'vacuumtemp');
+          vacuumElem.appendChild(illumElem);
+          // }
         } else {
           valueElem = document.getElementById(valueElemId);
+          if('temp' in vacuum) {tempElem = document.getElementById(tempElemId);}
+          if('percentCharge' in vacuum) {chargeElem = document.getElementById(chargeElemId);}
+          if('lightIntensity' in vacuum) {illumElem = document.getElementById(illumElemId);}
         }
         vacuumValue = (vacuum.rawValue + vacuum.offset) / 100;
         valueElem.innerHTML = vacuumValue.toFixed(1);
         valueElem.style.textAlign = "right";
+        if('temp' in vacuum){
+          vacuumTemp = vacuum.temp;
+          tempElem.innerHTML = vacuumTemp.toFixed(1);
+          tempElem.style.textAlign = "right";
+        }
+        if('percentCharge' in vacuum){
+          chargeTemp = vacuum.percentCharge;
+          chargeElem.innerHTML = chargeTemp.toFixed(0);
+          chargeElem.style.textAlign = "right";
+        }
+        if('lightIntensity' in vacuum){
+          illumTemp = vacuum.lightIntensity;
+          illumElem.innerHTML = illumTemp.toFixed(0);
+          illumElem.style.textAlign = "right";
+        }
       });
     }
 
@@ -727,6 +770,7 @@
     .pumprate,
     .vacuumcode,
     .vacuumvalue,
+    .vacuumtemp,
     .pumpvolume {
       background-color: #d0d0d0;
     }
@@ -811,7 +855,7 @@
               <br/>(%)</th>
             <th class="darker">Débit
               <br/>(GPH)</th>
-              <th class="darker">Volume
+              <th class="darker">Vol.
                 <br/>(Gal)</th>
           </tr>
           <tr id="pumptotalrow", class="lighter">
@@ -831,8 +875,14 @@
         <table id="vacuumlist">
           <tr>
             <th class="darker">Nom</th>
-            <th class="darker">Vacuum
+            <th class="darker">Vac.
               <br/>(inHg)</th>
+            <th class="darker">Temp.
+              <br/>(°C)</th>
+            <th class="darker">Batt.
+              <br/>(%)</th>
+            <th class="darker">Illum.
+              <br/>(?)</th>
           </tr>
         </table>
       </div>
