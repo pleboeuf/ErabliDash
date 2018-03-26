@@ -7,11 +7,12 @@ var readFile = Promise.denodeify(fs.readFile);
 var writeFile = Promise.denodeify(fs.writeFile);
 var exists = Promise.denodeify(fs.exists);
 
-exports.Device = function(id, name, generationId, lastEventSerial) {
+exports.Device = function(id, name, generationId, lastEventSerial, maximumAge) {
   this.id = id;
   this.name = name;
   this.generationId = generationId;
   this.lastEventSerial = lastEventSerial;
+  this.maximumAge = maximumAge;
   this.updateFrom = function(dev) {
     this.generationId = dev.generationId;
     this.lastEventSerial = dev.lastEventSerial;
@@ -348,7 +349,6 @@ exports.Dashboard = function(config, WebSocketClient) {
     } else if (name == "sensor/Valve2Pos") {
       getValveOfDevice(device, 2).position = positionCode[value];
 
-
     } else if (name == "sensor/level") {
       tanks.forEach(function(tank) {
         if (tank.device == device.name) {
@@ -497,7 +497,7 @@ exports.Dashboard = function(config, WebSocketClient) {
         deviceData = {};
       }
       console.log("Loading configured device '%s' - '%s' (%s) at %s,%s", dev.name, dev.description, dev.id, deviceData.generationId, deviceData.lastEventSerial);
-      return new Device(dev.id, dev.name, deviceData.generationId, deviceData.lastEventSerial);
+      return new Device(dev.id, dev.name, deviceData.generationId, deviceData.lastEventSerial, deviceData.maxDelayMin);
     });
 
     tanks = config.tanks.map(function(tank) {
