@@ -186,7 +186,8 @@
           }
         }
         // Set color of line based on device lastUpdatedAt
-        setAgeColor(tankElement, tank.device);
+        var tankElem = document.getElementById('tank_' + tank.code);
+        setAgeColor(tankElem, tank.device);
 
       });
       $(".tankgauge").peity("pie", {
@@ -244,7 +245,7 @@
         } else if (ageInMinutes > 0) {
           ageDisplay = ageInMinutes + ' min.';
         }
-        if (ageInMinutes > maximumAge){
+        if (ageInMinutes > device.maxDelayMinutes){
           lastUpdatedAtElem.style.color = "FireBrick";
         } else {
           lastUpdatedAtElem.style.color = "black";
@@ -259,7 +260,7 @@
         ageDisplayTop = oldestAge + ' min.';
         // console.log('oldestAge: ' + oldestAge + ', ageDisplayTop; ' + ageDisplayTop);
         var lastestUpdateElement = document.getElementById("lastestUpdate");
-        if (oldestAge > maximumAge){
+        if (oldestAge > device.maxDelayMinutes){
           lastestUpdateElement.innerHTML = 'Délais:</br>anormal';
           lastestUpdateElement.style.color = "FireBrick";
         } else {
@@ -315,6 +316,8 @@
           if (typeof VaECElem !== "undefined" && VaECElem !== null) {
             VaECElem.innerHTML = valve.position;
             setIndicatorColor(VaECElem, valve.position);
+            var VaECElem = document.getElementById('valve_' + valve.code);
+            setAgeColor(VaECElem, valve.device);
           }
         }
         // Copy valve VaTk postion to Autres Valves table
@@ -324,6 +327,8 @@
           if (typeof VaTkElem !== "undefined" && VaTkElem !== null){
             VaTkElem.innerHTML = valve.position;
             setIndicatorColor(VaTkElem, valve.position);
+            var VaTkElem = document.getElementById('valve_' + valve.code);
+            setAgeColor(VaTkElem, valve.device);
           }
         }
       });
@@ -425,8 +430,8 @@
           // }
         }
         // Set color of line based on device lastUpdatedAt
-        setAgeColor(pumpElem, pump.device);
-
+        var codeElem = document.getElementById('pump_' + pump.code);
+        setAgeColor(codeElem, pump.device);
       });
       checkCouleeEnCour(allWaterPumps, dateStart); // Gérer le message de coulée en cours
       var totalRateElem = document.getElementById('pumptotalrate');
@@ -532,6 +537,8 @@
           illumElem.innerHTML = illumTemp.toFixed(0);
           illumElem.style.textAlign = "right";
         }
+        var vacuumElem = document.getElementById('vacuum_' + vacuum.code);
+        setAgeColor(vacuumElem, vacuum.device);
       });
     }
 
@@ -601,11 +608,15 @@
     function setAgeColor(displayElem, deviceDevice) {
       try {
         var lastUpdatedAtElemId = 'device_' + deviceDevice + '_lastUpdatedAt';
-        var lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
-        displayElem.style.color = lastUpdatedAtElem.style.color;
+        if ((typeof lastUpdatedAtElemId !== undefined) || (typeof lastUpdatedAtElemId !== null)){
+          var lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
+          if ((typeof displayElem !== undefined) || (typeof displayElem !== null)){
+            displayElem.style.color = lastUpdatedAtElem.style.color;
+          }
+        }
       }
       catch(err) {
-        console.log("lastUpdatedAtElemId: " + lastUpdatedAtElemId + " " +err);
+        console.log("lastUpdatedAtElemId: " + lastUpdatedAtElemId + " " + err);
       }
     }
 
