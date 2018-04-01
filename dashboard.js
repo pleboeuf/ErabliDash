@@ -301,7 +301,7 @@ exports.Dashboard = function(config, WebSocketClient) {
       sensor.rawValue = data.eData;
       sensor.lastUpdatedAt = event.published_at;
 
-    } else if (event.name == "Vacuum/Lignes") { // Special case for lines vacuum devices
+    } else if (event.name == "Dev1_Vacuum/Lignes") { // Special case for lines vacuum devices
       for (var i = 0; i < 4; i++){
         try {
           var sensor = getVacuumSensorOfLineVacuumDevice(device, i);
