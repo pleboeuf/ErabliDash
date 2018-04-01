@@ -448,6 +448,7 @@ exports.Dashboard = function(config, WebSocketClient) {
   });
 
   function init() {
+    console.log("Initializing...");
     var configData = {
       "devices": config.devices,
       "tanks": config.tanks,
@@ -456,19 +457,16 @@ exports.Dashboard = function(config, WebSocketClient) {
       "pumps": config.pumps
       // "temperatures": config.temperatures
     }
-    return exists(filename).then(function (exists) {
-      if (exists) {
-        console.log("Loading " + filename);
-        return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
-          return load(configData, dashData);
-        });
-      } else {
-        console.log("Dashboard data not found. Initializing.");
-        return load(configData, configData);
-      }
-    }).then(function() {
-      console.log("Completed initialization.");
-    });
+    if (fs.existsSync(filename)) {
+      console.log("Data exists");
+      console.log("Loading " + filename);
+      return readFile(filename, 'utf8').then(JSON.parse).then(function(dashData) {
+        return load(configData, dashData);
+      });
+    } else {
+      console.log("Dashboard data not found. Initializing.");
+      return load(configData, configData);
+    }
   }
 
   function getData() {
