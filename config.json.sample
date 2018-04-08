@@ -24,7 +24,15 @@
     "name": "EB-P3",
     "description": "Pompe et vide relâcheur #3",
     "id": "3b0043000247343339373536",
-    "maxDelayMinutes": 5
+    "maxDelayMinutes": 5,
+    "ignore": [
+      {
+        "reason": "Invalid Tank firmware uploaded by mistake on Pump firmware.",
+        "generation": 1518376675,
+        "serial_from": 13141,
+        "serial_to": 13260
+      }
+    ]
   }, {
     "name": "EB-V1",
     "description": "Pompe a vide #1",
@@ -114,17 +122,50 @@
     "name": "EB-VA1-4",
     "description": "Vacuum lignes A1 à A4",
     "id": "310042000351353337353037",
+    "eventName": "Vacuum/Lignes",
     "maxDelayMinutes": 20
   }, {
     "name": "EB-VF7-9",
     "description": "Vacuum lignes F7 à F9",
     "id": "240051000c51343334363138",
+    "eventName": "Vacuum/Lignes",
     "maxDelayMinutes": 20
   }, {
     "name": "EB-VH11-13",
     "description": "Vacuum lignes H11 à H13",
     "id": "280032000251353337353037",
+    "eventName": "Vacuum/Lignes",
     "maxDelayMinutes": 20
+  }, {
+    "retired": true,
+    "name": "EB-RS1",
+    "description": "Réservoir de sève #1",
+    "id": "1f003f000747343337373738"
+  }, {
+    "retired": true,
+    "name": "EB-RS2",
+    "description": "Réservoir de sève #2",
+    "id": "240045001447343338333633"
+  }, {
+    "retired": true,
+    "name": "EB-RS3",
+    "description": "Réservoir de sève #3",
+    "id": "33001a000547343233323032"
+  }, {
+    "retired": true,
+    "name": "EB-RS4",
+    "description": "Réservoir de sève #4",
+    "id": "3b0028000847343337373738"
+  }, {
+    "retired": true,
+    "name": "EB-RF2",
+    "description": "Réservoir de filtrat #2",
+    "id": "3a002e000347343337373739"
+  }, {
+    "retired": true,
+    "name": "EB-VEcTk",
+    "description": "Valves VaEC et VaTk",
+    "id": "4b001b000b51353335323535"
   }],
 
   "tanks": [{
