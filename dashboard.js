@@ -202,6 +202,15 @@ exports.Dashboard = function(config, WebSocketClient) {
     }
   }
 
+  function subscribe() {
+    if (connection.connected) {
+      console.log("Subscribing to events from collector");
+      connection.sendUTF(JSON.stringify({
+        "command": "subscribe"
+      }));
+    }
+  }
+
   function connect() {
     client.connect(uri, 'event-stream');
   }
@@ -422,6 +431,7 @@ exports.Dashboard = function(config, WebSocketClient) {
     connection = con;
     connectBackoff = 1;
     console.log('WebSocket Client Connected to: ' + uri);
+    subscribe();
     onConnectSuccess(connection);
     connection.on('error', function(error) {
       console.log("Connection Error: " + error.toString());
