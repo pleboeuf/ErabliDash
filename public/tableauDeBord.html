@@ -208,6 +208,9 @@
       var oldestAge = 0;
       var ageDisplayTop = '';
       devices.forEach(function(device) {
+        if (device.retired) {
+            return;
+        }
         var lastUpdatedAtElemId = 'device_' + device.name + '_lastUpdatedAt';
         var generationElemId = 'device_' + device.name + '_generationId';
         var serialElemId = 'device_' + device.name + '_serial';

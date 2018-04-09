@@ -1,13 +1,19 @@
 var WebSocketClient = require('websocket').client;
 var config = require('./config.json');
 var dashboard = require('./dashboard.js').Dashboard(config, WebSocketClient);
-dashboard.init().then(function() {
-  return dashboard.connect().then(function() {
-    dashboard.start();
-    return dashboard.update();
-  });
-}).catch(function(err) {
-  console.error("Error stating dashboard: ", err.stack);
+dashboard.init().then(function () {
+    return dashboard.connect(function () {
+        // Connected or re-connected
+        return dashboard.update();
+    }).then(function () {
+        // Connected for first time
+        dashboard.onQueryComplete(function () {
+            dashboard.subscribe();
+        });
+        return dashboard.start();
+    });
+}).catch(function (err) {
+    console.error("Error stating dashboard: ", err.stack);
 });
 var express = require('express');
 var path = require('path');

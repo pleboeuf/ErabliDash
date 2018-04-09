@@ -138,6 +138,30 @@
     "maxDelayMinutes": 20
   }, {
     "retired": true,
+    "name": "",
+    "description": "",
+    "id": "2f0024000647343339373536",
+    "eventName": "Vacuum/Lignes"
+  }, {
+    "retired": true,
+    "name": "EB-Elec-Dev1",
+    "description": "",
+    "id": "36004f000251353337353037",
+    "eventName": "Vacuum/Lignes"
+  }, {
+    "retired": true,
+    "name": "",
+    "description": "",
+    "id": "42002a000847343339373536",
+    "eventName": "Vacuum/Lignes"
+  }, {
+    "retired": true,
+    "name": "",
+    "description": "",
+    "id": "1f0042000447343337373738",
+    "eventName": "Vacuum/Lignes"
+  }, {
+    "retired": true,
     "name": "EB-RS1",
     "description": "Réservoir de sève #1",
     "id": "1f003f000747343337373738"
