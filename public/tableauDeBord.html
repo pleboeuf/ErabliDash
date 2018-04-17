@@ -242,13 +242,13 @@
           serialElem = document.getElementById(serialElemId);
         }
         var ageInMinutes = Math.floor(getMinutesAgo(new Date(device.lastUpdatedAt)));
-        var ageDisplay = '';
+        var ageDisplay = '?';
         if (ageInMinutes == 0) {
           ageDisplay = 'now';
         } else if (ageInMinutes > 0) {
           ageDisplay = ageInMinutes + ' min.';
         }
-        if (ageInMinutes > device.maxDelayMinutes){
+        if (ageInMinutes > device.maxDelayMinutes || ageDisplay == '?'){
           lastUpdatedAtElem.style.color = "FireBrick";
         } else {
           lastUpdatedAtElem.style.color = "black";
