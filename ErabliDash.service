@@ -11,7 +11,7 @@ Group=erabliere
 WorkingDirectory=/home/erabliere/ErabliDash
 PIDFile=/home/erabliere/ErabliDash/pid/ErabliDash.pid
 ExecStartPre=/bin/mv /home/erabliere/ErabliDash/data/dashboard.json /home/erabliere/ErabliDash/data/dashboard.json.bk
-ExecStart=/home/erabliere/.nvm/versions/node/v9.4.0/bin/node /home/erabliere/ErabliDash/app.js
+ExecStart=/home/erabliere/.nvm/versions/node/v8.15.0/bin/node /home/erabliere/ErabliDash/app.js
 Restart=on-abnormal
 TimeoutSec=15
 
