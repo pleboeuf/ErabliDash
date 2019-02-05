@@ -9,9 +9,9 @@
     "express": "^4.16.4",
     "influx": "^5.0.7",
     "promise": "^8.0.2",
-    "sqlite3": ">= 3.0",
-    "underscore": ">= 1.8.3",
-    "websocket": ""
+    "sqlite3": "^4.0.6",
+    "underscore": "^1.9.1",
+    "websocket": "^1.0.28"
   },
   "engines": {
     "node": ">= 8.15.0"
