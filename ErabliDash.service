@@ -1,6 +1,7 @@
 [Unit]
 Description=Web server Dashboard pour Erabliere
 After=network-online.target
+After=ErabliCollecteur.service
 Wants=ErabliCollecteur.service
 
 [Service]

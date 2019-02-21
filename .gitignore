@@ -7,3 +7,6 @@ log
 pid
 bower_components
 .eslintrc.js
+public/__*
+public/cabane*
+
