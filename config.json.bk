@@ -118,24 +118,170 @@
     "description": "Valves VaEC et VaTk",
     "id": "400032000f47343438323536",
     "maxDelayMinutes": 5
-  }, {
-    "name": "EB-VA1-4",
+  },
+
+  {
+    "name": "VA1-4",
     "description": "Vacuum lignes A1 à A4",
     "id": "310042000351353337353037",
     "eventName": "Vacuum/Lignes",
     "maxDelayMinutes": 20
   }, {
-    "name": "EB-VF7-9",
+    "name": "VA5B1-2",
+    "description": "Vacuum lignes A5, B1 et B2",
+    "id": "580033001951343334363036",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VC1-3",
+    "description": "Vacuum lignes C1 à C3",
+    "id": "440047000351353337353037",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VC4-6",
+    "description": "Vacuum lignes C4 à C6",
+    "id": "39003f000c51343334363138",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VC7-8",
+    "description": "Vacuum lignes C7 et C8",
+    "id": "28002c000251353337353037",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VD1ABVD2AB",
+    "description": "Vacuum lignes D1A, D1B, D2A,D2B",
+    "id": "38005c000b51343334363138",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VE1-3",
+    "description": "Vacuum lignes E1 à E3",
+    "id": "350043000251353337353037",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VE4-6",
+    "description": "Vacuum lignes E4 à E6",
+    "id": "3f0059000351353337353037",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VE7-9",
+    "description": "Vacuum lignes E7 à E9",
+    "id": "27002f000251353337353037",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VE10-12",
+    "description": "Vacuum lignes E10 à E12",
+    "id": "45005c000351353337353037",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VF1-3",
+    "description": "Vacuum lignes F1 et F3",
+    "id": "2a0022000251353337353037",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VF4-6",
+    "description": "Vacuum lignes F4 à F6",
+    "id": "330032000351353337353037",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VF7-9",
     "description": "Vacuum lignes F7 à F9",
     "id": "240051000c51343334363138",
     "eventName": "Vacuum/Lignes",
     "maxDelayMinutes": 20
   }, {
-    "name": "EB-VH11-13",
+    "name": "VF10-12",
+    "description": "Vacuum lignes F10 à F12",
+    "id": "35001c000251353337353037",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VF13-16",
+    "description": "Vacuum lignes F13 à F16",
+    "id": "410040000a51343334363138",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VG1-2VH14",
+    "description": "Vacuum lignes G1, G2 et H14",
+    "id": "46002d000c51343334363138",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VG3-5",
+    "description": "Vacuum lignes G3 à G5",
+    "id": "3f0030000251353337353037",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VG6-8",
+    "description": "Vacuum lignes G6 à G8",
+    "id": "3d0051001951343334363036",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VG9-12",
+    "description": "Vacuum lignes G9 à G12",
+    "id": "3f002c000251353337353037",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VH2-4",
+    "description": "Vacuum lignes H2 à H4",
+    "id": "1c003c000c51343334363138",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VH5-7",
+    "description": "Vacuum lignes H5 à H7",
+    "id": "53002a001951343334363036",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VH8-10",
+    "description": "Vacuum lignes H8 à H10",
+    "id": "350023000251353337353037",
+    "eventName": "Vacuum/Lignes",
+    "maxDelayMinutes": 20
+  }, {
+    "name": "VH11-13",
     "description": "Vacuum lignes H11 à H13",
     "id": "280032000251353337353037",
     "eventName": "Vacuum/Lignes",
     "maxDelayMinutes": 20
+  }, {
+    "retired": true,
+    "name": "",
+    "description": "",
+    "id": "2f0024000647343339373536",
+    "eventName": "Vacuum/Lignes"
+  }, {
+    "retired": true,
+    "name": "EB-Elec-Dev1",
+    "description": "",
+    "id": "36004f000251353337353037",
+    "eventName": "Vacuum/Lignes"
+  }, {
+    "retired": true,
+    "name": "",
+    "description": "",
+    "id": "42002a000847343339373536",
+    "eventName": "Vacuum/Lignes"
+  }, {
+    "retired": true,
+    "name": "",
+    "description": "",
+    "id": "1f0042000447343337373738",
+    "eventName": "Vacuum/Lignes"
   }, {
     "retired": true,
     "name": "EB-RS1",
@@ -390,70 +536,504 @@
   },{
     "code": "A1",
     "label": "Ligne A1",
-    "device": "EB-VA1-4",
+    "device": "VA1-4",
     "inputName": "va",
     "rawValue": 0,
     "offset": 0
   },{
     "code": "A2",
     "label": "Ligne A2",
-    "device": "EB-VA1-4",
+    "device": "VA1-4",
     "inputName": "vb",
     "rawValue": 0,
     "offset": 0
   },{
     "code": "A3",
     "label": "Ligne A3",
-    "device": "EB-VA1-4",
+    "device": "VA1-4",
     "inputName": "vc",
     "rawValue": 0,
     "offset": 0
   },{
     "code": "A4",
     "label": "Ligne A4",
-    "device": "EB-VA1-4",
+    "device": "VA1-4",
     "inputName": "vd",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "A5",
+    "label": "Ligne A5",
+    "device": "VA5B1-2",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "B1",
+    "label": "Ligne B1",
+    "device": "VA5B1-2",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "B2",
+    "label": "Ligne B2",
+    "device": "VA5B1-2",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "C1",
+    "label": "Ligne C1",
+    "device": "VC1-3",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "C2",
+    "label": "Ligne C2",
+    "device": "VC1-3",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "C3",
+    "label": "Ligne C3",
+    "device": "VC1-3",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "C4",
+    "label": "Ligne C4",
+    "device": "VC4-6",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "C5",
+    "label": "Ligne C5",
+    "device": "VC4-6",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "C6",
+    "label": "Ligne C6",
+    "device": "VC4-6",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "C7",
+    "label": "Ligne C7",
+    "device": "VC7-8",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "C8",
+    "label": "Ligne C8",
+    "device": "VC7-8",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "D1A",
+    "label": "Ligne D1A",
+    "device": "VD1ABVD2AB",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "D1B",
+    "label": "Ligne D1B",
+    "device": "VD1ABVD2AB",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "D2A",
+    "label": "Ligne D2A",
+    "device": "VD1ABVD2AB",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "D2B",
+    "label": "Ligne D2B",
+    "device": "VD1ABVD2AB",
+    "inputName": "vd",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "E1",
+    "label": "Ligne E1",
+    "device": "VE1-3",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "E2",
+    "label": "Ligne E2",
+    "device": "VE1-3",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "E3",
+    "label": "Ligne E3",
+    "device": "VE1-3",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "E4",
+    "label": "Ligne E4",
+    "device": "VE4-6",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "E5",
+    "label": "Ligne E5",
+    "device": "VE4-6",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "E6",
+    "label": "Ligne E6",
+    "device": "VE4-6",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "E7",
+    "label": "Ligne E7",
+    "device": "VE7-9",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "E8",
+    "label": "Ligne E8",
+    "device": "VE7-9",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "E9",
+    "label": "Ligne E9",
+    "device": "VE7-9",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "E10",
+    "label": "Ligne E10",
+    "device": "VE10-12",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "E11",
+    "label": "Ligne E11",
+    "device": "VE10-12",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "E12",
+    "label": "Ligne E12",
+    "device": "VE10-12",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "F1",
+    "label": "Ligne F1",
+    "device": "VF1-3",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "F2",
+    "label": "Ligne F2",
+    "device": "VF1-3",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "F3",
+    "label": "Ligne F3",
+    "device": "VF1-3",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "F4",
+    "label": "Ligne F4",
+    "device": "VF4-6",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "F5",
+    "label": "Ligne F5",
+    "device": "VF4-6",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "F6",
+    "label": "Ligne F6",
+    "device": "VF4-6",
+    "inputName": "vc",
     "rawValue": 0,
     "offset": 0
   },{
     "code": "F7",
     "label": "Ligne F7",
-    "device": "EB-VF7-9",
+    "device": "VF7-9",
     "inputName": "va",
     "rawValue": 0,
     "offset": 0
   },{
     "code": "F8",
     "label": "Ligne F8",
-    "device": "EB-VF7-9",
+    "device": "VF7-9",
     "inputName": "vb",
     "rawValue": 0,
     "offset": 0
   },{
     "code": "F9",
     "label": "Ligne F9",
-    "device": "EB-VF7-9",
+    "device": "VF7-9",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "F10",
+    "label": "Ligne F10",
+    "device": "VF10-12",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "F11",
+    "label": "Ligne F11",
+    "device": "VF10-12",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "F12",
+    "label": "Ligne F12",
+    "device": "VF10-12",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "F13",
+    "label": "Ligne F13",
+    "device": "VF13-16",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "F14",
+    "label": "Ligne F14",
+    "device": "VF13-16",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "F15",
+    "label": "Ligne F15",
+    "device": "VF13-16",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "F16",
+    "label": "Ligne F16",
+    "device": "VF13-16",
+    "inputName": "vd",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "G1",
+    "label": "Ligne G1",
+    "device": "VG1-2VH14",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "G2",
+    "label": "Ligne G2",
+    "device": "VG1-2VH14",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "G3",
+    "label": "Ligne G3",
+    "device": "VG3-5",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "G4",
+    "label": "Ligne G4",
+    "device": "VG3-5",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "G5",
+    "label": "Ligne G5",
+    "device": "VG3-5",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "G6",
+    "label": "Ligne G6",
+    "device": "VG6-8",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "G7",
+    "label": "Ligne G7",
+    "device": "VG6-8",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "G8",
+    "label": "Ligne G8",
+    "device": "VG6-8",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "G9",
+    "label": "Ligne G9",
+    "device": "VG9-12",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "G10",
+    "label": "Ligne G10",
+    "device": "VG9-12",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "G11",
+    "label": "Ligne G11",
+    "device": "VG9-12",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "G12",
+    "label": "Ligne G12",
+    "device": "VG9-12",
+    "inputName": "vd",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "H2",
+    "label": "Ligne H2",
+    "device": "VH2-4",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "H3",
+    "label": "Ligne H3",
+    "device": "VH2-4",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "H4",
+    "label": "Ligne H4",
+    "device": "VH2-4",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "H5",
+    "label": "Ligne H5",
+    "device": "VH5-7",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "H6",
+    "label": "Ligne H6",
+    "device": "VH5-7",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "H7",
+    "label": "Ligne H7",
+    "device": "VH5-7",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "H8",
+    "label": "Ligne H8",
+    "device": "VH8-10",
+    "inputName": "va",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "H9",
+    "label": "Ligne H9",
+    "device": "VH8-10",
+    "inputName": "vb",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "H10",
+    "label": "Ligne H10",
+    "device": "VH8-10",
     "inputName": "vc",
     "rawValue": 0,
     "offset": 0
   },{
     "code": "H11",
     "label": "Ligne H11",
-    "device": "EB-VH11-13",
+    "device": "VH11-13",
     "inputName": "va",
     "rawValue": 0,
     "offset": 0
   },{
     "code": "H12",
     "label": "Ligne H12",
-    "device": "EB-VH11-13",
+    "device": "VH11-13",
     "inputName": "vb",
     "rawValue": 0,
     "offset": 0
   },{
     "code": "H13",
     "label": "Ligne H13",
-    "device": "EB-VH11-13",
+    "device": "VH11-13",
+    "inputName": "vc",
+    "rawValue": 0,
+    "offset": 0
+  },{
+    "code": "H14",
+    "label": "Ligne H14",
+    "device": "VG1-2VH14",
     "inputName": "vc",
     "rawValue": 0,
     "offset": 0
