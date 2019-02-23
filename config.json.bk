@@ -56,7 +56,7 @@
   }, {
     "name": "EB-RS2",
     "description": "Réservoir de sève #2",
-    "id": "240051000a51353335323535",
+    "id": "410057000b51353335323535",
     "maxDelayMinutes": 5
   }, {
     "name": "EB-RS3",
@@ -259,6 +259,12 @@
     "eventName": "Vacuum/Lignes",
     "maxDelayMinutes": 20
   }, {
+    "retired": true,
+    "name": "",
+    "description": "",
+    "id": "240051000a51353335323535",
+    "eventName": "Vacuum/Lignes"
+  },{
     "retired": true,
     "name": "",
     "description": "",
