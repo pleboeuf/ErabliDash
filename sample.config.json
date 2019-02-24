@@ -56,7 +56,7 @@
   }, {
     "name": "EB-RS2",
     "description": "Réservoir de sève #2",
-    "id": "3b0024001047343438323536",
+    "id": "410057000b51353335323535",
     "maxDelayMinutes": 5
   }, {
     "name": "EB-RS3",
@@ -262,32 +262,27 @@
     "retired": true,
     "name": "",
     "description": "",
-    "id": "240051000a51353335323535",
-    "eventName": "Vacuum/Lignes"
+    "id": "240051000a51353335323535"
   },{
     "retired": true,
     "name": "",
     "description": "",
-    "id": "2f0024000647343339373536",
-    "eventName": "Vacuum/Lignes"
+    "id": "2f0024000647343339373536"
   }, {
     "retired": true,
     "name": "EB-Elec-Dev1",
     "description": "",
-    "id": "36004f000251353337353037",
-    "eventName": "Vacuum/Lignes"
+    "id": "36004f000251353337353037"
   }, {
     "retired": true,
     "name": "",
     "description": "",
-    "id": "42002a000847343339373536",
-    "eventName": "Vacuum/Lignes"
+    "id": "42002a000847343339373536"
   }, {
     "retired": true,
     "name": "",
     "description": "",
-    "id": "1f0042000447343337373738",
-    "eventName": "Vacuum/Lignes"
+    "id": "1f0042000447343337373738"
   }, {
     "retired": true,
     "name": "EB-RS1",
@@ -303,6 +298,11 @@
     "name": "EB-RS2",
     "description": "Réservoir de sève #2",
     "id": "240045001447343338333633"
+  }, {
+    "retired": true,
+    "name": "EB-RS2",
+    "description": "Réservoir de sève #2",
+    "id": "3b0024001047343438323536"
   }, {
     "retired": true,
     "name": "EB-RS3",

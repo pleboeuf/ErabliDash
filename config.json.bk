@@ -51,12 +51,12 @@
   }, {
     "name": "EB-RS1",
     "description": "Réservoir de sève #1",
-    "id": "40003d001047343438323536",
+    "id": "3b0024001047343438323536",
     "maxDelayMinutes": 5
   }, {
     "name": "EB-RS2",
     "description": "Réservoir de sève #2",
-    "id": "410057000b51353335323535",
+    "id": "3b0024001047343438323536",
     "maxDelayMinutes": 5
   }, {
     "name": "EB-RS3",
@@ -294,6 +294,11 @@
     "description": "Réservoir de sève #1",
     "id": "1f003f000747343337373738"
   }, {
+    "retired": true,
+    "name": "EB-RS1",
+    "description": "Réservoir de sève #1",
+    "id": "40003d001047343438323536"
+ }, {
     "retired": true,
     "name": "EB-RS2",
     "description": "Réservoir de sève #2",
