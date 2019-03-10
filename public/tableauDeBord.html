@@ -192,13 +192,16 @@
       });
       $(".tankgauge").peity("pie", {
         "fill": function(value, index, values) {
-          if (index > 0)
-            return "#eeeeee";
-          if (values[0] > 90)
-            return "red";
-          if (values[0] > 75)
-            return "orange";
-          return "green";
+            if (index > 0){
+                return "#eeeeee";
+            }
+            if (values[0] > 90){
+                return "red";
+            }
+            if (values[0] > 75){
+                return "orange";
+            }
+            return "green";
         }
       });
 
@@ -707,7 +710,7 @@
 
     function stopCouleeCounter(){
       clearInterval(couleTimer);
-      // document.getElementById("compteurDeTemps").innerHTML="";
+      document.getElementById("compteurDeTemps").innerHTML="";
       // console.log("Affichage fin de coulée");
     }
 
