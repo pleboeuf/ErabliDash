@@ -2,967 +2,987 @@
 <html>
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="/lib/w3.css">
-  <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-grey.css">
-  <title>Tableau de bord</title>
-  <script src="/bower_components/jquery/dist/jquery.min.js"></script>
-  <script src="/bower_components/peity/jquery.peity.min.js"></script>
-  <script language="javascript" type="text/javascript">
-    function wsUri(path) {
-      var l = window.location;
-      return ((l.protocol === "https:") ? "wss://" : "ws://") + l.hostname + (((l.port != 80) && (l.port != 443)) ? ":" + l.port : "") + l.pathname + path;
-    }
-    var jsonElement;
-    var websocket;
-
-    var tankDefs = [{
-      // Note: Capacity in Liters
-      code: "RS1",
-      capacity: 1,
-    }, {
-      code: "RS2",
-      capacity: 1
-    }, {
-      code: "RF2",
-      capacity: 1
-    }, {
-      code: "RS3",
-      capacity: 1
-    }, {
-      code: "RS4",
-      capacity: 1
-    }, {
-      code: "RS5",
-      capacity: 1
-    }, {
-      code: "RS6",
-      capacity: 1
-    }, {
-      code: "RF1",
-      capacity: 1
-    }, {
-      code: "RC1",
-      capacity: 1
-    }, {
-      code: "RC2",
-      capacity: 1
-    }, {
-      code: "RHC",
-      capacity: 1
-    }];
-
-    var devices = [];
-    var valves = [];
-    var pumps = [];
-    var vacuums = [];
-    var couleeActive = false;
-    var tempAge = 0;
-    const maximumAge = 5;
-
-    function liters2gallons(liters) {
-      return Math.ceil(liters / 4.54609188);
-    }
-
-    function onLoad() {
-      openSocket();
-      setInterval(displayDevices, 10000);
-    }
-
-    function displayTanks() {
-      tankDefs.forEach(function(tank) {
-        var tankElementId = 'tank_' + tank.code;
-        var tankElement = document.getElementById(tankElementId);
-        var contentsElementId = tankElementId + '_contents';
-        var contentsElement;
-        var percentElementId = tankElementId + '_percent';
-        var percentElement;
-        var rawValueElementId = tankElementId + '_rawvalue';
-        var rawValueElement;
-        var capacityElementId = tankElementId + '_capacity';
-        var capacityElement;
-        var outputElementId = tankElementId + '_output';
-        var outputElement;
-        var drainElementId = tankElementId + '_drain';
-        var drainElement;
-
-        if (tankElement == null) {
-          tankElement = document.createElement("tr");
-          tankElement.setAttribute('id', tankElementId);
-          tankElement.setAttribute('class', "tank");
-
-          // Add tank name
-          var nameElement = document.createElement("td");
-          nameElement.setAttribute('class', 'tankname');
-          nameElement.innerHTML = tank.code;
-          if (tank.code == "RS5" || tank.code == "RS6") {
-            nameElement.innerHTML = tank.code + " (ph)";
-          }
-          tankElement.appendChild(nameElement);
-
-          // Add measured contents (gallons)
-          contentsElement = document.createElement('td');
-          contentsElement.setAttribute('id', contentsElementId);
-          contentsElement.setAttribute('class', 'tankcontents');
-          tankElement.appendChild(contentsElement);
-
-          // Add measured contents (percent)
-          percentElement = document.createElement('td');
-          percentElement.setAttribute('id', percentElementId);
-          percentElement.setAttribute('class', 'tankpercent');
-          tankElement.appendChild(percentElement);
-
-          // Add output valve status
-          outputElement = document.createElement('td');
-          outputElement.setAttribute('id', outputElementId);
-          outputElement.setAttribute('class', 'tankoutput');
-          tankElement.appendChild(outputElement);
-
-          // Add drain valve status
-          drainElement = document.createElement('td');
-          drainElement.setAttribute('id', drainElementId);
-          drainElement.setAttribute('class', 'tankdrain');
-          tankElement.appendChild(drainElement);
-
-          // Add raw value (millimeters)
-          rawValueElement = document.createElement('td');
-          rawValueElement.setAttribute('id', rawValueElementId);
-          rawValueElement.setAttribute('class', 'rawvalue');
-          tankElement.appendChild(rawValueElement);
-
-          // Add capacity (gallons)
-          capacityElement = document.createElement('td');
-          capacityElement.setAttribute('id', capacityElementId);
-          capacityElement.setAttribute('class', 'tankcapacity');
-          tankElement.appendChild(capacityElement);
-
-          document.getElementById('tanklist').appendChild(tankElement);
-        } else {
-          capacityElement = document.getElementById(capacityElementId);
-          rawValueElement = document.getElementById(rawValueElementId);
-          percentElement = document.getElementById(percentElementId);
-          contentsElement = document.getElementById(contentsElementId);
-          outputElement = document.getElementById(outputElementId);
-          drainElement = document.getElementById(drainElementId);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/lib/w3.css">
+    <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-grey.css">
+    <title>Tableau de bord</title>
+    <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="/bower_components/peity/jquery.peity.min.js"></script>
+    <script language="javascript" type="text/javascript">
+        function wsUri(path) {
+            var l = window.location;
+            return ((l.protocol === "https:") ? "wss://" : "ws://") + l.hostname + (((l.port != 80) && (l.port != 443)) ? ":" + l.port : "") + l.pathname + path;
         }
-        // Display the data
-        var tankPercent = (tank.contents / tank.capacity * 100).toFixed(0);
-        tankElement.setAttribute('data-percent', tankPercent);
-        capacityElement.innerHTML = liters2gallons(tank.capacity);
-        rawValueElement.innerHTML = tank.rawValue;
-        percentElement.innerHTML = tankPercent + " % ";
-        contentsElement.innerHTML = liters2gallons(tank.contents);
-        if (tank.rawValue < 5) {
-          contentsElement.innerHTML = "----";
+        var jsonElement;
+        var websocket;
+
+        var tankDefs = [{
+            // Note: Capacity in Liters
+            code: "RS1",
+            capacity: 1,
+        }, {
+            code: "RS2",
+            capacity: 1
+        }, {
+            code: "RF2",
+            capacity: 1
+        }, {
+            code: "RS3",
+            capacity: 1
+        }, {
+            code: "RS4",
+            capacity: 1
+        }, {
+            code: "RS5",
+            capacity: 1
+        }, {
+            code: "RS6",
+            capacity: 1
+        }, {
+            code: "RF1",
+            capacity: 1
+        }, {
+            code: "RC1",
+            capacity: 1
+        }, {
+            code: "RC2",
+            capacity: 1
+        }, {
+            code: "RHC",
+            capacity: 1
+        }];
+
+        var devices = [];
+        var valves = [];
+        var pumps = [];
+        var vacuums = [];
+        var couleeActive = false;
+        var tempAge = 0;
+        const maximumAge = 5;
+
+        function liters2gallons(liters) {
+            return Math.ceil(liters / 4.54609188);
         }
 
-        // Create the pie chart
-        var gaugeElement = document.createElement('span');
-        gaugeElement.innerHTML = tankPercent + '/100';
-        gaugeElement.setAttribute('class', 'tankgauge');
-        gaugeElement.setAttribute('data-peity', '{ "fill": ["black", "#eeeeee"], "innerRadius": 0, "radius": 8 }');
-        percentElement.appendChild(gaugeElement);
-
-        // Copy the output valve state from the valve table
-        if (tank.output !== "none" && tank.output !== undefined) {
-          var outValveElemId = "valve_" + tank.output + "_position";
-          var outValvePosElem = document.getElementById(outValveElemId);
-          var outValvePos = outValvePosElem.innerHTML;
-          if (typeof outValvePos !== null) {
-            outputElement.innerHTML = outValvePos;
-            setIndicatorColor(outputElement, outValvePos);
-          }
+        function onLoad() {
+            openSocket();
+            setInterval(displayDevices, 10000);
         }
 
-        // Copy the drain valve state from the valve table
-        if (tank.drain !== "none" && tank.drain !== undefined) {
-          var drainValveElemId = "valve_" + tank.drain + "_position";
-          var drainValvePosElem = document.getElementById(drainValveElemId);
-          var drainValvePos = drainValvePosElem.innerHTML;
-          if (typeof drainValvePos !== null) {
-            drainElement.innerHTML = drainValvePos;
-            setIndicatorColor(drainElement, drainValvePos);
-          }
+        function displayTanks() {
+            tankDefs.forEach(function(tank) {
+                var tankElementId = 'tank_' + tank.code;
+                var tankElement = document.getElementById(tankElementId);
+                var contentsElementId = tankElementId + '_contents';
+                var contentsElement;
+                var percentElementId = tankElementId + '_percent';
+                var percentElement;
+                var rawValueElementId = tankElementId + '_rawvalue';
+                var rawValueElement;
+                var capacityElementId = tankElementId + '_capacity';
+                var capacityElement;
+                var outputElementId = tankElementId + '_output';
+                var outputElement;
+                var drainElementId = tankElementId + '_drain';
+                var drainElement;
+
+                if (tankElement == null) {
+                    tankElement = document.createElement("tr");
+                    tankElement.setAttribute('id', tankElementId);
+                    tankElement.setAttribute('class', "tank");
+
+                    // Add tank name
+                    var nameElement = document.createElement("td");
+                    nameElement.setAttribute('class', 'tankname');
+                    nameElement.innerHTML = tank.code;
+                    if (tank.code == "RS5" || tank.code == "RS6") {
+                        nameElement.innerHTML = tank.code + " (ph)";
+                    }
+                    tankElement.appendChild(nameElement);
+
+                    // Add measured contents (gallons)
+                    contentsElement = document.createElement('td');
+                    contentsElement.setAttribute('id', contentsElementId);
+                    contentsElement.setAttribute('class', 'tankcontents');
+                    tankElement.appendChild(contentsElement);
+
+                    // Add measured contents (percent)
+                    percentElement = document.createElement('td');
+                    percentElement.setAttribute('id', percentElementId);
+                    percentElement.setAttribute('class', 'tankpercent');
+                    tankElement.appendChild(percentElement);
+
+                    // Add output valve status
+                    outputElement = document.createElement('td');
+                    outputElement.setAttribute('id', outputElementId);
+                    outputElement.setAttribute('class', 'tankoutput');
+                    tankElement.appendChild(outputElement);
+
+                    // Add drain valve status
+                    drainElement = document.createElement('td');
+                    drainElement.setAttribute('id', drainElementId);
+                    drainElement.setAttribute('class', 'tankdrain');
+                    tankElement.appendChild(drainElement);
+
+                    // Add raw value (millimeters)
+                    rawValueElement = document.createElement('td');
+                    rawValueElement.setAttribute('id', rawValueElementId);
+                    rawValueElement.setAttribute('class', 'rawvalue');
+                    tankElement.appendChild(rawValueElement);
+
+                    // Add capacity (gallons)
+                    capacityElement = document.createElement('td');
+                    capacityElement.setAttribute('id', capacityElementId);
+                    capacityElement.setAttribute('class', 'tankcapacity');
+                    tankElement.appendChild(capacityElement);
+
+                    document.getElementById('tanklist').appendChild(tankElement);
+                } else {
+                    capacityElement = document.getElementById(capacityElementId);
+                    rawValueElement = document.getElementById(rawValueElementId);
+                    percentElement = document.getElementById(percentElementId);
+                    contentsElement = document.getElementById(contentsElementId);
+                    outputElement = document.getElementById(outputElementId);
+                    drainElement = document.getElementById(drainElementId);
+                }
+                // Display the data
+                var tankPercent = (tank.contents / tank.capacity * 100).toFixed(0);
+                tankElement.setAttribute('data-percent', tankPercent);
+                capacityElement.innerHTML = liters2gallons(tank.capacity);
+                rawValueElement.innerHTML = tank.rawValue;
+                percentElement.innerHTML = tankPercent + " % ";
+                contentsElement.innerHTML = liters2gallons(tank.contents);
+                if (tank.rawValue < 5) {
+                    contentsElement.innerHTML = "----";
+                }
+
+                // Create the pie chart
+                var gaugeElement = document.createElement('span');
+                gaugeElement.innerHTML = tankPercent + '/100';
+                gaugeElement.setAttribute('class', 'tankgauge');
+                gaugeElement.setAttribute('data-peity', '{ "fill": ["black", "#eeeeee"], "innerRadius": 0, "radius": 8 }');
+                percentElement.appendChild(gaugeElement);
+
+                // Copy the output valve state from the valve table
+                if (tank.output !== "none" && tank.output !== undefined) {
+                    var outValveElemId = "valve_" + tank.output + "_position";
+                    var outValvePosElem = document.getElementById(outValveElemId);
+                    var outValvePos = outValvePosElem.innerHTML;
+                    if (typeof outValvePos !== null) {
+                        outputElement.innerHTML = outValvePos;
+                        setIndicatorColor(outputElement, outValvePos);
+                    }
+                }
+
+                // Copy the drain valve state from the valve table
+                if (tank.drain !== "none" && tank.drain !== undefined) {
+                    var drainValveElemId = "valve_" + tank.drain + "_position";
+                    var drainValvePosElem = document.getElementById(drainValveElemId);
+                    var drainValvePos = drainValvePosElem.innerHTML;
+                    if (typeof drainValvePos !== null) {
+                        drainElement.innerHTML = drainValvePos;
+                        setIndicatorColor(drainElement, drainValvePos);
+                    }
+                }
+                // Set color of line based on device lastUpdatedAt
+                var tankElem = document.getElementById('tank_' + tank.code);
+                setAgeColor(tankElem, tank.device);
+
+            });
+            $(".tankgauge").peity("pie", {
+                "fill": function(value, index, values) {
+                    if (index > 0) {
+                        return "#eeeeee";
+                    }
+                    if (values[0] > 90) {
+                        return "red";
+                    }
+                    if (values[0] > 75) {
+                        return "orange";
+                    }
+                    return "green";
+                }
+            });
+
         }
-        // Set color of line based on device lastUpdatedAt
-        var tankElem = document.getElementById('tank_' + tank.code);
-        setAgeColor(tankElem, tank.device);
 
-      });
-      $(".tankgauge").peity("pie", {
-        "fill": function(value, index, values) {
-          if (index > 0) {
-            return "#eeeeee";
-          }
-          if (values[0] > 90) {
-            return "red";
-          }
-          if (values[0] > 75) {
-            return "orange";
-          }
-          return "green";
-        }
-      });
+        function displayDevices() {
+            var oldestAge = 0;
+            var ageDisplayTop = '';
+            devices.forEach(function(device) {
+                if (device.retired) {
+                    return;
+                }
+                var lastUpdatedAtElemId = 'device_' + device.name + '_lastUpdatedAt';
+                var generationElemId = 'device_' + device.name + '_generationId';
+                var serialElemId = 'device_' + device.name + '_serial';
+                var lastUpdatedAtElem;
+                var deviceElemId = 'device_' + device.name;
+                if (document.getElementById(deviceElemId) == null) {
+                    var deviceElem = document.createElement("tr");
+                    deviceElem.setAttribute('id', deviceElemId);
+                    document.getElementById('devicelist').appendChild(deviceElem);
 
-    }
+                    var nameElement = document.createElement("td");
+                    nameElement.innerHTML = device.name;
+                    nameElement.setAttribute('class', 'vacuumcode');
+                    deviceElem.appendChild(nameElement);
 
-    function displayDevices() {
-      var oldestAge = 0;
-      var ageDisplayTop = '';
-      devices.forEach(function(device) {
-        if (device.retired) {
-          return;
-        }
-        var lastUpdatedAtElemId = 'device_' + device.name + '_lastUpdatedAt';
-        var generationElemId = 'device_' + device.name + '_generationId';
-        var serialElemId = 'device_' + device.name + '_serial';
-        var lastUpdatedAtElem;
-        var deviceElemId = 'device_' + device.name;
-        if (document.getElementById(deviceElemId) == null) {
-          var deviceElem = document.createElement("tr");
-          deviceElem.setAttribute('id', deviceElemId);
-          document.getElementById('devicelist').appendChild(deviceElem);
+                    lastUpdatedAtElem = document.createElement('td');
+                    lastUpdatedAtElem.setAttribute('id', lastUpdatedAtElemId);
+                    lastUpdatedAtElem.setAttribute('class', 'vacuumcode');
+                    deviceElem.appendChild(lastUpdatedAtElem);
 
-          var nameElement = document.createElement("td");
-          nameElement.innerHTML = device.name;
-          deviceElem.appendChild(nameElement);
+                    generationElem = document.createElement('td');
+                    generationElem.setAttribute('id', generationElemId);
+                    generationElem.setAttribute('class', 'vacuumcode');
+                    deviceElem.appendChild(generationElem);
 
-          lastUpdatedAtElem = document.createElement('td');
-          lastUpdatedAtElem.setAttribute('id', lastUpdatedAtElemId);
-          deviceElem.appendChild(lastUpdatedAtElem);
+                    serialElem = document.createElement('td');
+                    serialElem.setAttribute('id', serialElemId);
+                    serialElem.setAttribute('class', 'vacuumcode');
+                    deviceElem.appendChild(serialElem);
+                } else {
+                    lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
+                    generationElem = document.getElementById(generationElemId);
+                    serialElem = document.getElementById(serialElemId);
+                }
+                var ageInMinutes = Math.floor(getMinutesAgo(new Date(device.lastUpdatedAt)));
+                var ageDisplay = '?';
+                if (ageInMinutes == 0) {
+                    ageDisplay = 'now';
+                } else if (ageInMinutes > 0) {
+                    ageDisplay = ageInMinutes + ' min.';
+                }
+                if (ageInMinutes > device.maxDelayMinutes || ageDisplay == '?') {
+                    lastUpdatedAtElem.style.color = "FireBrick";
+                } else {
+                    lastUpdatedAtElem.style.color = "black";
+                }
+                lastUpdatedAtElem.innerHTML = ageDisplay;
+                generationElem.innerHTML = device.generationId;
+                serialElem.innerHTML = device.lastEventSerial;
 
-          generationElem = document.createElement('td');
-          generationElem.setAttribute('id', generationElemId);
-          deviceElem.appendChild(generationElem);
+                // Display the yongest age at the top of the screen.
+                // If more than 5 min. there's a problem.
+                oldestAge = Math.max(ageInMinutes, oldestAge);
+                ageDisplayTop = oldestAge + ' min.';
+                // console.log('oldestAge: ' + oldestAge + ', ageDisplayTop; ' + ageDisplayTop);
+                var lastestUpdateElement = document.getElementById("lastestUpdate");
+                if (oldestAge > device.maxDelayMinutes) {
+                    lastestUpdateElement.innerHTML = 'Délais:</br>anormal';
+                    lastestUpdateElement.style.color = "FireBrick";
+                } else {
+                    lastestUpdateElement.innerHTML = 'Délais:</br>normal';
+                    // lastestUpdateElement.innerHTML = 'Ok';
+                    lastestUpdateElement.style.color = "white";
+                }
 
-          serialElem = document.createElement('td');
-          serialElem.setAttribute('id', serialElemId);
-          deviceElem.appendChild(serialElem);
-        } else {
-          lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
-          generationElem = document.getElementById(generationElemId);
-          serialElem = document.getElementById(serialElemId);
-        }
-        var ageInMinutes = Math.floor(getMinutesAgo(new Date(device.lastUpdatedAt)));
-        var ageDisplay = '?';
-        if (ageInMinutes == 0) {
-          ageDisplay = 'now';
-        } else if (ageInMinutes > 0) {
-          ageDisplay = ageInMinutes + ' min.';
-        }
-        if (ageInMinutes > device.maxDelayMinutes || ageDisplay == '?') {
-          lastUpdatedAtElem.style.color = "FireBrick";
-        } else {
-          lastUpdatedAtElem.style.color = "black";
-        }
-        lastUpdatedAtElem.innerHTML = ageDisplay;
-        generationElem.innerHTML = device.generationId;
-        serialElem.innerHTML = device.lastEventSerial;
-
-        // Display the yongest age at the top of the screen.
-        // If more than 5 min. there's a problem.
-        oldestAge = Math.max(ageInMinutes, oldestAge);
-        ageDisplayTop = oldestAge + ' min.';
-        // console.log('oldestAge: ' + oldestAge + ', ageDisplayTop; ' + ageDisplayTop);
-        var lastestUpdateElement = document.getElementById("lastestUpdate");
-        if (oldestAge > device.maxDelayMinutes) {
-          lastestUpdateElement.innerHTML = 'Délais:</br>anormal';
-          lastestUpdateElement.style.color = "FireBrick";
-        } else {
-          lastestUpdateElement.innerHTML = 'Délais:</br>normal';
-          // lastestUpdateElement.innerHTML = 'Ok';
-          lastestUpdateElement.style.color = "white";
+                // Display outside temperature if available on device RS1
+                if (device.name.includes("RS1")) {
+                    var tempExtElem = document.getElementById("tempExt");
+                    if (typeof tempExtElem !== "undefined" && tempExtElem !== null) {
+                        if (device.ambientTemp !== undefined && device.ambientTemp !== 99 && device.ambientTemp !== -127) {
+                            tempExtElem.innerHTML = device.ambientTemp + "°C";
+                        } else {
+                            tempExtElem.innerHTML = "---°C";
+                        }
+                    }
+                }
+            });
         }
 
-        // Display outside temperature if available on device RS1
-        if (device.name.includes("RS1")) {
-          var tempExtElem = document.getElementById("tempExt");
-          if (typeof tempExtElem !== "undefined" && tempExtElem !== null) {
-            if (device.ambientTemp !== undefined && device.ambientTemp !== 99 && device.ambientTemp !== -127) {
-              tempExtElem.innerHTML = device.ambientTemp + "°C";
+        function getMinutesAgo(date) {
+            return (Math.abs((Date.now() - new Date(date).getTime()) / 1000 / 60));
+        }
+
+        function displayValves() {
+            valves.forEach(function(valve) {
+                var positionElem;
+                var positionElemId = 'valve_' + valve.code + '_position';
+                var valveElemId = 'valve_' + valve.code;
+                if (document.getElementById(valveElemId) == null) {
+                    var valveElem = document.createElement("tr");
+                    valveElem.setAttribute('id', valveElemId);
+                    document.getElementById('valvelist').appendChild(valveElem);
+
+                    var codeElement = document.createElement("td");
+                    codeElement.innerHTML = valve.code;
+                    valveElem.appendChild(codeElement);
+
+                    positionElem = document.createElement('td');
+                    positionElem.setAttribute('id', positionElemId);
+                    valveElem.appendChild(positionElem);
+                } else {
+                    positionElem = document.getElementById(positionElemId);
+                }
+                positionElem.innerHTML = valve.position;
+                setIndicatorColor(positionElem, valve.position);
+                // Copy valve VaEC postion to Autres Valves table
+                if (valve.code == "VaEC") {
+                    var VaECElemId = valve.code + "_position";
+                    var VaECElem = document.getElementById(VaECElemId);
+                    if (typeof VaECElem !== "undefined" && VaECElem !== null) {
+                        VaECElem.innerHTML = valve.position;
+                        setIndicatorColor(VaECElem, valve.position);
+                        var VaECElem = document.getElementById('valve_' + valve.code);
+                        setAgeColor(VaECElem, valve.device);
+                    }
+                }
+                // Copy valve VaTk postion to Autres Valves table
+                if (valve.code == "VaTk") {
+                    var VaTkElemId = valve.code + "_position";
+                    var VaTkElem = document.getElementById(VaTkElemId);
+                    if (typeof VaTkElem !== "undefined" && VaTkElem !== null) {
+                        VaTkElem.innerHTML = valve.position;
+                        setIndicatorColor(VaTkElem, valve.position);
+                        var VaTkElem = document.getElementById('valve_' + valve.code);
+                        setAgeColor(VaTkElem, valve.device);
+                    }
+                }
+            });
+        }
+
+        function displayPumps() {
+            var totalRate = 0;
+            var totalVolume = 0;
+            var gph = 0;
+            var pumpDuty = 0;
+            var dateStart;
+            allWaterPumps = [];
+            pumps.forEach(function(pump) {
+                var codeElement;
+                var codeElementId = 'pump_' + pump.code;
+                var stateElem;
+                var stateElemId = 'pump_' + pump.code + '_state';
+                var dutyElem;
+                var dutyElemId = 'pump_' + pump.code + '_duty';
+                var rateElem;
+                var rateElemId = 'pump_' + pump.code + '_rate';
+                var volumeElem;
+                var volumeElemId = 'pump_' + pump.code + '_volume';
+                var pumpElemId = 'pump_' + pump.code;
+                var pumpElem = document.getElementById(pumpElemId);
+                if (document.getElementById(pumpElemId) == null) {
+                    var pumpElem = document.createElement("tr");
+                    pumpElem.setAttribute('id', pumpElemId);
+                    var totalRow = document.getElementById('pumptotalrow');
+                    totalRow.parentElement.insertBefore(pumpElem, totalRow);
+
+                    codeElement = document.createElement("td");
+                    codeElement.innerHTML = pump.code;
+                    pumpElem.setAttribute('class', 'pumpcode');
+                    pumpElem.appendChild(codeElement);
+
+                    stateElem = document.createElement('td');
+                    stateElem.setAttribute('id', stateElemId);
+                    stateElem.setAttribute('class', 'pumpstate');
+                    pumpElem.appendChild(stateElem);
+
+                    dutyElem = document.createElement('td');
+                    dutyElem.setAttribute('id', dutyElemId);
+                    dutyElem.setAttribute('class', 'pumpduty');
+                    pumpElem.appendChild(dutyElem);
+
+                    rateElem = document.createElement('td');
+                    rateElem.setAttribute('id', rateElemId);
+                    rateElem.setAttribute('class', 'pumprate');
+                    pumpElem.appendChild(rateElem);
+
+                    volumeElem = document.createElement('td');
+                    volumeElem.setAttribute('id', volumeElemId);
+                    volumeElem.setAttribute('class', 'pumpvolume');
+                    pumpElem.appendChild(volumeElem);
+                } else {
+                    stateElem = document.getElementById(stateElemId);
+                    dutyElem = document.getElementById(dutyElemId);
+                    rateElem = document.getElementById(rateElemId);
+                    volumeElem = document.getElementById(volumeElemId)
+                }
+                setPumpWarning(pumpElem, pump.run2long);
+                stateElem.innerHTML = pump.state ? 'ON' : 'OFF';
+                setIndicatorColor(stateElem, pump.state);
+                if (pump.duty !== undefined) {
+                    var rate = (pump.duty * pump.capacity_gph);
+                }
+                if (pump.volume !== undefined) {
+                    var volume = Math.abs(pump.volume);
+                }
+                if (pump.code == "P1" || pump.code == "P2" || pump.code == "P3") {
+                    totalRate += rate;
+                    totalVolume += volume;
+                    pumpDuty = (pump.duty * 100).toFixed(1);
+                    dutyElem.innerHTML = parseFloat(pumpDuty) || "";
+                    rateElem.innerHTML = parseInt(rate) || "";
+                    volumeElem.innerHTML = parseInt(volume) || "";
+
+                    // Noter l'état de coulée des pompes. Mauvais code
+                    if (pump.code == "P1") {
+                        allWaterPumps[0] = pump.couleeEnCour;
+                        if (allWaterPumps[0]) {
+                            dateStart = pump.debutDeCouleeTS;
+                        }
+                    } else if (pump.code == "P2") {
+                        allWaterPumps[1] = pump.couleeEnCour;
+                        if (allWaterPumps[1]) {
+                            dateStart = pump.debutDeCouleeTS;
+                        }
+                    } else if (pump.code == "P3") {
+                        allWaterPumps[2] = pump.couleeEnCour;
+                        if (allWaterPumps[2]) {
+                            dateStart = pump.debutDeCouleeTS;
+                        }
+                    }
+                    // else if (pump.code == "Ptest"){
+                    //   allWaterPumps[3] = pump.couleeEnCour;
+                    //   if (allWaterPumps[3]){
+                    //     dateStart = pump.debutDeCouleeTS;
+                    //   }
+                    // }
+                }
+                // Set color of line based on device lastUpdatedAt
+                var codeElem = document.getElementById('pump_' + pump.code);
+                setAgeColor(codeElem, pump.device);
+            });
+            checkCouleeEnCour(allWaterPumps, dateStart); // Gérer le message de coulée en cours
+            var totalRateElem = document.getElementById('pumptotalrate');
+            totalRateElem.innerHTML = parseInt(totalRate) || 0;
+            var totalVolumeElem = document.getElementById('volumetotal');
+            totalVolumeElem.innerHTML = parseInt(totalVolume) || 0;
+        }
+
+        function checkCouleeEnCour(allWaterPumps, dateStart) {
+            console.log(JSON.stringify(allWaterPumps));
+            var couleeElem = document.getElementById("coulee");
+            var couleeTextElem = document.getElementById("c_text");
+            var allPumpsCouleeState = allWaterPumps[0] || allWaterPumps[1] || allWaterPumps[2];
+
+            if (allPumpsCouleeState !== undefined && couleeActive !== undefined) {
+
+                if (allPumpsCouleeState !== couleeActive) { // Changement d'état
+                    if (allPumpsCouleeState == true) {
+                        // console.log("startCouleeCounter: allPumpsCouleeState= " + allPumpsCouleeState + ", couleeActive= " + couleeActive);
+                        couleeActive = allPumpsCouleeState;
+                        startCouleeCounter(dateStart);
+                        couleeTextElem.innerHTML = "Coulée en cours:  ";
+                        couleeElem.style.backgroundColor = "yellow";
+                        couleeElem.style.color = "black";
+                    } else {
+                        // console.log("   STOPCouleeCounter: allPumpsCouleeState= " + allPumpsCouleeState + ", couleeActive= " + couleeActive);
+                        couleeActive = allPumpsCouleeState;
+                        stopCouleeCounter();
+                        couleeTextElem.innerHTML = "Coulée terminée:  ";
+                        couleeElem.style.backgroundColor = "#9E9E9E";
+                    }
+
+                }
+            }
+        }
+
+        function displayVacuum() {
+            vacuums.forEach(function(vacuum) {
+                var vacuumValue = 0;
+                var vacuumTemp = 0;
+                var vacuumCharge = 0;
+                var vacuumIllum = 0;
+                var valueElem;
+                var valueElemId = 'vacuum_' + vacuum.code + '_value';
+                var vacuumElemId = 'vacuum_' + vacuum.code;
+                var tempElemId = 'vacuum_' + vacuum.code + '_temp';
+                var chargeElemId = 'vacuum_' + vacuum.code + '_percentCharge';
+                var illumElemId = 'vacuum_' + vacuum.code + '_lightIntensity';
+                var updatedElemId = 'vacuum_' + vacuum.code + '_lastUpdate';
+                if (document.getElementById(vacuumElemId) == null) {
+                    var vacuumElem = document.createElement("tr");
+                    vacuumElem.setAttribute('id', vacuumElemId);
+                    document.getElementById('vacuumlist').appendChild(vacuumElem);
+
+                    var codeElement = document.createElement("td");
+                    codeElement.innerHTML = vacuum.label;
+                    codeElement.setAttribute('class', 'vacuumcode');
+                    vacuumElem.appendChild(codeElement);
+
+                    valueElem = document.createElement('td');
+                    valueElem.setAttribute('id', valueElemId);
+                    valueElem.setAttribute('class', 'vacuumvalue');
+                    vacuumElem.appendChild(valueElem);
+
+                    // if('temp' in vacuum){
+                    tempElem = document.createElement('td');
+                    tempElem.setAttribute('id', tempElemId);
+                    tempElem.setAttribute('class', 'vacuumtemp');
+                    vacuumElem.appendChild(tempElem);
+                    // }
+                    // if('percentCharge' in vacuum){
+                    chargeElem = document.createElement('td');
+                    chargeElem.setAttribute('id', chargeElemId);
+                    chargeElem.setAttribute('class', 'vacuumtemp');
+                    vacuumElem.appendChild(chargeElem);
+                    // }
+                    // if('lightIntensity' in vacuum){
+                    illumElem = document.createElement('td');
+                    illumElem.setAttribute('id', illumElemId);
+                    illumElem.setAttribute('class', 'vacuumtemp');
+                    vacuumElem.appendChild(illumElem);
+                    // }
+                    // if('lastUpdate' in vacuum){
+                    updatedElem = document.createElement('td');
+                    updatedElem.setAttribute('id', updatedElemId);
+                    updatedElem.setAttribute('class', 'vacuumtemp');
+                    vacuumElem.appendChild(updatedElem);
+                    // }
+                } else {
+                    valueElem = document.getElementById(valueElemId);
+                    if ('temp' in vacuum) {
+                        tempElem = document.getElementById(tempElemId);
+                    }
+                    if ('percentCharge' in vacuum) {
+                        chargeElem = document.getElementById(chargeElemId);
+                    }
+                    if ('lightIntensity' in vacuum) {
+                        illumElem = document.getElementById(illumElemId);
+                    }
+                    if ('lastUpdate' in vacuum) {
+                        updatedElem = document.getElementById(updatedElemId);
+                    }
+                }
+                vacuumValue = (vacuum.rawValue + vacuum.offset) / 100;
+                valueElem.innerHTML = vacuumValue.toFixed(1);
+                valueElem.style.textAlign = "right";
+                if ('temp' in vacuum) {
+                    vacuumTemp = vacuum.temp;
+                    tempElem.innerHTML = vacuumTemp.toFixed(1);
+                    tempElem.style.textAlign = "right";
+                }
+                if ('percentCharge' in vacuum) {
+                    chargeTemp = vacuum.percentCharge;
+                    chargeElem.innerHTML = chargeTemp.toFixed(0);
+                    chargeElem.style.textAlign = "right";
+                }
+                if ('lightIntensity' in vacuum) {
+                    illumTemp = vacuum.lightIntensity;
+                    illumElem.innerHTML = illumTemp.toFixed(0);
+                    illumElem.style.textAlign = "right";
+                }
+                if ('lastUpdate' in vacuum) {
+                    var ageInMinutes = Math.floor(getMinutesAgo(new Date((vacuum.device).lastUpdatedAt)));
+                    console.log("ageInMinutes= ", ageInMinutes);
+                    updatedTemp = ageInMinutes;
+                    updatedElem.innerHTML = updatedTemp.toFixed(0);
+                    updatedElem.style.textAlign = "right";
+                }
+                var vacuumElem = document.getElementById('vacuum_' + vacuum.code);
+                setAgeColor(vacuumElem, vacuum.device);
+            });
+        }
+
+        function displayTemperatures() {
+            devices.forEach(function(device) {
+                var ambientTempElemId = 'device_' + device.name + '_ambientTemp';
+                var enclosureTempElemId = 'device_' + device.name + '_enclosureTemp';
+                var sensorUS100TempElemId = 'device_' + device.name + '_sensorTemp';
+                var lastUpdatedAtElem;
+                var deviceElemId = 'device_' + device.name;
+                if (document.getElementById(deviceElemId) == null) {
+                    var deviceElem = document.createElement("tr");
+                    deviceElem.setAttribute('id', deviceElemId);
+                    document.getElementById('temperaturelist').appendChild(deviceElem);
+
+                    var nameElement = document.createElement("td");
+                    nameElement.innerHTML = device.name;
+                    deviceElem.appendChild(nameElement);
+
+                    ambientTempElem = document.createElement('td');
+                    ambientTempElem.setAttribute('id', ambientTempElemId);
+                    deviceElem.appendChild(ambientTempElem);
+
+                    enclosureTempElem = document.createElement('td');
+                    enclosureTempElem.setAttribute('id', enclosureTempElemId);
+                    deviceElem.appendChild(enclosureTempElem);
+
+                    sensorUS100TempElem = document.createElement('td');
+                    sensorUS100TempElem.setAttribute('id', sensorUS100TempElemId);
+                    deviceElem.appendChild(sensorUS100TempElem);
+                } else {
+                    ambientTempElem = document.getElementById(ambientTempElemId);
+                    enclosureTempElem = document.getElementById(enclosureTempElemId);
+                    sensorUS100TempElem = document.getElementById(sensorUS100TempElemId);
+                }
+
+                ambientTempElem.innerHTML = device.ambientTempElemId;
+                enclosureTempElem.innerHTML = device.enclosureTempElemId;
+                sensorUS100TempElem.innerHTML = device.sensorTemp;
+            });
+        }
+
+        function setIndicatorColor(IndicatorElem, IndicatorValue) {
+            if ((IndicatorValue == "Ouvert") || (IndicatorValue == "Ouverte")) {
+                IndicatorElem.style.backgroundColor = "lime"; // Vert lime
+            } else if (IndicatorValue == "Fermé") {
+                IndicatorElem.style.backgroundColor = "#ff3f3f"; // Rouge
+            } else if (IndicatorValue == "Partiel") {
+                IndicatorElem.style.backgroundColor = "yellow"; // Jaune
+            } else if (IndicatorValue == "Erreur") {
+                IndicatorElem.style.backgroundColor = "#bfbfff"; // Bleu
+            } else if (IndicatorValue == "OFF" || IndicatorValue == 0) {
+                IndicatorElem.style.backgroundColor = "#ff3f3f"; // Rouge
+            } else if (IndicatorValue == "ON" || IndicatorValue == 1) {
+                IndicatorElem.style.backgroundColor = "lime"; // Vert
+            }
+        }
+
+        function setPumpWarning(deviceElem, warningState) {
+            if (warningState) {
+                deviceElem.style.backgroundColor = "orange"; // Alerte orange
             } else {
-              tempExtElem.innerHTML = "---°C";
+                deviceElem.style.backgroundColor = "silver"; // Alerte orange
             }
-          }
         }
-      });
-    }
 
-    function getMinutesAgo(date) {
-      return (Math.abs((Date.now() - new Date(date).getTime()) / 1000 / 60));
-    }
-
-    function displayValves() {
-      valves.forEach(function(valve) {
-        var positionElem;
-        var positionElemId = 'valve_' + valve.code + '_position';
-        var valveElemId = 'valve_' + valve.code;
-        if (document.getElementById(valveElemId) == null) {
-          var valveElem = document.createElement("tr");
-          valveElem.setAttribute('id', valveElemId);
-          document.getElementById('valvelist').appendChild(valveElem);
-
-          var codeElement = document.createElement("td");
-          codeElement.innerHTML = valve.code;
-          valveElem.appendChild(codeElement);
-
-          positionElem = document.createElement('td');
-          positionElem.setAttribute('id', positionElemId);
-          valveElem.appendChild(positionElem);
-        } else {
-          positionElem = document.getElementById(positionElemId);
-        }
-        positionElem.innerHTML = valve.position;
-        setIndicatorColor(positionElem, valve.position);
-        // Copy valve VaEC postion to Autres Valves table
-        if (valve.code == "VaEC") {
-          var VaECElemId = valve.code + "_position";
-          var VaECElem = document.getElementById(VaECElemId);
-          if (typeof VaECElem !== "undefined" && VaECElem !== null) {
-            VaECElem.innerHTML = valve.position;
-            setIndicatorColor(VaECElem, valve.position);
-            var VaECElem = document.getElementById('valve_' + valve.code);
-            setAgeColor(VaECElem, valve.device);
-          }
-        }
-        // Copy valve VaTk postion to Autres Valves table
-        if (valve.code == "VaTk") {
-          var VaTkElemId = valve.code + "_position";
-          var VaTkElem = document.getElementById(VaTkElemId);
-          if (typeof VaTkElem !== "undefined" && VaTkElem !== null) {
-            VaTkElem.innerHTML = valve.position;
-            setIndicatorColor(VaTkElem, valve.position);
-            var VaTkElem = document.getElementById('valve_' + valve.code);
-            setAgeColor(VaTkElem, valve.device);
-          }
-        }
-      });
-    }
-
-    function displayPumps() {
-      var totalRate = 0;
-      var totalVolume = 0;
-      var gph = 0;
-      var pumpDuty = 0;
-      var dateStart;
-      allWaterPumps = [];
-      pumps.forEach(function(pump) {
-        var codeElement;
-        var codeElementId = 'pump_' + pump.code;
-        var stateElem;
-        var stateElemId = 'pump_' + pump.code + '_state';
-        var dutyElem;
-        var dutyElemId = 'pump_' + pump.code + '_duty';
-        var rateElem;
-        var rateElemId = 'pump_' + pump.code + '_rate';
-        var volumeElem;
-        var volumeElemId = 'pump_' + pump.code + '_volume';
-        var pumpElemId = 'pump_' + pump.code;
-        var pumpElem = document.getElementById(pumpElemId);
-        if (document.getElementById(pumpElemId) == null) {
-          var pumpElem = document.createElement("tr");
-          pumpElem.setAttribute('id', pumpElemId);
-          var totalRow = document.getElementById('pumptotalrow');
-          totalRow.parentElement.insertBefore(pumpElem, totalRow);
-
-          codeElement = document.createElement("td");
-          codeElement.innerHTML = pump.code;
-          pumpElem.setAttribute('class', 'pumpcode');
-          pumpElem.appendChild(codeElement);
-
-          stateElem = document.createElement('td');
-          stateElem.setAttribute('id', stateElemId);
-          stateElem.setAttribute('class', 'pumpstate');
-          pumpElem.appendChild(stateElem);
-
-          dutyElem = document.createElement('td');
-          dutyElem.setAttribute('id', dutyElemId);
-          dutyElem.setAttribute('class', 'pumpduty');
-          pumpElem.appendChild(dutyElem);
-
-          rateElem = document.createElement('td');
-          rateElem.setAttribute('id', rateElemId);
-          rateElem.setAttribute('class', 'pumprate');
-          pumpElem.appendChild(rateElem);
-
-          volumeElem = document.createElement('td');
-          volumeElem.setAttribute('id', volumeElemId);
-          volumeElem.setAttribute('class', 'pumpvolume');
-          pumpElem.appendChild(volumeElem);
-        } else {
-          stateElem = document.getElementById(stateElemId);
-          dutyElem = document.getElementById(dutyElemId);
-          rateElem = document.getElementById(rateElemId);
-          volumeElem = document.getElementById(volumeElemId)
-        }
-        setPumpWarning(pumpElem, pump.run2long);
-        stateElem.innerHTML = pump.state ? 'ON' : 'OFF';
-        setIndicatorColor(stateElem, pump.state);
-        if (pump.duty !== undefined) {
-          var rate = (pump.duty * pump.capacity_gph);
-        }
-        if (pump.volume !== undefined) {
-          var volume = Math.abs(pump.volume);
-        }
-        if (pump.code == "P1" || pump.code == "P2" || pump.code == "P3") {
-          totalRate += rate;
-          totalVolume += volume;
-          pumpDuty = (pump.duty * 100).toFixed(1);
-          dutyElem.innerHTML = parseFloat(pumpDuty) || "";
-          rateElem.innerHTML = parseInt(rate) || "";
-          volumeElem.innerHTML = parseInt(volume) || "";
-
-          // Noter l'état de coulée des pompes. Mauvais code
-          if (pump.code == "P1") {
-            allWaterPumps[0] = pump.couleeEnCour;
-            if (allWaterPumps[0]) {
-              dateStart = pump.debutDeCouleeTS;
+        function setAgeColor(displayElem, deviceDevice) {
+            try {
+                var lastUpdatedAtElemId = 'device_' + deviceDevice + '_lastUpdatedAt';
+                if ((typeof lastUpdatedAtElemId !== undefined) || (typeof lastUpdatedAtElemId !== null)) {
+                    var lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
+                    if ((typeof displayElem !== undefined) || (typeof displayElem !== null)) {
+                        displayElem.style.color = lastUpdatedAtElem.style.color;
+                    }
+                }
+            } catch (err) {
+                console.log("lastUpdatedAtElemId: " + lastUpdatedAtElemId + " " + err);
             }
-          } else if (pump.code == "P2") {
-            allWaterPumps[1] = pump.couleeEnCour;
-            if (allWaterPumps[1]) {
-              dateStart = pump.debutDeCouleeTS;
+        }
+
+        function toggleTablesVisibility(thisTable) {
+            var btnElem = document.getElementById(thisTable + "TblBtn");
+            var TableElem = document.getElementById(thisTable);
+            if (TableElem.style.visibility == "hidden") {
+                TableElem.style.visibility = "visible";
+                btnElem.innerHTML = "Cacher les " + thisTable;
+            } else if (TableElem.style.visibility == "visible") {
+                btnElem.innerHTML = "Voir les " + thisTable;
+                TableElem.style.visibility = "hidden";
             }
-          } else if (pump.code == "P3") {
-            allWaterPumps[2] = pump.couleeEnCour;
-            if (allWaterPumps[2]) {
-              dateStart = pump.debutDeCouleeTS;
-            }
-          }
-          // else if (pump.code == "Ptest"){
-          //   allWaterPumps[3] = pump.couleeEnCour;
-          //   if (allWaterPumps[3]){
-          //     dateStart = pump.debutDeCouleeTS;
-          //   }
-          // }
-        }
-        // Set color of line based on device lastUpdatedAt
-        var codeElem = document.getElementById('pump_' + pump.code);
-        setAgeColor(codeElem, pump.device);
-      });
-      checkCouleeEnCour(allWaterPumps, dateStart); // Gérer le message de coulée en cours
-      var totalRateElem = document.getElementById('pumptotalrate');
-      totalRateElem.innerHTML = parseInt(totalRate) || 0;
-      var totalVolumeElem = document.getElementById('volumetotal');
-      totalVolumeElem.innerHTML = parseInt(totalVolume) || 0;
-    }
-
-    function checkCouleeEnCour(allWaterPumps, dateStart) {
-      console.log(JSON.stringify(allWaterPumps));
-      var couleeElem = document.getElementById("coulee");
-      var couleeTextElem = document.getElementById("c_text");
-      var allPumpsCouleeState = allWaterPumps[0] || allWaterPumps[1] || allWaterPumps[2];
-
-      if (allPumpsCouleeState !== undefined && couleeActive !== undefined) {
-
-        if (allPumpsCouleeState !== couleeActive) { // Changement d'état
-          if (allPumpsCouleeState == true) {
-            // console.log("startCouleeCounter: allPumpsCouleeState= " + allPumpsCouleeState + ", couleeActive= " + couleeActive);
-            couleeActive = allPumpsCouleeState;
-            startCouleeCounter(dateStart);
-            couleeTextElem.innerHTML = "Coulée en cours:  ";
-            couleeElem.style.backgroundColor = "yellow";
-            couleeElem.style.color = "black";
-          } else {
-            // console.log("   STOPCouleeCounter: allPumpsCouleeState= " + allPumpsCouleeState + ", couleeActive= " + couleeActive);
-            couleeActive = allPumpsCouleeState;
-            stopCouleeCounter();
-            couleeTextElem.innerHTML = "Coulée terminée:  ";
-            couleeElem.style.backgroundColor = "#9E9E9E";
-          }
-
-        }
-      }
-    }
-
-    function displayVacuum() {
-      vacuums.forEach(function(vacuum) {
-        var vacuumValue = 0;
-        var vacuumTemp = 0;
-        var vacuumCharge = 0;
-        var vacuumIllum = 0;
-        var valueElem;
-        var valueElemId = 'vacuum_' + vacuum.code + '_value';
-        var vacuumElemId = 'vacuum_' + vacuum.code;
-        var tempElemId = 'vacuum_' + vacuum.code + '_temp';
-        var chargeElemId = 'vacuum_' + vacuum.code + '_percentCharge';
-        var illumElemId = 'vacuum_' + vacuum.code + '_lightIntensity';
-        if (document.getElementById(vacuumElemId) == null) {
-          var vacuumElem = document.createElement("tr");
-          vacuumElem.setAttribute('id', vacuumElemId);
-          document.getElementById('vacuumlist').appendChild(vacuumElem);
-
-          var codeElement = document.createElement("td");
-          codeElement.innerHTML = vacuum.label;
-          codeElement.setAttribute('class', 'vacuumcode');
-          vacuumElem.appendChild(codeElement);
-
-          valueElem = document.createElement('td');
-          valueElem.setAttribute('id', valueElemId);
-          valueElem.setAttribute('class', 'vacuumvalue');
-          vacuumElem.appendChild(valueElem);
-
-          // if('temp' in vacuum){
-          tempElem = document.createElement('td');
-          tempElem.setAttribute('id', tempElemId);
-          tempElem.setAttribute('class', 'vacuumtemp');
-          vacuumElem.appendChild(tempElem);
-          // }
-          // if('percentCharge' in vacuum){
-          chargeElem = document.createElement('td');
-          chargeElem.setAttribute('id', chargeElemId);
-          chargeElem.setAttribute('class', 'vacuumtemp');
-          vacuumElem.appendChild(chargeElem);
-          // }
-          // if('percentCharge' in vacuum){
-          illumElem = document.createElement('td');
-          illumElem.setAttribute('id', illumElemId);
-          illumElem.setAttribute('class', 'vacuumtemp');
-          vacuumElem.appendChild(illumElem);
-          // }
-        } else {
-          valueElem = document.getElementById(valueElemId);
-          if ('temp' in vacuum) {
-            tempElem = document.getElementById(tempElemId);
-          }
-          if ('percentCharge' in vacuum) {
-            chargeElem = document.getElementById(chargeElemId);
-          }
-          if ('lightIntensity' in vacuum) {
-            illumElem = document.getElementById(illumElemId);
-          }
-        }
-        vacuumValue = (vacuum.rawValue + vacuum.offset) / 100;
-        valueElem.innerHTML = vacuumValue.toFixed(1);
-        valueElem.style.textAlign = "right";
-        if ('temp' in vacuum) {
-          vacuumTemp = vacuum.temp;
-          tempElem.innerHTML = vacuumTemp.toFixed(1);
-          tempElem.style.textAlign = "right";
-        }
-        if ('percentCharge' in vacuum) {
-          chargeTemp = vacuum.percentCharge;
-          chargeElem.innerHTML = chargeTemp.toFixed(0);
-          chargeElem.style.textAlign = "right";
-        }
-        if ('lightIntensity' in vacuum) {
-          illumTemp = vacuum.lightIntensity;
-          illumElem.innerHTML = illumTemp.toFixed(0);
-          illumElem.style.textAlign = "right";
-        }
-        var vacuumElem = document.getElementById('vacuum_' + vacuum.code);
-        setAgeColor(vacuumElem, vacuum.device);
-      });
-    }
-
-    function displayTemperatures() {
-      devices.forEach(function(device) {
-        var ambientTempElemId = 'device_' + device.name + '_ambientTemp';
-        var enclosureTempElemId = 'device_' + device.name + '_enclosureTemp';
-        var sensorUS100TempElemId = 'device_' + device.name + '_sensorTemp';
-        var lastUpdatedAtElem;
-        var deviceElemId = 'device_' + device.name;
-        if (document.getElementById(deviceElemId) == null) {
-          var deviceElem = document.createElement("tr");
-          deviceElem.setAttribute('id', deviceElemId);
-          document.getElementById('temperaturelist').appendChild(deviceElem);
-
-          var nameElement = document.createElement("td");
-          nameElement.innerHTML = device.name;
-          deviceElem.appendChild(nameElement);
-
-          ambientTempElem = document.createElement('td');
-          ambientTempElem.setAttribute('id', ambientTempElemId);
-          deviceElem.appendChild(ambientTempElem);
-
-          enclosureTempElem = document.createElement('td');
-          enclosureTempElem.setAttribute('id', enclosureTempElemId);
-          deviceElem.appendChild(enclosureTempElem);
-
-          sensorUS100TempElem = document.createElement('td');
-          sensorUS100TempElem.setAttribute('id', sensorUS100TempElemId);
-          deviceElem.appendChild(sensorUS100TempElem);
-        } else {
-          ambientTempElem = document.getElementById(ambientTempElemId);
-          enclosureTempElem = document.getElementById(enclosureTempElemId);
-          sensorUS100TempElem = document.getElementById(sensorUS100TempElemId);
         }
 
-        ambientTempElem.innerHTML = device.ambientTempElemId;
-        enclosureTempElem.innerHTML = device.enclosureTempElemId;
-        sensorUS100TempElem.innerHTML = device.sensorTemp;
-      });
-    }
-
-    function setIndicatorColor(IndicatorElem, IndicatorValue) {
-      if ((IndicatorValue == "Ouvert") || (IndicatorValue == "Ouverte")) {
-        IndicatorElem.style.backgroundColor = "lime"; // Vert lime
-      } else if (IndicatorValue == "Fermé") {
-        IndicatorElem.style.backgroundColor = "#ff3f3f"; // Rouge
-      } else if (IndicatorValue == "Partiel") {
-        IndicatorElem.style.backgroundColor = "yellow"; // Jaune
-      } else if (IndicatorValue == "Erreur") {
-        IndicatorElem.style.backgroundColor = "#bfbfff"; // Bleu
-      } else if (IndicatorValue == "OFF" || IndicatorValue == 0) {
-        IndicatorElem.style.backgroundColor = "#ff3f3f"; // Rouge
-      } else if (IndicatorValue == "ON" || IndicatorValue == 1) {
-        IndicatorElem.style.backgroundColor = "lime"; // Vert
-      }
-    }
-
-    function setPumpWarning(deviceElem, warningState) {
-      if (warningState) {
-        deviceElem.style.backgroundColor = "orange"; // Alerte orange
-      } else {
-        deviceElem.style.backgroundColor = "silver"; // Alerte orange
-      }
-    }
-
-    function setAgeColor(displayElem, deviceDevice) {
-      try {
-        var lastUpdatedAtElemId = 'device_' + deviceDevice + '_lastUpdatedAt';
-        if ((typeof lastUpdatedAtElemId !== undefined) || (typeof lastUpdatedAtElemId !== null)) {
-          var lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
-          if ((typeof displayElem !== undefined) || (typeof displayElem !== null)) {
-            displayElem.style.color = lastUpdatedAtElem.style.color;
-          }
+        // Toggle status color
+        function toggleStatusColor() {
+            var statusElem = document.getElementById("lastestUpdate");
+            statusElem.style.backgroundColor = (statusElem.style.backgroundColor == '' ? '#4CAF50' : '');
+            setTimeout(function() {
+                statusElem.style.backgroundColor = (statusElem.style.backgroundColor == '' ? '#4CAF50' : '');
+            }, 500);
         }
-      } catch (err) {
-        console.log("lastUpdatedAtElemId: " + lastUpdatedAtElemId + " " + err);
-      }
-    }
 
-    function toggleTablesVisibility(thisTable) {
-      var btnElem = document.getElementById(thisTable + "TblBtn");
-      var TableElem = document.getElementById(thisTable);
-      if (TableElem.style.visibility == "hidden") {
-        TableElem.style.visibility = "visible";
-        btnElem.innerHTML = "Cacher les " + thisTable;
-      } else if (TableElem.style.visibility == "visible") {
-        btnElem.innerHTML = "Voir les " + thisTable;
-        TableElem.style.visibility = "hidden";
-      }
-    }
+        function openSocket() {
+            websocket = new WebSocket(wsUri(""), "dashboard-stream");
+            websocket.onopen = function(evt) {
+                console.log('Socket opened.');
+            };
+            websocket.onclose = function(evt) {
+                console.log('Socket closed.');
+                setTimeout(function() {
+                    openSocket();
+                }, 5000);
+            };
+            websocket.onmessage = function(msg) {
+                var data = JSON.parse(msg.data);
+                tankDefs.forEach(function(tankDef, index) {
+                    var tank = data.tanks.filter(function(tankData) {
+                        return tankData.code == tankDef.code;
+                    }).shift();
+                    tankDef.device = tank.device;
+                    tankDef.rawValue = tank.rawValue;
+                    tankDef.contents = (tank.fill == null ? 0 : tank.fill);
+                    tankDef.capacity = tank.capacity;
+                    tankDef.output = tank.output;
+                    tankDef.drain = tank.drain;
+                    // console.log("Tank %s at %d: %s, raw= %s", tankDef.code, index, tankDef.contents, tankDef.rawValue);
 
-    // Toggle status color
-    function toggleStatusColor() {
-      var statusElem = document.getElementById("lastestUpdate");
-      statusElem.style.backgroundColor = (statusElem.style.backgroundColor == '' ? '#4CAF50' : '');
-      setTimeout(function() {
-        statusElem.style.backgroundColor = (statusElem.style.backgroundColor == '' ? '#4CAF50' : '');
-      }, 500);
-    }
+                    devices = data.devices;
+                    valves = data.valves;
+                    vacuums = data.vacuum;
+                    pumps = data.pumps;
+                    // temperatures = data.temperatures;
+                });
+                displayDevices();
+                displayValves();
+                displayTanks();
+                displayPumps();
+                displayVacuum();
+                // displayTemperatures();
+                toggleStatusColor();
+            };
+            websocket.onerror = function(evt) {
+                console.error('Error:' + evt);
+            };
+        }
 
-    function openSocket() {
-      websocket = new WebSocket(wsUri(""), "dashboard-stream");
-      websocket.onopen = function(evt) {
-        console.log('Socket opened.');
-      };
-      websocket.onclose = function(evt) {
-        console.log('Socket closed.');
-        setTimeout(function() {
-          openSocket();
-        }, 5000);
-      };
-      websocket.onmessage = function(msg) {
-        var data = JSON.parse(msg.data);
-        tankDefs.forEach(function(tankDef, index) {
-          var tank = data.tanks.filter(function(tankData) {
-            return tankData.code == tankDef.code;
-          }).shift();
-          tankDef.device = tank.device;
-          tankDef.rawValue = tank.rawValue;
-          tankDef.contents = (tank.fill == null ? 0 : tank.fill);
-          tankDef.capacity = tank.capacity;
-          tankDef.output = tank.output;
-          tankDef.drain = tank.drain;
-          // console.log("Tank %s at %d: %s, raw= %s", tankDef.code, index, tankDef.contents, tankDef.rawValue);
+        var sec = 0;
+        var couleTimer;
 
-          devices = data.devices;
-          valves = data.valves;
-          vacuums = data.vacuum;
-          pumps = data.pumps;
-          // temperatures = data.temperatures;
-        });
-        displayDevices();
-        displayValves();
-        displayTanks();
-        displayPumps();
-        displayVacuum();
-        // displayTemperatures();
-        toggleStatusColor();
-      };
-      websocket.onerror = function(evt) {
-        console.error('Error:' + evt);
-      };
-    }
+        function pad(val) {
+            return val > 9 ? val : "0" + val;
+        }
 
-    var sec = 0;
-    var couleTimer;
+        function startCouleeCounter(date) {
+            couleTimer = setInterval(function() {
+                sec = parseInt(Math.abs((Date.now() / 1e3 - new Date(date).getTime())));
+                var timeStr = "</br> Durée: " + parseInt(sec / 86400, 10);
+                timeStr = timeStr + "j " + pad(parseInt(sec / 3600, 10) % 24);
+                timeStr = timeStr + "h " + pad(parseInt(sec / 60, 10) % 60);
+                timeStr = timeStr + "m " + pad(sec % 60) + "s";
+                document.getElementById("compteurDeTemps").innerHTML = timeStr;
+            }, 1000);
+            // console.log("Affichage début de coulée");
+        }
 
-    function pad(val) {
-      return val > 9 ? val : "0" + val;
-    }
+        function stopCouleeCounter() {
+            clearInterval(couleTimer);
+            document.getElementById("compteurDeTemps").innerHTML = "";
+            // console.log("Affichage fin de coulée");
+        }
 
-    function startCouleeCounter(date) {
-      couleTimer = setInterval(function() {
-        sec = parseInt(Math.abs((Date.now() / 1e3 - new Date(date).getTime())));
-        var timeStr = "</br> Durée: " + parseInt(sec / 86400, 10);
-        timeStr = timeStr + "j " + pad(parseInt(sec / 3600, 10) % 24);
-        timeStr = timeStr + "h " + pad(parseInt(sec / 60, 10) % 60);
-        timeStr = timeStr + "m " + pad(sec % 60) + "s";
-        document.getElementById("compteurDeTemps").innerHTML = timeStr;
-      }, 1000);
-      // console.log("Affichage début de coulée");
-    }
+        // setTimeout(function(){
+        //    window.location.reload(1);
+        // }, 300000);
 
-    function stopCouleeCounter() {
-      clearInterval(couleTimer);
-      document.getElementById("compteurDeTemps").innerHTML = "";
-      // console.log("Affichage fin de coulée");
-    }
-
-    // setTimeout(function(){
-    //    window.location.reload(1);
-    // }, 300000);
-
-    window.addEventListener("load", onLoad, false);
-  </script>
-  <style>
-    body {
-      background-color: #E6E6E6;
-      /*      background-image:url("/images/background.png");
+        window.addEventListener("load", onLoad, false);
+    </script>
+    <style>
+        body {
+            background-color: #E6E6E6;
+            /*      background-image:url("/images/background.png");
 */
-    }
+        }
 
-    background-image {
-      opacity: 0.25;
-      filter: alpha(opacity=25);
-      /* For IE8 and earlier */
-    }
+        background-image {
+            opacity: 0.25;
+            filter: alpha(opacity=25);
+            /* For IE8 and earlier */
+        }
 
-    table {
-      border-style: none;
-      /*border-collapse: collapse;*/
-    }
+        table {
+            border-style: none;
+            /*border-collapse: collapse;*/
+        }
 
-    th,
-    td {
-      border: 1px solid #c6c6c6;
-      padding: 0.2em;
-    }
+        th,
+        td {
+            border: 1px solid #c6c6c6;
+            padding: 0.2em;
+        }
 
-    th.darker,
-    td.darker {
-      background-color: silver;
-    }
+        th.darker,
+        td.darker {
+            background-color: silver;
+        }
 
-    td.lighter,
-    tr.lighter {
-      background-color: #d0d0d0;
-    }
+        td.lighter,
+        tr.lighter {
+            background-color: #d0d0d0;
+        }
 
-    .tankname {
-      background-color: #d0d0d0;
-    }
+        .tank {
+            border-bottom: solid #ffffff;
+        }
 
-    .tank {
-      border-bottom: solid #ffffff;
-    }
+        .V_position,
+        .pumpstate,
+        .tankoutput,
+        .tankdrain {
+            text-align: center;
+        }
 
-    .V_position,
-    .pumpstate,
-    .tankoutput,
-    .tankdrain {
-      text-align: center;
-    }
+        .tankcontents,
+        .tankpercent,
+        .rawvalue,
+        .tankcapacity,
+        .pumpduty,
+        .pumprate,
+        .pumpvolume {
+            text-align: right;
+        }
 
-    .tankcontents,
-    .tankpercent,
-    .rawvalue,
-    .tankcapacity,
-    .pumpduty,
-    .pumprate,
-    .pumpvolume {
-      text-align: right;
-    }
+        .tankname,
+        .tankcontents,
+        .tankpercent,
+        .tankoutput,
+        .tankdrain,
+        .pumpcode,
+        .pumpduty,
+        .pumprate,
+        .vacuumcode,
+        .vacuumvalue,
+        .vacuumtemp,
+        .pumpvolume {
+            background-color: #d0d0d0;
+        }
 
-    .tankcontents,
-    .tankpercent,
-    .tankoutput,
-    .tankdrain,
-    .pumpcode,
-    .pumpduty,
-    .pumprate,
-    .vacuumcode,
-    .vacuumvalue,
-    .vacuumtemp,
-    .pumpvolume {
-      background-color: #d0d0d0;
-    }
-
-    #PVx,
-    #vacuums,
-    #temperatures,
-    #tanks,
-    #valveOther,
-    #valves {
-      float: left;
-      padding-right: 2em;
-    }
-  </style>
+        #PVx,
+        #vacuums,
+        #temperatures,
+        #tanks,
+        #valveOther,
+        #valves {
+            float: left;
+            padding-right: 2em;
+        }
+    </style>
 </head>
 
 <body>
-  <div class="w3-display-container w3-theme w3-mobile" , style="width: 100%; height: 70px; display: inline-block;">
-    <div class="w3-container w3-display-bottommiddle" , style="width: 65%; height: 70px; display: inline-block;">
-      <div class="w3-container w3-display-bottomleftt" , style="width: 33%; height: 70px; display: inline-block;">
-        <h1 class="w3-display-topleft" , style="display: inline-block;">Érablière&nbsp;Brunelle</h1></div>
-      <div class="w3-container w3-display-right" , style="width: 50%; height: 70px;" , id="coulee">
-        <h3 class="w3-display" , style="display: inline; font-weight: bold;" , id="c_text"></h3>
-        <h3 class="w3-display" , style="display: inline;" , id="compteurDeTemps"></h3>
-      </div>
+    <div class="w3-display-container w3-theme w3-mobile" , style="width: 100%; height: 70px; display: inline-block;">
+        <div class="w3-container w3-display-bottommiddle" , style="width: 65%; height: 70px; display: inline-block;">
+            <div class="w3-container w3-display-bottomleftt" , style="width: 33%; height: 70px; display: inline-block;">
+                <h1 class="w3-display-topleft" , style="display: inline-block;">Érablière&nbsp;Brunelle</h1></div>
+            <div class="w3-container w3-display-right" , style="width: 50%; height: 70px;" , id="coulee">
+                <h3 class="w3-display" , style="display: inline; font-weight: bold;" , id="c_text"></h3>
+                <h3 class="w3-display" , style="display: inline;" , id="compteurDeTemps"></h3>
+            </div>
+        </div>
+        <div class="w3-container w3-display-left">
+            <h2 id="tempExt">0&#176;C<br/></h2></div>
+        <div class="w3-container w3-display-right" , style="height: 80px;">
+            <h4 id="lastestUpdate"></h4></div>
     </div>
-    <div class="w3-container w3-display-left">
-      <h2 id="tempExt">0&#176;C<br/></h2></div>
-    <div class="w3-container w3-display-right" , style="height: 80px;">
-      <h4 id="lastestUpdate"></h4></div>
-  </div>
 
-  <div class="w3-container" , style="width: 100%;">
-    <div id="tanks">
-      <h3>Réservoirs</h3>
-      <table id="tanklist">
-        <tr>
-          <th class="darker">Code</th>
-          <th class="darker">Cont.
-            <br/>(gal)</th>
-          <th class="darker">Cont.
-            <br/>(%)</th>
-          <th class="darker">Valve
-            <br/>Sortie</th>
-          <th class="darker">Valve
-            <br/>Drain</th>
-          <th>Lect.
-            <br/>(mm)</th>
-          <th>Max
-            <br/>(gal)</th>
-        </tr>
-      </table>
+    <div class="w3-container" , style="width: 100%;">
+        <div id="tanks">
+            <h3>Réservoirs</h3>
+            <table id="tanklist">
+                <tr>
+                    <th class="darker">Code</th>
+                    <th class="darker">Cont.
+                        <br/>(gal)</th>
+                    <th class="darker">Cont.
+                        <br/>(%)</th>
+                    <th class="darker">Valve
+                        <br/>Sortie</th>
+                    <th class="darker">Valve
+                        <br/>Drain</th>
+                    <th>Lect.
+                        <br/>(mm)</th>
+                    <th>Max
+                        <br/>(gal)</th>
+                </tr>
+            </table>
 
-      <h3>Autres Valves</h3>
-      <table id="autreValves">
-        <tr>
-          <th class="darker">Code</th>
-          <th class="darker">Description</th>
-          <th class="darker">Position</th>
-        </tr>
-        <tr>
-          <td class="lighter">VaEC</td>
-          <td class="lighter">Valve Entré Cabane</td>
-          <td class="lighter V_position" , id="VaEC_position"> </td>
-        </tr>
-        <tr>
-          <td class="lighter">VaTk</td>
-          <td class="lighter">Valve Tanker</td>
-          <td class="lighter V_position" , id="VaTk_position"></td>
-        </tr>
-      </table>
+            <h3>Autres Valves</h3>
+            <table id="autreValves">
+                <tr>
+                    <th class="darker">Code</th>
+                    <th class="darker">Description</th>
+                    <th class="darker">Position</th>
+                </tr>
+                <tr>
+                    <td class="lighter">VaEC</td>
+                    <td class="lighter">Valve Entré Cabane</td>
+                    <td class="lighter V_position" , id="VaEC_position"> </td>
+                </tr>
+                <tr>
+                    <td class="lighter">VaTk</td>
+                    <td class="lighter">Valve Tanker</td>
+                    <td class="lighter V_position" , id="VaTk_position"></td>
+                </tr>
+            </table>
+
+            <h3> </h3>
+            <div class="w3-container">
+                <p></p>
+                <a class="w3-btn" href="/data.json">Données brutes</a>
+                <button id="devicesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('devices')">Cacher les devices</button>
+                <button id="valvesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('valves')">Voir les valves</button>
+            </div>
+
+            <div class="w3-container">
+                <table id="devices" , style="visibility: visible;">
+                    <tr>
+                        <td>
+
+                            <h3>Devices</h3>
+                            <table id="devicelist">
+                                <tr>
+                                    <th class="darker">Name</th>
+                                    <th class="darker">Updated</th>
+                                    <th class="darker">Generation</th>
+                                    <th class="darker">Serial</th>
+                                </tr>
+                            </table>
+
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+        <!-- id="tanks" -->
+
+        <div id="PVx">
+
+            <div id="pumps">
+                <h3>Pompes</h3>
+                <table id="pumplist">
+                    <tr>
+                        <th class="darker">Nom</th>
+                        <th class="darker V_position">Etat</th>
+                        <th class="darker">Util.
+                            <br/>(%)</th>
+                        <th class="darker">Débit
+                            <br/>(GPH)</th>
+                        <th class="darker">Vol.
+                            <br/>(Gal)</th>
+                    </tr>
+                    <tr id="pumptotalrow" , class="lighter">
+                        <td>Total</td>
+                        <td></td>
+                        <td></td>
+                        <td id="pumptotalrate" , class="pumprate" , style="font-weight: bold;"></td>
+                        <td id="volumetotal" , class="pumpvolume" , style="font-weight: bold;"></td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+        <!-- id="PVx" -->
+
+        <div id="vacuums">
+            <h3>Vacuum</h3>
+            <table id="vacuumlist">
+                <tr>
+                    <th class="darker">Nom</th>
+                    <th class="darker">Vac.
+                        <br/>(inHg)</th>
+                    <th class="darker">Temp.
+                        <br/>(°C)</th>
+                    <th class="darker">Batt.
+                        <br/>(%)</th>
+                    <th class="darker">Illum.
+                        <br/>(lm)</th>
+                    <th class="darker">Updated
+                        <br/>(min.)</th>
+                </tr>
+            </table>
+        </div>
+
     </div>
-    <!-- id="tanks" -->
 
-    <div id="PVx">
-
-      <div id="pumps">
-        <h3>Pompes</h3>
-        <table id="pumplist">
-          <tr>
-            <th class="darker">Nom</th>
-            <th class="darker V_position">Etat</th>
-            <th class="darker">Util.
-              <br/>(%)</th>
-            <th class="darker">Débit
-              <br/>(GPH)</th>
-            <th class="darker">Vol.
-              <br/>(Gal)</th>
-          </tr>
-          <tr id="pumptotalrow" , class="lighter">
-            <td>Total</td>
-            <td></td>
-            <td></td>
-            <td id="pumptotalrate" , class="pumprate" , style="font-weight: bold;"></td>
-            <td id="volumetotal" , class="pumpvolume" , style="font-weight: bold;"></td>
-          </tr>
+    <div class="w3-container w3-quarter">
+        <table id="valves" , class="w3-table w3-striped w3-bordered" , style="visibility: hidden;">
+            <tr>
+                <td>
+                    <h3>Valves</h3>
+                    <table id="valvelist">
+                        <tr>
+                            <th>Name</th>
+                            <th id="valvesPos">Position</th>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
         </table>
-      </div>
-
     </div>
-    <!-- id="PVx" -->
-
-    <div id="vacuums">
-      <h3>Vacuum</h3>
-      <table id="vacuumlist">
-        <tr>
-          <th class="darker">Nom</th>
-          <th class="darker">Vac.
-            <br/>(inHg)</th>
-          <th class="darker">Temp.
-            <br/>(°C)</th>
-          <th class="darker">Batt.
-            <br/>(%)</th>
-          <th class="darker">Illum.
-            <br/>(lm)</th>
-          <th class="darker">Updated
-            <br/>(min.)</th>
-        </tr>
-      </table>
-    </div>
-
-  </div>
-
-  <div class="w3-container">
-    <p></p>
-    <a class="w3-btn" href="/data.json">Voir données brutes</a>
-    <button id="devicesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('devices')">Voir les devices</button>
-    <button id="valvesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('valves')">Voir les valves</button>
-  </div>
-
-  <div class="w3-container w3-half">
-    <table id="devices" , class="w3-table w3-striped w3-bordered" , style="visibility: hidden;">
-      <tr>
-        <td>
-
-          <h3>Devices</h3>
-          <table id="devicelist">
-            <tr>
-              <th>Name</th>
-              <th>Updated</th>
-              <th>Generation</th>
-              <th>Serial</th>
-            </tr>
-          </table>
-
-        </td>
-      </tr>
-    </table>
-  </div>
-
-  <div class="w3-container w3-quarter">
-    <table id="valves" , class="w3-table w3-striped w3-bordered" , style="visibility: hidden;">
-      <tr>
-        <td>
-          <h3>Valves</h3>
-          <table id="valvelist">
-            <tr>
-              <th>Name</th>
-              <th id="valvesPos">Position</th>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </div>
 
 </body>
 <footer>
