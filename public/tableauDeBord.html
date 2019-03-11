@@ -96,7 +96,7 @@
           var nameElement = document.createElement("td");
           nameElement.setAttribute('class', 'tankname');
           nameElement.innerHTML = tank.code;
-          if (tank.code == "RS5" || tank.code == "RS6"){
+          if (tank.code == "RS5" || tank.code == "RS6") {
             nameElement.innerHTML = tank.code + " (ph)";
           }
           tankElement.appendChild(nameElement);
@@ -153,7 +153,7 @@
         rawValueElement.innerHTML = tank.rawValue;
         percentElement.innerHTML = tankPercent + " % ";
         contentsElement.innerHTML = liters2gallons(tank.contents);
-        if (tank.rawValue < 5){
+        if (tank.rawValue < 5) {
           contentsElement.innerHTML = "----";
         }
 
@@ -165,22 +165,22 @@
         percentElement.appendChild(gaugeElement);
 
         // Copy the output valve state from the valve table
-        if (tank.output !== "none" && tank.output !== undefined){
+        if (tank.output !== "none" && tank.output !== undefined) {
           var outValveElemId = "valve_" + tank.output + "_position";
           var outValvePosElem = document.getElementById(outValveElemId);
           var outValvePos = outValvePosElem.innerHTML;
-          if (typeof outValvePos !== null){
+          if (typeof outValvePos !== null) {
             outputElement.innerHTML = outValvePos;
             setIndicatorColor(outputElement, outValvePos);
           }
         }
 
         // Copy the drain valve state from the valve table
-        if (tank.drain !== "none" && tank.drain !== undefined){
+        if (tank.drain !== "none" && tank.drain !== undefined) {
           var drainValveElemId = "valve_" + tank.drain + "_position";
           var drainValvePosElem = document.getElementById(drainValveElemId);
           var drainValvePos = drainValvePosElem.innerHTML;
-          if (typeof drainValvePos !== null){
+          if (typeof drainValvePos !== null) {
             drainElement.innerHTML = drainValvePos;
             setIndicatorColor(drainElement, drainValvePos);
           }
@@ -192,16 +192,16 @@
       });
       $(".tankgauge").peity("pie", {
         "fill": function(value, index, values) {
-            if (index > 0){
-                return "#eeeeee";
-            }
-            if (values[0] > 90){
-                return "red";
-            }
-            if (values[0] > 75){
-                return "orange";
-            }
-            return "green";
+          if (index > 0) {
+            return "#eeeeee";
+          }
+          if (values[0] > 90) {
+            return "red";
+          }
+          if (values[0] > 75) {
+            return "orange";
+          }
+          return "green";
         }
       });
 
@@ -212,7 +212,7 @@
       var ageDisplayTop = '';
       devices.forEach(function(device) {
         if (device.retired) {
-            return;
+          return;
         }
         var lastUpdatedAtElemId = 'device_' + device.name + '_lastUpdatedAt';
         var generationElemId = 'device_' + device.name + '_generationId';
@@ -251,7 +251,7 @@
         } else if (ageInMinutes > 0) {
           ageDisplay = ageInMinutes + ' min.';
         }
-        if (ageInMinutes > device.maxDelayMinutes || ageDisplay == '?'){
+        if (ageInMinutes > device.maxDelayMinutes || ageDisplay == '?') {
           lastUpdatedAtElem.style.color = "FireBrick";
         } else {
           lastUpdatedAtElem.style.color = "black";
@@ -266,7 +266,7 @@
         ageDisplayTop = oldestAge + ' min.';
         // console.log('oldestAge: ' + oldestAge + ', ageDisplayTop; ' + ageDisplayTop);
         var lastestUpdateElement = document.getElementById("lastestUpdate");
-        if (oldestAge > device.maxDelayMinutes){
+        if (oldestAge > device.maxDelayMinutes) {
           lastestUpdateElement.innerHTML = 'Délais:</br>anormal';
           lastestUpdateElement.style.color = "FireBrick";
         } else {
@@ -276,10 +276,10 @@
         }
 
         // Display outside temperature if available on device RS1
-        if (device.name.includes("RS1")){
+        if (device.name.includes("RS1")) {
           var tempExtElem = document.getElementById("tempExt");
           if (typeof tempExtElem !== "undefined" && tempExtElem !== null) {
-            if (device.ambientTemp !== undefined && device.ambientTemp !== 99 && device.ambientTemp !== -127){
+            if (device.ambientTemp !== undefined && device.ambientTemp !== 99 && device.ambientTemp !== -127) {
               tempExtElem.innerHTML = device.ambientTemp + "°C";
             } else {
               tempExtElem.innerHTML = "---°C";
@@ -290,7 +290,7 @@
     }
 
     function getMinutesAgo(date) {
-      return(Math.abs((Date.now() - new Date(date).getTime()) / 1000 / 60));
+      return (Math.abs((Date.now() - new Date(date).getTime()) / 1000 / 60));
     }
 
     function displayValves() {
@@ -316,7 +316,7 @@
         positionElem.innerHTML = valve.position;
         setIndicatorColor(positionElem, valve.position);
         // Copy valve VaEC postion to Autres Valves table
-        if (valve.code == "VaEC"){
+        if (valve.code == "VaEC") {
           var VaECElemId = valve.code + "_position";
           var VaECElem = document.getElementById(VaECElemId);
           if (typeof VaECElem !== "undefined" && VaECElem !== null) {
@@ -327,10 +327,10 @@
           }
         }
         // Copy valve VaTk postion to Autres Valves table
-        if (valve.code == "VaTk"){
+        if (valve.code == "VaTk") {
           var VaTkElemId = valve.code + "_position";
           var VaTkElem = document.getElementById(VaTkElemId);
-          if (typeof VaTkElem !== "undefined" && VaTkElem !== null){
+          if (typeof VaTkElem !== "undefined" && VaTkElem !== null) {
             VaTkElem.innerHTML = valve.position;
             setIndicatorColor(VaTkElem, valve.position);
             var VaTkElem = document.getElementById('valve_' + valve.code);
@@ -399,9 +399,13 @@
         setPumpWarning(pumpElem, pump.run2long);
         stateElem.innerHTML = pump.state ? 'ON' : 'OFF';
         setIndicatorColor(stateElem, pump.state);
-        if (pump.duty !== undefined){var rate = (pump.duty * pump.capacity_gph);}
-        if (pump.volume !== undefined){var volume = Math.abs(pump.volume);}
-        if (pump.code == "P1" || pump.code == "P2" || pump.code == "P3"){
+        if (pump.duty !== undefined) {
+          var rate = (pump.duty * pump.capacity_gph);
+        }
+        if (pump.volume !== undefined) {
+          var volume = Math.abs(pump.volume);
+        }
+        if (pump.code == "P1" || pump.code == "P2" || pump.code == "P3") {
           totalRate += rate;
           totalVolume += volume;
           pumpDuty = (pump.duty * 100).toFixed(1);
@@ -409,22 +413,20 @@
           rateElem.innerHTML = parseInt(rate) || "";
           volumeElem.innerHTML = parseInt(volume) || "";
 
-// Noter l'état de coulée des pompes. Mauvais code
-          if (pump.code == "P1"){
+          // Noter l'état de coulée des pompes. Mauvais code
+          if (pump.code == "P1") {
             allWaterPumps[0] = pump.couleeEnCour;
-            if (allWaterPumps[0]){
+            if (allWaterPumps[0]) {
               dateStart = pump.debutDeCouleeTS;
             }
-          }
-          else if (pump.code == "P2"){
+          } else if (pump.code == "P2") {
             allWaterPumps[1] = pump.couleeEnCour;
-            if (allWaterPumps[1]){
+            if (allWaterPumps[1]) {
               dateStart = pump.debutDeCouleeTS;
             }
-          }
-          else if (pump.code == "P3"){
+          } else if (pump.code == "P3") {
             allWaterPumps[2] = pump.couleeEnCour;
-            if (allWaterPumps[2]){
+            if (allWaterPumps[2]) {
               dateStart = pump.debutDeCouleeTS;
             }
           }
@@ -446,16 +448,16 @@
       totalVolumeElem.innerHTML = parseInt(totalVolume) || 0;
     }
 
-    function checkCouleeEnCour(allWaterPumps, dateStart){
+    function checkCouleeEnCour(allWaterPumps, dateStart) {
       console.log(JSON.stringify(allWaterPumps));
       var couleeElem = document.getElementById("coulee");
       var couleeTextElem = document.getElementById("c_text");
       var allPumpsCouleeState = allWaterPumps[0] || allWaterPumps[1] || allWaterPumps[2];
 
-      if (allPumpsCouleeState !== undefined && couleeActive !== undefined){
+      if (allPumpsCouleeState !== undefined && couleeActive !== undefined) {
 
-        if (allPumpsCouleeState !== couleeActive){ // Changement d'état
-          if (allPumpsCouleeState == true){
+        if (allPumpsCouleeState !== couleeActive) { // Changement d'état
+          if (allPumpsCouleeState == true) {
             // console.log("startCouleeCounter: allPumpsCouleeState= " + allPumpsCouleeState + ", couleeActive= " + couleeActive);
             couleeActive = allPumpsCouleeState;
             startCouleeCounter(dateStart);
@@ -521,24 +523,30 @@
           // }
         } else {
           valueElem = document.getElementById(valueElemId);
-          if('temp' in vacuum) {tempElem = document.getElementById(tempElemId);}
-          if('percentCharge' in vacuum) {chargeElem = document.getElementById(chargeElemId);}
-          if('lightIntensity' in vacuum) {illumElem = document.getElementById(illumElemId);}
+          if ('temp' in vacuum) {
+            tempElem = document.getElementById(tempElemId);
+          }
+          if ('percentCharge' in vacuum) {
+            chargeElem = document.getElementById(chargeElemId);
+          }
+          if ('lightIntensity' in vacuum) {
+            illumElem = document.getElementById(illumElemId);
+          }
         }
         vacuumValue = (vacuum.rawValue + vacuum.offset) / 100;
         valueElem.innerHTML = vacuumValue.toFixed(1);
         valueElem.style.textAlign = "right";
-        if('temp' in vacuum){
+        if ('temp' in vacuum) {
           vacuumTemp = vacuum.temp;
           tempElem.innerHTML = vacuumTemp.toFixed(1);
           tempElem.style.textAlign = "right";
         }
-        if('percentCharge' in vacuum){
+        if ('percentCharge' in vacuum) {
           chargeTemp = vacuum.percentCharge;
           chargeElem.innerHTML = chargeTemp.toFixed(0);
           chargeElem.style.textAlign = "right";
         }
-        if('lightIntensity' in vacuum){
+        if ('lightIntensity' in vacuum) {
           illumTemp = vacuum.lightIntensity;
           illumElem.innerHTML = illumTemp.toFixed(0);
           illumElem.style.textAlign = "right";
@@ -587,24 +595,24 @@
       });
     }
 
-    function setIndicatorColor(IndicatorElem, IndicatorValue){
+    function setIndicatorColor(IndicatorElem, IndicatorValue) {
       if ((IndicatorValue == "Ouvert") || (IndicatorValue == "Ouverte")) {
-          IndicatorElem.style.backgroundColor = "lime"; // Vert lime
-        } else if (IndicatorValue == "Fermé"){
-          IndicatorElem.style.backgroundColor = "#ff3f3f"; // Rouge
-        } else if (IndicatorValue == "Partiel"){
-          IndicatorElem.style.backgroundColor = "yellow"; // Jaune
-        } else if (IndicatorValue == "Erreur"){
-          IndicatorElem.style.backgroundColor = "#bfbfff"; // Bleu
-        } else if (IndicatorValue == "OFF" || IndicatorValue == 0){
-          IndicatorElem.style.backgroundColor = "#ff3f3f"; // Rouge
-        } else if (IndicatorValue == "ON" || IndicatorValue == 1){
-          IndicatorElem.style.backgroundColor = "lime"; // Vert
+        IndicatorElem.style.backgroundColor = "lime"; // Vert lime
+      } else if (IndicatorValue == "Fermé") {
+        IndicatorElem.style.backgroundColor = "#ff3f3f"; // Rouge
+      } else if (IndicatorValue == "Partiel") {
+        IndicatorElem.style.backgroundColor = "yellow"; // Jaune
+      } else if (IndicatorValue == "Erreur") {
+        IndicatorElem.style.backgroundColor = "#bfbfff"; // Bleu
+      } else if (IndicatorValue == "OFF" || IndicatorValue == 0) {
+        IndicatorElem.style.backgroundColor = "#ff3f3f"; // Rouge
+      } else if (IndicatorValue == "ON" || IndicatorValue == 1) {
+        IndicatorElem.style.backgroundColor = "lime"; // Vert
       }
     }
 
-    function setPumpWarning(deviceElem, warningState){
-      if (warningState){
+    function setPumpWarning(deviceElem, warningState) {
+      if (warningState) {
         deviceElem.style.backgroundColor = "orange"; // Alerte orange
       } else {
         deviceElem.style.backgroundColor = "silver"; // Alerte orange
@@ -614,35 +622,34 @@
     function setAgeColor(displayElem, deviceDevice) {
       try {
         var lastUpdatedAtElemId = 'device_' + deviceDevice + '_lastUpdatedAt';
-        if ((typeof lastUpdatedAtElemId !== undefined) || (typeof lastUpdatedAtElemId !== null)){
+        if ((typeof lastUpdatedAtElemId !== undefined) || (typeof lastUpdatedAtElemId !== null)) {
           var lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
-          if ((typeof displayElem !== undefined) || (typeof displayElem !== null)){
+          if ((typeof displayElem !== undefined) || (typeof displayElem !== null)) {
             displayElem.style.color = lastUpdatedAtElem.style.color;
           }
         }
-      }
-      catch(err) {
+      } catch (err) {
         console.log("lastUpdatedAtElemId: " + lastUpdatedAtElemId + " " + err);
       }
     }
 
-    function toggleTablesVisibility(thisTable){
+    function toggleTablesVisibility(thisTable) {
       var btnElem = document.getElementById(thisTable + "TblBtn");
       var TableElem = document.getElementById(thisTable);
-      if (TableElem.style.visibility == "hidden"){
+      if (TableElem.style.visibility == "hidden") {
         TableElem.style.visibility = "visible";
         btnElem.innerHTML = "Cacher les " + thisTable;
-      } else if(TableElem.style.visibility == "visible"){
+      } else if (TableElem.style.visibility == "visible") {
         btnElem.innerHTML = "Voir les " + thisTable;
         TableElem.style.visibility = "hidden";
       }
     }
 
     // Toggle status color
-    function toggleStatusColor(){
+    function toggleStatusColor() {
       var statusElem = document.getElementById("lastestUpdate");
       statusElem.style.backgroundColor = (statusElem.style.backgroundColor == '' ? '#4CAF50' : '');
-      setTimeout(function(){
+      setTimeout(function() {
         statusElem.style.backgroundColor = (statusElem.style.backgroundColor == '' ? '#4CAF50' : '');
       }, 500);
     }
@@ -694,23 +701,25 @@
     var sec = 0;
     var couleTimer;
 
-    function pad ( val ) { return val > 9 ? val : "0" + val; }
+    function pad(val) {
+      return val > 9 ? val : "0" + val;
+    }
 
-    function startCouleeCounter(date){
-      couleTimer = setInterval( function(){
-        sec = parseInt(Math.abs((Date.now()/1e3 - new Date(date).getTime())));
-        var timeStr = "</br> Durée: " + parseInt(sec/86400,10);
-        timeStr = timeStr + "j " + pad(parseInt(sec/3600,10)%24);
-        timeStr = timeStr + "h " + pad(parseInt(sec/60,10)%60);
-        timeStr = timeStr + "m " + pad(sec%60) + "s";
-        document.getElementById("compteurDeTemps").innerHTML= timeStr;
+    function startCouleeCounter(date) {
+      couleTimer = setInterval(function() {
+        sec = parseInt(Math.abs((Date.now() / 1e3 - new Date(date).getTime())));
+        var timeStr = "</br> Durée: " + parseInt(sec / 86400, 10);
+        timeStr = timeStr + "j " + pad(parseInt(sec / 3600, 10) % 24);
+        timeStr = timeStr + "h " + pad(parseInt(sec / 60, 10) % 60);
+        timeStr = timeStr + "m " + pad(sec % 60) + "s";
+        document.getElementById("compteurDeTemps").innerHTML = timeStr;
       }, 1000);
       // console.log("Affichage début de coulée");
     }
 
-    function stopCouleeCounter(){
+    function stopCouleeCounter() {
       clearInterval(couleTimer);
-      document.getElementById("compteurDeTemps").innerHTML="";
+      document.getElementById("compteurDeTemps").innerHTML = "";
       // console.log("Affichage fin de coulée");
     }
 
@@ -719,17 +728,18 @@
     // }, 300000);
 
     window.addEventListener("load", onLoad, false);
-
   </script>
   <style>
     body {
       background-color: #E6E6E6;
-/*      background-image:url("/images/background.png");
-*/    }
+      /*      background-image:url("/images/background.png");
+*/
+    }
 
     background-image {
-        opacity: 0.25;
-        filter: alpha(opacity=25); /* For IE8 and earlier */
+      opacity: 0.25;
+      filter: alpha(opacity=25);
+      /* For IE8 and earlier */
     }
 
     table {
@@ -764,7 +774,7 @@
     .V_position,
     .pumpstate,
     .tankoutput,
-    .tankdrain{
+    .tankdrain {
       text-align: center;
     }
 
@@ -801,25 +811,26 @@
       float: left;
       padding-right: 2em;
     }
-
   </style>
 </head>
 
 <body>
-  <div class="w3-display-container w3-theme w3-mobile", style="width: 100%; height: 70px; display: inline-block;">
-    <div class="w3-container w3-display-bottommiddle", style="width: 65%; height: 70px; display: inline-block;">
-      <div class="w3-container w3-display-bottomleftt", style="width: 33%; height: 70px; display: inline-block;">
-        <h1 class="w3-display-topleft", style="display: inline-block;">Érablière&nbsp;Brunelle</h1></div>
-      <div class="w3-container w3-display-right", style="width: 50%; height: 70px;", id="coulee">
-        <h3 class="w3-display", style="display: inline; font-weight: bold;", id="c_text"></h3>
-        <h3 class="w3-display", style="display: inline;", id="compteurDeTemps"></h3>
+  <div class="w3-display-container w3-theme w3-mobile" , style="width: 100%; height: 70px; display: inline-block;">
+    <div class="w3-container w3-display-bottommiddle" , style="width: 65%; height: 70px; display: inline-block;">
+      <div class="w3-container w3-display-bottomleftt" , style="width: 33%; height: 70px; display: inline-block;">
+        <h1 class="w3-display-topleft" , style="display: inline-block;">Érablière&nbsp;Brunelle</h1></div>
+      <div class="w3-container w3-display-right" , style="width: 50%; height: 70px;" , id="coulee">
+        <h3 class="w3-display" , style="display: inline; font-weight: bold;" , id="c_text"></h3>
+        <h3 class="w3-display" , style="display: inline;" , id="compteurDeTemps"></h3>
       </div>
     </div>
-    <div class="w3-container w3-display-left"><h2 id="tempExt">0&#176;C<br/></h2></div>
-    <div class="w3-container w3-display-right", style="height: 80px;"><h4 id="lastestUpdate"></h4></div>
+    <div class="w3-container w3-display-left">
+      <h2 id="tempExt">0&#176;C<br/></h2></div>
+    <div class="w3-container w3-display-right" , style="height: 80px;">
+      <h4 id="lastestUpdate"></h4></div>
   </div>
 
-  <div class="w3-container", style="width: 100%;">
+  <div class="w3-container" , style="width: 100%;">
     <div id="tanks">
       <h3>Réservoirs</h3>
       <table id="tanklist">
@@ -841,7 +852,7 @@
       </table>
 
       <h3>Autres Valves</h3>
-      <table id="autreValves" >
+      <table id="autreValves">
         <tr>
           <th class="darker">Code</th>
           <th class="darker">Description</th>
@@ -850,15 +861,16 @@
         <tr>
           <td class="lighter">VaEC</td>
           <td class="lighter">Valve Entré Cabane</td>
-          <td class="lighter V_position", id="VaEC_position"> </td>
+          <td class="lighter V_position" , id="VaEC_position"> </td>
         </tr>
         <tr>
           <td class="lighter">VaTk</td>
           <td class="lighter">Valve Tanker</td>
-          <td  class="lighter V_position", id="VaTk_position"></td>
+          <td class="lighter V_position" , id="VaTk_position"></td>
         </tr>
       </table>
-  </div> <!-- id="tanks" -->
+    </div>
+    <!-- id="tanks" -->
 
     <div id="PVx">
 
@@ -872,49 +884,52 @@
               <br/>(%)</th>
             <th class="darker">Débit
               <br/>(GPH)</th>
-              <th class="darker">Vol.
-                <br/>(Gal)</th>
+            <th class="darker">Vol.
+              <br/>(Gal)</th>
           </tr>
-          <tr id="pumptotalrow", class="lighter">
+          <tr id="pumptotalrow" , class="lighter">
             <td>Total</td>
             <td></td>
             <td></td>
-            <td id="pumptotalrate", class="pumprate", style="font-weight: bold;"></td>
-            <td id="volumetotal", class="pumpvolume", style="font-weight: bold;"></td>
+            <td id="pumptotalrate" , class="pumprate" , style="font-weight: bold;"></td>
+            <td id="volumetotal" , class="pumpvolume" , style="font-weight: bold;"></td>
           </tr>
         </table>
       </div>
 
-    </div> <!-- id="PVx" -->
+    </div>
+    <!-- id="PVx" -->
 
-      <div id="vacuums">
-        <h3>Vacuum</h3>
-        <table id="vacuumlist">
-          <tr>
-            <th class="darker">Nom</th>
-            <th class="darker">Vac.
-              <br/>(inHg)</th>
-            <th class="darker">Temp.
-              <br/>(°C)</th>
-            <th class="darker">Batt.
-              <br/>(%)</th>
-            <th class="darker">Illum.
-              <br/>(?)</th>
-          </tr>
-        </table>
-      </div>
+    <div id="vacuums">
+      <h3>Vacuum</h3>
+      <table id="vacuumlist">
+        <tr>
+          <th class="darker">Nom</th>
+          <th class="darker">Vac.
+            <br/>(inHg)</th>
+          <th class="darker">Temp.
+            <br/>(°C)</th>
+          <th class="darker">Batt.
+            <br/>(%)</th>
+          <th class="darker">Illum.
+            <br/>(lm)</th>
+          <th class="darker">Updated
+            <br/>(min.)</th>
+        </tr>
+      </table>
+    </div>
 
   </div>
 
   <div class="w3-container">
     <p></p>
     <a class="w3-btn" href="/data.json">Voir données brutes</a>
-    <button id="devicesTblBtn", class="w3-btn" onclick="toggleTablesVisibility('devices')">Voir les devices</button>
-    <button id="valvesTblBtn", class="w3-btn" onclick="toggleTablesVisibility('valves')">Voir les valves</button>
+    <button id="devicesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('devices')">Voir les devices</button>
+    <button id="valvesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('valves')">Voir les valves</button>
   </div>
 
   <div class="w3-container w3-half">
-    <table id="devices", class="w3-table w3-striped w3-bordered", style="visibility: hidden;">
+    <table id="devices" , class="w3-table w3-striped w3-bordered" , style="visibility: hidden;">
       <tr>
         <td>
 
@@ -934,7 +949,7 @@
   </div>
 
   <div class="w3-container w3-quarter">
-    <table id="valves", class="w3-table w3-striped w3-bordered", style="visibility: hidden;">
+    <table id="valves" , class="w3-table w3-striped w3-bordered" , style="visibility: hidden;">
       <tr>
         <td>
           <h3>Valves</h3>
