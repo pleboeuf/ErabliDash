@@ -172,6 +172,45 @@ function outputPression(station) {
 }
 //
 function calcule(station) {
+    if (DebugON)
+        console.log("debut aller chercher " + station);
+    var resultat2 = "";
+    
+       var stationid = "5909403";
+    var APIKEY = "4a3e4adc983d218bf0c6346641cc5509";
+    var url1 = "./bromontMeteo.json";
+    var url2 = "http://api.openweathermap.org/data/2.5/weather?id="+stationid+"&APPID="+APIKEY;
+ var today = new Date().toLocaleDateString();
+
+    try{
+    $.when($.ajax(url2).done(function (meteo) {
+         var temp_c = meteo.main.temp - 273.15 ;
+         var pressure_mb = meteo.main.pressure ;
+//         console.log(temp.toFixed(1) + " " + pressure);
+         
+       
+//                var observation = parsed_json['current_observation']['observation_time'];
+//                observation = observation.replace("Last Updated on ", "");
+                var ebulition = TempEbulition(pressure_mb / 10.0);
+                var ebuSirop = ebulition + 4;  // ajoute 4 pour sirop
+                var ebuSiropF = CtoF(ebuSirop);
+                resultat2 = today + "</br> " + pressure_mb.toFixed(0) + " mb " + " ext " +
+                        temp_c.toFixed(1) + " oC </br>" +
+                        +ebuSiropF.toFixed(1) + " oF " ;
+                $('#Pression_temperature').html(resultat2);   // met a jour le boutton Pression_temperature dans html
+
+   })); 
+    }catch (err) {
+                console.log(" erreur meteostation");
+            }
+        console.log("fini"); 
+
+
+    return(resultat2);
+
+}
+
+function oldcalcule(station) {
     if (DebugON) console.log("debut " + station);
     var resultat2 = "";
     $.ajax({
@@ -251,7 +290,7 @@ function TempEbulition(kPa) {
     //
     var K = 273.15;  // 0 C en deg kelvin
     var mmHg_kPa = 7.500615613;   // 1 kPa en mmHg
-    var P = kPa * mmHg_kPa;
+    var P = kPa ;// ;* mmHg_kPa;
     var temp = ((-5132) / (Math.log(P) - 20.386)) - K;
     // source https://en.wikipedia.org/wiki/Vapour_pressure_of_water
     // P(mmHg) = exp(20.386 - 5132/T)
