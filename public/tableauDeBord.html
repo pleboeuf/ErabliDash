@@ -453,7 +453,7 @@
         }
 
         function checkCouleeEnCour(allWaterPumps, dateStart) {
-            console.log(JSON.stringify(allWaterPumps));
+            // console.log(JSON.stringify(allWaterPumps));
             var couleeElem = document.getElementById("coulee");
             var couleeTextElem = document.getElementById("c_text");
             var allPumpsCouleeState = allWaterPumps[0] || allWaterPumps[1] || allWaterPumps[2];
@@ -492,6 +492,7 @@
                 var tempElemId = 'vacuum_' + vacuum.code + '_temp';
                 var chargeElemId = 'vacuum_' + vacuum.code + '_percentCharge';
                 var illumElemId = 'vacuum_' + vacuum.code + '_lightIntensity';
+                var rssiElemId = 'vacuum_' + vacuum.code + '_rssi';
                 var updatedElemId = 'vacuum_' + vacuum.code + '_lastUpdate';
                 if (document.getElementById(vacuumElemId) == null) {
                     var vacuumElem = document.createElement("tr");
@@ -526,6 +527,12 @@
                     illumElem.setAttribute('class', 'vacuumtemp');
                     vacuumElem.appendChild(illumElem);
                     // }
+                    // if('rssi' in vacuum){
+                    rssiElem = document.createElement('td');
+                    rssiElem.setAttribute('id', rssiElemId);
+                    rssiElem.setAttribute('class', 'vacuumtemp');
+                    vacuumElem.appendChild(rssiElem);
+                    // }
                     // if('lastUpdate' in vacuum){
                     updatedElem = document.createElement('td');
                     updatedElem.setAttribute('id', updatedElemId);
@@ -543,6 +550,9 @@
                     if ('lightIntensity' in vacuum) {
                         illumElem = document.getElementById(illumElemId);
                     }
+                    if ('rssi' in vacuum) {
+                        rssiElem = document.getElementById(rssiElemId);
+                    }
                     if ('lastUpdate' in vacuum) {
                         updatedElem = document.getElementById(updatedElemId);
                     }
@@ -551,29 +561,39 @@
                 valueElem.innerHTML = vacuumValue.toFixed(1);
                 valueElem.style.textAlign = "right";
                 if ('temp' in vacuum) {
-                    vacuumTemp = vacuum.temp;
+                    var vacuumTemp = vacuum.temp;
                     tempElem.innerHTML = vacuumTemp.toFixed(1);
                     tempElem.style.textAlign = "right";
                 }
                 if ('percentCharge' in vacuum) {
-                    chargeTemp = vacuum.percentCharge;
+                    var chargeTemp = vacuum.percentCharge;
                     chargeElem.innerHTML = chargeTemp.toFixed(0);
                     chargeElem.style.textAlign = "right";
                 }
                 if ('lightIntensity' in vacuum) {
-                    illumTemp = vacuum.lightIntensity;
+                    var illumTemp = vacuum.lightIntensity;
                     illumElem.innerHTML = illumTemp.toFixed(0);
                     illumElem.style.textAlign = "right";
                 }
+                if ('rssi' in vacuum) {
+                    var signalTemp = "" + vacuum.rssi + ", ?";
+                    if ('signalQual' in vacuum) {
+                        signalTemp = "" + vacuum.rssi + ", " + vacuum.signalQual;
+                    }
+                    rssiElem.innerHTML = signalTemp;
+                    rssiElem.style.textAlign = "right";
+                }
                 if ('lastUpdate' in vacuum) {
                     var ageInMinutes = Math.floor(getMinutesAgo(new Date((vacuum.device).lastUpdatedAt)));
-                    console.log("ageInMinutes= ", ageInMinutes);
+                    // console.log("ageInMinutes= ", ageInMinutes);
                     updatedTemp = ageInMinutes;
                     updatedElem.innerHTML = updatedTemp.toFixed(0);
                     updatedElem.style.textAlign = "right";
                 }
                 var vacuumElem = document.getElementById('vacuum_' + vacuum.code);
                 setAgeColor(vacuumElem, vacuum.device);
+                updatedElem = document.getElementById(updatedElemId);
+                setAgeLineVacuum(updatedElem, vacuum.device);
             });
         }
 
@@ -647,6 +667,20 @@
                     var lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
                     if ((typeof displayElem !== undefined) || (typeof displayElem !== null)) {
                         displayElem.style.color = lastUpdatedAtElem.style.color;
+                    }
+                }
+            } catch (err) {
+                console.log("lastUpdatedAtElemId: " + lastUpdatedAtElemId + " " + err);
+            }
+        }
+
+        function setAgeLineVacuum(displayElem, deviceDevice) {
+            try {
+                var lastUpdatedAtElemId = 'device_' + deviceDevice + '_lastUpdatedAt';
+                if ((typeof lastUpdatedAtElemId !== undefined) || (typeof lastUpdatedAtElemId !== null)) {
+                    var lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
+                    if ((typeof displayElem !== undefined) || (typeof displayElem !== null)) {
+                        displayElem.innerHTML = lastUpdatedAtElem.innerHTML;
                     }
                 }
             } catch (err) {
@@ -744,9 +778,9 @@
             // console.log("Affichage fin de coulée");
         }
 
-        // setTimeout(function(){
-        //    window.location.reload(1);
-        // }, 300000);
+    //     setTimeout(function(){
+    //        window.location.reload(1);
+    //    }, 3600000);
 
         window.addEventListener("load", onLoad, false);
     </script>
@@ -869,51 +903,51 @@
                 </tr>
             </table>
 
-            <h3>Autres Valves</h3>
-            <table id="autreValves">
-                <tr>
-                    <th class="darker">Code</th>
-                    <th class="darker">Description</th>
-                    <th class="darker">Position</th>
-                </tr>
-                <tr>
-                    <td class="lighter">VaEC</td>
-                    <td class="lighter">Valve Entré Cabane</td>
-                    <td class="lighter V_position" , id="VaEC_position"> </td>
-                </tr>
-                <tr>
-                    <td class="lighter">VaTk</td>
-                    <td class="lighter">Valve Tanker</td>
-                    <td class="lighter V_position" , id="VaTk_position"></td>
-                </tr>
-            </table>
-
-            <h3> </h3>
-            <div class="w3-container">
-                <p></p>
-                <a class="w3-btn" href="/data.json">Données brutes</a>
-                <button id="devicesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('devices')">Cacher les devices</button>
-                <button id="valvesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('valves')">Voir les valves</button>
-            </div>
-
-            <div class="w3-container">
-                <table id="devices" , style="visibility: visible;">
+            <!-- <div class="w3-container" , style="width: 50%;"> -->
+                <h3>Autres Valves</h3>
+                <table id="autreValves">
                     <tr>
-                        <td>
-
-                            <h3>Devices</h3>
-                            <table id="devicelist">
-                                <tr>
-                                    <th class="darker">Name</th>
-                                    <th class="darker">Updated</th>
-                                    <th class="darker">Generation</th>
-                                    <th class="darker">Serial</th>
-                                </tr>
-                            </table>
-
-                        </td>
+                        <th class="darker">Code</th>
+                        <th class="darker">Description</th>
+                        <th class="darker">Position</th>
+                    </tr>
+                    <tr>
+                        <td class="lighter">VaEC</td>
+                        <td class="lighter">Valve Entré Cabane</td>
+                        <td class="lighter V_position" , id="VaEC_position"> </td>
+                    </tr>
+                    <tr>
+                        <td class="lighter">VaTk</td>
+                        <td class="lighter">Valve Tanker</td>
+                        <td class="lighter V_position" , id="VaTk_position"></td>
                     </tr>
                 </table>
+            <!-- </div> -->
+
+            <h3>
+
+            </h3>
+            <p></p>
+            <a class="w3-btn" href="/data.json">Données brutes</a>
+            <button id="devicesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('devices')">Cacher les devices</button>
+            <button id="valvesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('valves')">Voir les valves</button>
+
+            <div id="devices" , style="visibility: visible;">
+                <tr>
+                    <td>
+
+                        <h3>Devices</h3>
+                        <table id="devicelist">
+                            <tr>
+                                <th class="darker">Name</th>
+                                <th class="darker">Updated</th>
+                                <th class="darker">Generation</th>
+                                <th class="darker">Serial</th>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
             </div>
 
         </div>
@@ -960,8 +994,10 @@
                         <br/>(%)</th>
                     <th class="darker">Illum.
                         <br/>(lm)</th>
-                    <th class="darker">Updated
-                        <br/>(min.)</th>
+                    <th class="darker">RSSI,
+                        <br/>Qual</th>
+                    <th class="darker">Mise à
+                        <br/>jour</th>
                 </tr>
             </table>
         </div>
