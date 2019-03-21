@@ -25,9 +25,6 @@
             code: "RS2",
             capacity: 1
         }, {
-            code: "RF2",
-            capacity: 1
-        }, {
             code: "RS3",
             capacity: 1
         }, {
@@ -41,6 +38,9 @@
             capacity: 1
         }, {
             code: "RF1",
+            capacity: 1
+        }, {
+            code: "RF2",
             capacity: 1
         }, {
             code: "RC1",
@@ -204,7 +204,26 @@
                     return "green";
                 }
             });
+            const RStotElem = document.getElementById ('RStot');
+            RStotElem.setAttribute('class', 'tankcontents');
+            RStotElem.innerHTML = 5678;
+            const RStotPCElem = document.getElementById ('RStotPC');
+            RStotPCElem.setAttribute('class', 'tankpercent');
+            RStotPCElem.innerHTML = 52 + '%';
 
+            const RFtotElem = document.getElementById ('RFtot');
+            RFtotElem.setAttribute('class', 'tankcontents');
+            RFtotElem.innerHTML = 2345;
+            const RFtotPCElem = document.getElementById ('RFtotPC');
+            RFtotPCElem.setAttribute('class', 'tankpercent');
+            RFtotPCElem.innerHTML = 12 + '%';
+
+            const RCtotElem = document.getElementById ('RCtot');
+            RCtotElem.setAttribute('class', 'tankcontents');
+            RCtotElem.innerHTML = 987;
+            const RCtotPCElem = document.getElementById ('RCtotPC');
+            RCtotPCElem.setAttribute('class', 'tankpercent');
+            RCtotPCElem.innerHTML = 78 + '%';
         }
 
         function displayDevices() {
@@ -835,7 +854,8 @@
         .tankcapacity,
         .pumpduty,
         .pumprate,
-        .pumpvolume {
+        .pumpvolume,
+        .RStot {
             text-align: right;
         }
 
@@ -904,6 +924,28 @@
             </table>
 
             <!-- <div class="w3-container" , style="width: 50%;"> -->
+                <!-- <h3>Total des Réservoirs</h3> -->
+                <table id="totalReservoirs">
+                    <th class="darker">Total</th>
+                    <th class="darker">(gal)
+                    <th class="darker">(%)
+                    <tr>
+                        <td class="lighter", class='tankpercent'>RS1 à RS4</td>
+                        <td class="lighter", id="RStot"></td>
+                        <td class="lighter V_position", id="RStotPC"></td>
+                    </tr>
+                    <tr>
+                        <td class="lighter">RF1 + RF2</td>
+                        <td class="lighter", id="RFtot"></td>
+                        <td class="lighter V_position", id="RFtotPC"></td>
+                    </tr>
+                    <tr>
+                        <td class="lighter">RC1 + RC2</td>
+                        <td class="lighter", id="RCtot"></td>
+                        <td class="lighter V_position", id="RCtotPC"></td>
+                    </tr>
+                </table>
+
                 <h3>Autres Valves</h3>
                 <table id="autreValves">
                     <tr>
@@ -922,6 +964,7 @@
                         <td class="lighter V_position" , id="VaTk_position"></td>
                     </tr>
                 </table>
+
             <!-- </div> -->
 
             <h3>
@@ -930,7 +973,7 @@
             <p></p>
             <a class="w3-btn" href="/data.json">Données brutes</a>
             <button id="devicesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('devices')">Cacher les devices</button>
-            <button id="valvesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('valves')">Voir les valves</button>
+            <!-- <button id="valvesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('valves')">Voir les valves</button> -->
 
             <div id="devices" , style="visibility: visible;">
                 <tr>
