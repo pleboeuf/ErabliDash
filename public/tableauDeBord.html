@@ -71,6 +71,12 @@
         }
 
         function displayTanks() {
+            var RStotal = 0;
+            var RStotalCap = 0;
+            var RFtotal = 0;
+            var RFtotalCap = 0;
+            var RCtotal = 0;
+            var RCtotalCap = 0;
             tankDefs.forEach(function(tank) {
                 var tankElementId = 'tank_' + tank.code;
                 var tankElement = document.getElementById(tankElementId);
@@ -86,6 +92,21 @@
                 var outputElement;
                 var drainElementId = tankElementId + '_drain';
                 var drainElement;
+
+                var RStotElement;
+                var RStotPCElem;
+                var RSdispElement;
+                var RSmaxElement;
+
+                var RFtotElement;
+                var RFtotPCElement;
+                var RFdispElement;
+                var RFmaxElement;
+
+                var RCtotElement;
+                var RCtotPCElement;
+                var RCdispElement;
+                var RCmaxElement;
 
                 if (tankElement == null) {
                     tankElement = document.createElement("tr");
@@ -138,6 +159,37 @@
                     tankElement.appendChild(capacityElement);
 
                     document.getElementById('tanklist').appendChild(tankElement);
+
+                    // Add RS1 to RS4 summary
+                    RStotPCElem = document.getElementById ('RStotPC');
+                    RStotPCElem.setAttribute('class', 'tankpercent');
+                    RStotElement = document.getElementById ('RStot');
+                    RStotElement.setAttribute('class', 'tankcontents');
+                    RSdispElement = document.getElementById('RSdisp');
+                    RSdispElement.setAttribute('class', 'tankcontents');
+                    RSmaxElement = document.getElementById ('RSmax');
+                    RSmaxElement.setAttribute('class', 'tankcapacity');
+
+                    // Add RF1 to RF2 summary
+                    RFtotPCElement = document.getElementById ('RFtotPC');
+                    RFtotPCElement.setAttribute('class', 'tankpercent');
+                    RFtotElement = document.getElementById ('RFtot');
+                    RFtotElement.setAttribute('class', 'tankcontents');
+                    RFdispElement = document.getElementById('RFdisp');
+                    RFdispElement.setAttribute('class', 'tankcontents');
+                    RFmaxElement = document.getElementById ('RFmax');
+                    RFmaxElement.setAttribute('class', 'tankcapacity');
+
+                    // Add RSC to RC2 summary
+                    RCtotPCElement = document.getElementById ('RCtotPC');
+                    RCtotPCElement.setAttribute('class', 'tankpercent');
+                    RCtotElement = document.getElementById ('RCtot');
+                    RCtotElement.setAttribute('class', 'tankcontents');
+                    RCdispElement = document.getElementById('RCdisp');
+                    RCdispElement.setAttribute('class', 'tankcontents');
+                    RCmaxElement = document.getElementById ('RCmax');
+                    RCmaxElement.setAttribute('class', 'tankcapacity');
+
                 } else {
                     capacityElement = document.getElementById(capacityElementId);
                     rawValueElement = document.getElementById(rawValueElementId);
@@ -145,6 +197,22 @@
                     contentsElement = document.getElementById(contentsElementId);
                     outputElement = document.getElementById(outputElementId);
                     drainElement = document.getElementById(drainElementId);
+                    // For summary table
+                    RStotPCElem = document.getElementById('RStotPC');
+                    RStotElement = document.getElementById('RStot');
+                    RSdispElement = document.getElementById('RSdisp')
+                    RSmaxElement = document.getElementById('RSmax');
+
+                    RFtotPCElement = document.getElementById ('RFtotPC');
+                    RFtotElement = document.getElementById ('RFtot');
+                    RFdispElement = document.getElementById('RFdisp')
+                    RFmaxElement = document.getElementById('RFmax');
+
+                    RCtotPCElement = document.getElementById ('RCtotPC');
+                    RCtotElement = document.getElementById ('RCtot');
+                    RCdispElement = document.getElementById('RCdisp')
+                    RCmaxElement = document.getElementById('RCmax');
+
                 }
                 // Display the data
                 var tankPercent = (tank.contents / tank.capacity * 100).toFixed(0);
@@ -160,7 +228,11 @@
                 // Create the pie chart
                 var gaugeElement = document.createElement('span');
                 gaugeElement.innerHTML = tankPercent + '/100';
-                gaugeElement.setAttribute('class', 'tankgauge');
+                if (tank.code == 'RHC') {
+                    gaugeElement.setAttribute('class', 'fueltankgauge');
+                } else {
+                    gaugeElement.setAttribute('class', 'tankgauge');
+                }
                 gaugeElement.setAttribute('data-peity', '{ "fill": ["black", "#eeeeee"], "innerRadius": 0, "radius": 8 }');
                 percentElement.appendChild(gaugeElement);
 
@@ -189,6 +261,36 @@
                 var tankElem = document.getElementById('tank_' + tank.code);
                 setAgeColor(tankElem, tank.device);
 
+                var plusRF2Check = document.getElementById('CheckRF2');
+                if (tank.code.search("RS") >= 0 || (plusRF2Check.checked == true && tank.code == 'RF2') ){
+                    // console.log("plusRF2Check", plusRF2Check.checked, "Include: ", tank.code);
+                    RStotal = RStotal + liters2gallons(tank.contents);
+                    RStotalCap = RStotalCap + liters2gallons(tank.capacity);
+                    RStotElement.innerHTML = RStotal.toFixed(0);
+                    RStotPCElem.innerHTML = (RStotal / RStotalCap * 100).toFixed(0) + '%';
+                    RSdispElement.innerHTML = (RStotalCap - RStotal).toFixed(0);
+                    RSmaxElement.innerHTML = RStotalCap.toFixed(0);
+                }
+
+                if (tank.code == 'RF1' || (plusRF2Check.checked == false && tank.code == 'RF2')){
+                    // console.log("plusRF2Check", plusRF2Check.checked, "Include: ", tank.code);
+                    RFtotal = RFtotal + liters2gallons(tank.contents);
+                    RFtotalCap = RFtotalCap + liters2gallons(tank.capacity);
+                    RFtotElement.innerHTML = RFtotal.toFixed(0);
+                    RFtotPCElement.innerHTML = (RFtotal / RFtotalCap * 100).toFixed(0) + '%';
+                    RFdispElement.innerHTML = (RFtotalCap - RFtotal).toFixed(0);
+                    RFmaxElement.innerHTML = RFtotalCap.toFixed(0);
+                }
+
+                if (tank.code == 'RC1' || tank.code == 'RC2'){
+                    RCtotal = RCtotal + liters2gallons(tank.contents);
+                    RCtotalCap = RCtotalCap + liters2gallons(tank.capacity);
+                    RCtotElement.innerHTML = RCtotal.toFixed(0);
+                    RCtotPCElement.innerHTML = (RCtotal / RCtotalCap * 100).toFixed(0) + '%';;
+                    RCdispElement.innerHTML = (RCtotalCap - RCtotal).toFixed(0);
+                    RCmaxElement.innerHTML = RCtotalCap.toFixed(0);
+                }
+
             });
             $(".tankgauge").peity("pie", {
                 "fill": function(value, index, values) {
@@ -204,26 +306,30 @@
                     return "green";
                 }
             });
-            const RStotElem = document.getElementById ('RStot');
-            RStotElem.setAttribute('class', 'tankcontents');
-            RStotElem.innerHTML = 5678;
-            const RStotPCElem = document.getElementById ('RStotPC');
-            RStotPCElem.setAttribute('class', 'tankpercent');
-            RStotPCElem.innerHTML = 52 + '%';
+            $(".fueltankgauge").peity("pie", {
+                "fill": function(value, index, values) {
+                    if (index > 0) {
+                        return "#eeeeee";
+                    }
+                    if (values[0] < 30) {
+                        return "orange";
+                    }
+                    if (values[0] < 15) {
+                        return "red";
+                    }
+                    return "green";
+                }
+            });
+        }
 
-            const RFtotElem = document.getElementById ('RFtot');
-            RFtotElem.setAttribute('class', 'tankcontents');
-            RFtotElem.innerHTML = 2345;
-            const RFtotPCElem = document.getElementById ('RFtotPC');
-            RFtotPCElem.setAttribute('class', 'tankpercent');
-            RFtotPCElem.innerHTML = 12 + '%';
-
-            const RCtotElem = document.getElementById ('RCtot');
-            RCtotElem.setAttribute('class', 'tankcontents');
-            RCtotElem.innerHTML = 987;
-            const RCtotPCElem = document.getElementById ('RCtotPC');
-            RCtotPCElem.setAttribute('class', 'tankpercent');
-            RCtotPCElem.innerHTML = 78 + '%';
+        function functionPlusRF2() {
+            var plusRF2Check = document.getElementById('CheckRF2');
+            var RFsummaryNameElement = document.getElementById('RFsummaryName');
+            if (CheckRF2.checked == true){
+                RFsummaryNameElement.innerHTML = "RF1";
+            } else {
+                RFsummaryNameElement.innerHTML = "RF1 + RF2";
+            }
         }
 
         function displayDevices() {
@@ -890,7 +996,8 @@
     <div class="w3-display-container w3-theme w3-mobile" , style="width: 100%; height: 70px; display: inline-block;">
         <div class="w3-container w3-display-bottommiddle" , style="width: 65%; height: 70px; display: inline-block;">
             <div class="w3-container w3-display-bottomleftt" , style="width: 33%; height: 70px; display: inline-block;">
-                <h1 class="w3-display-topleft" , style="display: inline-block;">Érablière&nbsp;Brunelle</h1></div>
+                <!-- <h1 class="w3-display-topleft" , style="display: inline-block;">Érablière&nbsp;Brunelle</h1></div> -->
+                <h1 class="w3-display-topleft" , style="display: inline-block;">Serveur de Tests</h1></div>
             <div class="w3-container w3-display-right" , style="width: 50%; height: 70px;" , id="coulee">
                 <h3 class="w3-display" , style="display: inline; font-weight: bold;" , id="c_text"></h3>
                 <h3 class="w3-display" , style="display: inline;" , id="compteurDeTemps"></h3>
@@ -924,25 +1031,33 @@
             </table>
 
             <!-- <div class="w3-container" , style="width: 50%;"> -->
-                <!-- <h3>Total des Réservoirs</h3> -->
+                <h3>Sommaire des Réservoirs</h3>
                 <table id="totalReservoirs">
                     <th class="darker">Total</th>
-                    <th class="darker">(gal)
-                    <th class="darker">(%)
+                    <th class="darker">Actuel (gal)
+                    <th class="darker">Actuel (%)
+                    <th class="darker">Disp. (gal)
+                    <th>Max. (gal)
                     <tr>
-                        <td class="lighter", class='tankpercent'>RS1 à RS4</td>
+                        <td class="lighter", class='tankpercent'>RS1 à RS6 <input type="checkbox" id="CheckRF2"  onclick="functionPlusRF2()">+RF2</td>
                         <td class="lighter", id="RStot"></td>
                         <td class="lighter V_position", id="RStotPC"></td>
+                        <td class="lighter V_position", id="RSdisp"></td>
+                        <td class="lighter V_position", id="RSmax"></td>
                     </tr>
                     <tr>
-                        <td class="lighter">RF1 + RF2</td>
+                        <td class="lighter", id="RFsummaryName">RF1 + RF2</td>
                         <td class="lighter", id="RFtot"></td>
                         <td class="lighter V_position", id="RFtotPC"></td>
+                        <td class="lighter V_position", id="RFdisp"></td>
+                        <td class="lighter V_position", id="RFmax"></td>
                     </tr>
                     <tr>
                         <td class="lighter">RC1 + RC2</td>
                         <td class="lighter", id="RCtot"></td>
                         <td class="lighter V_position", id="RCtotPC"></td>
+                        <td class="lighter V_position", id="RCdisp"></td>
+                        <td class="lighter V_position", id="RCmax"></td>
                     </tr>
                 </table>
 
@@ -1007,9 +1122,9 @@
                         <th class="darker">Util.
                             <br/>(%)</th>
                         <th class="darker">Débit
-                            <br/>(GPH)</th>
+                            <br/>(gph)</th>
                         <th class="darker">Vol.
-                            <br/>(Gal)</th>
+                            <br/>(gal)</th>
                     </tr>
                     <tr id="pumptotalrow" , class="lighter">
                         <td>Total</td>
@@ -1047,7 +1162,7 @@
 
     </div>
 
-    <div class="w3-container w3-quarter">
+    <!-- <div class="w3-container w3-quarter"> -->
         <table id="valves" , class="w3-table w3-striped w3-bordered" , style="visibility: hidden;">
             <tr>
                 <td>
@@ -1061,7 +1176,7 @@
                 </td>
             </tr>
         </table>
-    </div>
+    <!-- </div> -->
 
 </body>
 <footer>
