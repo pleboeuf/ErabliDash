@@ -324,6 +324,8 @@ exports.Dashboard = function (config, WebSocketClient) {
                     sensor.lightIntensity = data["li"];
                     sensor.percentCharge = data["soc"];
                     sensor.batteryVolt = data["volt"];
+                    sensor.rssi = data["rssi"];
+                    sensor.signalQual = data["qual"];
                 } else {
                     break;
                 }
