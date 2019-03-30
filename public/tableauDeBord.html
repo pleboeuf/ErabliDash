@@ -75,11 +75,13 @@
             var thisSiteNameElement = document.getElementById("siteName");
             var prefix = thisSiteNameElement.innerHTML;
             if (myURL.search("pl-net.duckdns.org:3000") >= 0 || myURL.search("http://localhost:3000") >= 0) {
-                prefix = "Test Serveur";
+                prefix = "Serveur Dev. • 'α'";
+            } else if (myURL.search("http://pl-net.duckdns.org:3002") >= 0) {
+                prefix = "Serveur Test • 'ß'";
             } else {
                 prefix = "Érablière&nbsp;Brunelle";
             }
-            thisSiteNameElement.innerHTML =  prefix + " - " + "(" + thisDomain + ")";
+            thisSiteNameElement.innerHTML =  prefix + " • " + "(" + thisDomain + ")";
         }
 
         function displayTanks() {
