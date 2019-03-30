@@ -68,6 +68,18 @@
         function onLoad() {
             openSocket();
             setInterval(displayDevices, 10000);
+            var myURL = document.URL;
+            var domaineStart = myURL.indexOf("://") + 3;
+            var domaineEnd = myURL.lastIndexOf(":");
+            var thisDomain = myURL.substring(domaineStart, domaineEnd);
+            var thisSiteNameElement = document.getElementById("siteName");
+            var prefix = thisSiteNameElement.innerHTML;
+            if (myURL.search("pl-net.duckdns.org:3000") >= 0 || myURL.search("http://localhost:3000") >= 0) {
+                prefix = "Test Serveur";
+            } else {
+                prefix = "Érablière&nbsp;Brunelle";
+            }
+            thisSiteNameElement.innerHTML =  prefix + " - " + "(" + thisDomain + ")";
         }
 
         function displayTanks() {
@@ -400,7 +412,6 @@
                     lastestUpdateElement.style.color = "FireBrick";
                 } else {
                     lastestUpdateElement.innerHTML = 'Délais:</br>normal';
-                    // lastestUpdateElement.innerHTML = 'Ok';
                     lastestUpdateElement.style.color = "white";
                 }
 
@@ -996,9 +1007,9 @@
     <div class="w3-display-container w3-theme w3-mobile" , style="width: 100%; height: 70px; display: inline-block;">
         <div class="w3-container w3-display-bottommiddle" , style="width: 65%; height: 70px; display: inline-block;">
             <div class="w3-container w3-display-bottomleftt" , style="width: 33%; height: 70px; display: inline-block;">
-                <h1 class="w3-display-topleft" , style="display: inline-block;">Érablière&nbsp;Brunelle</h1></div>
-                <!-- <h1 class="w3-display-topleft" , style="display: inline-block;">Serveur de Tests</h1></div> -->
-            <div class="w3-container w3-display-right" , style="width: 50%; height: 70px;" , id="coulee">
+                <!-- <h1 class="w3-display-topleft" , style="display: inline-block;">Érablière&nbsp;Brunelle</h1></div> -->
+                <h1 class="w3-display-topleft" , style="display: inline-block;", id="siteName">Serveur de Tests</h1></div>
+            <div class="w3-container w3-display-right" , style="width: 30%; height: 70px;" , id="coulee">
                 <h3 class="w3-display" , style="display: inline; font-weight: bold;" , id="c_text"></h3>
                 <h3 class="w3-display" , style="display: inline;" , id="compteurDeTemps"></h3>
             </div>
