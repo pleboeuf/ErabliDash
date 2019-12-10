@@ -71,7 +71,7 @@
   }, {
     "name": "EB-RS5",
     "description": "Réservoir de sève #5 - pump house",
-    "id": "3a0025000847343337373738",
+    "id": "240045001447343338333633",
     "maxDelayMinutes": 5
   }, {
     "name": "EB-RS6",
@@ -323,6 +323,11 @@
     "name": "EB-VEcTk",
     "description": "Valves VaEC et VaTk",
     "id": "4b001b000b51353335323535"
+  }, {
+    "retired": true,
+    "name": "EB-RS5",
+    "description": "Réservoir de sève #5 - pump house",
+    "id": "3a0025000847343337373738"
   }],
 
   "tanks": [{
