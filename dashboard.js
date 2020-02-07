@@ -122,8 +122,8 @@ var Pump = exports.Pump = function (pumpConfig) {
         }
     };
     self.cycleEnded = function (t0Event, t1Event, t2Event) {
-        self.duty = (t2Event.timer - t1Event.timer) / (t2Event.timer - t0Event.timer);
-        // console.log("Pump cycle ended: " + (t1Event.timer - t0Event.timer) + " ms off, then " + (t2Event.timer - t1Event.timer) + " ms on (" + (self.duty * 100).toFixed(0) + "% duty)");
+        // self.duty = (t2Event.timer - t1Event.timer) / (t2Event.timer - t0Event.timer);
+        console.log("Pump cycle ended: " + (t1Event.timer - t0Event.timer) + " ms off, then " + (t2Event.timer - t1Event.timer) + " ms on (" + (self.duty * 100).toFixed(0) + "% duty)");
     }
 };
 
@@ -340,6 +340,8 @@ exports.Dashboard = function (config, WebSocketClient) {
             getPumpOfDevice(device).update(event, value);
         } else if (name === "pump/T2_ONtime") {
             getPumpOfDevice(device).ONtime = Math.abs(value / 1000);
+        } else if (name === "pump/T1_OFFtime") {
+            getPumpOfDevice(device).OFFtime = Math.abs(value / 1000);
         } else if (name === "pump/CurrentDutyCycle") {
             getPumpOfDevice(device).duty = value / 1000;
         } else if (name === "pump/endCycle") {
@@ -577,7 +579,8 @@ exports.Dashboard = function (config, WebSocketClient) {
 
     function extendPump(pump) {
         pump = _.extend({}, pump);
-        pump.T2ONtime = pump.ONtime;
+        // pump.T2ONtime = pump.ONtime;
+        // pump.T1OFFtime = pump.OFFtime;
         return pump;
     }
 

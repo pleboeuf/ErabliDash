@@ -488,7 +488,7 @@
             var gph = 0;
             var pumpDuty = 0;
             var dateStart;
-            allWaterPumps = [];
+            allWaterPumps = [false, false, false];
             pumps.forEach(function(pump) {
                 var codeElement;
                 var codeElementId = 'pump_' + pump.code;
@@ -541,10 +541,10 @@
                 setPumpWarning(pumpElem, pump.run2long);
                 stateElem.innerHTML = pump.state ? 'ON' : 'OFF';
                 setIndicatorColor(stateElem, pump.state);
-                if (pump.duty !== undefined) {
+                if ((pump.duty !== undefined) && (pump.duty >= 0)) {
                     var rate = (pump.duty * pump.capacity_gph);
                 }
-                if (pump.volume !== undefined) {
+                if ((pump.volume !== undefined) && (pump.volume >= 0)) {
                     var volume = Math.abs(pump.volume);
                 }
                 if (pump.code == "P1" || pump.code == "P2" || pump.code == "P3") {
@@ -555,29 +555,25 @@
                     rateElem.innerHTML = parseInt(rate) || "";
                     volumeElem.innerHTML = parseInt(volume) || "";
 
-                    // Noter l'état de coulée des pompes. Mauvais code
-                    if (pump.code == "P1") {
-                        allWaterPumps[0] = pump.couleeEnCour;
-                        if (allWaterPumps[0]) {
-                            dateStart = pump.debutDeCouleeTS;
-                        }
-                    } else if (pump.code == "P2") {
-                        allWaterPumps[1] = pump.couleeEnCour;
-                        if (allWaterPumps[1]) {
-                            dateStart = pump.debutDeCouleeTS;
-                        }
-                    } else if (pump.code == "P3") {
-                        allWaterPumps[2] = pump.couleeEnCour;
-                        if (allWaterPumps[2]) {
-                            dateStart = pump.debutDeCouleeTS;
-                        }
+                    // Noter l'état de coulée des pompes.
+                    if (pump.couleeEnCour !== undefined){
+                        if (pump.code == "P1") {
+                            allWaterPumps[0] = pump.couleeEnCour;
+                            if (allWaterPumps[0]) {
+                                dateStart = pump.debutDeCouleeTS;
+                            }
+                        } else if (pump.code == "P2") {
+                            allWaterPumps[1] = pump.couleeEnCour;
+                            if (allWaterPumps[1]) {
+                                dateStart = pump.debutDeCouleeTS;
+                            }
+                        } else if (pump.code == "P3") {
+                            allWaterPumps[2] = pump.couleeEnCour;
+                            if (allWaterPumps[2]) {
+                                dateStart = pump.debutDeCouleeTS;
+                            }
+                        }                       
                     }
-                    // else if (pump.code == "Ptest"){
-                    //   allWaterPumps[3] = pump.couleeEnCour;
-                    //   if (allWaterPumps[3]){
-                    //     dateStart = pump.debutDeCouleeTS;
-                    //   }
-                    // }
                 }
                 // Set color of line based on device lastUpdatedAt
                 var codeElem = document.getElementById('pump_' + pump.code);
