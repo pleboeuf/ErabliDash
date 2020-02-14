@@ -703,6 +703,7 @@
                     var chargeTemp = vacuum.percentCharge;
                     chargeElem.innerHTML = chargeTemp.toFixed(0);
                     chargeElem.style.textAlign = "right";
+                    chargeElem.style.backgroundColor = setBatteryColorLineVacuum(vacuum.percentCharge);
                 }
                 if ('lightIntensity' in vacuum) {
                     var illumTemp = vacuum.lightIntensity;
@@ -819,6 +820,20 @@
                 }
             } catch (err) {
                 console.log("lastUpdatedAtElemId: " + lastUpdatedAtElemId + " " + err);
+            }
+        }
+
+        function setBatteryColorLineVacuum(percentCharge) {
+            try {
+                if (percentCharge >= 70){
+                    return "#d0d0d0";               // Light gray - Normal. 70% et plus
+                } else if (percentCharge >= 50){
+                    return "Orange";                // Orange - Faible. Entre 50% et 69%
+                } else {
+                    return "Red";                   // Red - Critique. Moins de 50%
+                }
+            } catch (err) {
+                console.log("Erreur: " + err);
             }
         }
 
@@ -1043,12 +1058,14 @@
                 <h3>Sommaire des Réservoirs</h3>
                 <table id="totalReservoirs">
                     <th class="darker">Total</th>
-                    <th class="darker">Actuel (gal)
-                    <th class="darker">Actuel (%)
-                    <th class="darker">Disp. (gal)
-                    <th>Max. (gal)
-                    <tr>
+                    <th class="darker">Contenu</th>
+                    <th class="darker"> Actuel <br/>(gal)</th>
+                    <th class="darker"> Actuel <br/>(%)</th>
+                    <th class="darker"> Disp. <br/>(gal)</th>
+                    <th>Max. <br/> (gal)</th>
+                    <tr> 
                         <td class="lighter", class='tankpercent'>RS1 à RS6 <input type="checkbox" id="CheckRF2"  onclick="functionPlusRF2()">+RF2</td>
+                        <td class="lighter">Sève</td>
                         <td class="lighter", id="RStot"></td>
                         <td class="lighter V_position", id="RStotPC"></td>
                         <td class="lighter V_position", id="RSdisp"></td>
@@ -1056,6 +1073,7 @@
                     </tr>
                     <tr>
                         <td class="lighter", id="RFsummaryName">RF1 + RF2</td>
+                        <td class="lighter">Filtrat</td>
                         <td class="lighter", id="RFtot"></td>
                         <td class="lighter V_position", id="RFtotPC"></td>
                         <td class="lighter V_position", id="RFdisp"></td>
@@ -1063,6 +1081,7 @@
                     </tr>
                     <tr>
                         <td class="lighter">RC1 + RC2</td>
+                        <td class="lighter">Concentré</td>
                         <td class="lighter", id="RCtot"></td>
                         <td class="lighter V_position", id="RCtotPC"></td>
                         <td class="lighter V_position", id="RCdisp"></td>
