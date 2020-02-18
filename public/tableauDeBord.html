@@ -927,9 +927,9 @@
             // console.log("Affichage fin de coulée");
         }
 
-    //     setTimeout(function(){
-    //        window.location.reload(1);
-    //    }, 3600000);
+        setTimeout(function(){
+           window.location.reload(1);
+       }, 3600000);
 
         window.addEventListener("load", onLoad, false);
     </script>
@@ -969,6 +969,11 @@
 
         .tank {
             border-bottom: solid #ffffff;
+        }
+
+        .emptyCell{
+            color: rgb(230, 230, 230); 
+            border: none;
         }
 
         .V_position,
@@ -1055,58 +1060,39 @@
             </table>
 
             <!-- <div class="w3-container" , style="width: 50%;"> -->
-                <h3>Sommaire des Réservoirs</h3>
-                <table id="totalReservoirs">
-                    <th class="darker">Total</th>
-                    <th class="darker">Contenu</th>
-                    <th class="darker"> Actuel <br/>(gal)</th>
-                    <th class="darker"> Actuel <br/>(%)</th>
-                    <th class="darker"> Disp. <br/>(gal)</th>
-                    <th>Max. <br/> (gal)</th>
-                    <tr> 
-                        <td class="lighter", class='tankpercent'>RS1 à RS6 <input type="checkbox" id="CheckRF2"  onclick="functionPlusRF2()">+RF2</td>
-                        <td class="lighter">Sève</td>
-                        <td class="lighter", id="RStot"></td>
-                        <td class="lighter V_position", id="RStotPC"></td>
-                        <td class="lighter V_position", id="RSdisp"></td>
-                        <td class="lighter V_position", id="RSmax"></td>
-                    </tr>
-                    <tr>
-                        <td class="lighter", id="RFsummaryName">RF1 + RF2</td>
-                        <td class="lighter">Filtrat</td>
-                        <td class="lighter", id="RFtot"></td>
-                        <td class="lighter V_position", id="RFtotPC"></td>
-                        <td class="lighter V_position", id="RFdisp"></td>
-                        <td class="lighter V_position", id="RFmax"></td>
-                    </tr>
-                    <tr>
-                        <td class="lighter">RC1 + RC2</td>
-                        <td class="lighter">Concentré</td>
-                        <td class="lighter", id="RCtot"></td>
-                        <td class="lighter V_position", id="RCtotPC"></td>
-                        <td class="lighter V_position", id="RCdisp"></td>
-                        <td class="lighter V_position", id="RCmax"></td>
-                    </tr>
-                </table>
-
-                <h3>Autres Valves</h3>
-                <table id="autreValves">
-                    <tr>
-                        <th class="darker">Code</th>
-                        <th class="darker">Description</th>
-                        <th class="darker">Position</th>
-                    </tr>
-                    <tr>
-                        <td class="lighter">VaEC</td>
-                        <td class="lighter">Valve Entré Cabane</td>
-                        <td class="lighter V_position" , id="VaEC_position"> </td>
-                    </tr>
-                    <tr>
-                        <td class="lighter">VaTk</td>
-                        <td class="lighter">Valve Tanker</td>
-                        <td class="lighter V_position" , id="VaTk_position"></td>
-                    </tr>
-                </table>
+            <h3>Sommaire des Réservoirs</h3>
+            <table id="totalReservoirs">
+                <th class="darker">Total</th>
+                <th class="darker">Contenu</th>
+                <th class="darker"> Actuel <br/>(gal)</th>
+                <th class="darker"> Actuel <br/>(%)</th>
+                <th class="darker"> Disp. <br/>(gal)</th>
+                <th>Max. <br/> (gal)</th>
+                <tr> 
+                    <td class="lighter", class='tankpercent'>RS1 à RS6 <input type="checkbox" id="CheckRF2"  onclick="functionPlusRF2()">+RF2</td>
+                    <td class="lighter">Sève</td>
+                    <td class="lighter", id="RStot"></td>
+                    <td class="lighter V_position", id="RStotPC"></td>
+                    <td class="lighter V_position", id="RSdisp"></td>
+                    <td class="lighter V_position", id="RSmax"></td>
+                </tr>
+                <tr>
+                    <td class="lighter", id="RFsummaryName">RF1 + RF2</td>
+                    <td class="lighter">Filtrat</td>
+                    <td class="lighter", id="RFtot"></td>
+                    <td class="lighter V_position", id="RFtotPC"></td>
+                    <td class="lighter V_position", id="RFdisp"></td>
+                    <td class="lighter V_position", id="RFmax"></td>
+                </tr>
+                <tr>
+                    <td class="lighter">RC1 + RC2</td>
+                    <td class="lighter">Concentré</td>
+                    <td class="lighter", id="RCtot"></td>
+                    <td class="lighter V_position", id="RCtotPC"></td>
+                    <td class="lighter V_position", id="RCdisp"></td>
+                    <td class="lighter V_position", id="RCmax"></td>
+                </tr>
+            </table>
 
             <!-- </div> -->
 
@@ -1161,7 +1147,44 @@
                         <td id="pumptotalrate" , class="pumprate" , style="font-weight: bold;"></td>
                         <td id="volumetotal" , class="pumpvolume" , style="font-weight: bold;"></td>
                     </tr>
+                    <!-- This is a bad idea to use table to layout page. To be corrected -->
+                    <tr> 
+                        <td class="emptyCell">Blank</td>
+                        <td class="emptyCell"></td>
+                        <td class="emptyCell"></td>
+                        <td class="emptyCell"></td>
+                        <td class="emptyCell"></td>
+                    </tr>
+                    <tr style="color: rgb(230, 230, 230); border: none;"> 
+                        <td  class="emptyCell">Blank</td>
+                        <td class="emptyCell"></td>
+                        <td class="emptyCell"></td>
+                        <td class="emptyCell"></td>
+                        <td class="emptyCell"></td>
+                    </tr>
                 </table>
+
+
+                <h3>Valves Indépendantes</h3>
+                <table id="autreValves">
+                    <tr>
+                        <th class="darker">Code</th>
+                        <th class="darker">Description</th>
+                        <th class="darker">Position</th>
+                    </tr>
+                    <tr>
+                        <td class="lighter">VaEC</td>
+                        <td class="lighter">Entré Cabane</td>
+                        <td class="lighter V_position" , id="VaEC_position"> </td>
+                    </tr>
+                    <tr>
+                        <td class="lighter">VaTk</td>
+                        <td class="lighter">Sortie Tankers</td>
+                        <td class="lighter V_position" , id="VaTk_position"></td>
+                    </tr>
+                </table>
+
+
             </div>
 
         </div>
