@@ -28,6 +28,7 @@ var HorizontalCylindricTank = function (self) {
     };
     self.getFill = function () {
         var h = self.sensorHeight - self.rawValue;
+        h = (h <= 0 ? 0 : h);
         return HorizontalCylindricTank.getFill(h, self.diameter, self.length);
     }
 };
@@ -50,6 +51,7 @@ var UShapedTank = function (self) {
 
     function getFill(level) {
         // All measures in millimeters
+        level = (level <= 0 ? 0 : level);
         return getBottomFill(level) + getTopFill(level);
     }
 
