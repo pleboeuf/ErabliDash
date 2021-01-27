@@ -1,5 +1,5 @@
 {
-  "port": 3000,
+  "port": 3300,
   "collectors": [{
     "uri": "ws://localhost:8150/"
   }],
@@ -7,8 +7,8 @@
     "filename": "data/dashboard.json"
   },
   "influxdb": {
-	  "host": "localhost",
-	  "port": 8096
+	  "host": "10.0.0.25",
+	  "port": 8086
   },
   "devices": [{
     "name": "EB-P1",
@@ -51,12 +51,12 @@
   }, {
     "name": "EB-RS1",
     "description": "Réservoir de sève #1",
-    "id": "3b0024001047343438323536",
+    "id": "21003a000c47363339343638",
     "maxDelayMinutes": 5
   }, {
     "name": "EB-RS2",
     "description": "Réservoir de sève #2",
-    "id": "410057000b51353335323535",
+    "id": "540036000e51353532343635",
     "maxDelayMinutes": 5
   }, {
     "name": "EB-RS3",
@@ -116,7 +116,7 @@
   }, {
     "name": "EB-VEcTk",
     "description": "Valves VaEC et VaTk",
-    "id": "400032000f47343438323536",
+    "id": "330030000347363339343638",
     "maxDelayMinutes": 5
   },
 
@@ -295,6 +295,11 @@
     "id": "40003d001047343438323536"
  }, {
     "retired": true,
+    "name": "EB-RS1",
+    "description": "Réservoir de sève #1",
+    "id": "3b0024001047343438323536"
+ }, {
+    "retired": true,
     "name": "EB-RS2",
     "description": "Réservoir de sève #2",
     "id": "240045001447343338333633"
@@ -303,6 +308,11 @@
     "name": "EB-RS2",
     "description": "Réservoir de sève #2",
     "id": "3b0024001047343438323536"
+  },  {
+    "retired": true,
+    "name": "EB-RS2",
+    "description": "Réservoir de sève #2",
+    "id": "410057000b51353335323535"
   }, {
     "retired": true,
     "name": "EB-RS3",
@@ -323,6 +333,11 @@
     "name": "EB-VEcTk",
     "description": "Valves VaEC et VaTk",
     "id": "4b001b000b51353335323535"
+  }, {
+    "retired": true,
+    "name": "EB-VEcTk",
+    "description": "Valves VaEC et VaTk",
+    "id": "400032000f47343438323536"
   }, {
     "retired": true,
     "name": "EB-RS5",
@@ -1058,21 +1073,24 @@
   "pumps": [{
     "code": "P1",
     "device": "EB-P1",
-    "capacity_gph": 2919,
+    "capacity_gph": 2411,
     "duty": 0,
-    "volume" : 0
+    "volume" : 0,
+    "Volume_Relacheur" : 17.5
   }, {
     "code": "P2",
     "device": "EB-P2",
-    "capacity_gph": 2971,
+    "capacity_gph": 2920,
     "duty": 0,
-    "volume" : 0
+    "volume" : 0,
+    "Volume_Relacheur" : 15
   },{
     "code": "P3",
     "device": "EB-P3",
-    "capacity_gph": 2651,
+    "capacity_gph": 1746,
     "duty": 0,
-    "volume" : 0
+    "volume" : 0,
+    "Volume_Relacheur" : 16.5
   }, {
     "code": "PT1",
     "device": "EB-PT1",

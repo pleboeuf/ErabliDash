@@ -1060,19 +1060,22 @@
     "device": "EB-P1",
     "capacity_gph": 2411,
     "duty": 0,
-    "volume" : 17.5
+    "volume" : 0,
+    "Volume_Relacheur" : 17.5
   }, {
     "code": "P2",
     "device": "EB-P2",
     "capacity_gph": 2920,
     "duty": 0,
-    "volume" : 15
+    "volume" : 0,
+    "Volume_Relacheur" : 15
   },{
     "code": "P3",
     "device": "EB-P3",
     "capacity_gph": 1746,
     "duty": 0,
-    "volume" : 16.5
+    "volume" : 0,
+    "Volume_Relacheur" : 16.5
   }, {
     "code": "PT1",
     "device": "EB-PT1",

@@ -68,34 +68,54 @@ and open the template in the editor.
     left: 0;
     text-align: center;
 }
-.mytableLeon {
-    position: absolute;
-    top: 125px;
-    left: 0px;
-    z-index: 2;
-}
 
-.mytableSabine {
-    position: absolute;
-    top: 125px;
-    left:725px;
-    z-index: 2;
-}
 
 table, th, td {
     border: 1px solid black;
     border-collapse: collapse;
     text-align: right;
 }
+div.seve{
+   font-size: x-large;
+    font-weight:bold;
+    position: absolute;
+    background-color: #0099ff;
+    top: 465px;
+    left: 230px;
+    width: 250px;
+    height: 130px;
+   text-align: center;
+   padding: 4px;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    /*border: 5px solid #73AD21; */   
+}
+div.osmose {
+    font-size: x-large;
+    font-weight:bold;
+    position: absolute;
+    background-color: #73AD21;
+    top: 500px;
+    left: 710px;
+    width: 230px;
+    height: 85px;
+   text-align: center;
+   padding: 4px;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+ /*   border: 5px solid #73AD21;*/
+}
 
-a {
+a.Pression_temperature {
     position: absolute;
     top: 500px;
     left: 980px;
     color: rgba(255,255,255,1);
     text-decoration: none;
     background-color: rgba(219,87,5,1);
-//    font-family: 'Open Sans', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-weight: 500;
     font-size: 23px;
     display: block;
@@ -117,7 +137,7 @@ a {
     transition: all .1s ease;
 }
 
-a:active {
+a.Pression_temperature:active {
     -webkit-box-shadow: 0px 3px 0px rgba(219,31,5,1), 0px 3px 6px rgba(0,0,0,.9);
     -moz-box-shadow: 0px 3px 0px rgba(219,31,5,1), 0px 3px 6px rgba(0,0,0,.9);
     box-shadow: 0px 3px 0px rgba(219,31,5,1), 0px 3px 6px rgba(0,0,0,.9);
@@ -126,14 +146,14 @@ a:active {
 }
 
 
-b {
+a.Heure_coulee {
     position: absolute;
     top: 780px;
     left: 720px;
     color: rgba(255,255,255,1);
     text-decoration: none;
     background-color: rgba(219,87,5,1);
-//    font-family: 'Open Sans', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-weight: 500;
     font-size: 18px;
     display: block;
@@ -155,7 +175,7 @@ b {
     transition: all .1s ease;
 }
 
-b:active {
+a.Heure_coulee:active {
     -webkit-box-shadow: 0px 3px 0px rgba(219,31,5,1), 0px 3px 6px rgba(0,0,0,.9);
     -moz-box-shadow: 0px 3px 0px rgba(219,31,5,1), 0px 3px 6px rgba(0,0,0,.9);
     box-shadow: 0px 3px 0px rgba(219,31,5,1), 0px 3px 6px rgba(0,0,0,.9);
@@ -163,14 +183,14 @@ b:active {
     top: 6px;
 }
 
-c {
+a.Total_gallons {
     position: absolute;
     top: 720px;
     left: 50px;
     color: rgba(255,255,255,1);
     text-decoration: none;
     background-color: rgba(219,87,5,1);
-//    font-family: 'Open Sans', sans-serif;
+    font-family: 'Open Sans', sans-serif;
     font-weight: 500;
     font-size: 28px;
     display: block;
@@ -192,10 +212,80 @@ c {
     transition: all .1s ease;
 }
 
-c:active {
+a.Total_gallons:active {
     -webkit-box-shadow: 0px 3px 0px rgba(219,31,5,1), 0px 3px 6px rgba(0,0,0,.9);
     -moz-box-shadow: 0px 3px 0px rgba(219,31,5,1), 0px 3px 6px rgba(0,0,0,.9);
     box-shadow: 0px 3px 0px rgba(219,31,5,1), 0px 3px 6px rgba(0,0,0,.9);
     position: relative;
     top: 6px;
 }
+
+.rf2{
+    position: absolute;
+    top: 175px;
+    left: 315px; 
+}
+
+.flex-container {
+    position: absolute;
+    top: 10px;
+    left: 1250px; 
+  display: flex;
+  flex-wrap: wrap;
+ /* background-color: DodgerBlue */
+
+}
+
+.flex-container > div {
+/*  background-color: rgba(76, 175, 80, 0.6);
+  background-size: 20%;
+  width: 90px; 
+border-style: solid;
+border-color: #000;
+border-width: thin;
+h 100
+*/
+  height: 90px;
+  width: 120px; 
+  margin: 2px;
+  padding: 2px 4px 2px 4px;
+  text-align: left;
+  line-height: 1.4;
+  font-size: 16px;
+ 
+}
+.mytext-container{
+border-style: solid;
+border-color: #000;
+border-width: 3px;
+}
+.myBar {
+  width: 10%;
+  position: relative;
+  bottom: 0px;
+  
+  height: 5px; 
+  background-color: rgba(76, 175, 80, 0.6);
+
+}
+.GreenBar > .ui-progressbar-value {
+   background: green;
+}
+
+.RedBar > .ui-progressbar-value {
+   background: red;
+}
+
+.YellowBar > .ui-progressbar-value {
+   background: yellow;
+}
+.WhiteBar > .ui-progressbar-value {
+   background: white;
+}
+.BlueBar > .ui-progressbar-value {
+   background: blue;
+}
+
+
+
+
