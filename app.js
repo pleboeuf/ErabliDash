@@ -26,6 +26,7 @@ app.use('/', express.static(path.join(__dirname, 'index.html')));
 app.get('/data.json', function(req, res) {
   res.setHeader("Content-Type", "text/plain");
   res.send(JSON.stringify(dashboard.getData(), null, 2));
+  // console.log(dashboard.getData().osmose);
 });
 var http = require('http');
 var port = config.port || '3000';

@@ -86,6 +86,10 @@ exports.VacuumSensor = function (attrs) {
     }
 };
 
+exports.osmose = function () {
+    return theOsmose;
+};
+
 var PumpEvent = function (generationId, serialNo, data) {
     var self = this;
     self.generationId = generationId;
@@ -132,6 +136,7 @@ var Pump = exports.Pump = function (pumpConfig) {
 exports.Dashboard = function (config, WebSocketClient) {
     var Device = exports.Device;
     var Tank = exports.Tank;
+    var osmose = exports.osmose;
 
     var uri = config.collectors[0].uri;
     var filename = config.store.filename;
@@ -145,6 +150,7 @@ exports.Dashboard = function (config, WebSocketClient) {
     var valves = [];
     var vacuumSensors = [];
     var pumps = [];
+    var theOsmose = [];
     const pendingRequests = {};
 
     var dir = path.dirname(filename);
@@ -236,6 +242,16 @@ exports.Dashboard = function (config, WebSocketClient) {
             throw "No valve with code " + code + " is defined";
         }
         return valve;
+    }
+
+    function getOsmoseDevice(device) {
+        var sensor = theOsmose.filter(function (sensor) {
+            return sensor.device === device.name;
+        }).shift();
+        // if (sensor === undefined) {
+        //     throw "Device " + device.name + " has no vacuum sensor";
+        // }
+        return sensor;
     }
 
     function getVacuumSensorOfDevice(device) {
@@ -398,6 +414,55 @@ exports.Dashboard = function (config, WebSocketClient) {
                     event.object = extendTank(tank);
                 }
             });
+        } else if (name === "Osmose/Start" || name === "Osmose/Stop") {
+            const sensor = getOsmoseDevice(device);
+            sensor.state = data.state;
+            sensor.fonction = data.fonction;
+            sensor.sequence = data.sequence;
+            sensor.alarmNo = data.alarmNo;
+            sensor.lastUpdatedAt = event.published_at;
+            event.object = extendOsmose(theOsmose);
+        } else if (name === "Osmose/timeCounter") {
+            const sensor = getOsmoseDevice(device);
+            sensor.TempsOperEnCour = data.TempsOperEnCour;
+            sensor.TempsSeq1234 = data.TempsSeq1234;
+            sensor.TempsSeq4321 = data.TempsSeq4321;
+            sensor.TempsDepuisLavage = data.TempsDepuisLavage;
+            sensor.lastUpdatedAt = event.published_at;
+            event.object = extendOsmose(theOsmose);
+        } else if (name === "Osmose/operData") {
+            const sensor = getOsmoseDevice(device);
+            sensor.sequence = data.sequence;
+            sensor.Col1 = data.Col1;
+            sensor.Col2 = data.Col2;
+            sensor.Col3 = data.Col3;
+            sensor.Col4 = data.Col4;
+            sensor.Conc = data.Conc;
+            sensor.Temp = data.Temp;
+            sensor.Pres = data.Pres;
+            sensor.lastUpdatedAt = event.published_at;
+            event.object = extendOsmose(theOsmose);
+        } else if (name === "Osmose/concData") {
+            const sensor = getOsmoseDevice(device);
+            sensor.BrixSeve = data.BrixSeve;
+            sensor.BrixConc = data.BrixConc;
+            sensor.lastUpdatedAt = event.published_at;
+            event.object = extendOsmose(theOsmose);
+        } else if (name === "Osmose/summaryData") {
+            const sensor = getOsmoseDevice(device);
+            sensor.PC_Conc = data.PC_Conc;
+            sensor.Conc_GPH = data.Conc_GPH;
+            sensor.Filtrat_GPH = data.Filtrat_GPH;
+            sensor.Total_GPH = data.Total_GPH;
+            sensor.Durée_sec = data.Durée_sec;
+            sensor.lastUpdatedAt = event.published_at;
+            event.object = extendOsmose(theOsmose);
+        } else if (name === "Osmose/alarm") {
+            const sensor = getOsmoseDevice(device);
+            sensor.alarmNo = data.alarmNo;
+            sensor.alarmMsg = data.alarmMsg;
+            sensor.lastUpdatedAt = event.published_at;
+            event.object = extendOsmose(theOsmose);
         } else if (name === "device/boot") {
             // TODO Ignored
         } else if (name === "device/NewGenSN") {
@@ -546,7 +611,8 @@ exports.Dashboard = function (config, WebSocketClient) {
             "tanks": config.tanks,
             "valves": config.valves,
             "vacuum": config.vacuum,
-            "pumps": config.pumps
+            "pumps": config.pumps,
+            "osmose": config.osmose
             // "temperatures": config.temperatures
         };
         if (fs.existsSync(filename)) {
@@ -567,8 +633,8 @@ exports.Dashboard = function (config, WebSocketClient) {
             "tanks": tanks.map(extendTank),
             "valves": valves,
             "vacuum": vacuumSensors,
-            "pumps": pumps.map(extendPump)
-            // "temperatures": temperatures
+            "pumps": pumps.map(extendPump),
+            "osmose": theOsmose
         };
     }
 
@@ -591,6 +657,11 @@ exports.Dashboard = function (config, WebSocketClient) {
         valve_name = valve.code;
         valve_position = valve.position;
         return valve;
+    }
+
+    function extendOsmose(osmose) {
+        osmose = _.extend({}, osmose);
+        return osmose;
     }
 
     function load(config, data) {
@@ -644,6 +715,18 @@ exports.Dashboard = function (config, WebSocketClient) {
             pump.load(pumpData);
             return pump;
         });
+
+        theOsmose = config.osmose.map(function (sensor) {
+            var sensorData = data.osmose.filter(function (sensorData) {
+                return sensor.code === sensorData.code;
+            }).shift();
+            if (!data.osmose) {
+                return sensor;
+            }
+            console.log("Loading configured osmose sensor '%s' on device '%s'", sensor.code, sensor.device);
+            return _.extend(sensor, _.omit(sensorData, 'code', 'device'));
+        });
+
         return Promise.resolve();
     }
 

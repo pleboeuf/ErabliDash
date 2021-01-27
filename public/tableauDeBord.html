@@ -57,6 +57,7 @@
         var valves = [];
         var pumps = [];
         var vacuums = [];
+        var osmose = [];
         var couleeActive = false;
         var tempAge = 0;
         const maximumAge = 5;
@@ -226,7 +227,6 @@
                     RCtotElement = document.getElementById ('RCtot');
                     RCdispElement = document.getElementById('RCdisp')
                     RCmaxElement = document.getElementById('RCmax');
-
                 }
                 // Display the data
                 var tankPercent = (tank.contents / tank.capacity * 100).toFixed(0);
@@ -380,7 +380,7 @@
 
                     serialElem = document.createElement('td');
                     serialElem.setAttribute('id', serialElemId);
-                    serialElem.setAttribute('class', 'vacuumcode');
+                    serialElem.setAttribute('class', 'vacuumcode rawvalue');
                     deviceElem.appendChild(serialElem);
                 } else {
                     lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
@@ -480,6 +480,155 @@
                     }
                 }
             });
+        }
+
+        function displayOsmose() {
+            osmose.forEach(function(osm) {
+                var stateElem;
+                var stateElemId = 'Osmose' + '_state';
+                stateElem = document.getElementById(stateElemId);
+                if (osm.state == 1) {
+                    stateElem.innerHTML = "ON";
+                    stateElem.style.backgroundColor = "lime";
+                } else {
+                    stateElem.innerHTML = "OFF";
+                    stateElem.style.backgroundColor = "red";
+                }
+
+                var fonctionElem;
+                var fonctionElemId = 'Osmose' + '_fonction';
+                fonctionElem = document.getElementById(fonctionElemId);
+                fonctionElem.innerHTML = osm.fonction;
+
+                var seqElem;
+                var seqElemId = 'Osmose' + '_sequence';
+                seqElem = document.getElementById(seqElemId);
+                seqElem.innerHTML = osm.sequence;
+
+                var alarmCodeElem;
+                var alarmCodeElemId = 'Osmose' + '_alarmNo';
+                alarmCodeElem = document.getElementById(alarmCodeElemId);
+                alarmCodeElem.innerHTML = osm.alarmNo;
+
+                var alarmMsgElem;
+                var alramMsgElemId = 'Osmose_alarmMsg'
+                alarmMsgElem = document.getElementById(alramMsgElemId);
+                
+                alarmMsgElem.innerHTML = osm.alarmMsg;
+                if (osm.alarmNo > 0) {
+                    alarmMsgElem.style.backgroundColor = "orange";
+                } else {
+                    alarmMsgElem.style.backgroundColor = "#D0D0D0"; // gris
+                }
+
+                var seqElem;
+                var seqElemId = 'Osmose' + '_sequence';
+                seqElem = document.getElementById(seqElemId);
+                seqElem.innerHTML = osm.sequence;
+
+                var runTimeCodeElem;
+                var runTimeElemId = 'Osmose' + '_tOperEC';
+                runTimeElem = document.getElementById(runTimeElemId);
+                runTimeElem.innerHTML = secToHrMin(osm.TempsOperEnCour);
+
+                var rtSeq1234CodeElem;
+                var rtSeq1234ElemId = 'Osmose' + '_TempsSeq1234';
+                rtSeq1234Elem = document.getElementById(rtSeq1234ElemId);
+                rtSeq1234Elem.innerHTML = secToHrMin(osm.TempsSeq1234);
+
+                var rtSeq4321CodeElem;
+                var rtSeq4321ElemId = 'Osmose' + '_TempsSeq4321';
+                rtSeq4321Elem = document.getElementById(rtSeq4321ElemId);
+                rtSeq4321Elem.innerHTML = secToHrMin(osm.TempsSeq4321);
+
+                var tdLavageCodeElem;
+                var tdLavageElemId = 'Osmose' + '_TempsDepuisLavage';
+                tdLavageElem = document.getElementById(tdLavageElemId);
+                tdLavageElem.innerHTML = secToHrMin(osm.TempsDepuisLavage);
+
+                var miseAJourCodeElem;
+                var miseAJourElemId = 'Osmose' + '_lastUpdatedAt';
+                var ageInMinutes = Math.floor(getMinutesAgo(new Date(osm.lastUpdatedAt)));
+                miseAJourElem = document.getElementById(miseAJourElemId);
+                miseAJourElem.innerHTML = ageInMinutes + " min.";
+
+                var col1Elem;
+                var col1ElemId = 'Osmose' + '_Col1';
+                col1Elem = document.getElementById(col1ElemId);
+                col1Elem.innerHTML = osm.Col1.toFixed(1);
+
+                var col2Elem;
+                var col2ElemId = 'Osmose' + '_Col2';
+                col2Elem = document.getElementById(col2ElemId);
+                col2Elem.innerHTML = osm.Col2.toFixed(1);
+
+                var col3Elem;
+                var col3ElemId = 'Osmose' + '_Col3';
+                col3Elem = document.getElementById(col3ElemId);
+                col3Elem.innerHTML = osm.Col3.toFixed(1);
+
+                var col4Elem;
+                var col4ElemId = 'Osmose' + '_Col4';
+                col4Elem = document.getElementById(col4ElemId);
+                col4Elem.innerHTML = osm.Col4.toFixed(1);
+
+                var concElem;
+                var concElemId = 'Osmose' + '_Conc';
+                concElem = document.getElementById(concElemId);
+                concElem.innerHTML = osm.Conc.toFixed(1);
+
+                var TempElem;
+                var TempElemId = 'Osmose' + '_Temp';
+                TempElem = document.getElementById(TempElemId);
+                TempElem.innerHTML = osm.Temp.toFixed(1);
+
+                var PresElem;
+                var PresElemId = 'Osmose' + '_Pres';
+                PresElem = document.getElementById(PresElemId);
+                PresElem.innerHTML = osm.Pres;
+
+                var brixSeveElem;
+                var brixSeveElemId = 'Osmose' + '_BrixSeve';
+                brixSeveElem = document.getElementById(brixSeveElemId);
+                brixSeveElem.innerHTML = osm.BrixSeve.toFixed(1);
+
+                var brixConcElem;
+                var brixConcElemId = 'Osmose' + '_BrixConc';
+                brixConcElem = document.getElementById(brixConcElemId);
+                brixConcElem.innerHTML = osm.BrixConc.toFixed(1);
+
+                var pcConcElem;
+                var pcConcElemId = 'Osmose' + '_PC_Conc';
+                pcConcElem = document.getElementById(pcConcElemId);
+                pcConcElem.innerHTML = osm.PC_Conc;
+
+                var gphConcElem;
+                var gphConcElemId = 'Osmose' + '_Conc_GPH';
+                gphConcElem = document.getElementById(gphConcElemId);
+                gphConcElem.innerHTML = osm.Conc_GPH;
+
+                var gphFiltratElem;
+                var gphFiltratElemId = 'Osmose' + '_Filtrat_GPH';
+                gphFiltratElem = document.getElementById(gphFiltratElemId);
+                gphFiltratElem.innerHTML = osm.Filtrat_GPH;
+
+                var gphTotalElem;
+                var gphTotalElemId = 'Osmose' + '_Total_GPH';
+                gphTotalElem = document.getElementById(gphTotalElemId);
+                gphTotalElem.innerHTML = osm.Total_GPH;
+
+                var dureeElem;
+                var dureeElemId = 'Osmose' + '_Durée_sec';
+                dureeElem = document.getElementById(dureeElemId);
+                dureeElem.innerHTML = osm.Durée_sec;
+            })
+        }
+
+        function secToHrMin(totalSec) {
+            hour = Math.floor(totalSec / 3600);
+            min = Math.floor((totalSec - hour * 3600) / 60);
+            sec = totalSec - (hour * 3600 + min * 60);
+            return pad(hour) + ":" + pad(min);
         }
 
         function displayPumps() {
@@ -887,6 +1036,7 @@
                     valves = data.valves;
                     vacuums = data.vacuum;
                     pumps = data.pumps;
+                    osmose = data.osmose;
                     // temperatures = data.temperatures;
                 });
                 displayDevices();
@@ -894,6 +1044,7 @@
                 displayTanks();
                 displayPumps();
                 displayVacuum();
+                displayOsmose();
                 // displayTemperatures();
                 toggleStatusColor();
             };
@@ -1180,12 +1331,129 @@
                     <tr>
                         <td class="lighter">VaTk</td>
                         <td class="lighter">Sortie Tankers</td>
-                        <td class="lighter V_position" , id="VaTk_position"></td>
+                        <td class="lighter V_position" , id="VaTk_position"> </td>
                     </tr>
                 </table>
+                
+                <h2 class="emptyCell">Blank</h2>
+                <h2 class="emptyCell">Blank</h2>
+                <h3>Osmose</h3>
+                <table id="OsmoseSystem">
+                    <tr>
+                        <th class="darker">Machine</th>
+                        <th class="darker">Valeur</th>
+                    </tr>
+                    <tr>
+                        <td class="lighter">État</td>         
+                        <td class="lighter V_position", id="Osmose_state"></td> </td>                
+                    </tr>
+                    <tr>
+                        <td class="lighter">Fonction</td>      
+                        <td class="lighter V_position", id="Osmose_fonction"> </td>                           
+                    </tr>
+                    <tr>
+                        <td class="lighter">T. opér. en cour</td>
+                        <td class="lighter V_position", id="Osmose_tOperEC"> </td>                           
+                    </tr>
+                    <tr>
+                        <td class="lighter">T. séq. 1234</td>
+                        <td class="lighter V_position", id="Osmose_TempsSeq1234"> </td>                               
+                    </tr>
+                    <tr>
+                        <td class="lighter">T. séq. 4321</td>
+                        <td class="lighter V_position", id="Osmose_TempsSeq4321"> </td>                             
+                    </tr>
+                    <tr>
+                        <td class="lighter">Depuis lavage</td>
+                        <td class="lighter V_position", id="Osmose_TempsDepuisLavage"> </td>                               
+                    </tr>
+                    <tr>
+                        <td class="lighter">Mise à jour</td>
+                        <td class="lighter V_position", id="Osmose_lastUpdatedAt"> </td>                             
+                    </tr>
+                    <!-- <tr>
+                        <td class="lighter">Séquence actuelle</td>
+                        <td class="lighter V_position", id="Osmose_sequence"> </td>                               
+                    </tr> -->
+                    <tr>
+                        <td class="lighter">Code alarme</td>
+                        <td class="lighter V_position", id="Osmose_alarmNo"> </td>                             
+                    </tr>
+                    <tr>
+                        <td class="lighter">Message d'alarme</td>
+                        <td class="lighter", id="Osmose_alarmMsg"> </td>                               
+                    </tr>
 
+                    <th class="darker">Concentration</th>
+                    <th class="darker"> </th>
+                    <tr>
+                        <td class="lighter">Séquence</td>
+                        <td class="lighter V_position", id="Osmose_sequence"> </td>                               
+                    </tr>
+                    <tr>
+                        <td class="lighter">Débit Col1 (g/m)</td>
+                        <td class="lighter rawvalue", id="Osmose_Col1"> </td>                          
+                    </tr>
+                    <tr>
+                        <td class="lighter">Débit Col2 (g/m)</td>
+                        <td class="lighter rawvalue", id="Osmose_Col2"> </td>                              
+                    </tr>
+                    <tr>
+                        <td class="lighter">Débit Col3 (g/m)</td>
+                        <td class="lighter rawvalue", id="Osmose_Col3"> </td>                             
+                    </tr>
+                    <tr>
+                        <td class="lighter">Débit Col4 (g/m)</td>
+                        <td class="lighter rawvalue", id="Osmose_Col4"> </td>                              
+                    </tr>
+                    <tr>
+                        <td class="lighter">Débit Conc. (g/m)</td>
+                        <td class="lighter rawvalue", id="Osmose_Conc"> </td>                            
+                    </tr>
+                    <tr>
+                        <td class="lighter">Température (°C)</td>
+                        <td class="lighter rawvalue", id="Osmose_Temp"> </td>                              
+                    </tr>
+                    <tr>
+                        <td class="lighter">Pression (PSI)</td>
+                        <td class="lighter rawvalue", id="Osmose_Pres"> </td>                            
+                    </tr>
+                    <tr>
+                        <td class="lighter">Brix Sève</td>
+                        <td class="lighter rawvalue", id="Osmose_BrixSeve"> </td>                              
+                    </tr>
+                    <tr>
+                        <td class="lighter">Brix Concentré</td> 
+                        <td class="lighter rawvalue", id="Osmose_BrixConc"> </td>                          
+                    </tr>
 
-            </div>
+                    <th class="darker">Sommaire</th>
+                    <th class="darker"> </th>
+
+                    <tr>
+                        <td class="lighter">PC Conc. (%)</td>
+                        <td class="lighter rawvalue", id="Osmose_PC_Conc"> </td>                          
+                    </tr>
+                    <tr>
+                        <td class="lighter">Débit Conc. (g/h)</td> 
+                        <td class="lighter rawvalue", id="Osmose_Conc_GPH"> </td>                           
+                    </tr>
+                    <tr>
+                        <td class="lighter">Débit Filtrat (g/h)</td>
+                        <td class="lighter rawvalue", id="Osmose_Filtrat_GPH"> </td>          
+                    </tr>
+                    <tr>
+                        <td class="lighter">Débit Total (g/h)</td> 
+                        <td class="lighter rawvalue", id="Osmose_Total_GPH"> </td>                           
+                    </tr>
+                    <tr>
+                        <td class="lighter">Durée d'Osmose</td> 
+                        <td class="lighter rawvalue", id="Osmose_Durée_sec"> </td>                         
+                    </tr>
+
+            </table>
+
+        </div>
 
         </div>
         <!-- id="PVx" -->
