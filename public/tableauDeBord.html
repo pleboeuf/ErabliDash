@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/lib/w3.css">
+    <link rel="stylesheet" href="/lib/w3schools23.css">
     <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-grey.css">
     <title>Tableau de bord</title>
     <script src="/bower_components/jquery/dist/jquery.min.js"></script>
@@ -365,22 +365,22 @@
 
                     var nameElement = document.createElement("td");
                     nameElement.innerHTML = device.name;
-                    nameElement.setAttribute('class', 'vacuumcode');
+                    nameElement.setAttribute('class', 'darker');
                     deviceElem.appendChild(nameElement);
 
                     lastUpdatedAtElem = document.createElement('td');
                     lastUpdatedAtElem.setAttribute('id', lastUpdatedAtElemId);
-                    lastUpdatedAtElem.setAttribute('class', 'vacuumcode');
+                    lastUpdatedAtElem.setAttribute('class', 'lighter');
                     deviceElem.appendChild(lastUpdatedAtElem);
 
                     generationElem = document.createElement('td');
                     generationElem.setAttribute('id', generationElemId);
-                    generationElem.setAttribute('class', 'vacuumcode');
+                    generationElem.setAttribute('class', 'lighter');
                     deviceElem.appendChild(generationElem);
 
                     serialElem = document.createElement('td');
                     serialElem.setAttribute('id', serialElemId);
-                    serialElem.setAttribute('class', 'vacuumcode rawvalue');
+                    serialElem.setAttribute('class', 'lighter rawvalue');
                     deviceElem.appendChild(serialElem);
                 } else {
                     lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
@@ -500,11 +500,6 @@
                 fonctionElem = document.getElementById(fonctionElemId);
                 fonctionElem.innerHTML = osm.fonction;
 
-                var seqElem;
-                var seqElemId = 'Osmose' + '_sequence';
-                seqElem = document.getElementById(seqElemId);
-                seqElem.innerHTML = osm.sequence;
-
                 var alarmCodeElem;
                 var alarmCodeElemId = 'Osmose' + '_alarmNo';
                 alarmCodeElem = document.getElementById(alarmCodeElemId);
@@ -518,7 +513,7 @@
                 if (osm.alarmNo > 0) {
                     alarmMsgElem.style.backgroundColor = "orange";
                 } else {
-                    alarmMsgElem.style.backgroundColor = "#D0D0D0"; // gris
+                    alarmMsgElem.style.backgroundColor = "#e0e0e0"; // gris
                 }
 
                 var seqElem;
@@ -548,8 +543,8 @@
 
                 var miseAJourCodeElem;
                 var miseAJourElemId = 'Osmose' + '_lastUpdatedAt';
-                var ageInMinutes = Math.floor(getMinutesAgo(new Date(osm.lastUpdatedAt)));
                 miseAJourElem = document.getElementById(miseAJourElemId);
+                var ageInMinutes = Math.floor(getMinutesAgo(new Date(osm.lastUpdatedAt)));
                 miseAJourElem.innerHTML = ageInMinutes + " min.";
 
                 var col1Elem;
@@ -639,8 +634,8 @@
             var dateStart;
             allWaterPumps = [false, false, false];
             pumps.forEach(function(pump) {
-                var codeElement;
-                var codeElementId = 'pump_' + pump.code;
+                // var codeElement;
+                // var codeElementId = 'pump_' + pump.code;
                 var stateElem;
                 var stateElemId = 'pump_' + pump.code + '_state';
                 var dutyElem;
@@ -660,6 +655,7 @@
                     codeElement = document.createElement("td");
                     codeElement.innerHTML = pump.code;
                     pumpElem.setAttribute('class', 'pumpcode');
+                    // pumpElem.setAttribute('class', 'darker');
                     pumpElem.appendChild(codeElement);
 
                     stateElem = document.createElement('td');
@@ -1086,13 +1082,13 @@
     </script>
     <style>
         body {
-            background-color: #E6E6E6;
+            background-color: #eeeeee;
             /*      background-image:url("/images/background.png");
 */
         }
 
         background-image {
-            opacity: 0.25;
+            opacity: 1.0;
             filter: alpha(opacity=25);
             /* For IE8 and earlier */
         }
@@ -1108,14 +1104,17 @@
             padding: 0.2em;
         }
 
+        .pumpcode,
+        .tankname,
+        .vacuumcode,
         th.darker,
         td.darker {
-            background-color: silver;
+            background-color: rgb(201, 201, 201);
         }
 
         td.lighter,
         tr.lighter {
-            background-color: #d0d0d0;
+            background-color: #e0e0e0;
         }
 
         .tank {
@@ -1145,19 +1144,16 @@
             text-align: right;
         }
 
-        .tankname,
         .tankcontents,
         .tankpercent,
         .tankoutput,
         .tankdrain,
-        .pumpcode,
         .pumpduty,
         .pumprate,
-        .vacuumcode,
         .vacuumvalue,
         .vacuumtemp,
         .pumpvolume {
-            background-color: #d0d0d0;
+            background-color: #e0e0e0;
         }
 
         #PVx,
@@ -1177,7 +1173,7 @@
         <div class="w3-container w3-display-bottommiddle" , style="width: 65%; height: 70px; display: inline-block;">
             <div class="w3-container w3-display-bottomleftt" , style="width: 33%; height: 70px; display: inline-block;">
                 <!-- <h1 class="w3-display-topleft" , style="display: inline-block;">Érablière&nbsp;Brunelle</h1></div> -->
-                <h1 class="w3-display-topleft" , style="display: inline-block;", id="siteName">Serveur de Tests</h1></div>
+                <h2 class="w3-display-topleft w3-mobile" , style="display: inline-block;", id="siteName">Serveur de Tests</h2></div>
             <div class="w3-container w3-display-right" , style="width: 30%; height: 70px;" , id="coulee">
                 <h3 class="w3-display" , style="display: inline; font-weight: bold;" , id="c_text"></h3>
                 <h3 class="w3-display" , style="display: inline;" , id="compteurDeTemps"></h3>
@@ -1220,7 +1216,7 @@
                 <th class="darker"> Disp. <br/>(gal)</th>
                 <th>Max. <br/> (gal)</th>
                 <tr> 
-                    <td class="lighter", class='tankpercent'>RS1 à RS6 <input type="checkbox" id="CheckRF2"  onclick="functionPlusRF2()">+RF2</td>
+                    <td class="darker", class='tankpercent'>RS1 à RS6 <input type="checkbox" id="CheckRF2"  onclick="functionPlusRF2()">+RF2</td>
                     <td class="lighter">Sève</td>
                     <td class="lighter", id="RStot"></td>
                     <td class="lighter V_position", id="RStotPC"></td>
@@ -1228,7 +1224,7 @@
                     <td class="lighter V_position", id="RSmax"></td>
                 </tr>
                 <tr>
-                    <td class="lighter", id="RFsummaryName">RF1 + RF2</td>
+                    <td class="darker", id="RFsummaryName">RF1 + RF2</td>
                     <td class="lighter">Filtrat</td>
                     <td class="lighter", id="RFtot"></td>
                     <td class="lighter V_position", id="RFtotPC"></td>
@@ -1236,7 +1232,7 @@
                     <td class="lighter V_position", id="RFmax"></td>
                 </tr>
                 <tr>
-                    <td class="lighter">RC1 + RC2</td>
+                    <td class="darker">RC1 + RC2</td>
                     <td class="lighter">Concentré</td>
                     <td class="lighter", id="RCtot"></td>
                     <td class="lighter V_position", id="RCtotPC"></td>
@@ -1292,7 +1288,7 @@
                             <br/>(gal)</th>
                     </tr>
                     <tr id="pumptotalrow" , class="lighter">
-                        <td>Total</td>
+                        <td class="darker">Total</td>
                         <td></td>
                         <td></td>
                         <td id="pumptotalrate" , class="pumprate" , style="font-weight: bold;"></td>
@@ -1306,7 +1302,7 @@
                         <td class="emptyCell"></td>
                         <td class="emptyCell"></td>
                     </tr>
-                    <tr style="color: rgb(230, 230, 230); border: none;"> 
+                    <tr style="border: none;"> 
                         <td  class="emptyCell">Blank</td>
                         <td class="emptyCell"></td>
                         <td class="emptyCell"></td>
@@ -1324,12 +1320,12 @@
                         <th class="darker">Position</th>
                     </tr>
                     <tr>
-                        <td class="lighter">VaEC</td>
+                        <td class="darker">VaEC</td>
                         <td class="lighter">Entré Cabane</td>
                         <td class="lighter V_position" , id="VaEC_position"> </td>
                     </tr>
                     <tr>
-                        <td class="lighter">VaTk</td>
+                        <td class="darker">VaTk</td>
                         <td class="lighter">Sortie Tankers</td>
                         <td class="lighter V_position" , id="VaTk_position"> </td>
                     </tr>
@@ -1344,110 +1340,106 @@
                         <th class="darker">Valeur</th>
                     </tr>
                     <tr>
-                        <td class="lighter">État</td>         
+                        <td class="darker">État</td>         
                         <td class="lighter V_position", id="Osmose_state"></td> </td>                
                     </tr>
                     <tr>
-                        <td class="lighter">Fonction</td>      
+                        <td class="darker">Fonction</td>      
                         <td class="lighter V_position", id="Osmose_fonction"> </td>                           
                     </tr>
                     <tr>
-                        <td class="lighter">T. opér. en cour</td>
+                        <td class="darker">T. opér. en cour</td>
                         <td class="lighter V_position", id="Osmose_tOperEC"> </td>                           
                     </tr>
                     <tr>
-                        <td class="lighter">T. séq. 1234</td>
+                        <td class="darker">T. séq. 1234</td>
                         <td class="lighter V_position", id="Osmose_TempsSeq1234"> </td>                               
                     </tr>
                     <tr>
-                        <td class="lighter">T. séq. 4321</td>
+                        <td class="darker">T. séq. 4321</td>
                         <td class="lighter V_position", id="Osmose_TempsSeq4321"> </td>                             
                     </tr>
                     <tr>
-                        <td class="lighter">Depuis lavage</td>
+                        <td class="darker">Depuis lavage</td>
                         <td class="lighter V_position", id="Osmose_TempsDepuisLavage"> </td>                               
                     </tr>
                     <tr>
-                        <td class="lighter">Mise à jour</td>
+                        <td class="darker">Mise à jour</td>
                         <td class="lighter V_position", id="Osmose_lastUpdatedAt"> </td>                             
                     </tr>
-                    <!-- <tr>
-                        <td class="lighter">Séquence actuelle</td>
-                        <td class="lighter V_position", id="Osmose_sequence"> </td>                               
-                    </tr> -->
                     <tr>
-                        <td class="lighter">Code alarme</td>
+                        <td class="darker">Code alarme</td>
                         <td class="lighter V_position", id="Osmose_alarmNo"> </td>                             
                     </tr>
                     <tr>
-                        <td class="lighter">Message d'alarme</td>
+                        <td class="darker">Message d'alarme</td>
                         <td class="lighter", id="Osmose_alarmMsg"> </td>                               
                     </tr>
 
                     <th class="darker">Concentration</th>
-                    <th class="darker"> </th>
+                    <th class="darker", id="Osmose_Concentration"> </th>
                     <tr>
-                        <td class="lighter">Séquence</td>
+                        <td class="darker">Séquence</td>
                         <td class="lighter V_position", id="Osmose_sequence"> </td>                               
                     </tr>
                     <tr>
-                        <td class="lighter">Débit Col1 (g/m)</td>
+                        <td class="darker">Débit Col1 (g/m)</td>
                         <td class="lighter rawvalue", id="Osmose_Col1"> </td>                          
                     </tr>
                     <tr>
-                        <td class="lighter">Débit Col2 (g/m)</td>
+                        <td class="darker">Débit Col2 (g/m)</td>
                         <td class="lighter rawvalue", id="Osmose_Col2"> </td>                              
                     </tr>
                     <tr>
-                        <td class="lighter">Débit Col3 (g/m)</td>
+                        <td class="darker">Débit Col3 (g/m)</td>
                         <td class="lighter rawvalue", id="Osmose_Col3"> </td>                             
                     </tr>
                     <tr>
-                        <td class="lighter">Débit Col4 (g/m)</td>
+                        <td class="darker">Débit Col4 (g/m)</td>
                         <td class="lighter rawvalue", id="Osmose_Col4"> </td>                              
                     </tr>
                     <tr>
-                        <td class="lighter">Débit Conc. (g/m)</td>
+                        <td class="darker">Débit Conc. (g/m)</td>
                         <td class="lighter rawvalue", id="Osmose_Conc"> </td>                            
                     </tr>
                     <tr>
-                        <td class="lighter">Température (°C)</td>
+                        <td class="darker">Température (°C)</td>
                         <td class="lighter rawvalue", id="Osmose_Temp"> </td>                              
                     </tr>
                     <tr>
-                        <td class="lighter">Pression (PSI)</td>
+                        <td class="darker">Pression (PSI)</td>
                         <td class="lighter rawvalue", id="Osmose_Pres"> </td>                            
                     </tr>
                     <tr>
-                        <td class="lighter">Brix Sève</td>
+                        <td class="darker">Brix Sève</td>
                         <td class="lighter rawvalue", id="Osmose_BrixSeve"> </td>                              
                     </tr>
                     <tr>
-                        <td class="lighter">Brix Concentré</td> 
+                        <td class="darker">Brix Concentré</td> 
                         <td class="lighter rawvalue", id="Osmose_BrixConc"> </td>                          
                     </tr>
 
                     <th class="darker">Sommaire</th>
-                    <th class="darker"> </th>
+                    <th class="darker", id="Osmose_Sommaire"> </th>
 
                     <tr>
-                        <td class="lighter">PC Conc. (%)</td>
+                        <td class="darker">PC Conc. (%)</td>
                         <td class="lighter rawvalue", id="Osmose_PC_Conc"> </td>                          
                     </tr>
                     <tr>
-                        <td class="lighter">Débit Conc. (g/h)</td> 
+                        <td class="darker">Débit Conc. (g/h)</td> 
                         <td class="lighter rawvalue", id="Osmose_Conc_GPH"> </td>                           
                     </tr>
                     <tr>
-                        <td class="lighter">Débit Filtrat (g/h)</td>
+                        <td class="darker">Débit Filtrat (g/h)</td>
                         <td class="lighter rawvalue", id="Osmose_Filtrat_GPH"> </td>          
                     </tr>
                     <tr>
-                        <td class="lighter">Débit Total (g/h)</td> 
+                        <td class="darker">Débit Total (g/h)</td> 
                         <td class="lighter rawvalue", id="Osmose_Total_GPH"> </td>                           
                     </tr>
                     <tr>
-                        <td class="lighter">Durée d'Osmose</td> 
+                        <td class="darker">Durée d'Osmose</td> 
                         <td class="lighter rawvalue", id="Osmose_Durée_sec"> </td>                         
                     </tr>
 
