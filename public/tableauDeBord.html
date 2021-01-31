@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8">
     <link rel="stylesheet" href="/lib/w3schools23.css">
     <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-grey.css">
     <title>Tableau de bord</title>
@@ -61,6 +61,7 @@
         var couleeActive = false;
         var tempAge = 0;
         const maximumAge = 5;
+        var actualSiteName;
 
         function liters2gallons(liters) {
             return Math.ceil(liters / 4.54609188);
@@ -75,14 +76,15 @@
             var thisDomain = myURL.substring(domaineStart, domaineEnd);
             var thisSiteNameElement = document.getElementById("siteName");
             var prefix = thisSiteNameElement.innerHTML;
-            if (myURL.search("pl-net.duckdns.org:3000") >= 0 || myURL.search("http://localhost:3000") >= 0) {
+            if (myURL.search("pl-net.duckdns.org:3300") >= 0 || myURL.search("http://localhost:3300") >= 0) {
                 prefix = "Serveur Dev. • 'α'";
-            } else if (myURL.search("http://pl-net.duckdns.org:3002") >= 0) {
+            } else if (myURL.search("http://pl-net.duckdns.org:3300") >= 0) {
                 prefix = "Serveur Test • 'ß'";
             } else {
                 prefix = "Érablière&nbsp;Brunelle";
             }
-            thisSiteNameElement.innerHTML =  prefix + " • " + "(" + thisDomain + ")";
+            actualSiteName =  prefix + " • " + "(" + thisDomain + ")";
+            thisSiteNameElement.innerHTML =  actualSiteName;
         }
 
         function displayTanks() {
@@ -482,6 +484,17 @@
             });
         }
 
+        function displaySiteNameOrError(errNo, err) {
+            var thisSiteNameElement = document.getElementById("siteName");
+            if (errNo < 0) {
+                thisSiteNameElement.innerHTML =  "Alarme Osmose: " + err;
+                thisSiteNameElement.style.backgroundColor = "red";
+            } else {
+                thisSiteNameElement.innerHTML =  actualSiteName;
+                thisSiteNameElement.style="display: inline-block;"
+            }
+        }
+
         function displayOsmose() {
             osmose.forEach(function(osm) {
                 var stateElem;
@@ -506,15 +519,16 @@
                 alarmCodeElem.innerHTML = osm.alarmNo;
 
                 var alarmMsgElem;
-                var alramMsgElemId = 'Osmose_alarmMsg'
-                alarmMsgElem = document.getElementById(alramMsgElemId);
+                var alarmMsgElemId = 'Osmose_alarmMsg'
+                alarmMsgElem = document.getElementById(alarmMsgElemId);
                 
                 alarmMsgElem.innerHTML = osm.alarmMsg;
-                if (osm.alarmNo > 0) {
+                if (osm.alarmNo < 0) {
                     alarmMsgElem.style.backgroundColor = "orange";
                 } else {
                     alarmMsgElem.style.backgroundColor = "#e0e0e0"; // gris
                 }
+                displaySiteNameOrError(osm.alarmNo, osm.alarmMsg);
 
                 var seqElem;
                 var seqElemId = 'Osmose' + '_sequence';
@@ -634,8 +648,8 @@
             var dateStart;
             allWaterPumps = [false, false, false];
             pumps.forEach(function(pump) {
-                // var codeElement;
-                // var codeElementId = 'pump_' + pump.code;
+                var codeElement;
+                var codeElementId = 'pump_' + pump.code;
                 var stateElem;
                 var stateElemId = 'pump_' + pump.code + '_state';
                 var dutyElem;
@@ -1169,11 +1183,11 @@
 </head>
 
 <body>
-    <div class="w3-display-container w3-theme w3-mobile" , style="width: 100%; height: 70px; display: inline-block;">
-        <div class="w3-container w3-display-bottommiddle" , style="width: 65%; height: 70px; display: inline-block;">
-            <div class="w3-container w3-display-bottomleftt" , style="width: 33%; height: 70px; display: inline-block;">
-                <!-- <h1 class="w3-display-topleft" , style="display: inline-block;">Érablière&nbsp;Brunelle</h1></div> -->
-                <h2 class="w3-display-topleft w3-mobile" , style="display: inline-block;", id="siteName">Serveur de Tests</h2></div>
+    <div class="w3-display-container w3-theme w3-light-grey" , style="width: 100%; height: 70px; display: inline-block;">
+        <div class="w3-container w3-display-bottommiddle" , style="width: 65%; height: 70px; display: inline-block;", id="ZoneCentrale">
+            <div class="w3-container w3-display-bottomleft" , style="width: 70%; height: 70px; display: inline-block;">
+                <!-- <h1 class=".w3-display-hover" >Alarm: Séquence en opération depuis plus de 4 heures</h1></div> -->
+                <h1 class="w3-display-topleft w3-mobile" , style="display: inline-block;", id="siteName">Serveur de Tests</h1></div>
             <div class="w3-container w3-display-right" , style="width: 30%; height: 70px;" , id="coulee">
                 <h3 class="w3-display" , style="display: inline; font-weight: bold;" , id="c_text"></h3>
                 <h3 class="w3-display" , style="display: inline;" , id="compteurDeTemps"></h3>
@@ -1247,8 +1261,8 @@
 
             </h3>
             <p></p>
-            <a class="w3-btn" href="/data.json">Données brutes</a>
-            <button id="devicesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('devices')">Cacher les devices</button>
+            <a class="w3-btn w3-dark-grey" href="/data.json">Données brutes</a>
+            <!-- <button id="devicesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('devices')">Cacher les devices</button> -->
             <!-- <button id="valvesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('valves')">Voir les valves</button> -->
 
             <div id="devices" , style="visibility: visible;">

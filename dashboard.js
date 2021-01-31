@@ -420,6 +420,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             sensor.fonction = data.fonction;
             sensor.sequence = data.sequence;
             sensor.alarmNo = data.alarmNo;
+            sensor.alarmMsg = data.alarmMsg;
             sensor.lastUpdatedAt = event.published_at;
             event.object = extendOsmose(theOsmose);
         } else if (name === "Osmose/timeCounter") {
@@ -444,12 +445,14 @@ exports.Dashboard = function (config, WebSocketClient) {
             event.object = extendOsmose(theOsmose);
         } else if (name === "Osmose/concData") {
             const sensor = getOsmoseDevice(device);
+            sensor.sequence = data.sequence;
             sensor.BrixSeve = data.BrixSeve;
             sensor.BrixConc = data.BrixConc;
             sensor.lastUpdatedAt = event.published_at;
             event.object = extendOsmose(theOsmose);
         } else if (name === "Osmose/summaryData") {
             const sensor = getOsmoseDevice(device);
+            sensor.sequence = data.sequence;
             sensor.PC_Conc = data.PC_Conc;
             sensor.Conc_GPH = data.Conc_GPH;
             sensor.Filtrat_GPH = data.Filtrat_GPH;
@@ -459,6 +462,9 @@ exports.Dashboard = function (config, WebSocketClient) {
             event.object = extendOsmose(theOsmose);
         } else if (name === "Osmose/alarm") {
             const sensor = getOsmoseDevice(device);
+            sensor.state = data.state;
+            sensor.fonction = data.fonction;
+            sensor.sequence = data.sequence;
             sensor.alarmNo = data.alarmNo;
             sensor.alarmMsg = data.alarmMsg;
             sensor.lastUpdatedAt = event.published_at;
