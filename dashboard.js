@@ -421,6 +421,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             sensor.sequence = data.sequence;
             sensor.alarmNo = data.alarmNo;
             sensor.alarmMsg = data.alarmMsg;
+            sensor.startStopTime = data.startStopTime;
             sensor.lastUpdatedAt = event.published_at;
             event.object = extendOsmose(theOsmose);
         } else if (name === "Osmose/timeCounter") {
@@ -457,7 +458,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             sensor.Conc_GPH = data.Conc_GPH;
             sensor.Filtrat_GPH = data.Filtrat_GPH;
             sensor.Total_GPH = data.Total_GPH;
-            sensor.Durée_sec = data.Durée_sec;
+            sensor.runTimeSec = data.runTimeSec;
             sensor.lastUpdatedAt = event.published_at;
             event.object = extendOsmose(theOsmose);
         } else if (name === "Osmose/alarm") {
