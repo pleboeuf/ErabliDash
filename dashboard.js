@@ -422,6 +422,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             sensor.alarmNo = data.alarmNo;
             sensor.alarmMsg = data.alarmMsg;
             sensor.startStopTime = data.startStopTime;
+            sensor.runTimeSec = data.runTimeSec;
             sensor.lastUpdatedAt = event.published_at;
             event.object = extendOsmose(theOsmose);
         } else if (name === "Osmose/timeCounter") {

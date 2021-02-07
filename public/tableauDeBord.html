@@ -76,14 +76,15 @@
             var thisDomain = myURL.substring(domaineStart, domaineEnd);
             var thisSiteNameElement = document.getElementById("siteName");
             var prefix = thisSiteNameElement.innerHTML;
-            if (myURL.search("pl-net.duckdns.org:3300") >= 0 || myURL.search("http://localhost:3300") >= 0) {
-                prefix = "Serveur Dev. • 'α'";
-            } else if (myURL.search("http://pl-net.duckdns.org:3300") >= 0) {
-                prefix = "Serveur Test • 'ß'";
-            } else {
+            // if (myURL.search("pl-net.duckdns.org:3300") >= 0 || myURL.search("http://localhost:3300") >= 0) {
+            //     prefix = "Serveur Dev. • 'α'";
+            // } else if (myURL.search("http://pl-net.duckdns.org:3300") >= 0) {
+                // prefix = "Serveur Test • 'ß'";
+            // } else {
                 prefix = "Érablière&nbsp;Brunelle";
-            }
-            actualSiteName =  prefix + " • " + "(" + thisDomain + ")";
+            // }
+            // actualSiteName =  prefix + " • " + "(" + thisDomain + ")";
+            actualSiteName =  prefix;
             thisSiteNameElement.innerHTML =  actualSiteName;
         }
 
@@ -629,7 +630,7 @@
                 var dureeElem;
                 var dureeElemId = 'Osmose' + '_Durée_sec';
                 dureeElem = document.getElementById(dureeElemId);
-                dureeElem.innerHTML = osm.Durée_sec;
+                dureeElem.innerHTML = secToHrMin(osm.runTimeSec);
             })
         }
 
@@ -1183,24 +1184,25 @@
 </head>
 
 <body>
-    <div class="w3-display-container w3-theme w3-light-grey" , style="width: 100%; height: 70px; display: inline-block;">
-        <div class="w3-container w3-display-bottommiddle" , style="width: 65%; height: 70px; display: inline-block;", id="ZoneCentrale">
-            <div class="w3-container w3-display-bottomleft" , style="width: 70%; height: 70px; display: inline-block;">
-                <!-- <h1 class=".w3-display-hover" >Alarm: Séquence en opération depuis plus de 4 heures</h1></div> -->
-                <h1 class="w3-display-topleft w3-mobile" , style="display: inline-block;", id="siteName">Serveur de Tests</h1></div>
-            <div class="w3-container w3-display-right" , style="width: 30%; height: 70px;" , id="coulee">
-                <h3 class="w3-display" , style="display: inline; font-weight: bold;" , id="c_text"></h3>
-                <h3 class="w3-display" , style="display: inline;" , id="compteurDeTemps"></h3>
-            </div>
-        </div>
-        <div class="w3-container w3-display-left">
-            <h2 id="tempExt">0&#176;C<br/></h2></div>
-        <div class="w3-container w3-display-right" , style="height: 80px;">
-            <h4 id="lastestUpdate"></h4></div>
-    </div>
 
-    <div class="w3-container" , style="width: 100%;">
-        <div id="tanks">
+    <div class="w3-container" , style="width: 100%;", id="page_principale">
+
+        <div class="w3-display-container w3-theme w3-light-grey" , style="width: 100%; height: 70px; display: inline-block; position: fixed;">
+            <div class="w3-container w3-display-bottommiddle" , style="width: 70%; height: 70px; display: inline-block;", id="ZoneCentrale">
+                <div class="w3-container w3-display-bottomleft" , style="width: 70%; height: 70px; display: inline-block;">
+                    <h1 class="w3-display-topleft w3-mobile" , style="display: inline-block;", id="siteName">Serveur de Tests</h1></div>
+                <div class="w3-container w3-display-right" , style="width: 30%; height: 70px;" , id="coulee">
+                    <h3 class="w3-display" , style="display: inline; font-weight: bold;" , id="c_text"></h3>
+                    <h3 class="w3-display" , style="display: inline;" , id="compteurDeTemps"></h3>
+                </div>
+            </div>
+            <div class="w3-container w3-display-left">
+                <h2 id="tempExt">0&#176;C<br/></h2></div>
+            <div class="w3-container w3-display-right" , style="height: 80px;">
+                <h4 id="lastestUpdate"></h4></div>
+        </div>
+
+        <div style="margin-top: 70px;", id="tanks">
             <h3>Réservoirs</h3>
             <table id="tanklist">
                 <tr>
@@ -1286,7 +1288,7 @@
         </div>
         <!-- id="tanks" -->
 
-        <div id="PVx">
+        <div style="margin-top: 70px;", id="PVx">
 
             <div id="pumps">
                 <h3>Pompes</h3>
@@ -1359,31 +1361,31 @@
                     </tr>
                     <tr>
                         <td class="darker">Fonction</td>      
-                        <td class="lighter V_position", id="Osmose_fonction"> </td>                           
+                        <td class="lighter rawvalue", id="Osmose_fonction"> </td>                           
                     </tr>
                     <tr>
-                        <td class="darker">T. opér. en cour</td>
-                        <td class="lighter V_position", id="Osmose_tOperEC"> </td>                           
+                        <td class="darker">Durée opér. en cour</td>
+                        <td class="lighter rawvalue", id="Osmose_tOperEC"> </td>                           
                     </tr>
                     <tr>
-                        <td class="darker">T. séq. 1234</td>
-                        <td class="lighter V_position", id="Osmose_TempsSeq1234"> </td>                               
+                        <td class="darker">Durée séq. 1234</td>
+                        <td class="lighter rawvalue", id="Osmose_TempsSeq1234"> </td>                               
                     </tr>
                     <tr>
-                        <td class="darker">T. séq. 4321</td>
-                        <td class="lighter V_position", id="Osmose_TempsSeq4321"> </td>                             
+                        <td class="darker">Durée séq. 4321</td>
+                        <td class="lighter rawvalue", id="Osmose_TempsSeq4321"> </td>                             
                     </tr>
                     <tr>
-                        <td class="darker">Depuis lavage</td>
-                        <td class="lighter V_position", id="Osmose_TempsDepuisLavage"> </td>                               
+                        <td class="darker">T. Depuis lavage</td>
+                        <td class="lighter rawvalue", id="Osmose_TempsDepuisLavage"> </td>                               
                     </tr>
                     <tr>
                         <td class="darker">Mise à jour</td>
-                        <td class="lighter V_position", id="Osmose_lastUpdatedAt"> </td>                             
+                        <td class="lighter rawvalue", id="Osmose_lastUpdatedAt"> </td>                             
                     </tr>
                     <tr>
                         <td class="darker">Code alarme</td>
-                        <td class="lighter V_position", id="Osmose_alarmNo"> </td>                             
+                        <td class="lighter rawvalue", id="Osmose_alarmNo"> </td>                             
                     </tr>
                     <tr>
                         <td class="darker">Message d'alarme</td>
@@ -1394,7 +1396,7 @@
                     <th class="darker", id="Osmose_Concentration"> </th>
                     <tr>
                         <td class="darker">Séquence</td>
-                        <td class="lighter V_position", id="Osmose_sequence"> </td>                               
+                        <td class="lighter rawvalue", id="Osmose_sequence"> </td>                               
                     </tr>
                     <tr>
                         <td class="darker">Débit Col1 (g/m)</td>
@@ -1464,7 +1466,7 @@
         </div>
         <!-- id="PVx" -->
 
-        <div id="vacuums">
+        <div style="margin-top: 70px;", id="vacuums">
             <h3>Vacuum</h3>
             <table id="vacuumlist">
                 <tr>
