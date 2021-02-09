@@ -118,6 +118,11 @@
     "description": "Valves VaEC et VaTk",
     "id": "330030000347363339343638",
     "maxDelayMinutes": 5
+  }, {
+    "name": "EB-Osm1",
+    "description": "Osmose",
+    "id": "2a0043001747393035313137",
+    "maxDelayMinutes": 525600
   },
 
   {
@@ -1111,5 +1116,10 @@
     "code": "Vide3",
     "device": "EB-V3",
     "capacity_gph": 0
+  }],
+
+  "osmose": [{
+    "code": "Osm1",
+    "device": "EB-Osm1"
   }]
 }
