@@ -1,6 +1,6 @@
 {
   "name": "ErabliDash",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "start": "node app.js"
@@ -8,9 +8,9 @@
   "dependencies": {
     "express": "^4.16.4",
     "influx": "^5.0.7",
+    "mime": "1.4.1",
     "npm": "^6.13.7",
     "promise": "^8.0.2",
-    "sqlite3": "^4.0.6",
     "underscore": "^1.9.1",
     "websocket": "^1.0.28"
   },
@@ -26,3 +26,4 @@
     "eslint-plugin-standard": "^4.0.0"
   }
 }
+
