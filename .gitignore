@@ -3,6 +3,7 @@ dashboard.sqlite3
 dashboard.sqlite3-journal
 data
 config.json
+config20*.json
 log
 pid
 bower_components
