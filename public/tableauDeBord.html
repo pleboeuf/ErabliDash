@@ -565,32 +565,56 @@
                 var col1Elem;
                 var col1ElemId = 'Osmose' + '_Col1';
                 col1Elem = document.getElementById(col1ElemId);
-                col1Elem.innerHTML = osm.Col1.toFixed(1);
+                if (osm.Col1 !== undefined) {
+                    col1Elem.innerHTML = osm.Col1.toFixed(1);
+                } else {
+                    col1Elem.innerHTML = 0.0;
+                }
 
                 var col2Elem;
                 var col2ElemId = 'Osmose' + '_Col2';
                 col2Elem = document.getElementById(col2ElemId);
-                col2Elem.innerHTML = osm.Col2.toFixed(1);
+                if (osm.Col2 !== undefined) {
+                    col2Elem.innerHTML = osm.Col2.toFixed(1);
+                } else {
+                    col2Elem.innerHTML = 0.0;
+                }
 
                 var col3Elem;
                 var col3ElemId = 'Osmose' + '_Col3';
                 col3Elem = document.getElementById(col3ElemId);
-                col3Elem.innerHTML = osm.Col3.toFixed(1);
+                if (osm.Col3 !== undefined) {
+                    col3Elem.innerHTML = osm.Col3.toFixed(1);
+                } else {
+                    col3Elem.innerHTML = 0.0;
+                }
 
                 var col4Elem;
                 var col4ElemId = 'Osmose' + '_Col4';
                 col4Elem = document.getElementById(col4ElemId);
-                col4Elem.innerHTML = osm.Col4.toFixed(1);
+                if (osm.Col4 !== undefined) {
+                    col4Elem.innerHTML = osm.Col4.toFixed(1);
+                } else {
+                    col4Elem.innerHTML = 0.0;
+                }
 
                 var concElem;
                 var concElemId = 'Osmose' + '_Conc';
                 concElem = document.getElementById(concElemId);
-                concElem.innerHTML = osm.Conc.toFixed(1);
+                if (osm.Conc !== undefined) {
+                    concElem.innerHTML = osm.Conc.toFixed(1);
+                } else {
+                    concElem.innerHTML = 0.0;
+                }
 
                 var TempElem;
                 var TempElemId = 'Osmose' + '_Temp';
                 TempElem = document.getElementById(TempElemId);
-                TempElem.innerHTML = osm.Temp.toFixed(1);
+                if (osm.Temp !== undefined) {
+                    TempElem.innerHTML = osm.Temp.toFixed(1); 
+                } else {
+                    TempElem.innerHTML = 0.0;
+                }
 
                 var PresElem;
                 var PresElemId = 'Osmose' + '_Pres';
@@ -600,12 +624,20 @@
                 var brixSeveElem;
                 var brixSeveElemId = 'Osmose' + '_BrixSeve';
                 brixSeveElem = document.getElementById(brixSeveElemId);
-                brixSeveElem.innerHTML = osm.BrixSeve.toFixed(1);
+                if (osm.Pres !== undefined){ 
+                    brixSeveElem.innerHTML = osm.BrixSeve.toFixed(1); 
+                } else {
+                    brixSeveElem.innerHTML = 0.0;
+                }
 
                 var brixConcElem;
                 var brixConcElemId = 'Osmose' + '_BrixConc';
                 brixConcElem = document.getElementById(brixConcElemId);
-                brixConcElem.innerHTML = osm.BrixConc.toFixed(1);
+                if (osm.BrixConc !== undefined) {
+                    brixConcElem.innerHTML = osm.BrixConc.toFixed(1);
+                } else {
+                    brixConcElem.innerHTML = 0.0;
+                }
 
                 var pcConcElem;
                 var pcConcElemId = 'Osmose' + '_PC_Conc';

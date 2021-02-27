@@ -25,8 +25,8 @@ function chargelecture() {
 // pour l instant shoot dans un <span id="results"></span>
     var myurl;
     var timestamp ;
-    if ( location.port == 3001){
-        myurl = "http://boilerhouse.ddns.net:3001/data.json";  //adapte le json pour la prod
+    if ( location.port == 3300){
+        myurl = "http://boilerhouse.ddns.net:3300/data.json";  //adapte le json pour la prod
     }else
     {
         myurl= "test/data.json";                                   // pour le dev
