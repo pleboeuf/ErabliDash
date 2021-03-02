@@ -619,7 +619,11 @@
                 var PresElem;
                 var PresElemId = 'Osmose' + '_Pres';
                 PresElem = document.getElementById(PresElemId);
-                PresElem.innerHTML = osm.Pres;
+                if (osm.Pres !== undefined) {
+                    PresElem.innerHTML = osm.Pres;
+                } else {
+                    PresElem.innerHTML = 0;
+                }
 
                 var brixSeveElem;
                 var brixSeveElemId = 'Osmose' + '_BrixSeve';
@@ -1431,6 +1435,14 @@
                         <td class="lighter rawvalue", id="Osmose_sequence"> </td>                               
                     </tr>
                     <tr>
+                        <td class="darker">Brix Sève</td>
+                        <td class="lighter rawvalue", id="Osmose_BrixSeve"> </td>                              
+                    </tr>
+                    <tr>
+                        <td class="darker">Brix Concentré</td> 
+                        <td class="lighter rawvalue", id="Osmose_BrixConc"> </td>                          
+                    </tr>
+                    <tr>
                         <td class="darker">Débit Col1 (g/m)</td>
                         <td class="lighter rawvalue", id="Osmose_Col1"> </td>                          
                     </tr>
@@ -1457,14 +1469,6 @@
                     <tr>
                         <td class="darker">Pression (PSI)</td>
                         <td class="lighter rawvalue", id="Osmose_Pres"> </td>                            
-                    </tr>
-                    <tr>
-                        <td class="darker">Brix Sève</td>
-                        <td class="lighter rawvalue", id="Osmose_BrixSeve"> </td>                              
-                    </tr>
-                    <tr>
-                        <td class="darker">Brix Concentré</td> 
-                        <td class="lighter rawvalue", id="Osmose_BrixConc"> </td>                          
                     </tr>
 
                     <th class="darker">Sommaire</th>
