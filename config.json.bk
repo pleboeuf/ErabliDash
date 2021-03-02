@@ -375,7 +375,7 @@
     "orientation": "horizontal",
     "length": 4128,
     "diameter": 2438,
-    "sensorHeight": 2090,
+    "sensorHeight": 2258,
     "output": "VaS3",
     "drain": "VaDS3"
   }, {
@@ -386,7 +386,7 @@
     "orientation": "horizontal",
     "length": 3353,
     "diameter": 2438,
-    "sensorHeight": 2292,
+    "sensorHeight": 2325,
     "output": "VaS4",
     "drain": "VaDS4"
   }, {
