@@ -17,55 +17,9 @@
     var chart;
     var chartData;
 
-    var tankDefs = [{
-      // Note: Capacity in Liters
-      code: "RS1",
-      capacity: 1,
-    }, {
-      code: "RS2",
-      capacity: 1
-    }, {
-      code: "RS3",
-      capacity: 1
-    }, {
-      code: "RS4",
-      capacity: 1
-    }, {
-      code: "RS5",
-      capacity: 1
-    }, {
-      code: "RS6",
-      capacity: 1
-    }, {
-      code: "RF1",
-      capacity: 1
-    }, {
-      code: "RF2",
-      capacity: 1
-    }, {
-      code: "RC1",
-      capacity: 1
-    }, {
-      code: "RC2",
-      capacity: 1
-    }, {
-      code: "RHC",
-      capacity: 1
-    }];
-
-    function liters2gallons(liters) {
-      return Math.ceil(liters / 4.54609188);
-    }
-
     function onLoad() {
       jsonElement = document.getElementById("json");
-      activityElement = document.getElementById("activity");
-
-      google.charts.load('current', {
-        'packages': ['gauge']
-      });
-      google.charts.setOnLoadCallback(onChartLoad);
-      console.log('Waiting for Google Charts to load.');
+      // console.log('Waiting for Google Charts to load.');
     }
 
     function setOptionsCapacity(options, capacity) {
@@ -74,30 +28,6 @@
       options.yellowFrom = capacity * 0.75;
       options.yellowTo = capacity * 0.9;
       options.max = capacity;
-    }
-
-    function onChartLoad() {
-      console.log('Google Charts loaded. Drawing gauge.');
-      var chart_div = document.getElementById('chart_div');
-      tankDefs.forEach(function(tank) {
-        var gaugeDiv = document.createElement("div");
-        gaugeDiv.setAttribute('id', 'tank_' + tank.code + '_gauge');
-        gaugeDiv.setAttribute('class', 'tankgauge');
-        chart_div.appendChild(gaugeDiv);
-        tank.chartData = google.visualization.arrayToDataTable([
-          ['Label', 'Value'],
-          [tank.code, 0]
-        ]);
-        tank.chart = new google.visualization.Gauge(gaugeDiv);
-        tank.options = {
-          width: 200,
-          height: 200
-        };
-        setOptionsCapacity(tank.options, liters2gallons(tank.capacity));
-        tank.chart.draw(tank.chartData, tank.options);
-      });
-      console.log('Drawing done. Opening socket.');
-      openSocket();
     }
 
     function openSocket() {
@@ -113,40 +43,17 @@
       };
       websocket.onmessage = function(msg) {
         // console.log("Received message: " + msg.data);
-        showActivity();
         var data = JSON.parse(msg.data);
         jsonElement.innerHTML = '<pre>' + JSON.stringify(data, null, 4) + '</pre>';
-        tankDefs.forEach(function(tankDef, index) {
-          var tank = data.tanks.filter(function(tankData) {
-            return tankData.code == tankDef.code;
-          }).shift();
-          console.log("Tank %s at %d: %s", tankDef.code, index, tank.fill);
-          setOptionsCapacity(tankDef.options, liters2gallons(tank.capacity));
-          var value = (tank.fill == null ? 0 : liters2gallons(tank.fill));
-          tankDef.chartData.setValue(0, 1, value);
-          tankDef.chart.draw(tankDef.chartData, tankDef.options);
-        });
       };
       websocket.onerror = function(evt) {
         console.console.error('Error:' + evt);
       };
     }
 
-    function showActivity() {
-      activityElement.setAttribute('class', 'active');
-      setTimeout(function() {
-        activityElement.setAttribute('class', 'inactive');
-      }, 5000);
-    }
-
     window.addEventListener("load", onLoad, false);
   </script>
   <style>
-    .tankgauge {}
-
-    #activity {
-      display: inline;
-    }
 
     .active {
       background-color: green;
@@ -155,16 +62,59 @@
     .inactive {
       background-color: lightgray;
     }
+    th, td {
+      padding: 10px;
+    }
   </style>
 </head>
 
 <body>
-  <h1>ErabliDash</h1> Voir <a href="/data.json">data.json</a> pour les données brutes,
-    ou allez au <a href="/tableauDeBord.html">tableau de bord</a>
-     , à la vue <a href="/cabane">graphique</a>
-    ou à la  <a href="/cabane-map">carte du vacuum</a>.
-  <h2><div id="activity" class="inactive">&nbsp;&nbsp;&nbsp;</div> Tank Levels</h2>
-  <div id="chart_div" style="width: 400px; height: 120px;"></div>
+  <h1>Érablière Brunelle</h1>
+  <h2>Choisir l'affichage désiré</h2>  
+    <div>
+      <table>
+        <tr>
+          <th>
+            <a href="http://boilerhouse.ddns.net:3300/tableauDeBord.html">
+              <img src="/images/Numérique.png" alt="HTML5 Icon" style="width:166px;height:156px;"   ></a>
+          </th>
+          <th>
+            <a href="http://boilerhouse.ddns.net:3300/cabane2021">
+              <img src="/images/Graphique2021.png" alt="HTML5 Icon" style="width:166px;height:156px;"   ></a>
+          </th>
+          <th>
+            <a href="http://boilerhouse.ddns.net:3300/cabaneMapNew">
+              <img src="/images/Vacuum Map.png" alt="HTML5 Icon" style="width:166px;height:156px;"   ></a>
+          </th>
+          <th>
+            <a href="http://boilerhouse.ddns.net:3000/">
+              <img src="/images/Grafana.png" alt="HTML5 Icon" style="width:166px;height:156px;"   ></a>
+          </th>
+          <th>
+            <a href="/data.json">
+              <img src="/images/Données brutes.png" alt="HTML5 Icon" style="width:166px;height:156px;"   ></a>
+          </th>
+        </tr>
+        <tr>
+          <th>
+            Table numériques
+          </th>
+          <th>
+            Schéma de fonctionnement
+          </th>
+          <th>
+            Carte du vide
+          </th>
+          <th>
+            Grafana
+          </th>
+          <th>
+            Données brutes
+          </th>
+        </tr>
+      </table>
+    </div>
+
   <div id="json" style="display: none" />
 </body>
 

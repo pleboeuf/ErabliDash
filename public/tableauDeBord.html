@@ -685,6 +685,7 @@
             var dateStart;
             allWaterPumps = [false, false, false];
             pumps.forEach(function(pump) {
+                var PV1vacId;
                 var codeElement;
                 var codeElementId = 'pump_' + pump.code;
                 var stateElem;
@@ -735,6 +736,14 @@
                     volumeElem = document.getElementById(volumeElemId)
                 }
                 setPumpWarning(pumpElem, pump.run2long);
+                if (pump.code == "Vide1") {
+                    PV1vacId = document.getElementById("vacuum_PV1_value");
+                    if (PV1vacId !== null) {
+                        if (PV1vacId.innerHTML < -10) {
+                            pump.state = true;
+                        }
+                    }
+                }
                 stateElem.innerHTML = pump.state ? 'ON' : 'OFF';
                 setIndicatorColor(stateElem, pump.state);
                 if ((pump.duty !== undefined) && (pump.duty >= 0)) {
