@@ -667,14 +667,37 @@
                 var dureeElemId = 'Osmose' + '_Durée_sec';
                 dureeElem = document.getElementById(dureeElemId);
                 dureeElem.innerHTML = secToHrMin(osm.runTimeSec);
+
+                var tempApproxElem;
+                var tempApproxElemId = 'Osmose' + '_temps_approx';
+                tempApproxElem = document.getElementById(tempApproxElemId);
+                var tempEstim = calcTempEst();
+                tempApproxElem.innerHTML = secToHrMin(tempEstim);
             })
+        }
+
+        function calcTempEst() {
+            var tempsEst;
+            const debitOsmose = document.getElementById("Osmose_Total_GPH").innerHTML;
+            const débitPompes = document.getElementById("pumptotalrate").innerHTML;
+            const volumeSeve = document.getElementById("RStot").innerHTML;
+            if ((debitOsmose !== null) && (débitPompes !== null) && (volumeSeve !== null)) {
+                var debitReel = debitOsmose - débitPompes;
+                if (debitReel > 0) {
+                    tempsEst = 3600 * volumeSeve / debitReel;
+                } else {
+                    tempsEst = 24 * 3600;
+                }
+            }
+            return tempsEst;
         }
 
         function secToHrMin(totalSec) {
             hour = Math.floor(totalSec / 3600);
             min = Math.floor((totalSec - hour * 3600) / 60);
             sec = totalSec - (hour * 3600 + min * 60);
-            return pad(hour) + ":" + pad(min);
+            // return pad(hour) + "h " + pad(min) + "m";
+            return hour + "h " + min + "m";
         }
 
         function displayPumps() {
@@ -1502,6 +1525,10 @@
                     <tr>
                         <td class="darker">Durée d'Osmose</td> 
                         <td class="lighter rawvalue", id="Osmose_Durée_sec"> </td>                         
+                    </tr>
+                    <tr>
+                        <td class="darker">Durée totale Estimé</td> 
+                        <td class="lighter rawvalue", id="Osmose_temps_approx"> </td>                         
                     </tr>
 
             </table>
