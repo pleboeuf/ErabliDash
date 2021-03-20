@@ -113,6 +113,7 @@
 
                 var RStotElement;
                 var RStotPCElem;
+                var RStoSiropElement;
                 var RSdispElement;
                 var RSmaxElement;
 
@@ -123,6 +124,7 @@
 
                 var RCtotElement;
                 var RCtotPCElement;
+                var RCtoSiropElement;
                 var RCdispElement;
                 var RCmaxElement;
 
@@ -183,6 +185,7 @@
                     RStotPCElem.setAttribute('class', 'tankpercent');
                     RStotElement = document.getElementById ('RStot');
                     RStotElement.setAttribute('class', 'tankcontents');
+                    RStoSiropElement = document.getElementById ('RStoSirop');
                     RSdispElement = document.getElementById('RSdisp');
                     RSdispElement.setAttribute('class', 'tankcontents');
                     RSmaxElement = document.getElementById ('RSmax');
@@ -203,6 +206,7 @@
                     RCtotPCElement.setAttribute('class', 'tankpercent');
                     RCtotElement = document.getElementById ('RCtot');
                     RCtotElement.setAttribute('class', 'tankcontents');
+                    RCtoSiropElement = document.getElementById('RCtoSirop');
                     RCdispElement = document.getElementById('RCdisp');
                     RCdispElement.setAttribute('class', 'tankcontents');
                     RCmaxElement = document.getElementById ('RCmax');
@@ -218,6 +222,7 @@
                     // For summary table
                     RStotPCElem = document.getElementById('RStotPC');
                     RStotElement = document.getElementById('RStot');
+                    RStoSiropElement = document.getElementById('RStoSirop');
                     RSdispElement = document.getElementById('RSdisp')
                     RSmaxElement = document.getElementById('RSmax');
 
@@ -228,6 +233,7 @@
 
                     RCtotPCElement = document.getElementById ('RCtotPC');
                     RCtotElement = document.getElementById ('RCtot');
+                    RCtoSiropElement = document.getElementById ('RCtoSirop');
                     RCdispElement = document.getElementById('RCdisp')
                     RCmaxElement = document.getElementById('RCmax');
                 }
@@ -285,6 +291,8 @@
                     RStotalCap = RStotalCap + liters2gallons(tank.capacity);
                     RStotElement.innerHTML = RStotal.toFixed(0);
                     RStotPCElem.innerHTML = (RStotal / RStotalCap * 100).toFixed(0) + '%';
+                    var seveBrix = document.getElementById("Osmose_BrixSeve").innerHTML;
+                    RStoSiropElement.innerHTML = (RStotal * seveBrix / 66.0).toFixed(0);
                     RSdispElement.innerHTML = (RStotalCap - RStotal).toFixed(0);
                     RSmaxElement.innerHTML = RStotalCap.toFixed(0);
                 }
@@ -304,6 +312,8 @@
                     RCtotalCap = RCtotalCap + liters2gallons(tank.capacity);
                     RCtotElement.innerHTML = RCtotal.toFixed(0);
                     RCtotPCElement.innerHTML = (RCtotal / RCtotalCap * 100).toFixed(0) + '%';;
+                    var concBrix = document.getElementById("Osmose_BrixConc").innerHTML;
+                    RCtoSiropElement.innerHTML = (RCtotal * concBrix / 66.0).toFixed(0);
                     RCdispElement.innerHTML = (RCtotalCap - RCtotal).toFixed(0);
                     RCmaxElement.innerHTML = RCtotalCap.toFixed(0);
                 }
@@ -517,13 +527,21 @@
                 var alarmCodeElem;
                 var alarmCodeElemId = 'Osmose' + '_alarmNo';
                 alarmCodeElem = document.getElementById(alarmCodeElemId);
-                alarmCodeElem.innerHTML = osm.alarmNo;
+                if (osm.alarmNo !== undefined) {
+                    alarmCodeElem.innerHTML = osm.alarmNo;
+                } else {
+                    alarmCodeElem.innerHTML = "";
+                }
 
                 var alarmMsgElem;
                 var alarmMsgElemId = 'Osmose_alarmMsg'
                 alarmMsgElem = document.getElementById(alarmMsgElemId);
-                
-                alarmMsgElem.innerHTML = osm.alarmMsg;
+                if (osm.alarmMsg !== undefined) {
+                    alarmMsgElem.innerHTML = osm.alarmMsg;
+                } else {
+                    alarmMsgElem.innerHTML = "";
+                }
+
                 if (osm.alarmNo < 0) {
                     alarmMsgElem.style.backgroundColor = "orange";
                 } else {
@@ -534,7 +552,11 @@
                 var seqElem;
                 var seqElemId = 'Osmose' + '_sequence';
                 seqElem = document.getElementById(seqElemId);
-                seqElem.innerHTML = osm.sequence;
+                if (osm.sequence !== undefined) {
+                    seqElem.innerHTML = osm.sequence;
+                } else {
+                    seqElem.innerHTML = "?-?-?-?";
+                }
 
                 var runTimeCodeElem;
                 var runTimeElemId = 'Osmose' + '_tOperEC';
@@ -631,7 +653,7 @@
                 if (osm.Pres !== undefined){ 
                     brixSeveElem.innerHTML = osm.BrixSeve.toFixed(1); 
                 } else {
-                    brixSeveElem.innerHTML = 0.0;
+                    brixSeveElem.innerHTML = 1.0;
                 }
 
                 var brixConcElem;
@@ -640,33 +662,53 @@
                 if (osm.BrixConc !== undefined) {
                     brixConcElem.innerHTML = osm.BrixConc.toFixed(1);
                 } else {
-                    brixConcElem.innerHTML = 0.0;
+                    brixConcElem.innerHTML = 10.0;
                 }
 
                 var pcConcElem;
                 var pcConcElemId = 'Osmose' + '_PC_Conc';
                 pcConcElem = document.getElementById(pcConcElemId);
-                pcConcElem.innerHTML = osm.PC_Conc;
+                if (osm.PC_Conc !== undefined) {
+                    pcConcElem.innerHTML = osm.PC_Conc;
+                } else {
+                    pcConcElem.innerHTML = 0;
+                }
 
                 var gphConcElem;
                 var gphConcElemId = 'Osmose' + '_Conc_GPH';
                 gphConcElem = document.getElementById(gphConcElemId);
-                gphConcElem.innerHTML = osm.Conc_GPH;
+                if (osm.Conc_GPH !== undefined) {
+                    gphConcElem.innerHTML = osm.Conc_GPH;
+                } else {
+                    gphConcElem.innerHTML = 0;
+                }
 
                 var gphFiltratElem;
                 var gphFiltratElemId = 'Osmose' + '_Filtrat_GPH';
                 gphFiltratElem = document.getElementById(gphFiltratElemId);
-                gphFiltratElem.innerHTML = osm.Filtrat_GPH;
+                if (osm.Filtrat_GPH !== undefined) {
+                    gphFiltratElem.innerHTML = osm.Filtrat_GPH;
+                } else {
+                    gphFiltratElem.innerHTML = 0;
+                }
 
                 var gphTotalElem;
                 var gphTotalElemId = 'Osmose' + '_Total_GPH';
                 gphTotalElem = document.getElementById(gphTotalElemId);
-                gphTotalElem.innerHTML = osm.Total_GPH;
+                if (osm.Total_GPH !== undefined) {
+                    gphTotalElem.innerHTML = osm.Total_GPH;
+                } else {
+                    gphTotalElem.innerHTML = 3000;
+                }
 
                 var dureeElem;
                 var dureeElemId = 'Osmose' + '_Durée_sec';
                 dureeElem = document.getElementById(dureeElemId);
-                dureeElem.innerHTML = secToHrMin(osm.runTimeSec);
+                if (osm.runTimeSec !== undefined){
+                    dureeElem.innerHTML = secToHrMin(osm.runTimeSec);
+                } else {
+                    dureeElem.innerHTML = "";
+                }
 
                 var tempApproxElem;
                 var tempApproxElemId = 'Osmose' + '_temps_approx';
@@ -1258,8 +1300,8 @@
 
         <div class="w3-display-container w3-theme w3-light-grey" , style="width: 100%; height: 70px; display: inline-block; position: fixed;">
             <div class="w3-container w3-display-bottommiddle" , style="width: 70%; height: 70px; display: inline-block;", id="ZoneCentrale">
-                <div class="w3-container w3-display-bottomleft" , style="width: 70%; height: 70px; display: inline-block;">
-                    <h1 class="w3-display-topleft w3-mobile" , style="display: inline-block;", id="siteName">Serveur de Tests</h1></div>
+                <div class="w3-container w3-display-bottomleft" , style="width: 30%; height: 70px; display: inline-block;">
+                    <h2 class="w3-display-topleft w3-mobile" , style="display: inline-block;", id="siteName">Serveur de Tests</h2></div>
                 <div class="w3-container w3-display-right" , style="width: 30%; height: 70px;" , id="coulee">
                     <h3 class="w3-display" , style="display: inline; font-weight: bold;" , id="c_text"></h3>
                     <h3 class="w3-display" , style="display: inline;" , id="compteurDeTemps"></h3>
@@ -1295,9 +1337,10 @@
             <h3>Sommaire des Réservoirs</h3>
             <table id="totalReservoirs">
                 <th class="darker">Total</th>
-                <th class="darker">Contenu</th>
-                <th class="darker"> Actuel <br/>(gal)</th>
-                <th class="darker"> Actuel <br/>(%)</th>
+                <th class="darker">Cont.</th>
+                <th class="darker"> Act. <br/>(gal)</th>
+                <th class="darker"> Act. <br/>(%)</th>
+                <th class="darker"> Sirop <br/>(gal)</th>
                 <th class="darker"> Disp. <br/>(gal)</th>
                 <th>Max. <br/> (gal)</th>
                 <tr> 
@@ -1305,22 +1348,25 @@
                     <td class="lighter">Sève</td>
                     <td class="lighter", id="RStot"></td>
                     <td class="lighter V_position", id="RStotPC"></td>
+                    <td class="lighter V_position", id="RStoSirop"></td>
                     <td class="lighter V_position", id="RSdisp"></td>
                     <td class="lighter V_position", id="RSmax"></td>
                 </tr>
                 <tr>
                     <td class="darker", id="RFsummaryName">RF1 + RF2</td>
-                    <td class="lighter">Filtrat</td>
+                    <td class="lighter">Filt.</td>
                     <td class="lighter", id="RFtot"></td>
                     <td class="lighter V_position", id="RFtotPC"></td>
+                    <td class="lighter V_position", id=""></td>
                     <td class="lighter V_position", id="RFdisp"></td>
                     <td class="lighter V_position", id="RFmax"></td>
                 </tr>
                 <tr>
                     <td class="darker">RC1 + RC2</td>
-                    <td class="lighter">Concentré</td>
+                    <td class="lighter">Conc.</td>
                     <td class="lighter", id="RCtot"></td>
                     <td class="lighter V_position", id="RCtotPC"></td>
+                    <td class="lighter V_position", id="RCtoSirop"></td>
                     <td class="lighter V_position", id="RCdisp"></td>
                     <td class="lighter V_position", id="RCmax"></td>
                 </tr>
