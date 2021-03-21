@@ -128,6 +128,8 @@
                 var RCdispElement;
                 var RCmaxElement;
 
+                var SiropElement;
+
                 if (tankElement == null) {
                     tankElement = document.createElement("tr");
                     tankElement.setAttribute('id', tankElementId);
@@ -212,6 +214,10 @@
                     RCmaxElement = document.getElementById ('RCmax');
                     RCmaxElement.setAttribute('class', 'tankcapacity');
 
+                    SiropElement = document.getElementById('SIRtotal');
+                    SIRmaxElement = document.getElementById ('SIRmax');
+                    SIRmaxElement.setAttribute('class', 'tankcapacity');
+
                 } else {
                     capacityElement = document.getElementById(capacityElementId);
                     rawValueElement = document.getElementById(rawValueElementId);
@@ -236,6 +242,8 @@
                     RCtoSiropElement = document.getElementById ('RCtoSirop');
                     RCdispElement = document.getElementById('RCdisp')
                     RCmaxElement = document.getElementById('RCmax');
+
+                    SiropElement = document.getElementById('SIRtotal');
                 }
                 // Display the data
                 var tankPercent = (tank.contents / tank.capacity * 100).toFixed(0);
@@ -316,6 +324,9 @@
                     RCtoSiropElement.innerHTML = (RCtotal * concBrix / 66.0).toFixed(0);
                     RCdispElement.innerHTML = (RCtotalCap - RCtotal).toFixed(0);
                     RCmaxElement.innerHTML = RCtotalCap.toFixed(0);
+                    var seveBrix = document.getElementById("Osmose_BrixSeve").innerHTML;
+                    var SiropTotal =  ((RStotal * seveBrix / 66.0) + (RCtotal * concBrix / 66.0)).toFixed(0);
+                    SiropElement.innerHTML = SiropTotal;
                 }
 
             });
@@ -1370,6 +1381,15 @@
                     <td class="lighter V_position", id="RCdisp"></td>
                     <td class="lighter V_position", id="RCmax"></td>
                 </tr>
+                <tr>
+                    <td class="darker">Total</td>
+                    <td class="lighter">Sirop</td>
+                    <td class="lighter", id="SIRtot"></td>
+                    <td class="lighter V_position", id="SIRtotPC"></td>
+                    <td class="lighter V_position", id="SIRtotal"></td>
+                    <td class="lighter V_position", id="SIRdisp"></td>
+                    <td class="lighter V_position", id="SIRmax"></td>
+                </tr>
             </table>
 
             <!-- </div> -->
@@ -1378,7 +1398,7 @@
 
             </h3>
             <p></p>
-            <a class="w3-btn w3-dark-grey" href="/data.json">Données brutes</a>
+            <!-- <a class="w3-btn w3-dark-grey" href="/data.json">Données brutes</a> -->
             <!-- <button id="devicesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('devices')">Cacher les devices</button> -->
             <!-- <button id="valvesTblBtn" , class="w3-btn" onclick="toggleTablesVisibility('valves')">Voir les valves</button> -->
 
