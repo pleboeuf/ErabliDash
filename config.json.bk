@@ -24,7 +24,15 @@
     "name": "EB-P3",
     "description": "Pompe et vide relâcheur #3",
     "id": "3b0043000247343339373536",
-    "maxDelayMinutes": 5
+    "maxDelayMinutes": 5,
+    "ignore": [
+      {
+        "reason": "Invalid Tank firmware uploaded by mistake on Pump firmware.",
+        "generation": 1518376675,
+        "serial_from": 13141,
+        "serial_to": 13260
+      }
+    ]
   }, {
     "name": "EB-V1",
     "description": "Pompe a vide #1",
@@ -1084,10 +1092,10 @@
   },{
     "code": "P3",
     "device": "EB-P3",
-    "capacity_gph": 1746,
+    "capacity_gph": 2620,
     "duty": 0,
     "volume" : 0,
-    "Volume_Relacheur" : 16.5
+    "Volume_Relacheur" : 16.46
   }, {
     "code": "PT1",
     "device": "EB-PT1",

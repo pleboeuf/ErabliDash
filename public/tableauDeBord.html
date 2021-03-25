@@ -751,6 +751,7 @@
             const sec = totalSec - (hour * 3600 + min * 60);
             // return pad(hour) + "h " + pad(min) + "m";
             if (sec > 29) {min = min + 1};
+            if (min > 59) {hour = hour + 1};
             return hour + "h " + min + "m";
         }
 
@@ -776,6 +777,7 @@
                 var pumpElemId = 'pump_' + pump.code;
                 var pumpElem = document.getElementById(pumpElemId);
                 var SiropElem = document.getElementById('estimSirop');
+                var debitSiropElem = document.getElementById('debitEstimSirop');
                 if (document.getElementById(pumpElemId) == null) {
                     var pumpElem = document.createElement("tr");
                     pumpElem.setAttribute('id', pumpElemId);
@@ -813,6 +815,7 @@
                     rateElem = document.getElementById(rateElemId);
                     volumeElem = document.getElementById(volumeElemId);
                     SiropElem = document.getElementById('estimSirop');
+                    debitSiropElem = document.getElementById('debitEstimSirop');
                 }
                 setPumpWarning(pumpElem, pump.run2long);
                 if (pump.code == "Vide1") {
@@ -869,8 +872,12 @@
             var totalVolumeElem = document.getElementById('volumetotal');
             totalVolumeElem.innerHTML = parseInt(totalVolume) || 0;
             var seveBrix = document.getElementById("Osmose_BrixSeve").innerHTML;
+            var debitSirop = (seveBrix * parseInt(totalRate) / 66.0);
+            var totalSirop = (seveBrix * parseInt(totalVolume) / 66.0);
             SiropElem = document.getElementById('estimSirop');
-            SiropElem.innerHTML = (seveBrix * parseInt(totalVolume) / 66.0).toFixed(0) || 0;
+            SiropElem.innerHTML = totalSirop.toFixed(0) || 0;
+            debitSiropElem = document.getElementById('debitEstimSirop');
+            debitSiropElem.innerHTML = debitSirop.toFixed(1) || 0.0;
         }
 
         function checkCouleeEnCour(allWaterPumps, dateStart) {
@@ -1454,7 +1461,7 @@
                         <td class="darker">Sirop Est.</td>
                         <td></td>
                         <td></td>
-                        <td></td>
+                        <td id="debitEstimSirop", class="pumpvolume" , style="font-style: italic;font-weight: bold;"></td>
                         <td id="estimSirop", class="pumpvolume" , style="font-style: italic;font-weight: bold;"></td>
                     </tr>
                     <!-- This is a bad idea to use table to layout page. To be corrected -->
