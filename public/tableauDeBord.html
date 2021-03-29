@@ -746,7 +746,7 @@
         }
 
         function secToHrMin(totalSec) {
-            const hour = Math.floor(totalSec / 3600);
+            var hour = Math.floor(totalSec / 3600);
             var min = Math.floor((totalSec - hour * 3600) / 60);
             const sec = totalSec - (hour * 3600 + min * 60);
             // return pad(hour) + "h " + pad(min) + "m";
