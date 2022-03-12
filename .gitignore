@@ -10,4 +10,6 @@ bower_components
 .eslintrc.js
 public/__*
 public/cabane*
+.DS_Store
+*.bk
 
