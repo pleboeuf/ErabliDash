@@ -10,7 +10,7 @@
     "influx": "^5.0.7",
     "json-schema": "^0.4.0",
     "mime": "1.4.1",
-    "npm": "^7.20.6",
+    "npm": "^8.5.4",
     "promise": "^8.0.2",
     "underscore": "^1.9.1",
     "websocket": "^1.0.28"
