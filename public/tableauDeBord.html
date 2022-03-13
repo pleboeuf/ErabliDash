@@ -912,11 +912,14 @@
             vacuums.forEach(function(vacuum) {
                 var vacuumValue = 0;
                 var vacuumTemp = 0;
+                var deltaVacuum = 0;
                 var vacuumCharge = 0;
                 var vacuumIllum = 0;
+                var vacuumDrop = 0;
                 var valueElem;
                 var valueElemId = 'vacuum_' + vacuum.code + '_value';
                 var vacuumElemId = 'vacuum_' + vacuum.code;
+                var deltaVacElementId = 'vacuum_' + vacuum.code + '_deltaVac';
                 var tempElemId = 'vacuum_' + vacuum.code + '_temp';
                 var chargeElemId = 'vacuum_' + vacuum.code + '_percentCharge';
                 var illumElemId = 'vacuum_' + vacuum.code + '_lightIntensity';
@@ -936,6 +939,12 @@
                     valueElem.setAttribute('id', valueElemId);
                     valueElem.setAttribute('class', 'vacuumvalue');
                     vacuumElem.appendChild(valueElem);
+
+                    // Perte de vide sur la ligne
+                    deltaVacElem = document.createElement('td');
+                    deltaVacElem.setAttribute('id', tempElemId);
+                    deltaVacElem.setAttribute('class', 'vacuumtemp');
+                    vacuumElem.appendChild(deltaVacElem);
 
                     // if('temp' in vacuum){
                     tempElem = document.createElement('td');
@@ -988,6 +997,11 @@
                 vacuumValue = (vacuum.rawValue + vacuum.offset) / 100;
                 valueElem.innerHTML = vacuumValue.toFixed(1);
                 valueElem.style.textAlign = "right";
+
+                vacuumDrop = (0.1);
+                deltaVacElem.innerHTML = vacuumDrop.toFixed(1);
+                deltaVacElem.style.textAlign ="right";
+
                 if ('temp' in vacuum) {
                     var vacuumTemp = vacuum.temp;
                     tempElem.innerHTML = vacuumTemp.toFixed(1);
@@ -1629,6 +1643,8 @@
                 <tr>
                     <th class="darker">Nom</th>
                     <th class="darker">Vac.
+                        <br/>(inHg)</th>
+                    <th class="darker">∆Vac.
                         <br/>(inHg)</th>
                     <th class="darker">Temp.
                         <br/>(°C)</th>
