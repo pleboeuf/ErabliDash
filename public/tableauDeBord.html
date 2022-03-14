@@ -62,6 +62,7 @@
         var tempAge = 0;
         const maximumAge = 5;
         var actualSiteName;
+        var valueRef =  {};
 
         function liters2gallons(liters) {
             return Math.ceil(liters / 4.54609188);
@@ -919,7 +920,7 @@
                 var valueElem;
                 var valueElemId = 'vacuum_' + vacuum.code + '_value';
                 var vacuumElemId = 'vacuum_' + vacuum.code;
-                var deltaVacElementId = 'vacuum_' + vacuum.code + '_deltaVac';
+                var deltaVacElemId = 'vacuum_' + vacuum.code + '_deltaVac';
                 var tempElemId = 'vacuum_' + vacuum.code + '_temp';
                 var chargeElemId = 'vacuum_' + vacuum.code + '_percentCharge';
                 var illumElemId = 'vacuum_' + vacuum.code + '_lightIntensity';
@@ -942,7 +943,7 @@
 
                     // Perte de vide sur la ligne
                     deltaVacElem = document.createElement('td');
-                    deltaVacElem.setAttribute('id', tempElemId);
+                    deltaVacElem.setAttribute('id', deltaVacElemId);
                     deltaVacElem.setAttribute('class', 'vacuumtemp');
                     vacuumElem.appendChild(deltaVacElem);
 
@@ -981,6 +982,9 @@
                     if ('temp' in vacuum) {
                         tempElem = document.getElementById(tempElemId);
                     }
+                    if ('ref' in vacuum) {
+                        deltaVacElem = document.getElementById(deltaVacElemId);
+                    }
                     if ('percentCharge' in vacuum) {
                         chargeElem = document.getElementById(chargeElemId);
                     }
@@ -997,10 +1001,15 @@
                 vacuumValue = (vacuum.rawValue + vacuum.offset) / 100;
                 valueElem.innerHTML = vacuumValue.toFixed(1);
                 valueElem.style.textAlign = "right";
+                // Sauve les valeurs de références pour le calcul des perte de vide
+                if (vacuum.code == 'V1' || vacuum.code == 'V2' || vacuum.code == 'V3' || vacuum.code == 'PV1' || vacuum.code == 'PV2' || vacuum.code == 'PV3') {
+                    valueRef[vacuum.ref] = vacuumValue;
+                }
 
-                vacuumDrop = (0.1);
+                vacuumDrop = (vacuumValue - valueRef[vacuum.ref]);
                 deltaVacElem.innerHTML = vacuumDrop.toFixed(1);
                 deltaVacElem.style.textAlign ="right";
+                deltaVacElem.style.backgroundColor = setVacuumDropColor(vacuumDrop);
 
                 if ('temp' in vacuum) {
                     var vacuumTemp = vacuum.temp;
@@ -1139,6 +1148,19 @@
                     return "Orange";                // Orange - Faible. Entre 50% et 69%
                 } else {
                     return "Red";                   // Red - Critique. Moins de 50%
+                }
+            } catch (err) {
+                console.log("Erreur: " + err);
+            }
+        }
+        function setVacuumDropColor(vacuumDrop){
+            try {
+                if (vacuumDrop <= 2) {
+                    return "#d0d0d0";
+                } else if (vacuumDrop <= 3) {
+                    return "yellow";
+                } else {
+                    return "red";
                 }
             } catch (err) {
                 console.log("Erreur: " + err);
