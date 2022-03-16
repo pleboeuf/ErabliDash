@@ -7,8 +7,10 @@
     <link rel="stylesheet" href="/lib/w3schools23.css">
     <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-grey.css">
     <title>Tableau de bord</title>
-    <script src="/bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="/bower_components/peity/jquery.peity.min.js"></script>
+    <!-- <script src="/bower_components/jquery/dist/jquery.min.js"></script> -->
+    <!-- <script src="/bower_components/peity/jquery.peity.min.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peity/3.3.0/jquery.peity.js"></script>  
     <script language="javascript" type="text/javascript">
         function wsUri(path) {
             var l = window.location;
@@ -938,7 +940,7 @@
 
                     valueElem = document.createElement('td');
                     valueElem.setAttribute('id', valueElemId);
-                    valueElem.setAttribute('class', 'vacuumvalue');
+                    valueElem.setAttribute('class', 'vacuumtemp');
                     vacuumElem.appendChild(valueElem);
 
                     // Perte de vide sur la ligne
@@ -975,6 +977,7 @@
                     updatedElem = document.createElement('td');
                     updatedElem.setAttribute('id', updatedElemId);
                     updatedElem.setAttribute('class', 'vacuumtemp');
+                    updatedElem.style.visibility = "collapse";
                     vacuumElem.appendChild(updatedElem);
                     // }
                 } else {
@@ -1008,7 +1011,7 @@
 
                 vacuumDrop = (vacuumValue - valueRef[vacuum.ref]);
                 deltaVacElem.innerHTML = vacuumDrop.toFixed(1);
-                deltaVacElem.style.textAlign ="right";
+                deltaVacElem.style.textAlign = "right";
                 deltaVacElem.style.backgroundColor = setVacuumDropColor(vacuumDrop);
 
                 if ('temp' in vacuum) {
@@ -1143,8 +1146,8 @@
         function setBatteryColorLineVacuum(percentCharge) {
             try {
                 if (percentCharge >= 70){
-                    return "#d0d0d0";               // Light gray - Normal. 70% et plus
-                } else if (percentCharge >= 50){
+                    return "#e6e6e6";               // Light gray - Normal. 70% et plus
+                 } else if (percentCharge >= 50){
                     return "Orange";                // Orange - Faible. Entre 50% et 69%
                 } else {
                     return "Red";                   // Red - Critique. Moins de 50%
@@ -1155,9 +1158,9 @@
         }
         function setVacuumDropColor(vacuumDrop){
             try {
-                if (vacuumDrop <= 2) {
-                    return "#d0d0d0";
-                } else if (vacuumDrop <= 3) {
+                if (vacuumDrop < 2) {
+                    return "#e6e6e6";
+                } else if (vacuumDrop < 3) {
                     return "yellow";
                 } else {
                     return "red";
@@ -1662,23 +1665,29 @@
         <div style="margin-top: 70px;", id="vacuums">
             <h3>Vacuum</h3>
             <table id="vacuumlist">
-                <tr>
-                    <th class="darker">Nom</th>
-                    <th class="darker">Vac.
-                        <br/>(inHg)</th>
-                    <th class="darker">∆Vac.
-                        <br/>(inHg)</th>
-                    <th class="darker">Temp.
-                        <br/>(°C)</th>
-                    <th class="darker">Batt.
-                        <br/>(%)</th>
-                    <th class="darker">Illum.
-                        <br/>(lm)</th>
-                    <th class="darker">RSSI,
-                        <br/>Qual</th>
-                    <th class="darker">Mise à
-                        <br/>jour</th>
-                </tr>
+                <thead>
+                    <tr>
+                        <th class="darker">Nom</th>
+                        <th class="darker">Vac.
+                            <br/>(inHg)</th>
+                        <th class="darker">Perte
+                            <br/>(inHg)</th>
+                        <th class="darker">Temp.
+                            <br/>(°C)</th>
+                        <th class="darker">Batt.
+                            <br/>(%)</th>
+                        <th class="darker">Illum.
+                            <br/>(lm)</th>
+                        <th class="darker">RSSI,
+                            <br/>Qual</th>
+                        <th class="darker", style="visibility:collapse;">Mise à
+                            <br/>jour</th>
+                    </tr>                    
+                </thead>
+                <tbody id="lineVacTable">
+
+                </tbody>
+
             </table>
         </div>
 
