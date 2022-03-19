@@ -7,7 +7,7 @@
     "filename": "data/dashboard.json"
   },
   "influxdb": {
-	  "host": "localhost",
+	  "host": "rpi4.local",
 	  "port": 8086
   },
   "devices": [{
@@ -358,7 +358,7 @@
     "orientation": "horizontal",
     "length": 10718,
     "diameter": 1651,
-    "sensorHeight": 1738,
+    "sensorHeight": 1753,
     "output": "VaS1",
     "drain": "VaDS1"
   }, {
@@ -543,536 +543,614 @@
     "code": "V1",
     "label": "Rel1",
     "device": "EB-P1",
-    "offset": 82
+    "offset": 82,
+    "ref": "V1"
   }, {
     "code": "V2",
     "label": "Rel2",
     "device": "EB-P2",
-    "offset": 58
+    "offset": 58,
+    "ref": "V2"
   },{
     "code": "V3",
     "label": "Rel3",
     "device": "EB-P3",
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "PV1",
     "label": "Pompe V1",
     "device": "EB-V1",
-    "offset": 0
+    "offset": 0,
+    "ref": "PV1"
   },{
     "code": "PV2",
     "label": "Pompe V2",
     "device": "EB-V2",
-    "offset": 0
+    "offset": 0,
+    "ref": "PV2"
   },{
     "code": "PV3",
     "label": "Pompe V3",
     "device": "EB-V3",
-    "offset": 0
+    "offset": 0,
+    "ref": "PV3"
   },{
     "code": "A1",
     "label": "Ligne A1",
     "device": "VA1-4",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "A2",
     "label": "Ligne A2",
     "device": "VA1-4",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "A3",
     "label": "Ligne A3",
     "device": "VA1-4",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "A4",
     "label": "Ligne A4",
     "device": "VA1-4",
     "inputName": "vd",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "A5",
     "label": "Ligne A5",
     "device": "VA5B1-2",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "B1",
     "label": "Ligne B1",
     "device": "VA5B1-2",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "B2",
     "label": "Ligne B2",
     "device": "VA5B1-2",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "C1",
     "label": "Ligne C1",
     "device": "VC1-3",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "C2",
     "label": "Ligne C2",
     "device": "VC1-3",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "C3",
     "label": "Ligne C3",
     "device": "VC1-3",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "C4",
     "label": "Ligne C4",
     "device": "VC4-6",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "C5",
     "label": "Ligne C5",
     "device": "VC4-6",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "C6",
     "label": "Ligne C6",
     "device": "VC4-6",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "C7",
     "label": "Ligne C7",
     "device": "VC7-8",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "C8",
     "label": "Ligne C8",
     "device": "VC7-8",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "D1A",
     "label": "Ligne D1A",
     "device": "VD1ABVD2AB",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "D1B",
     "label": "Ligne D1B",
     "device": "VD1ABVD2AB",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "D2A",
     "label": "Ligne D2A",
     "device": "VD1ABVD2AB",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "D2B",
     "label": "Ligne D2B",
     "device": "VD1ABVD2AB",
     "inputName": "vd",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "E1",
     "label": "Ligne E1",
     "device": "VE1-3",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "E2",
     "label": "Ligne E2",
     "device": "VE1-3",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "E3",
     "label": "Ligne E3",
     "device": "VE1-3",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "E4",
     "label": "Ligne E4",
     "device": "VE4-6",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "E5",
     "label": "Ligne E5",
     "device": "VE4-6",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "E6",
     "label": "Ligne E6",
     "device": "VE4-6",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "E7",
     "label": "Ligne E7",
     "device": "VE7-9",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "E8",
     "label": "Ligne E8",
     "device": "VE7-9",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "E9",
     "label": "Ligne E9",
     "device": "VE7-9",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "E10",
     "label": "Ligne E10",
     "device": "VE10-12",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "E11",
     "label": "Ligne E11",
     "device": "VE10-12",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "E12",
     "label": "Ligne E12",
     "device": "VE10-12",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V3"
   },{
     "code": "F1",
     "label": "Ligne F1",
     "device": "VF1-3",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V2"
   },{
     "code": "F2",
     "label": "Ligne F2",
     "device": "VF1-3",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V2"
   },{
     "code": "F3",
     "label": "Ligne F3",
     "device": "VF1-3",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V2"
   },{
     "code": "F4",
     "label": "Ligne F4",
     "device": "VF4-6",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V2"
   },{
     "code": "F5",
     "label": "Ligne F5",
     "device": "VF4-6",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V2"
   },{
     "code": "F6",
     "label": "Ligne F6",
     "device": "VF4-6",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V2"
   },{
     "code": "F7",
     "label": "Ligne F7",
     "device": "VF7-9",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V2"
   },{
     "code": "F8",
     "label": "Ligne F8",
     "device": "VF7-9",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V2"
   },{
     "code": "F9",
     "label": "Ligne F9",
     "device": "VF7-9",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V2"
   },{
     "code": "F10",
     "label": "Ligne F10",
     "device": "VF10-12",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V2"
   },{
     "code": "F11",
     "label": "Ligne F11",
     "device": "VF10-12",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V2"
   },{
     "code": "F12",
     "label": "Ligne F12",
     "device": "VF10-12",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V2"
   },{
     "code": "F13",
     "label": "Ligne F13",
     "device": "VF13-16",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V2"
   },{
     "code": "F14",
     "label": "Ligne F14",
     "device": "VF13-16",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V2"
   },{
     "code": "F15",
     "label": "Ligne F15",
     "device": "VF13-16",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V2"
   },{
     "code": "F16",
     "label": "Ligne F16",
     "device": "VF13-16",
     "inputName": "vd",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V2"
   },{
     "code": "G1",
     "label": "Ligne G1",
     "device": "VG1-2VH14",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "G2",
     "label": "Ligne G2",
     "device": "VG1-2VH14",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "G3",
     "label": "Ligne G3",
     "device": "VG3-5",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "G4",
     "label": "Ligne G4",
     "device": "VG3-5",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "G5",
     "label": "Ligne G5",
     "device": "VG3-5",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "G6",
     "label": "Ligne G6",
     "device": "VG6-8",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "G7",
     "label": "Ligne G7",
     "device": "VG6-8",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "G8",
     "label": "Ligne G8",
     "device": "VG6-8",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "G9",
     "label": "Ligne G9",
     "device": "VG9-12",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "G10",
     "label": "Ligne G10",
     "device": "VG9-12",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "G11",
     "label": "Ligne G11",
     "device": "VG9-12",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "G12",
     "label": "Ligne G12",
     "device": "VG9-12",
     "inputName": "vd",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "H2",
     "label": "Ligne H2",
     "device": "VH2-4",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "H3",
     "label": "Ligne H3",
     "device": "VH2-4",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "H4",
     "label": "Ligne H4",
     "device": "VH2-4",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "H5",
     "label": "Ligne H5",
     "device": "VH5-7",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "H6",
     "label": "Ligne H6",
     "device": "VH5-7",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "H7",
     "label": "Ligne H7",
     "device": "VH5-7",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "H8",
     "label": "Ligne H8",
     "device": "VH8-10",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "H9",
     "label": "Ligne H9",
     "device": "VH8-10",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "H10",
     "label": "Ligne H10",
     "device": "VH8-10",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "H11",
     "label": "Ligne H11",
     "device": "VH11-13",
     "inputName": "va",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "H12",
     "label": "Ligne H12",
     "device": "VH11-13",
     "inputName": "vb",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "H13",
     "label": "Ligne H13",
     "device": "VH11-13",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   },{
     "code": "H14",
     "label": "Ligne H14",
     "device": "VG1-2VH14",
     "inputName": "vc",
     "rawValue": 0,
-    "offset": 0
+    "offset": 0,
+    "ref": "V1"
   }],
 
   "pumps": [{
