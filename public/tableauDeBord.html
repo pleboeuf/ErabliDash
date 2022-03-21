@@ -19,40 +19,29 @@
         var jsonElement;
         var websocket;
 
-        var tankDefs = [{
             // Note: Capacity in Liters
-            code: "RS1",
-            capacity: 1,
+        var tankDefs = [{
+            code: "RS1"
         }, {
-            code: "RS2",
-            capacity: 1
+            code: "RS2"
         }, {
-            code: "RS3",
-            capacity: 1
+            code: "RS3"
         }, {
-            code: "RS4",
-            capacity: 1
+            code: "RS4"
         }, {
-            code: "RS5",
-            capacity: 1
+            code: "RS5"
         }, {
-            code: "RS6",
-            capacity: 1
+            code: "RS6"
         }, {
-            code: "RF1",
-            capacity: 1
+            code: "RF1"
         }, {
-            code: "RF2",
-            capacity: 1
+            code: "RF2"
         }, {
-            code: "RC1",
-            capacity: 1
+            code: "RC1"
         }, {
-            code: "RC2",
-            capacity: 1
+            code: "RC2"
         }, {
-            code: "RHC",
-            capacity: 1
+            code: "RHC"
         }];
 
         var devices = [];
@@ -1157,10 +1146,12 @@
             }
         }
         function setVacuumDropColor(vacuumDrop){
+            const yellowLimit = 2.0;
+            const redLimit = 3.0;
             try {
-                if (vacuumDrop < 2) {
-                    return "#e6e6e6";
-                } else if (vacuumDrop < 3) {
+                if (vacuumDrop < yellowLimit) {
+                    return "#e6e6e6"; //Gris
+                } else if (vacuumDrop < redLimit) {
                     return "yellow";
                 } else {
                     return "red";
