@@ -1,0 +1,84 @@
+body {
+    background-color: #eeeeee;
+    /*      background-image:url("/images/background.png");
+*/
+}
+
+background-image {
+    opacity: 1;
+    filter: alpha(opacity=25);
+    /* For IE8 and earlier */
+}
+
+table {
+    border-style: none;
+    /*border-collapse: collapse;*/
+}
+
+th,
+td {
+    border: 1px solid #c6c6c6;
+    padding: 0.2em;
+}
+
+.pumpcode,
+.tankname,
+.vacuumcode,
+th.darker,
+td.darker {
+    background-color: rgb(201, 201, 201);
+}
+
+td.lighter,
+tr.lighter {
+    background-color: #e0e0e0;
+}
+
+.tank {
+    border-bottom: solid #ffffff;
+}
+
+.emptyCell {
+    color: rgb(230, 230, 230);
+    border: none;
+}
+
+.V_position,
+.pumpstate,
+.tankoutput,
+.tankdrain {
+    text-align: center;
+}
+
+.tankcontents,
+.tankpercent,
+.rawvalue,
+.tankcapacity,
+.pumpduty,
+.pumprate,
+.pumpvolume,
+.RStot {
+    text-align: right;
+}
+
+.tankcontents,
+.tankpercent,
+.tankoutput,
+.tankdrain,
+.pumpduty,
+.pumprate,
+.vacuumvalue,
+.vacuumtemp,
+.pumpvolume {
+    background-color: #e0e0e0;
+}
+
+#PVx,
+#vacuums,
+#temperatures,
+#tanks,
+#valveOther,
+#valves {
+    float: left;
+    padding-right: 2em;
+}

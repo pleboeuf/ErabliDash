@@ -1,625 +1,394 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="stylesheet" href="/lib/w3schools23.css" />
+        <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-grey.css"/>
+        <link rel="stylesheet" href="/css/numeric.css"/>
+        <title>Tableau de bord</title>
+        <!-- <script src="/bower_components/jquery/dist/jquery.min.js"></script> -->
+        <!-- <script src="/bower_components/peity/jquery.peity.min.js"></script> -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/peity/3.3.0/jquery.peity.js"></script>
+        <script src="/scripts/numeric.js"></script>
+    </head>
 
-<head>
-  <meta charset="UTF-8">
-  <title>ErabliDash (numeric)</title>
-  <script src="/bower_components/jquery/dist/jquery.min.js">
-  </script>
-  <script src="/bower_components/peity/jquery.peity.min.js">
-  </script>
-  <script language="javascript" type="text/javascript">
-    function wsUri(path) {
-      var l = window.location;
-      return ((l.protocol === "https:") ? "wss://" : "ws://") + l.hostname + (((l.port != 80) && (l.port != 443)) ? ":" + l.port : "") + l.pathname + path;
-    }
-    var jsonElement;
-    var websocket;
+    <body>
+        <!-- <section> -->
+        <div class="w3-container", style="width: 100%;", id="page_principale">
 
-    var tankDefs = [{
-      // Note: Capacity in Liters
-      code: "RS1",
-      capacity: 1,
-    }, {
-      code: "RS2",
-      capacity: 1
-    }, {
-      code: "RS3",
-      capacity: 1
-    }, {
-      code: "RS4",
-      capacity: 1
-    }, {
-      code: "RS5",
-      capacity: 1
-    }, {
-      code: "RS6",
-      capacity: 1
-    }, {
-      code: "RF2",
-      capacity: 1
-    }, {
-      code: "RF1",
-      capacity: 1
-    }, {
-      code: "RC1",
-      capacity: 1
-    }, {
-      code: "RC2",
-      capacity: 1
-    }, {
-      code: "RHC",
-      capacity: 1
-    }];
+            <div class="w3-display-container w3-theme w3-light-grey", style="width: 100%; height: 70px; display: inline-block; position: fixed;">
+                <div class="w3-container w3-display-bottommiddle", style="width: 70%; height: 70px; display: inline-block", id="ZoneCentrale">
+                    <div  class="w3-container w3-display-bottomleft" , tyle="width: 30%; height: 70px; display: inline-block" >
+                        <h2 class="w3-display-topleft w3-mobile", style="display: inline-block", id="siteName">Serveur de Tests</h2></div>
+                    <div class="w3-container w3-display-right", style="width: 30%; height: 70px", id="coulee">
+                        <h3 class="w3-display", style="display: inline; font-weight: bold", id="c_text"></h3>
+                        <h3 class="w3-display", style="display: inline",  id="compteurDeTemps"></h3>
+                    </div>
+                </div>
+                <div class="w3-container w3-display-left">
+                    <h2 id="tempExt">0&#176;C<br /></h2></div>
+                <div class="w3-container w3-display-right", style="height: 80px">
+                    <h4 id="lastestUpdate"></h4></div>
+            </div>
 
-    var devices = [];
-    var valves = [];
-    var pumps = [];
-    var vacuums = [];
+        <!-- </section> -->
 
-    function liters2gallons(liters) {
-      return Math.ceil(liters / 4.54609188);
-    }
+        <!-- <section> -->
+            <div class="w3-display-container w3-light-grey w3-row-padding", style="width: 100%; height: 100%; display: inline-block; margin-top: 5px;">
+                <div class="w3-third", style="margin-top: 70px; width:max-content;", id="Reservoirs">
+                    <h3>Réservoirs</h3>
+                    <table id="tanklist">
+                        <tr>
+                            <th class="darker">Réservoirs</th>
+                            <th class="darker">Cont. <br />(gal)</th>
+                            <th class="darker">Cont. <br />(%)</th>
+                            <th class="darker">Valve <br />Sortie</th>
+                            <th class="darker">Valve <br />Drain</th>
+                            <th>Lect. <br />(mm)</th>
+                            <th>Max <br />(gal)</th>
+                        </tr>
+                    </table>
 
-    function onLoad() {
-      openSocket();
-      setInterval(displayDevices, 10000);
-    }
+                    <h3>Sommaire des Réservoirs</h3>
+                    <table style="margin-top: 1px; width:max-content;", id="totalReservoirs">
+                        <th class="darker">Sommaire</th>
+                        <th class="darker">Cont.</th>
+                        <th class="darker">Act. <br />(gal)</th>
+                        <th class="darker">Act. <br />(%)</th>
+                        <th class="darker">Sirop <br />(gal)</th>
+                        <th class="darker">Disp. <br />(gal)</th>
+                        <th>
+                            Max. <br />
+                            (gal)
+                        </th>
+                        <tr>
+                            <td class="darker" , class="tankpercent">
+                                RS1 à RS6
+                                <input
+                                    type="checkbox"
+                                    id="CheckRF2"
+                                    onclick="functionPlusRF2()"
+                                />+RF2
+                            </td>
+                            <td class="lighter">Sève</td>
+                            <td class="lighter" , id="RStot"></td>
+                            <td class="lighter V_position" , id="RStotPC"></td>
+                            <td
+                                class="lighter V_position"
+                                ,
+                                id="RStoSirop"
+                            ></td>
+                            <td class="lighter V_position" , id="RSdisp"></td>
+                            <td class="lighter V_position" , id="RSmax"></td>
+                        </tr>
+                        <tr>
+                            <td class="darker" , id="RFsummaryName">
+                                RF1 + RF2
+                            </td>
+                            <td class="lighter">Filt.</td>
+                            <td class="lighter" , id="RFtot"></td>
+                            <td class="lighter V_position" , id="RFtotPC"></td>
+                            <td class="lighter V_position" , id=""></td>
+                            <td class="lighter V_position" , id="RFdisp"></td>
+                            <td class="lighter V_position" , id="RFmax"></td>
+                        </tr>
+                        <tr>
+                            <td class="darker">RC1 + RC2</td>
+                            <td class="lighter">Conc.</td>
+                            <td class="lighter" , id="RCtot"></td>
+                            <td class="lighter V_position" , id="RCtotPC"></td>
+                            <td
+                                class="lighter V_position"
+                                ,
+                                id="RCtoSirop"
+                            ></td>
+                            <td class="lighter V_position" , id="RCdisp"></td>
+                            <td class="lighter V_position" , id="RCmax"></td>
+                        </tr>
+                        <tr>
+                            <td class="darker">Total</td>
+                            <td class="lighter">Sirop</td>
+                            <td class="lighter" , id="SIRtot"></td>
+                            <td class="lighter V_position" , id="SIRtotPC"></td>
+                            <td class="lighter V_position" , id="SIRtotal"></td>
+                            <td class="lighter V_position" , id="SIRdisp"></td>
+                            <td class="lighter V_position" , id="SIRmax"></td>
+                        </tr>
+                    </table>
+                </div>
 
-    function displayTanks() {
-      tankDefs.forEach(function(tank) {
-        var tankElementId = 'tank_' + tank.code;
-        var tankElement = document.getElementById(tankElementId);
+                <div class="w3-quarter", style="margin-top: 70px;", id="Pompes">
+                    <h3>Pompes</h3>
+                    <table id="pumplist">
+                        <tr>
+                            <th class="darker">Pompes</th>
+                            <th class="darker V_position">Etat</th>
+                            <th class="darker">Util. <br />(%)</th>
+                            <th class="darker">Débit <br />(gph)</th>
+                            <th class="darker">Vol. <br />(gal)</th>
+                        </tr>
+                        <tr id="pumptotalrow" , class="lighter">
+                            <td class="darker">Total</td>
+                            <td></td>
+                            <td></td>
+                            <td
+                                id="pumptotalrate"
+                                ,
+                                class="pumprate"
+                                ,
+                                style="font-weight: bold"
+                            ></td>
+                            <td
+                                id="volumetotal"
+                                ,
+                                class="pumpvolume"
+                                ,
+                                style="font-weight: bold"
+                            ></td>
+                        </tr>
+                        <tr class="lighter">
+                            <td class="darker">Sirop Est.</td>
+                            <td></td>
+                            <td></td>
+                            <td
+                                id="debitEstimSirop"
+                                ,
+                                class="pumpvolume"
+                                ,
+                                style="font-style: italic; font-weight: bold"
+                            ></td>
+                            <td
+                                id="estimSirop"
+                                ,
+                                class="pumpvolume"
+                                ,
+                                style="font-style: italic; font-weight: bold"
+                            ></td>
+                        </tr>
+                        <!-- This is a bad idea to use table to layout page. To be corrected -->
+                        <tr>
+                            <td class="emptyCell">Blank</td>
+                            <td class="emptyCell"></td>
+                            <td class="emptyCell"></td>
+                            <td class="emptyCell"></td>
+                            <td class="emptyCell"></td>
+                        </tr>
+                        <!-- <tr style="border: none;"> 
+                        <td  class="emptyCell">Blank</td>
+                        <td class="emptyCell"></td>
+                        <td class="emptyCell"></td>
+                        <td class="emptyCell"></td>
+                        <td class="emptyCell"></td>
+                    </tr> -->
+                    </table>
 
-        var contentsElementId = tankElementId + '_contents';
-        var contentsElement;
+                    <h3>Valves Indépendantes</h3>
+                    <table id="autreValves">
+                        <tr>
+                            <th class="darker">Valves</th>
+                            <th class="darker">Description</th>
+                            <th class="darker">Position</th>
+                        </tr>
+                        <tr>
+                            <td class="darker">VaEC</td>
+                            <td class="lighter">Entré Cabane</td>
+                            <td
+                                class="lighter V_position"
+                                ,
+                                id="VaEC_position"
+                            ></td>
+                        </tr>
+                        <tr>
+                            <td class="darker">VaTk</td>
+                            <td class="lighter">Sortie Tankers</td>
+                            <td
+                                class="lighter V_position"
+                                ,
+                                id="VaTk_position"
+                            ></td>
+                        </tr>
+                    </table>
+                </div>
 
-        var percentElementId = tankElementId + '_percent';
-        var percentElement;
+                <div class="w3-quarter", style="margin-top: 70px;", id="Osmose">
+                  <h3>Osmose</h3>
+                  <table id="OsmoseSystem">
+                      <tr>
+                          <th class="darker">Osmose</th>
+                          <th class="darker">Valeur</th>
+                      </tr>
+                      <tr>
+                          <td class="darker">État</td>         
+                          <td class="lighter V_position", id="Osmose_state"></td> </td>                
+                      </tr>
+                      <tr>
+                          <td class="darker">Fonction</td>      
+                          <td class="lighter rawvalue", id="Osmose_fonction"> </td>                           
+                      </tr>
+                      <tr>
+                          <td class="darker">Durée opér. en cour</td>
+                          <td class="lighter rawvalue", id="Osmose_tOperEC"> </td>                           
+                      </tr>
+                      <tr>
+                          <td class="darker">Durée séq. 1234</td>
+                          <td class="lighter rawvalue", id="Osmose_TempsSeq1234"> </td>                               
+                      </tr>
+                      <tr>
+                          <td class="darker">Durée séq. 4321</td>
+                          <td class="lighter rawvalue", id="Osmose_TempsSeq4321"> </td>                             
+                      </tr>
+                      <tr>
+                          <td class="darker">T. Depuis lavage</td>
+                          <td class="lighter rawvalue", id="Osmose_TempsDepuisLavage"> </td>                               
+                      </tr>
+                      <tr>
+                          <td class="darker">Mise à jour</td>
+                          <td class="lighter rawvalue", id="Osmose_lastUpdatedAt"> </td>                             
+                      </tr>
+                      <tr>
+                          <td class="darker">Code alarme</td>
+                          <td class="lighter rawvalue", id="Osmose_alarmNo"> </td>                             
+                      </tr>
+                      <tr>
+                          <td class="darker">Message d'alarme</td>
+                          <td class="lighter", id="Osmose_alarmMsg"> </td>                               
+                      </tr>
+  
+                      <th class="darker">Concentration</th>
+                      <th class="darker", id="Osmose_Concentration"> </th>
+                      <tr>
+                          <td class="darker">Séquence</td>
+                          <td class="lighter rawvalue", id="Osmose_sequence"> </td>                               
+                      </tr>
+                      <tr>
+                          <td class="darker">Brix Sève</td>
+                          <td class="lighter rawvalue", id="Osmose_BrixSeve"> </td>                              
+                      </tr>
+                      <tr>
+                          <td class="darker">Brix Concentré</td> 
+                          <td class="lighter rawvalue", id="Osmose_BrixConc"> </td>                          
+                      </tr>
+                      <tr>
+                          <td class="darker">Débit Col1 (g/m)</td>
+                          <td class="lighter rawvalue", id="Osmose_Col1"> </td>                          
+                      </tr>
+                      <tr>
+                          <td class="darker">Débit Col2 (g/m)</td>
+                          <td class="lighter rawvalue", id="Osmose_Col2"> </td>                              
+                      </tr>
+                      <tr>
+                          <td class="darker">Débit Col3 (g/m)</td>
+                          <td class="lighter rawvalue", id="Osmose_Col3"> </td>                             
+                      </tr>
+                      <tr>
+                          <td class="darker">Débit Col4 (g/m)</td>
+                          <td class="lighter rawvalue", id="Osmose_Col4"> </td>                              
+                      </tr>
+                      <tr>
+                          <td class="darker">Débit Conc. (g/m)</td>
+                          <td class="lighter rawvalue", id="Osmose_Conc"> </td>                            
+                      </tr>
+                      <tr>
+                          <td class="darker">Température (°C)</td>
+                          <td class="lighter rawvalue", id="Osmose_Temp"> </td>                              
+                      </tr>
+                      <tr>
+                          <td class="darker">Pression (PSI)</td>
+                          <td class="lighter rawvalue", id="Osmose_Pres"> </td>                            
+                      </tr>
+  
+                      <th class="darker">Sommaire</th>
+                      <th class="darker", id="Osmose_Sommaire"> </th>
+  
+                      <tr>
+                          <td class="darker">PC Conc. (%)</td>
+                          <td class="lighter rawvalue", id="Osmose_PC_Conc"> </td>                          
+                      </tr>
+                      <tr>
+                          <td class="darker">Débit Conc. (g/h)</td> 
+                          <td class="lighter rawvalue", id="Osmose_Conc_GPH"> </td>                           
+                      </tr>
+                      <tr>
+                          <td class="darker">Débit Filtrat (g/h)</td>
+                          <td class="lighter rawvalue", id="Osmose_Filtrat_GPH"> </td>          
+                      </tr>
+                      <tr>
+                          <td class="darker">Débit Total (g/h)</td> 
+                          <td class="lighter rawvalue", id="Osmose_Total_GPH"> </td>                           
+                      </tr>
+                      <tr>
+                          <td class="darker">Durée d'Osmose</td> 
+                          <td class="lighter rawvalue", id="Osmose_Durée_sec"> </td>                         
+                      </tr>
+                      <tr>
+                          <td class="darker">Durée totale Estimé</td> 
+                          <td class="lighter rawvalue", id="Osmose_temps_approx"> </td>                         
+                      </tr>
+              </table>
+                </div>
+        </div>
+        <!-- </section> -->
 
-        var rawValueElementId = tankElementId + '_rawvalue';
-        var rawValueElement;
-
-        var capacityElementId = tankElementId + '_capacity';
-        var capacityElement;
-
-        var outputElementId = tankElementId + '_output';
-        var outputElement;
-
-        var drainElementId = tankElementId + '_drain';
-        var drainElement;
-
-        if (tankElement == null) {
-          tankElement = document.createElement("tr");
-          tankElement.setAttribute('id', tankElementId);
-          tankElement.setAttribute('class', "tank");
-
-          // Add tank name
-          var nameElement = document.createElement("td");
-          nameElement.setAttribute('class', 'tankname');
-          nameElement.innerHTML = tank.code;
-          nameElement.style.backgroundColor = "#d0d0d0"; // gris
-          tankElement.appendChild(nameElement);
-
-          // Add measured contents (gallons)
-          contentsElement = document.createElement('td');
-          contentsElement.setAttribute('id', contentsElementId);
-          contentsElement.setAttribute('class', 'tankcontents');
-          contentsElement.style.backgroundColor = "#d0d0d0"; // gris
-          tankElement.appendChild(contentsElement);
-
-          // Add measured contents (percent)
-          percentElement = document.createElement('td');
-          percentElement.setAttribute('id', percentElementId);
-          percentElement.setAttribute('class', 'tankpercent');
-          percentElement.style.backgroundColor = "#d0d0d0"; // gris
-          tankElement.appendChild(percentElement);
-
-          // Add output valve status
-          outputElement = document.createElement('td');
-          outputElement.setAttribute('id', outputElementId);
-          outputElement.setAttribute('class', 'tankoutput');
-          outputElement.style.backgroundColor = "#d0d0d0"; // gris
-          tankElement.appendChild(outputElement);
-
-          // Add drain valve status
-          drainElement = document.createElement('td');
-          drainElement.setAttribute('id', drainElementId);
-          drainElement.setAttribute('class', 'tankdrain');
-          drainElement.style.backgroundColor = "#d0d0d0"; // gris
-          tankElement.appendChild(drainElement);
-
-          // Add raw value (millimeters)
-          rawValueElement = document.createElement('td');
-          rawValueElement.setAttribute('id', rawValueElementId);
-          rawValueElement.setAttribute('class', 'rawvalue');
-          tankElement.appendChild(rawValueElement);
-
-          // Add capacity (gallons)
-          capacityElement = document.createElement('td');
-          capacityElement.setAttribute('id', capacityElementId);
-          capacityElement.setAttribute('class', 'tankcapacity');
-          tankElement.appendChild(capacityElement);
-
-          document.getElementById('tanklist').appendChild(tankElement);
-        } else {
-          capacityElement = document.getElementById(capacityElementId);
-          rawValueElement = document.getElementById(rawValueElementId);
-          percentElement = document.getElementById(percentElementId);
-          contentsElement = document.getElementById(contentsElementId);
-          outputElement = document.getElementById(outputElementId);
-          drainElement = document.getElementById(drainElementId);
-        }
-        // Display the data
-        var tankPercent = (tank.contents / tank.capacity * 100).toFixed(0);
-        tankElement.setAttribute('data-percent', tankPercent);
-        capacityElement.innerHTML = liters2gallons(tank.capacity);
-        rawValueElement.innerHTML = tank.rawValue;
-        percentElement.innerHTML = tankPercent + " % ";
-        contentsElement.innerHTML = liters2gallons(tank.contents);
-        if (tank.rawValue < 5){
-          contentsElement.innerHTML = "----";
-        }
-
-        // Create the pie chart 
-        var gaugeElement = document.createElement('span');
-        gaugeElement.innerHTML = tankPercent + '/100';
-        gaugeElement.setAttribute('class', 'tankgauge');
-        gaugeElement.setAttribute('data-peity', '{ "fill": ["black", "#eeeeee"], "innerRadius": 0, "radius": 8 }');
-        percentElement.appendChild(gaugeElement);
-
-        // Copy the output valve state fron the valve table
-        if (!(tank.output == "none" || tank.output == undefined)){
-          var outValveElemId = "valve_" + tank.output + "_position";
-          var outValvePosElem = document.getElementById(outValveElemId);
-          var outValvePos = outValvePosElem.innerHTML;
-          if (!(typeof(outValvePos) == null)){
-            outputElement.innerHTML = outValvePos;
-            setIndicatorColor(outputElement, outValvePos);
-          }
-        }
- 
-        // Copy the drain valve state from the valve table
-        if (!(tank.drain == "none" || tank.drain == undefined)){
-          var drainValveElemId = "valve_" + tank.drain + "_position";
-          var drainValvePosElem = document.getElementById(drainValveElemId);
-          var drainValvePos = drainValvePosElem.innerHTML;
-          if (!(typeof(drainValvePos) == null)){
-            drainElement.innerHTML = drainValvePos;
-            setIndicatorColor(drainElement, drainValvePos);
-          }
-        }
-      });
-      $(".tankgauge").peity("pie", {
-        "fill": function(value, index, values) {
-          if (index > 0)
-            return "#eeeeee";
-          if (values[0] > 90)
-            return "red";
-          if (values[0] > 75)
-            return "orange";
-          return "green";
-        }
-      });
-    }
-
-    function displayDevices() {
-      devices.forEach(function(device) {
-        var lastUpdatedAtElemId = 'device_' + device.name + '_lastUpdatedAt';
-        var generationElemId = 'device_' + device.name + '_generationId';
-        var serialElemId = 'device_' + device.name + '_serial';
-        var lastUpdatedAtElem;
-        var deviceElemId = 'device_' + device.name;
-        if (document.getElementById(deviceElemId) == null) {
-          var deviceElem = document.createElement("tr");
-          deviceElem.setAttribute('id', deviceElemId);
-          document.getElementById('devicelist').appendChild(deviceElem);
-
-          var nameElement = document.createElement("td");
-          nameElement.innerHTML = device.name;
-          deviceElem.appendChild(nameElement);
-
-          lastUpdatedAtElem = document.createElement('td');
-          lastUpdatedAtElem.setAttribute('id', lastUpdatedAtElemId);
-          deviceElem.appendChild(lastUpdatedAtElem);
-
-          generationElem = document.createElement('td');
-          generationElem.setAttribute('id', generationElemId);
-          deviceElem.appendChild(generationElem);
-
-          serialElem = document.createElement('td');
-          serialElem.setAttribute('id', serialElemId);
-          deviceElem.appendChild(serialElem);
-        } else {
-          lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
-          generationElem = document.getElementById(generationElemId);
-          serialElem = document.getElementById(serialElemId);
-        }
-        var ageInMinutes = Math.floor(getMinutesAgo(new Date(device.lastUpdatedAt)));
-        var ageDisplay = '';
-        if (ageInMinutes == 0) {
-          ageDisplay = 'now';
-        } else if (ageInMinutes > 0) {
-          ageDisplay = ageInMinutes + ' min.';
-        }
-        if (ageInMinutes > 9){
-          lastUpdatedAtElem.style.color = "#ff0000";
-        } else {
-          lastUpdatedAtElem.style.color = "#000000";          
-        }
-        lastUpdatedAtElem.innerHTML = ageDisplay;
-        generationElem.innerHTML = device.generationId;
-        serialElem.innerHTML = device.lastEventSerial;
-      });
-    }
-
-    function getMinutesAgo(date) {
-      return(Math.abs((Date.now() - new Date(date).getTime()) / 1000 / 60));
-    }
-
-    function displayValves() {
-      valves.forEach(function(valve) {
-        var positionElem;
-        var positionElemId = 'valve_' + valve.code + '_position';
-        var valveElemId = 'valve_' + valve.code;
-        if (document.getElementById(valveElemId) == null) {
-          var valveElem = document.createElement("tr");
-          valveElem.setAttribute('id', valveElemId);
-          document.getElementById('valvelist').appendChild(valveElem);
-
-          var codeElement = document.createElement("td");
-          codeElement.innerHTML = valve.code;
-          valveElem.appendChild(codeElement);
-
-          positionElem = document.createElement('td');
-          positionElem.setAttribute('id', positionElemId);
-          valveElem.appendChild(positionElem);
-        } else {
-          positionElem = document.getElementById(positionElemId);
-        }
-        positionElem.innerHTML = valve.position;
-        setIndicatorColor(positionElem, valve.position);
-      });
-    }
-
-    function displayPumps() {
-      var totalRate = 0;
-      var gph = 0;
-      var pumpDuty = 0;
-      pumps.forEach(function(pump) {
-        var stateElem;
-        var stateElemId = 'pump_' + pump.code + '_state';
-        var dutyElem;
-        var dutyElemId = 'pump_' + pump.code + '_duty';
-        var rateElem;
-        var rateElemId = 'pump_' + pump.code + '_rate';
-        var pumpElemId = 'pump_' + pump.code;
-        if (document.getElementById(pumpElemId) == null) {
-          var pumpElem = document.createElement("tr");
-          pumpElem.setAttribute('id', pumpElemId);
-          var totalRow = document.getElementById('pumptotalrow');
-          totalRow.parentElement.insertBefore(pumpElem, totalRow);
-
-          var codeElement = document.createElement("td");
-          codeElement.innerHTML = pump.code;
-          pumpElem.appendChild(codeElement);
-
-          stateElem = document.createElement('td');
-          stateElem.setAttribute('id', stateElemId);
-          pumpElem.appendChild(stateElem);
-
-          dutyElem = document.createElement('td');
-          dutyElem.setAttribute('id', dutyElemId);
-          dutyElem.setAttribute('class', 'pumpduty');
-          pumpElem.appendChild(dutyElem);
-
-          rateElem = document.createElement('td');
-          rateElem.setAttribute('id', rateElemId);
-          rateElem.setAttribute('class', 'pumprate');
-          pumpElem.appendChild(rateElem);
-        } else {
-          stateElem = document.getElementById(stateElemId);
-          dutyElem = document.getElementById(dutyElemId);
-          rateElem = document.getElementById(rateElemId);
-        }
-        stateElem.innerHTML = pump.state ? 'ON' : 'OFF';
-        setIndicatorColor(stateElem, pump.state);
-        var rate = (pump.duty * pump.capacity_gph);
-        if (pump.code == "P1" || pump.code == "P2" || pump.code == "P3"){
-          totalRate += rate;
-          pumpDuty = (pump.duty * 100).toFixed(1);
-          dutyElem.innerHTML = parseFloat(pumpDuty) || "";
-          rateElem.innerHTML = parseInt(rate) || "";
-        }
-      });
-      document.getElementById('pumptotalrate').innerHTML = parseInt(totalRate) || 0;
-    }
-
-    function displayVacuum() {
-      vacuums.forEach(function(vacuum) {
-        var vacuumValue = 0;
-        var valueElem;
-        var valueElemId = 'vacuum_' + vacuum.code + '_value';
-        var vacuumElemId = 'vacuum_' + vacuum.code;
-        if (document.getElementById(vacuumElemId) == null) {
-          var vacuumElem = document.createElement("tr");
-          vacuumElem.setAttribute('id', vacuumElemId);
-          document.getElementById('vacuumlist').appendChild(vacuumElem);
-
-          var codeElement = document.createElement("td");
-          codeElement.innerHTML = vacuum.code;
-          vacuumElem.appendChild(codeElement);
-
-          valueElem = document.createElement('td');
-          valueElem.setAttribute('id', valueElemId);
-          vacuumElem.appendChild(valueElem);
-        } else {
-          valueElem = document.getElementById(valueElemId);
-        }
-        vacuumValue = (vacuum.rawValue + vacuum.offset) / 100;
-        valueElem.innerHTML = vacuumValue.toFixed(1);
-        valueElem.style.textAlign = "right";
-      });
-    }
-
-    function displayTemperatures() {
-      devices.forEach(function(device) {
-        var ambientTempElemId = 'device_' + device.name + '_ambientTemp';
-        var enclosureTempElemId = 'device_' + device.name + '_enclosureTemp';
-        var sensorUS100TempElemId = 'device_' + device.name + '_sensorTemp';
-        var lastUpdatedAtElem;
-        var deviceElemId = 'device_' + device.name;
-        if (document.getElementById(deviceElemId) == null) {
-          var deviceElem = document.createElement("tr");
-          deviceElem.setAttribute('id', deviceElemId);
-          document.getElementById('temperaturelist').appendChild(deviceElem);
-
-          var nameElement = document.createElement("td");
-          nameElement.innerHTML = device.name;
-          deviceElem.appendChild(nameElement);
-
-          ambientTempElem = document.createElement('td');
-          ambientTempElem.setAttribute('id', ambientTempElemId);
-          deviceElem.appendChild(ambientTempElem);
-
-          enclosureTempElem = document.createElement('td');
-          enclosureTempElem.setAttribute('id', enclosureTempElemId);
-          deviceElem.appendChild(enclosureTempElem);
-
-          sensorUS100TempElem = document.createElement('td');
-          sensorUS100TempElem.setAttribute('id', sensorUS100TempElemId);
-          deviceElem.appendChild(sensorUS100TempElem);
-        } else {
-          ambientTempElem = document.getElementById(ambientTempElemId);
-          enclosureTempElem = document.getElementById(enclosureTempElemId);
-          sensorUS100TempElem = document.getElementById(sensorUS100TempElemId);
-        }
-
-        ambientTempElem.innerHTML = device.ambientTempElemId;
-        enclosureTempElem.innerHTML = device.enclosureTempElemId;
-        sensorUS100TempElem.innerHTML = device.sensorTemp;
-      });
-    }
-
-    function setIndicatorColor(IndicatorElem, IndicatorValue){
-      if ((IndicatorValue == "Ouvert") || (IndicatorValue == "Ouverte")) {
-          IndicatorElem.style.backgroundColor = "#00ff00"; // Vert
-        } else if (IndicatorValue == "Fermé"){
-          IndicatorElem.style.backgroundColor = "#ff3f3f"; // Rouge
-        } else if (IndicatorValue == "Partiel"){
-          IndicatorElem.style.backgroundColor = "#ffff00"; // Jaune
-        } else if (IndicatorValue == "Erreur"){
-          IndicatorElem.style.backgroundColor = "#bfbfff"; // Bleu
-        } else if (IndicatorValue == "OFF" || IndicatorValue == 0){
-          IndicatorElem.style.backgroundColor = "#ff3f3f"; // Rouge
-        } else if (IndicatorValue == "ON" || IndicatorValue == 1){
-          IndicatorElem.style.backgroundColor = "#00ff00"; // Vert
-      } 
-    }
-
-    function openSocket() {
-      websocket = new WebSocket(wsUri(""), "dashboard-stream");
-      websocket.onopen = function(evt) {
-        console.log('Socket opened.');
-      };
-      websocket.onclose = function(evt) {
-        console.log('Socket closed.');
-        setTimeout(function() {
-          openSocket();
-        }, 5000);
-      };
-      websocket.onmessage = function(msg) {
-        var data = JSON.parse(msg.data);
-        tankDefs.forEach(function(tankDef, index) {
-          var tank = data.tanks.filter(function(tankData) {
-            return tankData.code == tankDef.code;
-          }).shift();
-          tankDef.rawValue = tank.rawValue;
-          tankDef.contents = (tank.fill == null ? 0 : tank.fill);
-          tankDef.capacity = tank.capacity;
-          tankDef.output = tank.output;
-          tankDef.drain = tank.drain;
-          // console.log("Tank %s at %d: %s, raw= %s", tankDef.code, index, tankDef.contents, tankDef.rawValue);
-
-          devices = data.devices;
-          valves = data.valves;
-          vacuums = data.vacuum;
-          pumps = data.pumps;
-          temperatures = data.temperatures;
-        });
-        displayDevices();
-        displayValves();
-        displayTanks();
-        displayPumps();
-        displayVacuum();
-        // displayTemperatures();
-      };
-      websocket.onerror = function(evt) {
-        console.console.error('Error:' + evt);
-      };
-    }
-    window.addEventListener("load", onLoad, false);
-
-  </script>
-  <style>
-    table {
-      border-style: none;
-      /*border-collapse: collapse;*/
-    }
-
-    th,
-    td {
-      border: 1px solid #c6c6c6;
-      padding: 0.2em;
-    }
-
-    .tankcontents,
-    .tankpercent,
-    .rawvalue,
-    .tankcapacity,
-    .pumpduty,
-    .pumprate {
-      text-align: right;
-    }
-
-    #PVx,
-    #vacuums,
-    #temperatures,
-    #tanks,
-    #valves {
-      float: left;
-      padding-right: 2em;
-    }
-
-    #vacuum-frame {
-      border: 1px solid #cccccc;
-      margin: 0.5em;
-    }
-  </style>
-</head>
-
-
-<body style="background-color: #E6E6E6;">
-  <h1>Érablière Brunelle (test) </h1>
-  <div>See <a href="/data.json">data.json</a> for the raw data.</div>
-
-  <div id="valves">
-    <h3>Valves</h3>
-    <table id="valvelist">
-      <tr>
-        <th>Name</th>
-        <th id="valvesPos">Position</th>
-      </tr>
-    </table>
-  </div>
-
-  <div id="tanks", style="background-color: #E6E6E6;">
-    <h3>Reservoirs</h3>
-    <table id="tanklist">
-      <tr>
-        <th style="background-color: #d0d0d0;">Code</th>
-        <th style="background-color: #d0d0d0;">Contents
-          <br/>(gal)</th>
-        <th style="background-color: #d0d0d0;">Contents
-          <br/>(%)</th>
-        <th style="background-color: #d0d0d0;">Valve
-          <br/>Sortie</th>
-        <th style="background-color: #d0d0d0;">Valve
-          <br/>Drain</th>
-        <th>Reading
-          <br/>(mm)</th>
-        <th>Capacity
-          <br/>(gal)</th>
-      </tr>
-    </table>
-  </div>
-
-  <div id="PVx", style="background-color: #E6E6E6;">
-    <table id="pumpVac">
-      <tr>
-        <td style="border-style:none">
-
-          <div id="pumps">
-            <h3>Pompes</h3>
-            <table id="pumplist">
-              <tr>
-                <th>Name</th>
-                <th>State</th>
-                <th>Duty
-                  <br/>(%)</th>
-                <th>Rate
-                  <br/>(GPH)</th>
-              </tr>
-              <tr id="pumptotalrow">
-                <td>Total</td>
-                <td></td>
-                <td></td>
-                <td id="pumptotalrate" class="pumprate"></td>
-              </tr>
+        <!-- <section> -->
+        <div class="w3-third" id="Devices">
+            <h3>Devices</h3>
+            <table id="devicelist">
+                <tr>
+                    <th class="darker">Name</th>
+                    <th class="darker">Updated</th>
+                    <th class="darker">Generation</th>
+                    <th class="darker">Serial</th>
+                </tr>
             </table>
-          </div>
+        </div>
 
-          <div id="vacuums", style="background-color: #E6E6E6;">
+        <div class="w3-third" id="Vacuums">
             <h3>Vacuum</h3>
             <table id="vacuumlist">
-              <tr>
-                <th>Name</th>
-                <th>Vacuum
-                  <br/>(inHg)</th>
-              </tr>
-            </table>
-            <h3> </h3>
-            <h3> </h3>
-            <h3> </h3>
-          </div>
-
-        </td>
-      </tr>
-    </table>
-  </div>
-
-  <div id="devAndTemp", style="background-color: #E6E6E6;">
-    <table id="devTemp">
-      <tr>
-        <td style="border-style:none">
-          <div id="devices">
-            <table id="dev">
-              <tr>
-                <td style="border-style:none">
-                  <h3>Devices</h3>
-                  <table id="devicelist">
+                <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>Updated</th>
-                      <th>Generation</th>
-                      <th>Serial</th>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-            </table>
-          </div>
-        </td>
-<!--         <td style="border-style:none">
-          <div id="temperatures">
-            <h3>Temperatures</h3>
-            <table id="temperaturelist">
-              <tr>
-                <th>Name</th>
-                <th>Enclosure
-                  <br/>(C)</th>
-                <th>US100
-                  <br/>(C)</th>
-                <th>Extérieur
-                  <br/>(C)</th>
-              </tr>
-            </table>
-          </div>
-        </td>
- -->      </tr>
-    </table>
-  </div>
+                        <th class="darker">Nom</th>
+                        <th class="darker">Vac.
+                            <br/>(inHg)</th>
+                        <th class="darker">Perte
+                            <br/>(inHg)</th>
+                        <th class="darker">Temp.
+                            <br/>(°C)</th>
+                        <th class="darker">Batt.
+                            <br/>(%)</th>
+                        <th class="darker">Illum.
+                            <br/>(lm)</th>
+                        <th class="darker">RSSI,
+                            <br/>Qual</th>
+                        <th class="darker", style="visibility:collapse;">Mise à
+                            <br/>jour</th>
+                    </tr>                    
+                </thead>
+                <tbody id="lineVacTable">
 
-</body>
+                </tbody>
 
+            </table>
+        </div>
+    </div>
+
+            <table id="valves" , class="w3-table w3-striped w3-bordered" , style="visibility: hidden;">
+               <tr>
+                   <td>
+                       <h3>Valves</h3>
+                       <table id="valvelist">
+                           <tr>
+                               <th>Name</th>
+                               <th id="valvesPos">Position</th>
+                           </tr>
+                       </table>
+                   </td>
+               </tr>
+           </table>
+        <!-- </section> -->
+
+    </body>
+    <footer></footer>
 </html>
