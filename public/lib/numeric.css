@@ -29,6 +29,11 @@ td.darker {
     background-color: rgb(201, 201, 201);
 }
 
+th.tablename {
+    background-color: rgb(7, 1, 48);
+    color: #faf5f5;
+}
+
 td.lighter,
 tr.lighter {
     background-color: #e0e0e0;
