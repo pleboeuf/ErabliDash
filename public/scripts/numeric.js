@@ -1194,9 +1194,9 @@ function setAgeLineVacuum(displayElem, deviceDevice) {
 
 function setBatteryColorLineVacuum(percentCharge) {
     try {
-        if (percentCharge >= 70) {
+        if (percentCharge >= 60) {
             return "#e6e6e6"; // Light gray - Normal. 70% et plus
-        } else if (percentCharge >= 50) {
+        } else if (percentCharge >= 40) {
             return "Orange"; // Orange - Faible. Entre 50% et 69%
         } else {
             return "Red"; // Red - Critique. Moins de 50%
