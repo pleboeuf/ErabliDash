@@ -30,7 +30,8 @@ td.darker {
 }
 
 th.tablename {
-    background-color: rgb(7, 1, 48);
+    background-color: rgb(12, 1, 82);
+    font-size: large;
     color: #faf5f5;
 }
 

@@ -17,14 +17,14 @@
     <body>
         <div class="w3-container", style="width: 100%;", id="page_principale">
             <!-- <"Début: haut_de_page"> -->
-                <div class="w3-display-container w3-theme w3-light-gray", style="width: 100%; height: 50px; display: inline-block; position: fixed;">
-                    <div class="w3-container w3-display-bottommiddle", style="width: 70%; height: 50px; display: inline-block;", id="ZoneCentrale">
+                <div class="w3-display-container w3-theme", style="width: 100%; height: 50px; display: inline-block; position: fixed;">
+                    <div class="w3-container w3-display-bottommiddle", style="width: 86%; height: 50px; display: inline-block;", id="ZoneCentrale">
                         <div  class="w3-container w3-display-bottomleft" , style="width: 30%; height: 50px; display: inline-block;">
                             <h3 class="w3-display-topleft w3-mobile", id="siteName">Serveur de Tests</h3>
                         </div>
-                        <div class="w3-container w3-display-topright", style="width: 30%; height: 50px;", id="coulee">
-                            <h3 class="w3-display", style="display: inline; font-weight: bold;", id="c_text"></h3>
-                            <h3 class="w3-display", style="display: inline;",  id="compteurDeTemps"></h3>
+                        <div class="w3-container w3-display-topright", style="width: 40%; height: 50px;", id="coulee">
+                            <span class="w3-display", style="display: inline; font-weight: bold;", id="c_text"> </span>
+                            <span class="w3-display", style="display: inline;",  id="compteurDeTemps"></span>
                         </div>
                     </div>
                     <div class="w3-container w3-display-left">
@@ -38,7 +38,6 @@
 
             <!-- <Début: "Trois première tables"> -->
                 <div class="w3-third", style="margin-top: 65px; width:max-content;", id="Reservoirs">
-                    <!-- <h3>Réservoirs</h3> -->
                     <table id="tanklist">
                         <tr>
                             <th class="tablename" colspan="7">Réservoirs</th>
@@ -110,10 +109,10 @@
                             <th class="tablename" colspan="4">Système d'Osmose</th>
                         </tr>
                       <tr>
-                          <th class="darker">Machine</th>
-                          <th class="darker">Valeur</th>
-                          <th class="darker">Concentration</th>
-                          <th class="darker">Valeur</th>
+                          <th class="darker" colspan="2">Machine</th>
+                          <!-- <th class="darker">     </th> -->
+                          <th class="darker" colspan="2">Concentration</th>
+                          <!-- <th class="darker">     </th> -->
                       </tr>
                       <tr>
                           <td class="darker">État</td>         
@@ -200,7 +199,7 @@
             <!-- <Fin: "Trois première tables"> -->
 
             <!-- <Début: "Sommaire des Réservoirs et Valves" -->
-                <div class="w3-container", style="width: 100%;", id="Tanks and valves">
+                <div class="w3-container", style="width: 100%;margin-top: 20px;", id="Tanks and valves">
                     <div class="w3-third", style="width:max-content; margin-top: 1px;", id="Sommaire Reservoirs">
                         <table id="totalReservoirs">
                             <tr>
@@ -299,6 +298,40 @@
                             </tr>
                         </table>
                     </div>
+
+                    <div class="w3-third", style="width:max-content; margin-top: 1px; margin-left:3%;", id="Vacuum2">
+                        <table id="vacuumlist2">
+                            <thead>
+                                <tr>
+                                    <th class="tablename" colspan="4">Vacuum à l'Érablière</th>
+                                </tr>
+                                <tr>
+                                    <th class="darker">Nom</th>
+                                    <th class="darker">Vac. (inHg)</th>
+                                    <th class="darker">Nom</th>
+                                    <th class="darker">Vac. (inHg)</th>
+                                </tr>                               
+                            </thead>
+                                <tr>
+                                    <td class="darker", id="name_PV1"></td>
+                                    <td class="darker", id="val_PV1">0</td>
+                                    <td class="darker", id="name_V1"></td>
+                                    <td class="darker", id="val_V1">0</td>
+                                </tr>
+                                <tr>
+                                    <td class="darker", id="name_PV2"></td>
+                                    <td class="darker", id="val_PV2">0</td>
+                                    <td class="darker", id="name_V2"></td>
+                                    <td class="darker", id="val_V2">0</td>
+                                </tr>    
+                                <tr>
+                                    <td class="darker", id="name_PV3"></td>
+                                    <td class="darker", id="val_PV3">0</td>
+                                    <td class="darker", id="name_V3"></td>
+                                    <td class="darker", id="val_V3">0</td>
+                                </tr>             
+                        </table>
+                    </div>
                 </div>
             <!-- <Fin: "Sommaire des Réservoirs et Valves" -->
 
@@ -308,7 +341,7 @@
                         <table id="vacuumlist">
                             <thead>
                                 <tr>
-                                    <th class="tablename" colspan="7">Vacuum</th>
+                                    <th class="tablename" colspan="7">Vacuum en forêt</th>
                                 </tr>
                                 <tr>
                                     <th class="darker">Nom</th>
@@ -338,13 +371,13 @@
                     <div class="w3-third", style="width:max-content; margin-top: 30px;", id="Devices">
                         <table id="devicelist">
                             <tr>
-                                <th class="tablename" colspan="4">All Devices</th>
+                                <th class="tablename" colspan="4">Tous les Équipements</th>
                             </tr>
                             <tr>
-                                <th class="darker">Name</th>
-                                <th class="darker">Updated</th>
-                                <th class="darker">Generation</th>
-                                <th class="darker">Serial</th>
+                                <th class="darker">Nom</th>
+                                <th class="darker">M-à-J</th>
+                                <th class="darker">Géneration</th>
+                                <th class="darker">No. Série</th>
                             </tr>
                         </table>
                     </div>

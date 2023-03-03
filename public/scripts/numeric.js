@@ -933,15 +933,12 @@ function checkCouleeEnCour(allWaterPumps, dateStart) {
     }
 }
 
-function displayVacuum() {
+function displayVacuumLignes() {
     vacuums.forEach(function (vacuum) {
+        // if (vacuum.label.indexOf("Ligne") != 0) return;
         var vacuumValue = 0;
         var vacuumTemp = 0;
-        var deltaVacuum = 0;
-        var vacuumCharge = 0;
-        var vacuumIllum = 0;
         var vacuumDrop = 0;
-        var valueElem;
         var valueElemId = "vacuum_" + vacuum.code + "_value";
         var vacuumElemId = "vacuum_" + vacuum.code;
         var deltaVacElemId = "vacuum_" + vacuum.code + "_deltaVac";
@@ -960,43 +957,43 @@ function displayVacuum() {
             codeElement.setAttribute("class", "vacuumcode");
             vacuumElem.appendChild(codeElement);
 
-            valueElem = document.createElement("td");
+            var valueElem = document.createElement("td");
             valueElem.setAttribute("id", valueElemId);
             valueElem.setAttribute("class", "vacuumtemp");
             vacuumElem.appendChild(valueElem);
 
             // Perte de vide sur la ligne
-            deltaVacElem = document.createElement("td");
+            var deltaVacElem = document.createElement("td");
             deltaVacElem.setAttribute("id", deltaVacElemId);
             deltaVacElem.setAttribute("class", "vacuumtemp");
             vacuumElem.appendChild(deltaVacElem);
 
             // if('temp' in vacuum){
-            tempElem = document.createElement("td");
+            var tempElem = document.createElement("td");
             tempElem.setAttribute("id", tempElemId);
             tempElem.setAttribute("class", "vacuumtemp");
             vacuumElem.appendChild(tempElem);
             // }
             // if('percentCharge' in vacuum){
-            chargeElem = document.createElement("td");
+            var chargeElem = document.createElement("td");
             chargeElem.setAttribute("id", chargeElemId);
             chargeElem.setAttribute("class", "vacuumtemp");
             vacuumElem.appendChild(chargeElem);
             // }
             // if('lightIntensity' in vacuum){
-            illumElem = document.createElement("td");
+            var illumElem = document.createElement("td");
             illumElem.setAttribute("id", illumElemId);
             illumElem.setAttribute("class", "vacuumtemp");
             vacuumElem.appendChild(illumElem);
             // }
             // if('rssi' in vacuum){
-            rssiElem = document.createElement("td");
+            var rssiElem = document.createElement("td");
             rssiElem.setAttribute("id", rssiElemId);
             rssiElem.setAttribute("class", "vacuumtemp");
             vacuumElem.appendChild(rssiElem);
             // }
             // if('lastUpdate' in vacuum){
-            updatedElem = document.createElement("td");
+            var updatedElem = document.createElement("td");
             updatedElem.setAttribute("id", updatedElemId);
             updatedElem.setAttribute("class", "vacuumtemp");
             updatedElem.style.visibility = "collapse";
@@ -1082,6 +1079,32 @@ function displayVacuum() {
         setAgeColor(vacuumElem, vacuum.device);
         updatedElem = document.getElementById(updatedElemId);
         setAgeLineVacuum(updatedElem, vacuum.device);
+    });
+}
+
+function displayVacuumErabliere() {
+    var videElemId;
+    var videElem;
+    var videValElemId;
+    var videValElem;
+    var vacValue = 0;
+
+    vacuums.forEach(function (vacuum) {
+        if (vacuum.label.indexOf("Ligne") == 0) return;
+
+        videElemId = "name_" + vacuum.code;
+        videValElemId = "val_" + vacuum.code;
+
+        videElem = document.getElementById(videElemId);
+        if (videElem !== null) {
+            videElem.innerHTML = vacuum.label;
+        }
+        videValElem = document.getElementById(videValElemId);
+        vacValue = (vacuum.rawValue + vacuum.offset) / 100;
+        if (videValElem !== null) {
+            videValElem.innerHTML = vacValue.toFixed(1);
+            videValElem.style.textAlign = "right";
+        }
     });
 }
 
@@ -1282,7 +1305,8 @@ function openSocket() {
         displayValves();
         displayTanks();
         displayPumps();
-        displayVacuum();
+        displayVacuumErabliere();
+        displayVacuumLignes();
         displayOsmose();
         // displayTemperatures();
         toggleStatusColor();
