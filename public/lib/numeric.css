@@ -12,7 +12,7 @@ background-image {
 
 table {
     border-style: none;
-    /*border-collapse: collapse;*/
+    margin-top: 10px;
 }
 
 th,
@@ -27,6 +27,11 @@ td {
 th.darker,
 td.darker {
     background-color: rgb(201, 201, 201);
+}
+
+header {
+    background-color: rgb(12, 1, 82);
+    color: white;
 }
 
 th.tablename {

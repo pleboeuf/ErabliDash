@@ -920,6 +920,7 @@ function checkCouleeEnCour(allWaterPumps, dateStart) {
                 couleeActive = allPumpsCouleeState;
                 startCouleeCounter(dateStart);
                 couleeTextElem.innerHTML = "Coulée en cours:  ";
+                couleeTextElem.style.color = "black";
                 couleeElem.style.backgroundColor = "yellow";
                 couleeElem.style.color = "black";
             } else {
@@ -935,7 +936,6 @@ function checkCouleeEnCour(allWaterPumps, dateStart) {
 
 function displayVacuumLignes() {
     vacuums.forEach(function (vacuum) {
-        // if (vacuum.label.indexOf("Ligne") != 0) return;
         var vacuumValue = 0;
         var vacuumTemp = 0;
         var vacuumDrop = 0;
@@ -968,37 +968,31 @@ function displayVacuumLignes() {
             deltaVacElem.setAttribute("class", "vacuumtemp");
             vacuumElem.appendChild(deltaVacElem);
 
-            // if('temp' in vacuum){
             var tempElem = document.createElement("td");
             tempElem.setAttribute("id", tempElemId);
             tempElem.setAttribute("class", "vacuumtemp");
             vacuumElem.appendChild(tempElem);
-            // }
-            // if('percentCharge' in vacuum){
+
             var chargeElem = document.createElement("td");
             chargeElem.setAttribute("id", chargeElemId);
             chargeElem.setAttribute("class", "vacuumtemp");
             vacuumElem.appendChild(chargeElem);
-            // }
-            // if('lightIntensity' in vacuum){
+
             var illumElem = document.createElement("td");
             illumElem.setAttribute("id", illumElemId);
             illumElem.setAttribute("class", "vacuumtemp");
             vacuumElem.appendChild(illumElem);
-            // }
-            // if('rssi' in vacuum){
+
             var rssiElem = document.createElement("td");
             rssiElem.setAttribute("id", rssiElemId);
             rssiElem.setAttribute("class", "vacuumtemp");
             vacuumElem.appendChild(rssiElem);
-            // }
-            // if('lastUpdate' in vacuum){
+
             var updatedElem = document.createElement("td");
             updatedElem.setAttribute("id", updatedElemId);
             updatedElem.setAttribute("class", "vacuumtemp");
             updatedElem.style.visibility = "collapse";
             vacuumElem.appendChild(updatedElem);
-            // }
         } else {
             valueElem = document.getElementById(valueElemId);
             if ("temp" in vacuum) {
@@ -1023,6 +1017,7 @@ function displayVacuumLignes() {
         vacuumValue = (vacuum.rawValue + vacuum.offset) / 100;
         valueElem.innerHTML = vacuumValue.toFixed(1);
         valueElem.style.textAlign = "right";
+
         // Sauve les valeurs de références pour le calcul des perte de vide
         if (
             vacuum.code == "V1" ||
@@ -1098,6 +1093,7 @@ function displayVacuumErabliere() {
         videElem = document.getElementById(videElemId);
         if (videElem !== null) {
             videElem.innerHTML = vacuum.label;
+            setAgeColor(videElem, vacuum.device);
         }
         videValElem = document.getElementById(videValElemId);
         vacValue = (vacuum.rawValue + vacuum.offset) / 100;
