@@ -37,170 +37,173 @@
             <!-- <Fin: "haut_de_page"> -->
 
             <!-- <Début: "Trois première tables"> -->
-                <div class="w3-third", style="margin-top: 65px; width:max-content;", id="Reservoirs">
-                    <table id="tanklist">
-                        <tr>
-                            <th class="tablename" colspan="7">Réservoirs</th>
-                        </tr>
-                        <tr>
-                            <th class="darker">Réservoirs</th>
-                            <th class="darker">Cont. <br />(gal)</th>
-                            <th class="darker">Cont. <br />(%)</th>
-                            <th class="darker">Valve <br />Sortie</th>
-                            <th class="darker">Valve <br />Drain</th>
-                            <th>Lect. <br />(mm)</th>
-                            <th>Max <br />(gal)</th>
-                        </tr>
-                    </table>
-                </div>
+                <div class="w3-container", style="margin-top: 4%; width:100%; height: max-content; display: inline-block;">
 
-                <div class="w3-quarter", style="margin-top: 65px; width:max-content; margin-left:3%;", id="Pompes">
-                    <!-- <h3>Pompes</h3> -->
-                    <table id="pumplist">
-                        <tr>
-                            <th class="tablename" colspan="5">Pompes</th>
-                        </tr>
-                        <tr>
-                            <th class="darker">Pompes</th>
-                            <th class="darker V_position">Etat</th>
-                            <th class="darker">Util. <br />(%)</th>
-                            <th class="darker">Débit <br />(gph)</th>
-                            <th class="darker">Vol. <br />(gal)</th>
-                        </tr>
-                        <tr id="pumptotalrow" , class="lighter">
-                            <td class="darker">Total</td>
-                            <td></td>
-                            <td></td>
-                            <td
-                                id="pumptotalrate"
-                                ,
-                                class="pumprate"
-                                ,
-                                style="font-weight: bold"
-                            ></td>
-                            <td
-                                id="volumetotal"
-                                ,
-                                class="pumpvolume"
-                                ,
-                                style="font-weight: bold"
-                            ></td>
-                        </tr>
-                        <tr class="lighter">
-                            <td class="darker">Sirop Est.</td>
-                            <td></td>
-                            <td></td>
-                            <td id="debitEstimSirop", class="pumpvolume", style="font-style: italic; font-weight: bold"></td>
-                            <td
-                                id="estimSirop"
-                                ,
-                                class="pumpvolume"
-                                ,
-                                style="font-style: italic; font-weight: bold"
-                            ></td>
-                        </tr>
-                    </table>
-                </div>
+                    <div class="w3-third", style="width:max-content; margin-right:2%;", id="Reservoirs">
+                        <table id="tanklist">
+                            <tr>
+                                <th class="tablename" colspan="7">Réservoirs</th>
+                            </tr>
+                            <tr>
+                                <th class="darker">Réservoirs</th>
+                                <th class="darker">Cont. <br />(gal)</th>
+                                <th class="darker">Cont. <br />(%)</th>
+                                <th class="darker">Valve <br />Sortie</th>
+                                <th class="darker">Valve <br />Drain</th>
+                                <th>Lect. <br />(mm)</th>
+                                <th>Max <br />(gal)</th>
+                            </tr>
+                        </table>
+                    </div>
 
-                <div class="w3-quarter", style="margin-top: 65px; width:max-content; margin-left:3%;", id="Osmose">
-                    <!-- <h3>Osmose</h3> -->
-                    <table id="OsmoseSystem">
+                    <div class="w3-third", style="width:max-content; margin-right:2%;", id="Pompes">
+                        <!-- <h3>Pompes</h3> -->
+                        <table id="pumplist">
+                            <tr>
+                                <th class="tablename" colspan="5">Pompes</th>
+                            </tr>
+                            <tr>
+                                <th class="darker">Pompes</th>
+                                <th class="darker V_position">Etat</th>
+                                <th class="darker">Util. <br />(%)</th>
+                                <th class="darker">Débit <br />(gph)</th>
+                                <th class="darker">Vol. <br />(gal)</th>
+                            </tr>
+                            <tr id="pumptotalrow" , class="lighter">
+                                <td class="darker">Total</td>
+                                <td></td>
+                                <td></td>
+                                <td
+                                    id="pumptotalrate"
+                                    ,
+                                    class="pumprate"
+                                    ,
+                                    style="font-weight: bold"
+                                ></td>
+                                <td
+                                    id="volumetotal"
+                                    ,
+                                    class="pumpvolume"
+                                    ,
+                                    style="font-weight: bold"
+                                ></td>
+                            </tr>
+                            <tr class="lighter">
+                                <td class="darker">Sirop Est.</td>
+                                <td></td>
+                                <td></td>
+                                <td id="debitEstimSirop", class="pumpvolume", style="font-style: italic; font-weight: bold"></td>
+                                <td
+                                    id="estimSirop"
+                                    ,
+                                    class="pumpvolume"
+                                    ,
+                                    style="font-style: italic; font-weight: bold"
+                                ></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="w3-third", style="width:max-content;", id="Osmose">
+                        <!-- <h3>Osmose</h3> -->
+                        <table id="OsmoseSystem">
+                            <tr>
+                                <th class="tablename" colspan="4">Système d'Osmose</th>
+                            </tr>
                         <tr>
-                            <th class="tablename" colspan="4">Système d'Osmose</th>
+                            <th class="darker" colspan="2">Machine</th>
+                            <!-- <th class="darker">     </th> -->
+                            <th class="darker" colspan="2">Concentration</th>
+                            <!-- <th class="darker">     </th> -->
                         </tr>
-                      <tr>
-                          <th class="darker" colspan="2">Machine</th>
-                          <!-- <th class="darker">     </th> -->
-                          <th class="darker" colspan="2">Concentration</th>
-                          <!-- <th class="darker">     </th> -->
-                      </tr>
-                      <tr>
-                          <td class="darker">État</td>         
-                          <td class="lighter V_position", id="Osmose_state"></td> </td>
-                          <td class="darker">Séquence</td>
-                          <td class="lighter rawvalue", id="Osmose_sequence"> </td>
-                      </tr>
-                      <tr>
-                          <td class="darker">Fonction</td>      
-                          <td class="lighter rawvalue", id="Osmose_fonction"> </td>
-                          <td class="darker">Brix Sève</td>
-                          <td class="lighter rawvalue", id="Osmose_BrixSeve"> </td>                           
-                      </tr>
-                      <tr>
-                          <td class="darker">Durée opér. en cour</td>
-                          <td class="lighter rawvalue", id="Osmose_tOperEC"> </td>
-                          <td class="darker">Brix Concentré</td> 
-                          <td class="lighter rawvalue", id="Osmose_BrixConc"> </td>                           
-                      </tr>
-                      <tr>
-                          <td class="darker">Durée séq. 1234</td>
-                          <td class="lighter rawvalue", id="Osmose_TempsSeq1234"> </td>
-                          <td class="darker">Débit Col1 (g/m)</td>
-                          <td class="lighter rawvalue", id="Osmose_Col1"> </td>                               
-                      </tr>
-                      <tr>
-                          <td class="darker">Durée séq. 4321</td>
-                          <td class="lighter rawvalue", id="Osmose_TempsSeq4321"> </td>
-                          <td class="darker">Débit Col2 (g/m)</td>
-                          <td class="lighter rawvalue", id="Osmose_Col2"> </td>                             
-                      </tr>
-                      <tr>
-                          <td class="darker">T. Depuis lavage</td>
-                          <td class="lighter rawvalue", id="Osmose_TempsDepuisLavage"> </td>
-                          <td class="darker">Débit Col3 (g/m)</td>
-                          <td class="lighter rawvalue", id="Osmose_Col3"> </td>                               
-                      </tr>
-                      <tr>
-                          <td class="darker">Mise à jour</td>
-                          <td class="lighter rawvalue", id="Osmose_lastUpdatedAt"> </td>
-                          <td class="darker">Débit Col4 (g/m)</td>
-                          <td class="lighter rawvalue", id="Osmose_Col4"> </td>                             
-                      </tr>
-                      <tr>
-                          <td class="darker">Code alarme</td>
-                          <td class="lighter rawvalue", id="Osmose_alarmNo"> </td>
-                          <td class="darker">Débit Conc. (g/m)</td>
-                          <td class="lighter rawvalue", id="Osmose_Conc"> </td>                             
-                      </tr>
-                      <tr>
-                          <td class="darker">Message d'alarme</td>
-                          <td class="lighter", id="Osmose_alarmMsg"> </td>
-                          <td class="darker">Température (°C)</td>
-                          <td class="lighter rawvalue", id="Osmose_Temp"> </td>                               
-                      </tr>
-                      <tr>
-                        <td class="darker"> </td>
-                        <td class="lighter rawvalue"> </td>
-                        <td class="darker">Pression (PSI)</td>
-                        <td class="lighter rawvalue", id="Osmose_Pres"> </td>                            
-                      </tr>
-  
-                      <th class="tablename" colspan="4">Sommaire</th>
-                      <tr>
-                          <td class="darker">PC Conc. (%)</td>
-                          <td class="lighter rawvalue", id="Osmose_PC_Conc"> </td>
-                          <td class="darker">Débit Total (g/h)</td> 
-                          <td class="lighter rawvalue", id="Osmose_Total_GPH"> </td>                          
-                      </tr>
-                      <tr>
-                          <td class="darker">Débit Conc. (g/h)</td> 
-                          <td class="lighter rawvalue", id="Osmose_Conc_GPH"> </td>
-                          <td class="darker">Débit Filtrat (g/h)</td>
-                          <td class="lighter rawvalue", id="Osmose_Filtrat_GPH"> </td>                            
-                      </tr>
-                      <tr>
-                          <td class="darker">Durée d'Osmose</td> 
-                          <td class="lighter rawvalue", id="Osmose_Durée_sec"> </td>
-                          <td class="darker">Durée totale Estimé</td> 
-                          <td class="lighter rawvalue", id="Osmose_temps_approx"> </td>                         
-                      </tr>
-                    </table>
+                        <tr>
+                            <td class="darker">État</td>         
+                            <td class="lighter V_position", id="Osmose_state"></td> </td>
+                            <td class="darker">Séquence</td>
+                            <td class="lighter rawvalue", id="Osmose_sequence"> </td>
+                        </tr>
+                        <tr>
+                            <td class="darker">Fonction</td>      
+                            <td class="lighter rawvalue", id="Osmose_fonction"> </td>
+                            <td class="darker">Brix Sève</td>
+                            <td class="lighter rawvalue", id="Osmose_BrixSeve"> </td>                           
+                        </tr>
+                        <tr>
+                            <td class="darker">Durée opér. en cour</td>
+                            <td class="lighter rawvalue", id="Osmose_tOperEC"> </td>
+                            <td class="darker">Brix Concentré</td> 
+                            <td class="lighter rawvalue", id="Osmose_BrixConc"> </td>                           
+                        </tr>
+                        <tr>
+                            <td class="darker">Durée séq. 1234</td>
+                            <td class="lighter rawvalue", id="Osmose_TempsSeq1234"> </td>
+                            <td class="darker">Débit Col1 (g/m)</td>
+                            <td class="lighter rawvalue", id="Osmose_Col1"> </td>                               
+                        </tr>
+                        <tr>
+                            <td class="darker">Durée séq. 4321</td>
+                            <td class="lighter rawvalue", id="Osmose_TempsSeq4321"> </td>
+                            <td class="darker">Débit Col2 (g/m)</td>
+                            <td class="lighter rawvalue", id="Osmose_Col2"> </td>                             
+                        </tr>
+                        <tr>
+                            <td class="darker">T. Depuis lavage</td>
+                            <td class="lighter rawvalue", id="Osmose_TempsDepuisLavage"> </td>
+                            <td class="darker">Débit Col3 (g/m)</td>
+                            <td class="lighter rawvalue", id="Osmose_Col3"> </td>                               
+                        </tr>
+                        <tr>
+                            <td class="darker">Mise à jour</td>
+                            <td class="lighter rawvalue", id="Osmose_lastUpdatedAt"> </td>
+                            <td class="darker">Débit Col4 (g/m)</td>
+                            <td class="lighter rawvalue", id="Osmose_Col4"> </td>                             
+                        </tr>
+                        <tr>
+                            <td class="darker">Code alarme</td>
+                            <td class="lighter rawvalue", id="Osmose_alarmNo"> </td>
+                            <td class="darker">Débit Conc. (g/m)</td>
+                            <td class="lighter rawvalue", id="Osmose_Conc"> </td>                             
+                        </tr>
+                        <tr>
+                            <td class="darker">Message d'alarme</td>
+                            <td class="lighter", id="Osmose_alarmMsg"> </td>
+                            <td class="darker">Température (°C)</td>
+                            <td class="lighter rawvalue", id="Osmose_Temp"> </td>                               
+                        </tr>
+                        <tr>
+                            <td class="darker"> </td>
+                            <td class="lighter rawvalue"> </td>
+                            <td class="darker">Pression (PSI)</td>
+                            <td class="lighter rawvalue", id="Osmose_Pres"> </td>                            
+                        </tr>
+    
+                        <th class="tablename" colspan="4">Sommaire</th>
+                        <tr>
+                            <td class="darker">PC Conc. (%)</td>
+                            <td class="lighter rawvalue", id="Osmose_PC_Conc"> </td>
+                            <td class="darker">Débit Total (g/h)</td> 
+                            <td class="lighter rawvalue", id="Osmose_Total_GPH"> </td>                          
+                        </tr>
+                        <tr>
+                            <td class="darker">Débit Conc. (g/h)</td> 
+                            <td class="lighter rawvalue", id="Osmose_Conc_GPH"> </td>
+                            <td class="darker">Débit Filtrat (g/h)</td>
+                            <td class="lighter rawvalue", id="Osmose_Filtrat_GPH"> </td>                            
+                        </tr>
+                        <tr>
+                            <td class="darker">Durée d'Osmose</td> 
+                            <td class="lighter rawvalue", id="Osmose_Durée_sec"> </td>
+                            <td class="darker">Durée totale Estimé</td> 
+                            <td class="lighter rawvalue", id="Osmose_temps_approx"> </td>                         
+                        </tr>
+                        </table>
+                    </div>
                 </div>
             <!-- <Fin: "Trois première tables"> -->
 
             <!-- <Début: "Sommaire des Réservoirs et Valves" -->
-                <div class="w3-container", style="width: 100%;margin-top: 20px;", id="Tanks and valves">
-                    <div class="w3-third", style="width:max-content; margin-top: 1px;", id="Sommaire Reservoirs">
+                <div class="w3-container", style="margin-top: 2%; width: 100%; height: max-content;", id="Tanks and valves">
+                    <div class="w3-third", style="width:max-content; margin-right:2%;", id="Sommaire Reservoirs">
                         <table id="totalReservoirs">
                             <tr>
                                 <th class="tablename" colspan="7">Sommaire des Réservoirs</th>
@@ -268,7 +271,7 @@
                         </table>
                     </div>
 
-                    <div class="w3-third",  style="width:max-content; margin-top: 1px; margin-left:3%;", id="Div autreValves">
+                    <div class="w3-third",  style="width:max-content; margin-right:2%;", id="Div autreValves">
                         <table id="autreValves">
                             <tr>
                                 <th class="tablename" colspan="3">Valves Indépendantes</th>
@@ -299,7 +302,7 @@
                         </table>
                     </div>
 
-                    <div class="w3-third", style="width:max-content; margin-top: 1px; margin-left:3%;", id="Vacuum2">
+                    <div class="w3-third", style="width:max-content;", id="vacuumLocal">
                         <table id="vacuumlist2">
                             <thead>
                                 <tr>
@@ -336,8 +339,8 @@
             <!-- <Fin: "Sommaire des Réservoirs et Valves" -->
 
             <!-- <Début: "page_Devices_Vacuum_Lignes"> -->
-                <div class="w3-container", style="width: 100%;", id="page_devices_lignes">
-                    <div class="w3-third", style="width:max-content; margin-top: 30px;", id="Vacuums">
+                <div class="w3-container", style="margin-top: 2%; width: 100%;", id="page_devices_lignes">
+                    <div class="w3-third", style="margin-right: 2%;", id="Vacuums">
                         <table id="vacuumlist">
                             <thead>
                                 <tr>
@@ -368,7 +371,7 @@
                         </table>
                     </div>
 
-                    <div class="w3-third", style="width:max-content; margin-top: 30px;", id="Devices">
+                    <div class="w3-third", style="margin-right: 2%; width:max-content; margin-right:2%;", id="Devices">
                         <table id="devicelist">
                             <tr>
                                 <th class="tablename" colspan="4">Tous les Équipements</th>
