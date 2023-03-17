@@ -788,7 +788,7 @@ function displayPumps() {
     var dateStart;
     allWaterPumps = [false, false, false];
     pumps.forEach(function (pump) {
-        var PV1vacId;
+        var PVvacId;
         var codeElement;
         var codeElementId = "pump_" + pump.code;
         var stateElem;
@@ -843,10 +843,11 @@ function displayPumps() {
             debitSiropElem = document.getElementById("debitEstimSirop");
         }
         setPumpWarning(pumpElem, pump.run2long);
-        if (pump.code == "Vide1") {
-            PV1vacId = document.getElementById("vacuum_PV1_value");
-            if (PV1vacId !== null) {
-                if (PV1vacId.innerHTML < -10) {
+        if (pump.code.includes("Vide")) {
+            var pvid = "vacuum_PV" + pump.code.charAt(4) + "_value";
+            PVvacId = document.getElementById(pvid);
+            if (PVvacId !== null) {
+                if (PVvacId.innerHTML < -10) {
                     pump.state = true;
                 }
             }
