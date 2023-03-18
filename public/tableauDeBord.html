@@ -814,8 +814,10 @@
                     var pvid = "vacuum_PV" + pump.code.charAt(4) + "_value";
                     PVvacId = document.getElementById(pvid);
                     if (PVvacId !== null) {
-                        if (PVvacId.innerHTML < -10) {
+                        if (PVvacId.innerHTML < -10 && pump.state == false) {
                             pump.state = true;
+                        } else if (PVvacId.innerHTML > -5 && pump.state == true) {
+                            pump.state = false;
                         }
                     }
                 }
