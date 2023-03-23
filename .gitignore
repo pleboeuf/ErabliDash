@@ -12,4 +12,4 @@ public/__*
 public/cabane*
 .DS_Store
 *.bk
-
+.env
