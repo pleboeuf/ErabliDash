@@ -767,16 +767,13 @@ function calcTempEst() {
 }
 
 function secToHrMin(totalSec) {
-    var hour = Math.floor(totalSec / 3600);
-    var min = Math.floor((totalSec - hour * 3600) / 60);
-    const sec = totalSec - (hour * 3600 + min * 60);
-    // return pad(hour) + "h " + pad(min) + "m";
-    if (sec > 29) {
-        min = min + 1;
-    }
-    if (min > 59) {
-        hour = hour + 1;
-    }
+    Math.max(0, totalSec);
+    let hour = totalSec / 3600;
+    let min = (hour - Math.floor(hour)) * 60;
+    let sec = min - Math.floor(min);
+    hour = Math.floor(hour);
+    min = Math.floor(min);
+    sec = Math.floor(sec);
     return hour + "h " + min + "m";
 }
 
@@ -847,7 +844,10 @@ function displayPumps() {
             var pvid = "vacuum_PV" + pump.code.charAt(4) + "_value";
             PVvacId = document.getElementById(pvid);
             if (PVvacId !== null) {
-                if (PVvacId.innerHTML < -10 && pump.state == false) {
+                if (
+                    pump.state == true ||
+                    (PVvacId.innerHTML < -10 && pump.state == false)
+                ) {
                     pump.state = true;
                 } else if (PVvacId.innerHTML > -5 && pump.state == true) {
                     pump.state = false;
@@ -1081,17 +1081,21 @@ function displayVacuumLignes() {
 }
 
 function displayVacuumErabliere() {
-    var videElemId;
-    var videElem;
-    var videValElemId;
-    var videValElem;
-    var vacValue = 0;
+    let videElemId;
+    let videElem;
+    let videValElemId;
+    let videValElem;
+    let vacValue = 0;
+    let timeElemId;
+    let timeElem;
+    let tOper = 0;
 
     vacuums.forEach(function (vacuum) {
         if (vacuum.label.indexOf("Ligne") == 0) return;
 
         videElemId = "name_" + vacuum.code;
         videValElemId = "val_" + vacuum.code;
+        timeElemId = "tOper_" + vacuum.code;
 
         videElem = document.getElementById(videElemId);
         if (videElem !== null) {
@@ -1103,6 +1107,20 @@ function displayVacuumErabliere() {
         if (videValElem !== null) {
             videValElem.innerHTML = vacValue.toFixed(1);
             videValElem.style.textAlign = "right";
+        }
+        timeElem = document.getElementById(timeElemId);
+        if (timeElem !== null) {
+            timeElem.style.textAlign = "center";
+            if (vacuum.RunTimeSinceMaint !== undefined) {
+                timeElem.innerHTML = secToHrMin(vacuum.RunTimeSinceMaint);
+                if (vacuum.NeedMaintenance == true) {
+                    timeElem.className = "alarm";
+                } else {
+                    timeElem.className = "lighter";
+                }
+            } else {
+                timeElem.innerHTML = "";
+            }
         }
     });
 }

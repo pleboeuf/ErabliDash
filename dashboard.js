@@ -1,12 +1,20 @@
-const fs = require('fs');
-const path = require('path');
-const util = require('util');
-const Promise = require('promise');
-const _ = require('underscore');
+const fs = require("fs");
+const path = require("path");
+const util = require("util");
+const Promise = require("promise");
+const _ = require("underscore");
 var readFile = Promise.denodeify(fs.readFile);
 var writeFile = Promise.denodeify(fs.writeFile);
 
-exports.Device = function (id, name, generationId, lastEventSerial, maxDelayMinutes, eventName, retired) {
+exports.Device = function (
+    id,
+    name,
+    generationId,
+    lastEventSerial,
+    maxDelayMinutes,
+    eventName,
+    retired
+) {
     this.id = id;
     this.name = name;
     this.generationId = generationId;
@@ -19,7 +27,7 @@ exports.Device = function (id, name, generationId, lastEventSerial, maxDelayMinu
         this.lastEventSerial = dev.lastEventSerial;
         this.name = dev.name;
         return this;
-    }
+    };
 };
 
 var HorizontalCylindricTank = function (self) {
@@ -28,9 +36,9 @@ var HorizontalCylindricTank = function (self) {
     };
     self.getFill = function () {
         var h = self.sensorHeight - self.rawValue;
-        h = (h <= 0 ? 0 : h);
+        h = h <= 0 ? 0 : h;
         return HorizontalCylindricTank.getFill(h, self.diameter, self.length);
-    }
+    };
 };
 
 HorizontalCylindricTank.getFill = function (level, diameter, length) {
@@ -38,7 +46,11 @@ HorizontalCylindricTank.getFill = function (level, diameter, length) {
     var h = level / 1000;
     var d = diameter / 1000;
     var r = d / 2;
-    return (Math.pow(r, 2) * Math.acos((r - h) / r) - (r - h) * Math.sqrt(d * h - Math.pow(h, 2))) * length;
+    return (
+        (Math.pow(r, 2) * Math.acos((r - h) / r) -
+            (r - h) * Math.sqrt(d * h - Math.pow(h, 2))) *
+        length
+    );
 };
 
 var UShapedTank = function (self) {
@@ -51,30 +63,40 @@ var UShapedTank = function (self) {
 
     function getFill(level) {
         // All measures in millimeters
-        level = (level <= 0 ? 0 : level);
+        level = level <= 0 ? 0 : level;
         return getBottomFill(level) + getTopFill(level);
     }
 
     function getBottomFill(level) {
         level = Math.min(level, self.diameter / 2);
-        return HorizontalCylindricTank.getFill(level, self.diameter, self.length);
+        return HorizontalCylindricTank.getFill(
+            level,
+            self.diameter,
+            self.length
+        );
     }
 
     function getTopFill(level) {
         level = Math.max(0, level - self.diameter / 2);
-        return self.diameter / 100 * self.length / 100 * level / 100;
+        return ((((self.diameter / 100) * self.length) / 100) * level) / 100;
     }
 };
 
 exports.Tank = function (attrs) {
     var self = this;
     _.extend(self, attrs);
-    if (self.shape === 'cylinder' && self.orientation === 'horizontal') {
+    if (self.shape === "cylinder" && self.orientation === "horizontal") {
         HorizontalCylindricTank(self);
-    } else if (self.shape === 'u') {
+    } else if (self.shape === "u") {
         UShapedTank(self);
     } else {
-        throw 'Unsupported tank (shape: ' + self.shape + ', ' + self.orientation + ')';
+        throw (
+            "Unsupported tank (shape: " +
+            self.shape +
+            ", " +
+            self.orientation +
+            ")"
+        );
     }
 };
 
@@ -83,7 +105,7 @@ exports.VacuumSensor = function (attrs) {
     _.extend(self, attrs);
     self.getValue = function () {
         return self.value;
-    }
+    };
 };
 
 exports.osmose = function () {
@@ -105,33 +127,50 @@ PumpEvent.comparator = function (a, b) {
     }
 };
 
-var Pump = exports.Pump = function (pumpConfig) {
+var Pump = (exports.Pump = function (pumpConfig) {
     var self = this;
     _.extend(self, pumpConfig);
     var events = [];
     self.load = function (pumpData) {
-        console.log("Loading configured pump '%s' on device '%s'", self.code, self.device);
-        return _.extend(self, _.omit(pumpData, 'code', 'device'));
+        console.log(
+            "Loading configured pump '%s' on device '%s'",
+            self.code,
+            self.device
+        );
+        return _.extend(self, _.omit(pumpData, "code", "device"));
     };
     self.update = function (event) {
         self.state = event.data.eData === 0;
         var pumpEvent = new PumpEvent(event.generationId, event.serialNo, {
-            "timer": event.data.timer,
-            "state": self.state
+            timer: event.data.timer,
+            state: self.state,
         });
         events.push(pumpEvent);
         while (events.length > 3) {
             events.shift();
         }
-        if (events.length === 3 && !events[0].state && events[1].state && !events[2].state) {
+        if (
+            events.length === 3 &&
+            !events[0].state &&
+            events[1].state &&
+            !events[2].state
+        ) {
             self.cycleEnded(events[0], events[1], events[2]);
         }
     };
     self.cycleEnded = function (t0Event, t1Event, t2Event) {
         // self.duty = (t2Event.timer - t1Event.timer) / (t2Event.timer - t0Event.timer);
-        console.log("Pump cycle ended: " + (t1Event.timer - t0Event.timer) + " ms off, then " + (t2Event.timer - t1Event.timer) + " ms on (" + (self.duty * 100).toFixed(0) + "% duty)");
-    }
-};
+        console.log(
+            "Pump cycle ended: " +
+                (t1Event.timer - t0Event.timer) +
+                " ms off, then " +
+                (t2Event.timer - t1Event.timer) +
+                " ms on (" +
+                (self.duty * 100).toFixed(0) +
+                "% duty)"
+        );
+    };
+});
 
 exports.Dashboard = function (config, WebSocketClient) {
     var Device = exports.Device;
@@ -156,16 +195,21 @@ exports.Dashboard = function (config, WebSocketClient) {
     var dir = path.dirname(filename);
     fs.exists(dir, function (exists) {
         if (!exists) {
-            fs.mkdir(dir, new function (err) {
-                console.error(err);
-            });
+            fs.mkdir(
+                dir,
+                new (function (err) {
+                    console.error(err);
+                })()
+            );
         }
     });
 
     function getTank(name) {
-        return tanks.filter(function (tank) {
-            return tank.name === name;
-        }).shift();
+        return tanks
+            .filter(function (tank) {
+                return tank.name === name;
+            })
+            .shift();
     }
 
     function addDevice(device) {
@@ -179,9 +223,11 @@ exports.Dashboard = function (config, WebSocketClient) {
 
     function getDevice(deviceId) {
         return getDevices().then(function (devs) {
-            return devs.filter(function (dev) {
-                return dev.id === deviceId;
-            }).shift();
+            return devs
+                .filter(function (dev) {
+                    return dev.id === deviceId;
+                })
+                .shift();
         });
     }
 
@@ -193,28 +239,38 @@ exports.Dashboard = function (config, WebSocketClient) {
 
     function requestEvents(device) {
         if (connection.connected) {
-            console.log("Requesting events from device %s (%s) at %s,%s", device.name, device.id, device.generationId, device.lastEventSerial);
+            console.log(
+                "Requesting events from device %s (%s) at %s,%s",
+                device.name,
+                device.id,
+                device.generationId,
+                device.lastEventSerial
+            );
             pendingRequests[device.id] = true;
-            connection.sendUTF(JSON.stringify({
-                "command": "query",
-                "device": device.id,
-                "generation": device.generationId,
-                "after": device.lastEventSerial
-            }));
+            connection.sendUTF(
+                JSON.stringify({
+                    command: "query",
+                    device: device.id,
+                    generation: device.generationId,
+                    after: device.lastEventSerial,
+                })
+            );
         }
     }
 
     function subscribe() {
         if (connection.connected) {
             console.log("Subscribing to events from collector");
-            connection.sendUTF(JSON.stringify({
-                "command": "subscribe"
-            }));
+            connection.sendUTF(
+                JSON.stringify({
+                    command: "subscribe",
+                })
+            );
         }
     }
 
     function connect() {
-        client.connect(uri, 'event-stream');
+        client.connect(uri, "event-stream");
     }
 
     var connectBackoff = 50;
@@ -225,19 +281,32 @@ exports.Dashboard = function (config, WebSocketClient) {
     }
 
     function getValveOfDevice(device, identifier) {
-        var valve = valves.filter(function (valve) {
-            return valve.device === device.name && valve.identifier === identifier;
-        }).shift();
+        var valve = valves
+            .filter(function (valve) {
+                return (
+                    valve.device === device.name &&
+                    valve.identifier === identifier
+                );
+            })
+            .shift();
         if (valve === undefined) {
-            throw util.format("Device %s has no valve with identifier %d at %d,%d", device.name, identifier, device.generationId, device.lastEventSerial);
+            throw util.format(
+                "Device %s has no valve with identifier %d at %d,%d",
+                device.name,
+                identifier,
+                device.generationId,
+                device.lastEventSerial
+            );
         }
         return valve;
     }
 
     function getValveByCode(code) {
-        var valve = valves.filter(function (valve) {
-            return valve.code === code;
-        }).shift();
+        var valve = valves
+            .filter(function (valve) {
+                return valve.code === code;
+            })
+            .shift();
         if (valve === undefined) {
             throw "No valve with code " + code + " is defined";
         }
@@ -245,9 +314,11 @@ exports.Dashboard = function (config, WebSocketClient) {
     }
 
     function getOsmoseDevice(device) {
-        var sensor = theOsmose.filter(function (sensor) {
-            return sensor.device === device.name;
-        }).shift();
+        var sensor = theOsmose
+            .filter(function (sensor) {
+                return sensor.device === device.name;
+            })
+            .shift();
         // if (sensor === undefined) {
         //     throw "Device " + device.name + " has no vacuum sensor";
         // }
@@ -255,9 +326,11 @@ exports.Dashboard = function (config, WebSocketClient) {
     }
 
     function getVacuumSensorOfDevice(device) {
-        var sensor = vacuumSensors.filter(function (sensor) {
-            return sensor.device === device.name;
-        }).shift();
+        var sensor = vacuumSensors
+            .filter(function (sensor) {
+                return sensor.device === device.name;
+            })
+            .shift();
         if (sensor === undefined) {
             throw "Device " + device.name + " has no vacuum sensor";
         }
@@ -269,15 +342,22 @@ exports.Dashboard = function (config, WebSocketClient) {
             return sensor.device === device.name;
         });
         if (sensor === undefined) {
-            throw "Device " + device.name + " has no vacuum sensor on input: " + input;
+            throw (
+                "Device " +
+                device.name +
+                " has no vacuum sensor on input: " +
+                input
+            );
         }
         return sensor[input];
     }
 
     function getVacuumSensorByCode(code) {
-        var sensor = vacuumSensors.filter(function (sensor) {
-            return sensor.code === code;
-        }).shift();
+        var sensor = vacuumSensors
+            .filter(function (sensor) {
+                return sensor.code === code;
+            })
+            .shift();
         if (sensor === undefined) {
             throw "Dashboard has no vacuum sensor with code " + code;
         }
@@ -285,9 +365,11 @@ exports.Dashboard = function (config, WebSocketClient) {
     }
 
     function getPumpOfDevice(device) {
-        var pump = pumps.filter(function (pump) {
-            return pump.device === device.name;
-        }).shift();
+        var pump = pumps
+            .filter(function (pump) {
+                return pump.device === device.name;
+            })
+            .shift();
         if (pump === undefined) {
             throw "Device " + device.name + " has no pump";
         }
@@ -301,7 +383,7 @@ exports.Dashboard = function (config, WebSocketClient) {
         if (!data) {
             return Promise.reject({
                 message: "Event is missing data",
-                event: event
+                event: event,
             });
         }
         const value = data.eData;
@@ -364,7 +446,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             getPumpOfDevice(device).duty = value / 1000;
         } else if (name === "pump/endCycle") {
             const pump = getPumpOfDevice(device);
-            pump.volume += pump.ONtime * pump.capacity_gph / 3600;
+            pump.volume += (pump.ONtime * pump.capacity_gph) / 3600;
             pumps.forEach(function (pump) {
                 if (pump.device === device.name) {
                     pump.duty = value / 1000;
@@ -393,7 +475,19 @@ exports.Dashboard = function (config, WebSocketClient) {
             }
             pump.duty = 0;
             pump.volume = 0;
-
+            // Ajout de RunTimeSinceMaint
+        } else if (name === "pump/RunTimeSinceMaint") {
+            const sensor = getVacuumSensorOfDevice(device);
+            if (sensor.device === device.name) {
+                sensor.RunTimeSinceMaint = value;
+                event.object = extendVacuum(sensor);
+            }
+        } else if (name === "pump/NeedMaintenance") {
+            const sensor = getVacuumSensorOfDevice(device);
+            if (sensor.device === device.name) {
+                sensor.NeedMaintenance = value;
+                event.object = extendVacuum(sensor);
+            }
         } else if (name === "sensor/Valve1Pos") {
             const valve = getValveOfDevice(device, 1);
             if (valve.device === device.name) {
@@ -488,15 +582,22 @@ exports.Dashboard = function (config, WebSocketClient) {
         } else if (name === "sensor/sensorTemp") {
             // TODO Ignored
         } else {
-            console.warn("Unknown event name from %s: %s", device.name, name, event);
+            console.warn(
+                "Unknown event name from %s: %s",
+                device.name,
+                name,
+                event
+            );
         }
         return publishData(event, device);
     }
 
     function publishData(event, device) {
-        return Promise.all(listeners.map(function (listener) {
-            return listener(getData(), event, device);
-        }));
+        return Promise.all(
+            listeners.map(function (listener) {
+                return listener(getData(), event, device);
+            })
+        );
     }
 
     function handleMessage(message) {
@@ -515,23 +616,40 @@ exports.Dashboard = function (config, WebSocketClient) {
                 // return addDevice(new Device(deviceId, "New" + deviceId, generationId, serialNo)).then(handleEvent);
             } else {
                 var handleEventFunc = function () {
-                    return handleEvent(device, message)
+                    return handleEvent(device, message);
                 };
-                if (typeof device.generationId === 'undefined') {
-                    console.log("First event received for device %s (%s,%s)", deviceId, generationId, serialNo);
+                if (typeof device.generationId === "undefined") {
+                    console.log(
+                        "First event received for device %s (%s,%s)",
+                        deviceId,
+                        generationId,
+                        serialNo
+                    );
                     device.generationId = generationId;
                     device.lastEventSerial = serialNo;
                     return updateDevice(device).then(handleEventFunc);
                 } else if (generationId !== device.generationId) {
                     if (generationId > device.generationId) {
-                        console.warn("Device %s started a new generation of events: %s Accepting provided serial number: %s (was at %s, %s)", deviceId, generationId, serialNo, device.generationId, device.lastEventSerial);
+                        console.warn(
+                            "Device %s started a new generation of events: %s Accepting provided serial number: %s (was at %s, %s)",
+                            deviceId,
+                            generationId,
+                            serialNo,
+                            device.generationId,
+                            device.lastEventSerial
+                        );
                         device.generationId = generationId;
                         device.lastEventSerial = serialNo;
                         return updateDevice(device).then(handleEventFunc);
                     } else {
                         return Promise.reject({
-                            error: util.format("Received event for old generation (%s) of device %s, which is now at generation %s. Ignored!", generationId, deviceId, device.generationId),
-                            message: message
+                            error: util.format(
+                                "Received event for old generation (%s) of device %s, which is now at generation %s. Ignored!",
+                                generationId,
+                                deviceId,
+                                device.generationId
+                            ),
+                            message: message,
                         });
                     }
                 } else if (device.lastEventSerial < serialNo) {
@@ -542,8 +660,13 @@ exports.Dashboard = function (config, WebSocketClient) {
                 } else {
                     // console.log(util.format("Old event from device %s in current generation %d: received %d but currently at %d", deviceId, device.generationId, serialNo, device.lastEventSerial), message);
                     return Promise.reject({
-                        error: util.format("Received old event for device %s: %d, %s", deviceId, serialNo, generationId),
-                        message: message
+                        error: util.format(
+                            "Received old event for device %s: %d, %s",
+                            deviceId,
+                            serialNo,
+                            generationId
+                        ),
+                        message: message,
                     });
                 }
             }
@@ -555,10 +678,22 @@ exports.Dashboard = function (config, WebSocketClient) {
             const deviceId = message.data.command.device;
             delete pendingRequests[deviceId];
             if (Object.keys(pendingRequests).length > 0) {
-                console.log(util.format("Completed query for device %s with %d events; waiting for %d other devices.",
-                    deviceId, message.data.command.sent, Object.keys(pendingRequests).length));
+                console.log(
+                    util.format(
+                        "Completed query for device %s with %d events; waiting for %d other devices.",
+                        deviceId,
+                        message.data.command.sent,
+                        Object.keys(pendingRequests).length
+                    )
+                );
             } else {
-                console.log(util.format("Completed query for device %s with %d events; All queries completed.", deviceId, message.data.command.sent));
+                console.log(
+                    util.format(
+                        "Completed query for device %s with %d events; All queries completed.",
+                        deviceId,
+                        message.data.command.sent
+                    )
+                );
                 store();
                 queryCompleteCallbacks.forEach(function (callback) {
                     callback();
@@ -576,35 +711,40 @@ exports.Dashboard = function (config, WebSocketClient) {
     var connectPromise = new Promise(function (complete, reject) {
         onConnectSuccess = complete;
     });
-    client.on('connectFailed', function (error) {
-        console.log('Connect Error: ' + error.toString());
+    client.on("connectFailed", function (error) {
+        console.log("Connect Error: " + error.toString());
         reconnect();
     });
-    client.on('connect', function (con) {
+    client.on("connect", function (con) {
         connection = con;
         connectBackoff = 1;
-        console.log('WebSocket Client Connected to: ' + uri);
+        console.log("WebSocket Client Connected to: " + uri);
         onConnectSuccess(connection);
         connectCallbacks.forEach(function (callback) {
             callback();
         });
-        connection.on('error', function (error) {
+        connection.on("error", function (error) {
             console.log("Connection Error: " + error.toString());
             reconnect();
         });
-        connection.on('close', function () {
-            console.log('event-stream Connection Closed');
+        connection.on("close", function () {
+            console.log("event-stream Connection Closed");
             reconnect();
         });
-        connection.on('message', function (message) {
-            if (message.type === 'utf8') {
+        connection.on("message", function (message) {
+            if (message.type === "utf8") {
                 //console.log("Received: '" + message.utf8Data + "'");
                 try {
-                    return handleMessage(JSON.parse(message.utf8Data)).catch(function (err) {
-                        console.error(err);
-                    });
+                    return handleMessage(JSON.parse(message.utf8Data)).catch(
+                        function (err) {
+                            console.error(err);
+                        }
+                    );
                 } catch (exception) {
-                    console.error("Failed to handle message: " + message.utf8Data, exception.stack);
+                    console.error(
+                        "Failed to handle message: " + message.utf8Data,
+                        exception.stack
+                    );
                 }
             } else {
                 console.warn("Unknown message type: " + message.type);
@@ -615,20 +755,22 @@ exports.Dashboard = function (config, WebSocketClient) {
     function init() {
         console.log("Initializing...");
         var configData = {
-            "devices": config.devices,
-            "tanks": config.tanks,
-            "valves": config.valves,
-            "vacuum": config.vacuum,
-            "pumps": config.pumps,
-            "osmose": config.osmose
+            devices: config.devices,
+            tanks: config.tanks,
+            valves: config.valves,
+            vacuum: config.vacuum,
+            pumps: config.pumps,
+            osmose: config.osmose,
             // "temperatures": config.temperatures
         };
         if (fs.existsSync(filename)) {
             console.log("Data exists");
             console.log("Loading " + filename);
-            return readFile(filename, 'utf8').then(JSON.parse).then(function (dashData) {
-                return load(configData, dashData);
-            });
+            return readFile(filename, "utf8")
+                .then(JSON.parse)
+                .then(function (dashData) {
+                    return load(configData, dashData);
+                });
         } else {
             console.log("Dashboard data not found. Initializing.");
             return load(configData, configData);
@@ -637,12 +779,12 @@ exports.Dashboard = function (config, WebSocketClient) {
 
     function getData() {
         return {
-            "devices": devices,
-            "tanks": tanks.map(extendTank),
-            "valves": valves,
-            "vacuum": vacuumSensors,
-            "pumps": pumps.map(extendPump),
-            "osmose": theOsmose
+            devices: devices,
+            tanks: tanks.map(extendTank),
+            valves: valves,
+            vacuum: vacuumSensors,
+            pumps: pumps.map(extendPump),
+            osmose: theOsmose,
         };
     }
 
@@ -667,6 +809,12 @@ exports.Dashboard = function (config, WebSocketClient) {
         return valve;
     }
 
+    function extendVacuum(vacuumSensor) {
+        vacuumSensor = _.extend({}, vacuumSensor);
+        // vacuumSensor.RunTimeSinceMaint =
+        return vacuumSensor;
+    }
+
     function extendOsmose(osmose) {
         osmose = _.extend({}, osmose);
         return osmose;
@@ -674,42 +822,88 @@ exports.Dashboard = function (config, WebSocketClient) {
 
     function load(config, data) {
         devices = config.devices.map(function (dev) {
-            var deviceData = data.devices.filter(function (devData) {
-                return devData.id === dev.id;
-            }).shift();
+            var deviceData = data.devices
+                .filter(function (devData) {
+                    return devData.id === dev.id;
+                })
+                .shift();
             if (!deviceData) {
                 deviceData = {};
             }
-            console.log("Loading configured device '%s' - '%s' (%s) at %s,%s", dev.name, dev.description, dev.id, deviceData.generationId, deviceData.lastEventSerial);
-            return new Device(dev.id, dev.name, deviceData.generationId, deviceData.lastEventSerial, dev.maxDelayMinutes, dev.eventName, dev.retired);
+            console.log(
+                "Loading configured device '%s' - '%s' (%s) at %s,%s",
+                dev.name,
+                dev.description,
+                dev.id,
+                deviceData.generationId,
+                deviceData.lastEventSerial
+            );
+            return new Device(
+                dev.id,
+                dev.name,
+                deviceData.generationId,
+                deviceData.lastEventSerial,
+                dev.maxDelayMinutes,
+                dev.eventName,
+                dev.retired
+            );
         });
 
         tanks = config.tanks.map(function (tank) {
-            var tankData = data.tanks.filter(function (tankData) {
-                return tank.code === tankData.code;
-            }).shift();
-            console.log("Loading configured tank '%s' - '%s' with raw level of %s, last updated at %s", tank.code, tank.name, tank.rawValue, tank.lastUpdatedAt);
-            var attrsFromConfig = ['name', 'device', 'shape', 'orientation', 'length', 'diameter', 'sensorHeight', 'totalHeight'];
+            var tankData = data.tanks
+                .filter(function (tankData) {
+                    return tank.code === tankData.code;
+                })
+                .shift();
+            console.log(
+                "Loading configured tank '%s' - '%s' with raw level of %s, last updated at %s",
+                tank.code,
+                tank.name,
+                tank.rawValue,
+                tank.lastUpdatedAt
+            );
+            var attrsFromConfig = [
+                "name",
+                "device",
+                "shape",
+                "orientation",
+                "length",
+                "diameter",
+                "sensorHeight",
+                "totalHeight",
+            ];
             return new Tank(_.extend(tank, _.omit(tankData, attrsFromConfig)));
         });
 
         valves = config.valves.map(function (valve) {
-            var valveData = data.valves.filter(function (valveData) {
-                return valve.code === valveData.code;
-            }).shift();
-            console.log("Loading configured valve '%s' on device '%s'", valve.code, valve.device);
-            return _.extend(valve, _.omit(valveData, 'code', 'name', 'device'));
+            var valveData = data.valves
+                .filter(function (valveData) {
+                    return valve.code === valveData.code;
+                })
+                .shift();
+            console.log(
+                "Loading configured valve '%s' on device '%s'",
+                valve.code,
+                valve.device
+            );
+            return _.extend(valve, _.omit(valveData, "code", "name", "device"));
         });
 
         vacuumSensors = config.vacuum.map(function (sensor) {
-            var sensorData = data.vacuum.filter(function (sensorData) {
-                return sensor.code === sensorData.code;
-            }).shift();
+            var sensorData = data.vacuum
+                .filter(function (sensorData) {
+                    return sensor.code === sensorData.code;
+                })
+                .shift();
             if (!data.vacuum) {
                 return sensor;
             }
-            console.log("Loading configured vacuum sensor '%s' on device '%s'", sensor.code, sensor.device);
-            return _.extend(sensor, _.omit(sensorData, 'code', 'device'));
+            console.log(
+                "Loading configured vacuum sensor '%s' on device '%s'",
+                sensor.code,
+                sensor.device
+            );
+            return _.extend(sensor, _.omit(sensorData, "code", "device"));
         });
 
         pumps = config.pumps.map(function (pump) {
@@ -717,22 +911,30 @@ exports.Dashboard = function (config, WebSocketClient) {
             if (!data.pumps) {
                 return pump;
             }
-            var pumpData = data.pumps.filter(function (pumpData) {
-                return pump.code === pumpData.code;
-            }).shift();
+            var pumpData = data.pumps
+                .filter(function (pumpData) {
+                    return pump.code === pumpData.code;
+                })
+                .shift();
             pump.load(pumpData);
             return pump;
         });
 
         theOsmose = config.osmose.map(function (sensor) {
-            var sensorData = data.osmose.filter(function (sensorData) {
-                return sensor.code === sensorData.code;
-            }).shift();
+            var sensorData = data.osmose
+                .filter(function (sensorData) {
+                    return sensor.code === sensorData.code;
+                })
+                .shift();
             if (!data.osmose) {
                 return sensor;
             }
-            console.log("Loading configured osmose sensor '%s' on device '%s'", sensor.code, sensor.device);
-            return _.extend(sensor, _.omit(sensorData, 'code', 'device'));
+            console.log(
+                "Loading configured osmose sensor '%s' on device '%s'",
+                sensor.code,
+                sensor.device
+            );
+            return _.extend(sensor, _.omit(sensorData, "code", "device"));
         });
 
         return Promise.resolve();
@@ -742,13 +944,17 @@ exports.Dashboard = function (config, WebSocketClient) {
         const dataString = JSON.stringify(getData(), null, 2);
         var events = eventsSinceStore;
         // console.log("Writing to %s after %d events.", filename, events);
-        return writeFile(filename, dataString, "utf8").then(function () {
-            // Counter may be incremented if a message was received while storing.
-            eventsSinceStore = eventsSinceStore - events;
-            console.log("Wrote " + filename + " with " + events + " new events.");
-        }).catch(function (err) {
-            console.error(err);
-        });
+        return writeFile(filename, dataString, "utf8")
+            .then(function () {
+                // Counter may be incremented if a message was received while storing.
+                eventsSinceStore = eventsSinceStore - events;
+                console.log(
+                    "Wrote " + filename + " with " + events + " new events."
+                );
+            })
+            .catch(function (err) {
+                console.error(err);
+            });
     }
 
     function checkStore() {
@@ -770,52 +976,54 @@ exports.Dashboard = function (config, WebSocketClient) {
     }
 
     return {
-        "init": function () {
+        init: function () {
             return init();
         },
-        "connect": function (callback) {
+        connect: function (callback) {
             connect();
             if (callback) {
                 connectCallbacks.push(callback);
             }
             return connectPromise;
         },
-        "onConnect": function (callback) {
+        onConnect: function (callback) {
             // TODO ??
         },
-        "subscribe": function () {
+        subscribe: function () {
             subscribe();
         },
-        "update": function () {
-            return getDevices().then(function (devices) {
-                console.log("Updating " + devices.length + " devices");
-                devices.forEach(function (device) {
-                    requestEvents(device);
+        update: function () {
+            return getDevices()
+                .then(function (devices) {
+                    console.log("Updating " + devices.length + " devices");
+                    devices.forEach(function (device) {
+                        requestEvents(device);
+                    });
+                })
+                .catch(function (err) {
+                    console.error(err);
                 });
-            }).catch(function (err) {
-                console.error(err);
-            });
         },
-        "start": function () {
+        start: function () {
             return start();
         },
-        "stop": function () {
+        stop: function () {
             return stop();
         },
-        "getDevice": getDevice,
-        "getTank": getTank,
-        "getValve": getValveByCode,
-        "getVacuumSensorByCode": getVacuumSensorByCode,
-        "getVacuumSensorOfLineVacuumDevice": getVacuumSensorOfLineVacuumDevice,
-        "getData": getData,
-        "getEventsSinceStore": function () {
+        getDevice: getDevice,
+        getTank: getTank,
+        getValve: getValveByCode,
+        getVacuumSensorByCode: getVacuumSensorByCode,
+        getVacuumSensorOfLineVacuumDevice: getVacuumSensorOfLineVacuumDevice,
+        getData: getData,
+        getEventsSinceStore: function () {
             return eventsSinceStore;
         },
-        "onChange": function (listener) {
+        onChange: function (listener) {
             listeners.push(listener);
         },
-        "onQueryComplete": function (callback) {
+        onQueryComplete: function (callback) {
             queryCompleteCallbacks.push(callback);
-        }
-    }
+        },
+    };
 };

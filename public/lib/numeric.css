@@ -21,6 +21,11 @@ td {
     padding: 0.2em;
 }
 
+td.alarm {
+    background-color: red;
+    border: 1px solid black;
+}
+
 .pumpcode,
 .tankname,
 .vacuumcode,

@@ -12,6 +12,34 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/peity/3.3.0/jquery.peity.js"></script>
         <script src="/scripts/numeric.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/particle-api-js@9/dist/particle.min.js"></script>
+        <script>src="https://cdn.jsdelivr.net/npm/dotenv@16"</script>
+        <script>
+            var particle = new Particle();    
+            // Do not do this. Really, it's a horrible idea. There are much better
+            // and safer techniques available.
+            const accessToken = '637cfb8bb8b1ae9d1ef4badeb31e4c28dc1e4dbc';
+            
+            function callResetOperTimer(devID) {
+                const deviceId = '42002a000847343339373536';
+                let text = "Remettre à zéro le compteur?"
+                if (confirm(text) == true){
+                    // text = "Remise à zéro CONFIRMÉ!";
+                    particle.callFunction({deviceId, name:'reset', argument: "operationTimer", auth:accessToken}).then(
+                        function(data) {
+                            text = "Remise à zéro CONFIRMÉ!";
+                        },
+                        function(err) {
+                            text = "Erreur";
+                        }
+                    );
+                    text = "Remise à zéro CONFIRMÉ!";
+                } else {
+                    text = "Remise à zéro ANNULÉ!"
+                }
+                alert(text);
+            }
+        </script>
     </head>
 
     <body>
@@ -301,32 +329,36 @@
                     <table id="vacuumlist2">
                         <thead>
                             <tr>
-                                <th class="tablename" colspan="4">Vacuum à l'Érablière</th>
+                                <th class="tablename" colspan="5">Vacuum à l'Érablière</th>
                             </tr>
                             <tr>
                                 <th class="darker">Nom</th>
                                 <th class="darker">Vac. (inHg)</th>
+                                <th class="darker">Temps Oper.</th>   
                                 <th class="darker">Nom</th>
                                 <th class="darker">Vac. (inHg)</th>
                             </tr>                               
                         </thead>
                             <tr>
                                 <td class="darker", id="name_PV1"></td>
-                                <td class="darker", id="val_PV1">0</td>
+                                <td class="lighter", id="val_PV1">0</td>
+                                <td class="lighter", id="tOper_PV1">0</td>
                                 <td class="darker", id="name_V1"></td>
-                                <td class="darker", id="val_V1">0</td>
+                                <td class="lighter", id="val_V1">0</td>
                             </tr>
                             <tr>
                                 <td class="darker", id="name_PV2"></td>
-                                <td class="darker", id="val_PV2">0</td>
+                                <td class="lighter", id="val_PV2">0</td>
+                                <td class="lighter", id="tOper_PV2">0</td>
                                 <td class="darker", id="name_V2"></td>
-                                <td class="darker", id="val_V2">0</td>
+                                <td class="lighter", id="val_V2">0</td>
                             </tr>    
                             <tr>
                                 <td class="darker", id="name_PV3"></td>
-                                <td class="darker", id="val_PV3">0</td>
+                                <td class="lighter", id="val_PV3">0</td>
+                                <td class="lighter", id="tOper_PV3", type="button" onclick="callResetOperTimer('PV3')">0</td>
                                 <td class="darker", id="name_V3"></td>
-                                <td class="darker", id="val_V3">0</td>
+                                <td class="lighter", id="val_V3">0</td>
                             </tr>             
                     </table>
                 </div>
