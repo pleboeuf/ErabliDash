@@ -51,7 +51,7 @@
   }, {
     "name": "EB-RS1",
     "description": "Réservoir de sève #1",
-    "id": "21003a000c47363339343638",
+    "id": "23001b001847393035313137",
     "maxDelayMinutes": 5
   }, {
     "name": "EB-RS2",
@@ -297,6 +297,11 @@
     "retired": true,
     "name": "EB-RS1",
     "description": "Réservoir de sève #1",
+    "id": "21003a000c47363339343638"
+  },{
+    "retired": true,
+    "name": "EB-RS1",
+    "description": "Réservoir de sève #1",
     "id": "40003d001047343438323536"
  }, {
     "retired": true,
@@ -358,7 +363,7 @@
     "orientation": "horizontal",
     "length": 10718,
     "diameter": 1651,
-    "sensorHeight": 1753,
+    "sensorHeight": 1743,
     "output": "VaS1",
     "drain": "VaDS1"
   }, {
@@ -380,7 +385,7 @@
     "orientation": "horizontal",
     "length": 4128,
     "diameter": 2438,
-    "sensorHeight": 2258,
+    "sensorHeight": 2216,
     "output": "VaS3",
     "drain": "VaDS3"
   }, {
@@ -391,7 +396,7 @@
     "orientation": "horizontal",
     "length": 3353,
     "diameter": 2438,
-    "sensorHeight": 2325,
+    "sensorHeight": 2280,
     "output": "VaS4",
     "drain": "VaDS4"
   }, {
@@ -413,7 +418,7 @@
     "length": 3657,
     "diameter": 1219,
     "totalHeight": 1067,
-    "sensorHeight": 1137,
+    "sensorHeight": 1150,
     "output": "VaS6",
     "drain": "VaDS6"
   }, {
