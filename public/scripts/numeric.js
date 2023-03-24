@@ -922,7 +922,7 @@ function checkCouleeEnCour(allWaterPumps, dateStart) {
                 // console.log("startCouleeCounter: allPumpsCouleeState= " + allPumpsCouleeState + ", couleeActive= " + couleeActive);
                 couleeActive = allPumpsCouleeState;
                 startCouleeCounter(dateStart);
-                couleeTextElem.innerHTML = "Coulée en cours:  ";
+                couleeTextElem.innerHTML = "Coulée:  ";
                 couleeTextElem.style.color = "black";
                 couleeElem.style.backgroundColor = "yellow";
                 couleeElem.style.color = "black";
@@ -930,7 +930,7 @@ function checkCouleeEnCour(allWaterPumps, dateStart) {
                 // console.log("   STOPCouleeCounter: allPumpsCouleeState= " + allPumpsCouleeState + ", couleeActive= " + couleeActive);
                 couleeActive = allPumpsCouleeState;
                 stopCouleeCounter();
-                couleeTextElem.innerHTML = "Coulée terminée:  ";
+                couleeTextElem.innerHTML = "Terminée:  ";
                 couleeElem.style.backgroundColor = "#9E9E9E";
             }
         }
@@ -1343,7 +1343,7 @@ function pad(val) {
 function startCouleeCounter(date) {
     couleTimer = setInterval(function () {
         sec = parseInt(Math.abs(Date.now() / 1e3 - new Date(date).getTime()));
-        var timeStr = "</br> Durée: " + parseInt(sec / 86400, 10);
+        var timeStr = "</br>" + parseInt(sec / 86400, 10);
         timeStr = timeStr + "j " + pad(parseInt(sec / 3600, 10) % 24);
         timeStr = timeStr + "h " + pad(parseInt(sec / 60, 10) % 60);
         timeStr = timeStr + "m " + pad(sec % 60) + "s";
