@@ -21,7 +21,7 @@
             const accessToken = '637cfb8bb8b1ae9d1ef4badeb31e4c28dc1e4dbc';
             
             function callResetOperTimer(devID) {
-                // Divice is hard coded, to be corrected
+                // Device is hard coded, to be corrected
                 const deviceId = '1a004e000a51353335323536';
                 let text = "Remettre à zéro le compteur?"
                 if (confirm(text) == true){
@@ -357,7 +357,7 @@
                             <tr>
                                 <td class="darker", id="name_PV3"></td>
                                 <td class="lighter", id="val_PV3">0</td>
-                                <td class="lighter", id="tOper_PV3", type="button" onclick="callResetOperTimer('PV3')">0</td>
+                                <td class="lighter", id="tOper_PV3", onclick="callResetOperTimer('PV3')">0</td>
                                 <td class="darker", id="name_V3"></td>
                                 <td class="lighter", id="val_V3">0</td>
                             </tr>             
