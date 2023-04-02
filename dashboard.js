@@ -521,9 +521,9 @@ exports.Dashboard = function (config, WebSocketClient) {
             event.object = extendOsmose(theOsmose);
         } else if (name === "Osmose/timeCounter") {
             const sensor = getOsmoseDevice(device);
-            // if (data.state != undefined) {
-            sensor.state = data.state;
-            // }
+            if (data.state != undefined) {
+                sensor.state = data.state;
+            }
             sensor.TempsOperEnCour = data.TempsOperEnCour;
             sensor.TempsSeq1234 = data.TempsSeq1234;
             sensor.TempsSeq4321 = data.TempsSeq4321;

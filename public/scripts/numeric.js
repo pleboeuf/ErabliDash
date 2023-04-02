@@ -1089,6 +1089,7 @@ function displayVacuumErabliere() {
     let timeElemId;
     let timeElem;
     let tOper = 0;
+    const alarmLimit = 216000;
 
     vacuums.forEach(function (vacuum) {
         if (vacuum.label.indexOf("Ligne") == 0) return;
@@ -1114,7 +1115,11 @@ function displayVacuumErabliere() {
             if (vacuum.RunTimeSinceMaint !== undefined) {
                 timeElem.innerHTML = secToHrMin(vacuum.RunTimeSinceMaint);
                 if (vacuum.NeedMaintenance == true) {
-                    timeElem.className = "alarm";
+                    if (vacuum.RunTimeSinceMaint < alarmLimit) {
+                        timeElem.className = "warning";
+                    } else {
+                        timeElem.className = "alarm";
+                    }
                 } else {
                     timeElem.className = "lighter";
                 }

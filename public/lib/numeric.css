@@ -21,9 +21,14 @@ td {
     padding: 0.2em;
 }
 
+td.warning {
+    background-color: rgb(244, 232, 9);
+    border: 1px solid black;
+}
+
 td.alarm {
     background-color: red;
-    border: 1px solid black;
+    border: 2px solid black;
 }
 
 .pumpcode,
