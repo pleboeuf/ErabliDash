@@ -7,7 +7,7 @@
     "filename": "data/dashboard.json"
   },
   "influxdb": {
-	  "host": "rpi4.local",
+	  "host": "rpi4-prod.local",
 	  "port": 8086
   },
   "devices": [{
