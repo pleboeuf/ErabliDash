@@ -193,16 +193,9 @@ exports.Dashboard = function (config, WebSocketClient) {
     const pendingRequests = {};
 
     var dir = path.dirname(filename);
-    fs.exists(dir, function (exists) {
-        if (!exists) {
-            fs.mkdir(
-                dir,
-                new (function (err) {
-                    console.error(err);
-                })()
-            );
-        }
-    });
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+    }
 
     function getTank(name) {
         return tanks
