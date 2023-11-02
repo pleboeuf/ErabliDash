@@ -1,0 +1,252 @@
+<!DOCTYPE html
+
+
+    To change this license header, choose License Headers in Project Properties.
+    To change this template file, choose Tools | Templates
+    and open the template in the editor.
+    -->
+
+<html>
+
+<head>
+<title>Érablière Brunelle - Schéma de fonctionnement</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet"
+	href="https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!-- 
+<script src="js/underscore-min.js" type="text/javascript"></script> -->
+
+
+ <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/2.6.4/svg.js"></script>
+<!-- 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
+ 	 -->
+<!-- 
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment.min.js"></script>
+ -->
+<link href="css/toggles.css" rel="stylesheet" type="text/css" />
+<link href="css/toggles-iphone_1.css" rel="stylesheet" type="text/css" />
+<script src="js/toggles.min.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="css/normalize.css">
+<script src="js/mainfloat.js" type="text/javascript"></script>
+
+
+
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.1/moment-with-locales.min.js"
+	type="text/javascript"></script>
+	
+<script src="js/float2.js" type="text/javascript"></script>
+
+<!-- <script src="js/mysvg.js" type="text/javascript"></script> -->
+<!-- <script src="js/osmose.js" type="text/javascript"></script> -->
+
+<link rel="stylesheet" href="css/tableOsmose.css">
+
+<link rel="stylesheet" href="css/newcss.css">
+
+
+<link rel="stylesheet"
+	href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+	integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf"
+	crossorigin="anonymous">
+<script
+	src=https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js></script>
+<meta charset="UTF-8">
+
+</head>
+
+<body>
+	<div class="drawing-container" id="drawing"></div>
+
+	<a class="Pression_temperature" id="Pression_temperature">meteo</a>
+	<a class="Heure_coulee" id="Heure_coulee">heure</a>
+	<a class="Total_gallons" id="Total_gallons">gallons</a>
+
+	<div id="toggle_rf2" class="toggle-iphone rf2">
+		<div id="RF2" class="toggle floatright"></div>
+	</div>
+	<div class="container">
+		<div class="item sidebar">
+			<div>
+			<table class="blueTable">
+				<tbody>
+
+					<td style="width: 25%" class="titre"><a> OSMOSE</a></td>
+					<td style="width: 30%" class="titre"><a id="stateValue">1</a></td>
+					<!-- <td style="width: 22.5%"><a id="runTimeSecLabel">depuis</a></td>
+					<td style="width: 22.5%"><a id="runTimeSecValue">1778</a></td> -->
+
+
+					<tr>
+						<td id="alarmMsgLabel"><a>alarmMsg</a></td>
+						<td id="alarmMsgValue"><a>toto</a></td>
+				
+						<td><a id="fonctionLabel">fonction</a></td>
+						<td><a id="fonctionValue">concentration</a></td>
+						
+					</tr>
+<!-- 					<tr>
+						<td><a id="TempsOperEnCourLabel">TempsOperEnCour</a></td>
+						<td><a id="TempsOperEnCourValue">2820</a></td>
+						<td>
+							<table>
+								<tr>
+									<td><a id="Col1Label">Col1</a></td>
+									<td><a id="Col1Value">13</a></td>
+
+								</tr>
+							</table>
+						</td>
+						<td>
+							<table>
+								<tr>
+									<td><a id="Col2Label">Col2</a></td>
+									<td><a id="Col2Value">11</a></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+ -->					
+	<tr>
+		<td>Séq. <a id="sequenceValue">1-2-3-4</a></td>
+		<td><a id="TempsSeqValue">53</a></td>
+		<td><a id="TempLabel">Temp</a></td>
+		<td><a id="TempValue">6.5</a></td>
+	</tr>
+
+					
+					
+
+ 					<tr>
+						<td id="TempsDepuisLavageHHMMLabel"><a>TempsDepuisLavage</a></td>
+						<td id="TempsDepuisLavageHHMMValue"><a>5444</a></td>
+						<td><a id="majLabel">lastUpdatedAt</a></td>
+						<td><a id="majValue">00:00:00</a></td>
+
+					</tr>
+
+<!-- 					<tr>
+
+						<td><a id="BrixSeveLabel">BrixSeve</a></td>
+						<td><a id="BrixSeveValue">1.5</a></td>
+						<td><a id="BrixConcLabel">BrixConc</a></td>
+						<td><a id="BrixConcValue">15.8</a></td>
+
+					</tr>
+					<tr>
+						<td><a id="PC_ConcLabel">PC_Conc</a></td>
+						<td><a id="PC_ConcValue">90</a></td>
+						<td><a id="Conc_GPHLabel">Conc_GPH</a></td>
+						<td><a id="Conc_GPHValue">330</a></td>
+					</tr>
+
+					<tr>
+						<td><a id="Filtrat_GPHLabel">Filtrat_GPH</a></td>
+						<td><a id="Filtrat_GPHValue">3000</a></td>
+						<td><a id="Total_GPHLabel">Total_GPH</a></td>
+						<td><a id="Total_GPHValue">3330</a></td>
+					</tr>
+ -->
+				</tbody>
+			</table>
+		</div>
+		<div.ex3 >
+			<table class="blueTable">
+<tbody>
+<!-- <tr>
+<td colspan = "7"> <a style="text-align:center;"> Tableau des dernières opérations</a> </td>	
+<td colspan = "7"  text-align="center" >Tableau des dernières opérations</td>
+</tr>
+ -->
+
+
+	<tr>
+		<td>Date</td>
+		<td>% Conc.</td>
+		<td>Tot g/h</td>
+		<td>Brx sèv</td>
+		<td>Brx Con</td>
+		<td>Temp. </td>
+		<td>Durée</td>
+		</tr>
+		<tr>
+			<td><a id=cell1_1>-</a></td>
+			<td><a id=cell2_1>-</a></td>
+			<td><a id=cell3_1>-</a></td>
+			<td><a id=cell4_1>-</a></td>
+			<td><a id=cell5_1>-</a></td>
+			<td><a id=cell6_1>-</a></td>
+			<td><a id=cell7_1>-</a></td>
+			</tr>
+			<tr>
+			<td><a id=cell1_2>-</a></td>
+			<td><a id=cell2_2>-</a></td>
+			<td><a id=cell3_2>-</a></td>
+			<td><a id=cell4_2>-</a></td>
+			<td><a id=cell5_2>-</a></td>
+			<td><a id=cell6_2>-</a></td>
+			<td><a id=cell7_2>-</a></td>
+			</tr>
+			<tr>
+			<td><a id=cell1_3>-</a></td>
+			<td><a id=cell2_3>-</a></td>
+			<td><a id=cell3_3>-</a></td>
+			<td><a id=cell4_3>-</a></td>
+			<td><a id=cell5_3>-</a></td>
+			<td><a id=cell6_3>-</a></td>
+			<td><a id=cell7_3>-</a></td>
+			</tr>
+			<tr>
+			<td><a id=cell1_4>-</a></td>
+			<td><a id=cell2_4>-</a></td>
+			<td><a id=cell3_4>-</a></td>
+			<td><a id=cell4_4>-</a></td>
+			<td><a id=cell5_4>-</a></td>
+			<td><a id=cell6_4>-</a></td>
+			<td><a id=cell7_4>-</a></td>
+			</tr>
+			<tr>
+			<td><a id=cell1_5>-</a></td>
+			<td><a id=cell2_5>-</a></td>
+			<td><a id=cell3_5>-</a></td>
+			<td><a id=cell4_5>-</a></td>
+			<td><a id=cell5_5>-</a></td>
+			<td><a id=cell6_5>-</a></td>
+			<td><a id=cell7_5>-</a></td>
+			</tr>
+
+</tbody>
+</table>
+</div>
+		</div>
+
+	</div>
+
+	 
+	<div id="idSeve" class="seve">
+		<div id="texteSeve">Sève</div>
+
+	</div>
+
+
+
+	<script>
+    var draw = SVG('drawing').size(1280, 989);
+    Background(draw, 1280, 989);
+    demarre(draw);
+    var prod = true;
+
+    go(prod);
+
+</script>
+</body>
+
+</html>
