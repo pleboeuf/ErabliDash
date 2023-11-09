@@ -23,8 +23,7 @@ dashboard
 var express = require("express");
 var path = require("path");
 var app = express();
-// app.use(app.router);
-// app.use(express.logger());
+
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
     "/bower_components",
