@@ -47,7 +47,6 @@ var tankDefs = [
         code: "RHC",
     },
 ];
-
 var devices = [];
 var valves = [];
 var pumps = [];
@@ -58,6 +57,7 @@ var tempAge = 0;
 const maximumAge = 5;
 var actualSiteName;
 var valueRef = {};
+var myToken;
 
 function liters2gallons(liters) {
     return Math.ceil(liters / 4.54609188);
@@ -382,6 +382,32 @@ function functionPlusRF2() {
         RFsummaryNameElement.innerHTML = "RF1 + RF2";
     }
 }
+
+// Get the button that opens the modal
+// var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks the button, open the modal
+function showValveSelect() {
+    const modal = document.getElementById("valveSelect");
+    modal.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+function hideValveSelect() {
+    const modal = document.getElementById("valveSelect");
+    modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function (event) {
+    var modal = document.getElementById("valveSelect");
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+};
 
 function displayDevices() {
     var oldestAge = 0;
@@ -1314,6 +1340,7 @@ function openSocket() {
             tankDef.capacity = tank.capacity;
             tankDef.output = tank.output;
             tankDef.drain = tank.drain;
+            tankDef.ssrRelay = tank.ssrRelay;
             // console.log("Tank %s at %d: %s, raw= %s", tankDef.code, index, tankDef.contents, tankDef.rawValue);
 
             devices = data.devices;
@@ -1321,6 +1348,7 @@ function openSocket() {
             vacuums = data.vacuum;
             pumps = data.pumps;
             osmose = data.osmose;
+            myToken = data.token;
             // temperatures = data.temperatures;
         });
         displayDevices();
@@ -1361,6 +1389,74 @@ function stopCouleeCounter() {
     clearInterval(couleTimer);
     document.getElementById("compteurDeTemps").innerHTML = "";
     // console.log("Affichage fin de coulée");
+}
+// Do not do this. Really, it's a horrible idea. There are much better
+// and safer techniques available.
+
+function readDeviceVariable(device, varName) {
+    particle
+        .getVariable({
+            device,
+            name: varName,
+            auth: myToken,
+        })
+        .then(
+            function (data) {
+                return data;
+            },
+            function (err) {
+                console.log("An error occurred while getting attrs:", err);
+            }
+        );
+}
+
+function callResetOperTimer(devID) {
+    // Device is hard coded, to be corrected
+    // const deviceId = "1a004e000a51353335323536";
+    var deviceId = devices
+        .filter(function (device) {
+            return device.name === devID;
+        })
+        .shift();
+    var devId = deviceId.id;
+    var text;
+    var status = -1;
+    if (confirm("Remettre à zéro le compteur?") == true) {
+        var res = callFunction(devId, "reset", "operationTimer");
+        if (res != -1) {
+            text = "Remise à zéro CONFIRMÉ!";
+        } else {
+            text = "Erreur";
+        }
+        alert(text);
+    } else {
+        alert("Remise à zéro ANNULÉ!");
+    }
+}
+
+async function callFunction(devID, fname, fargument) {
+    // Do not do this. Really, it's a horrible idea. There are much better
+    // and safer techniques available.
+    var status;
+    particle
+        .callFunction({
+            deviceId: devID,
+            name: fname,
+            argument: fargument,
+            auth: myToken,
+        })
+        .then(
+            function (data) {
+                console.log("Function called succesfully:", data);
+                // status = 0;
+                return "Remise à zéro CONFIRMÉ!";
+            },
+            function (err) {
+                console.log("An error occurred:", err);
+                // status = -1;
+                return "Erreur!";
+            }
+        );
 }
 
 setTimeout(function () {

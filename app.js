@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 var WebSocketClient = require("websocket").client;
 var config = require("./config.json");
 var dashboard = require("./dashboard.js").Dashboard(config, WebSocketClient);

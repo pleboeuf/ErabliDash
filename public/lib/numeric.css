@@ -98,8 +98,24 @@ tr.lighter {
 #vacuums,
 #temperatures,
 #tanks,
+#valveSelect,
 #valveOther,
 #valves {
     float: left;
     padding-right: 2em;
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
 }

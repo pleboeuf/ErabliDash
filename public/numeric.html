@@ -15,31 +15,7 @@
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/particle-api-js@9/dist/particle.min.js"></script>
         <script>src="https://cdn.jsdelivr.net/npm/dotenv@16"</script>
         <script>
-            var particle = new Particle();    
-            // Do not do this. Really, it's a horrible idea. There are much better
-            // and safer techniques available.
-            const accessToken = '637cfb8bb8b1ae9d1ef4badeb31e4c28dc1e4dbc';
-            
-            function callResetOperTimer(devID) {
-                // Device is hard coded, to be corrected
-                const deviceId = '1a004e000a51353335323536';
-                let text = "Remettre à zéro le compteur?"
-                if (confirm(text) == true){
-                    // text = "Remise à zéro CONFIRMÉ!";
-                    particle.callFunction({deviceId, name:'reset', argument: "operationTimer", auth:accessToken}).then(
-                        function(data) {
-                            text = "Remise à zéro CONFIRMÉ!";
-                        },
-                        function(err) {
-                            text = "Erreur";
-                        }
-                    );
-                    text = "Remise à zéro CONFIRMÉ!";
-                } else {
-                    text = "Remise à zéro ANNULÉ!"
-                }
-                alert(text);
-            }
+            const particle = new Particle();    
         </script>
     </head>
 
@@ -68,7 +44,7 @@
                 <div class="w3-third", style="width:max-content; margin-right:2%;", id="Reservoirs">
                     <table id="tanklist">
                         <tr>
-                            <th class="tablename" colspan="7">Réservoirs</th>
+                            <th class="tablename" colspan="7" ondblclick = "showValveSelect();">Réservoirs</th>
                         </tr>
                         <tr>
                             <th class="darker">Réservoirs</th>
@@ -80,6 +56,76 @@
                             <th>Max <br />(gal)</th>
                         </tr>
                     </table>
+                </div>
+
+                <!-- Le selecteur de valves d'entrée -->
+                <div id="valveSelect" class="w3-container w3-modal">
+                    <div class="w3-modal-content">
+                        <span class="close" onclick="hideValveSelect()">&times;</span>
+                        <table id="inValves" class="tablename">
+                            <tr>
+                                <th class="tablename" colspan="3">Sélecteur de valves d'entrée</th>
+                            </tr>
+                            <tr>
+                                <th class="darker">Mode d'opération</th>
+                                <th class="lighter" style="text-align: left;">
+                                    <input type="radio" id="Manuel" name="autoMan" checked>
+                                    <label for="Manuel">Manuel</label>
+                                </th>
+                                <th class="lighter" style="text-align: left;">
+                                    <input type="radio" id="Auto" name="autoMan">
+                                    <label for="Auto">Auto</label>
+                                </th>
+                            </tr>
+                            <tr></tr>
+                            <tr>
+                                <th class="darker">Équipements</th>
+                                <th class="darker">Valve</th>
+                                <th class="darker">État</th>                            </tr>
+                            <tr>
+                                <th class="darker" style="text-align: left;">
+                                    <input type="radio" id="sel_RS1" name="tanks" checked>
+                                    <label for="sel_RS1">RS1</label>
+                                </th>
+                                <th class="lighter">VaES1</th>
+                                <th class="lighter">Ouverte</th>
+                            </tr>
+                            <tr>
+                                <th class="darker" style="text-align: left;">
+                                    <input type="radio" id="sel_RS2" name="tanks">
+                                    <label for="sel_RS2">RS2</label>
+                                </th>
+                                <th class="lighter">VaES2</th>
+                                <th class="lighter">Fermé</th>
+                            </tr>
+                            <tr>
+                                <th class="darker" style="text-align: left;">
+                                    <input type="radio" id="sel_RS3" name="tanks">
+                                    <label for="sel_RS3">RS3 + RS4</label>
+                                </th>
+                                <th class="lighter">VaES3</th>
+                                <th class="lighter">Fermé</th>
+                            </tr>
+                            <tr>
+                                <th class="darker" style="text-align: left;">
+                                    <input type="radio" id="sel_PH" name="PumpHouse" checked>
+                                    <label for="sel_PH">PumpHouse</label>
+                                </th>
+                                <th class="lighter">VaPH1</th>
+                                <th class="lighter">Ouverte</th>
+                            </tr>
+                            <tr>
+                                <th class="darker" style="text-align: left;">
+                                    <input type="radio" id="sel_DPH" name="PumpHouse">
+                                    <label for="sel_DPH">Drain_Ligne_Ph</label>
+                                </th>
+                                <th class="lighter">VaDPH1</th>
+                                <th class="lighter">Fermé</th>
+                            </tr>
+                        </table>
+                        <p>Note: Le changement peut prendre 90 secondes.</p>
+                    </div>
+                    
                 </div>
 
                 <div class="w3-third", style="width:max-content; margin-right:2%;", id="Pompes">
@@ -357,7 +403,7 @@
                             <tr>
                                 <td class="darker", id="name_PV3"></td>
                                 <td class="lighter", id="val_PV3">0</td>
-                                <td class="lighter", id="tOper_PV3", onclick="callResetOperTimer('PV3')">0</td>
+                                <td class="lighter", id="tOper_PV3", onclick="callResetOperTimer('EB-V3')">0</td>
                                 <td class="darker", id="name_V3"></td>
                                 <td class="lighter", id="val_V3">0</td>
                             </tr>             

@@ -1,3 +1,5 @@
+const mydotenv = require("dotenv").config({ path: "../.prcred" });
+// const accessToken = process.env.PARTICLE_TOKEN;
 const fs = require("fs");
 const path = require("path");
 const util = require("util");
@@ -775,10 +777,11 @@ exports.Dashboard = function (config, WebSocketClient) {
         return {
             devices: devices,
             tanks: tanks.map(extendTank),
-            valves: valves,
+            valves: valves.map(extendValve),
             vacuum: vacuumSensors,
             pumps: pumps.map(extendPump),
             osmose: theOsmose,
+            token: process.env.PARTICLE_TOKEN,
         };
     }
 
