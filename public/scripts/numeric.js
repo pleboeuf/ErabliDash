@@ -10,6 +10,7 @@ function wsUri(path) {
 }
 var jsonElement;
 var websocket;
+let Dos = "1222";
 
 // Note: Capacity in Liters
 var tankDefs = [
@@ -383,31 +384,80 @@ function functionPlusRF2() {
     }
 }
 
-// Get the button that opens the modal
-// var btn = document.getElementById("myBtn");
-
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
 
-// When the user clicks the button, open the modal
-function showValveSelect() {
+// Open the modal (Sélecteur de valves d'entrée)
+function showValveSelect(Uno) {
+    // let secret = prompt("Entrer le code", "");
+    // if (secret == Uno + Dos) {
     const modal = document.getElementById("valveSelect");
     modal.style.display = "block";
+    // }
 }
 
-// When the user clicks on <span> (x), close the modal
+// Close the modal (Sélecteur de valves d'entrée)
+// When the user clicks on <span (x)
 function hideValveSelect() {
     const modal = document.getElementById("valveSelect");
     modal.style.display = "none";
 }
 
+// Close the modal (Sélecteur de valves d'entrée)
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function (event) {
-    var modal = document.getElementById("valveSelect");
+    const modal = document.getElementById("valveSelect");
     if (event.target == modal) {
         modal.style.display = "none";
     }
 };
+
+// get only input valves
+function getAllTanksInputValves(ident) {
+    return valves.filter(function (valve) {
+        return valve.identifier === ident;
+    });
+}
+
+// Operation mode of the input valves
+function tanksInputMode() {
+    let manSW = document.getElementById("Manuel");
+    let operMode = "undefined";
+    if (manSW.checked) {
+        operMode = "manual";
+    } else {
+        operMode = "auto";
+    }
+    console.log("Le mode d'opération est: " + operMode);
+    return operMode;
+}
+
+// list the state of the valves selectors
+function activateValves(buttonName) {
+    const inValves = getAllTanksInputValves(0);
+    // console.log(inValves);
+    const valveSel = document.getElementsByName(buttonName);
+    let text = "";
+    let rstate = "off";
+    valveSel.forEach(function (thisValve) {
+        let dn = inValves.filter(function (inValve) {
+            return inValve.code == thisValve.id;
+        });
+        let devName = dn[0].device;
+        let devId = getDeviceId(devName);
+        if (thisValve.checked) {
+            text = "Ouvrir la valve: ";
+            rstate = "on";
+        } else {
+            text = "Fermer la valve: ";
+            rstate = "off";
+        }
+        // console.log(
+        //     text + thisValve.id + " avec: " + devName + " id: " + devId
+        // );
+        let res = callFunction(devId, "relay", rstate);
+    });
+}
 
 function displayDevices() {
     var oldestAge = 0;
@@ -1410,19 +1460,19 @@ function readDeviceVariable(device, varName) {
         );
 }
 
-function callResetOperTimer(devID) {
-    // Device is hard coded, to be corrected
-    // const deviceId = "1a004e000a51353335323536";
+function getDeviceId(devName) {
     var deviceId = devices
         .filter(function (device) {
-            return device.name === devID;
+            return device.name === devName;
         })
         .shift();
-    var devId = deviceId.id;
-    var text;
-    var status = -1;
+    return deviceId.id;
+}
+
+function callResetOperTimer(devName) {
+    let text;
     if (confirm("Remettre à zéro le compteur?") == true) {
-        var res = callFunction(devId, "reset", "operationTimer");
+        var res = callFunction(getDeviceId(devName), "reset", "operationTimer");
         if (res != -1) {
             text = "Remise à zéro CONFIRMÉ!";
         } else {
@@ -1435,10 +1485,7 @@ function callResetOperTimer(devID) {
 }
 
 async function callFunction(devID, fname, fargument) {
-    // Do not do this. Really, it's a horrible idea. There are much better
-    // and safer techniques available.
-    var status;
-    particle
+    var status = particle
         .callFunction({
             deviceId: devID,
             name: fname,
@@ -1448,15 +1495,14 @@ async function callFunction(devID, fname, fargument) {
         .then(
             function (data) {
                 console.log("Function called succesfully:", data);
-                // status = 0;
-                return "Remise à zéro CONFIRMÉ!";
+                // return "Remise à zéro CONFIRMÉ!";
             },
             function (err) {
                 console.log("An error occurred:", err);
-                // status = -1;
-                return "Erreur!";
+                // return "Erreur!";
             }
         );
+    return status;
 }
 
 setTimeout(function () {
