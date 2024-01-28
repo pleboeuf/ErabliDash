@@ -64,10 +64,11 @@
                         <span class="close" onclick="hideValveSelect()">&times;</span>
                             <table id="inValves" class="tablename">
                                 <tr>
-                                    <th class="tablename" colspan="3">Sélecteur de valves d'entrée</th>
+                                    <th class="tablename" colspan="4">Sélecteur de valves d'entrée</th>
                                 </tr>
                                 <tr>
                                     <th class="darker">Mode d'opération</th>
+                                    <th></th>
                                     <th class="lighter" style="text-align: left;" >
                                         <input type="radio" id="Manuel" name="autoMan" onchange="tanksInputMode()" checked disabled>
                                         <label for="Manuel">Manuel</label>
@@ -80,48 +81,59 @@
                                 <tr></tr>
                                 <tr>
                                     <th class="darker">Équipements</th>
-                                    <th class="darker">Valve</th>
-                                    <th class="darker">État</th>                            
+                                    <th class="darker">Valve/État</th>
+                                    <th class="darker">Ouverte</th>
+                                    <th class="darker">Fermé</th>                             
                                 </tr>
                                 <tr>
-                                    <th class="darker" style="text-align: left;">
-                                        <input type="radio" id="VaES1" name="tanks" onchange="activateValves('tanks')" checked>
-                                        <label for="VaES1">RS1</label>
-                                    </th>
+                                    <th class="darker" style="text-align: left;">RS1</th>
                                     <th class="lighter">VaES1</th>
-                                    <th class="lighter">Ouverte</th>
+                                    <th class="lighter">
+                                        <input type="radio" id="VaES1" name="tanksRS1" onchange="activateValves('tanksRS1')" checked>
+                                    </th>
+                                    <th class="lighter">
+                                        <input type="radio" id="VaES1" name="tanksRS1" onchange="activateValves('tanksRS1')" checked>
+                                    </th>
                                 </tr>
                                 <tr>
-                                    <th class="darker" style="text-align: left;">
-                                        <input type="radio" id="VaES2" name="tanks" onchange="activateValves('tanks')">
-                                        <label for="VaES2">RS2</label>
-                                    </th>
+                                    <th class="darker" style="text-align: left;">RS2</th>
                                     <th class="lighter">VaES2</th>
-                                    <th class="lighter">Fermé</th>
+                                    <th class="lighter" >
+                                        <input type="radio" id="VaES2" name="tanksRS2" onchange="activateValves('tanksRS2')">
+                                    </th>
+                                    <th class="lighter">
+                                        <input type="radio" id="VaES2" name="tanksRS2" onchange="activateValves('tanksRS2')">
+                                    </th>
                                 </tr>
                                 <tr>
-                                    <th class="darker" style="text-align: left;">
-                                        <input type="radio" id="VaES3" name="tanks" onchange="activateValves('tanks')">
-                                        <label for="VaES3">RS3 + RS4</label>
-                                    </th>
+                                    <th class="darker" style="text-align: left;">RS3 + RS4</th>
                                     <th class="lighter">VaES3</th>
-                                    <th class="lighter">Fermé</th>
+                                    <th class="lighter">
+                                        <input type="radio" id="VaES3" name="tanksRS3" onchange="activateValves('tanksRS3')">
+                                    </th>
+                                    <th class="lighter">
+                                        <input type="radio" id="VaES3" name="tanksRS3" onchange="activateValves('tanksRS3')">
+                                    </th>
                                 </tr>
                                 <tr>
-                                    <th class="darker" style="text-align: left;">
-                                        <input type="radio" id="VaPH1" name="PumpHouse" onchange="activateValves('PumpHouse')" checked>
-                                        <label for="VaPH1">PumpHouse</label>
-                                    </th>
+                                    <th class="darker" style="text-align: left;">PumpHouse</th>
                                     <th class="lighter">VaPH1</th>
-                                    <th class="lighter">Ouverte</th>
+                                    <th class="lighter">
+                                        <input type="radio" id="VaPH1" name="PH" onchange="activateValves('PumpHouse')" checked>
+                                    </th>
+                                    <th class="lighter">
+                                        <input type="radio" id="VaPH1" name="PH" onchange="activateValves('PumpHouse')" checked>
+                                    </th>
                                 </tr>
                                 <tr>
-                                    <th class="darker" style="text-align: left;">
-                                        <input type="radio" id="VaDPH1" name="PumpHouse" onchange="activateValves('PumpHouse')">
-                                        <label for="VaDPH1">Drain_Ligne_Ph</label>
-                                    </th>
+                                    <th class="darker" style="text-align: left;">Drain Ligne PumpHouse</th>
                                     <th class="lighter">VaDPH1</th>
-                                    <th class="lighter">Fermé</th>
+                                    <th class="lighter">
+                                        <input type="radio" id="VaDPH1" name="DPH" onchange="activateValves('PumpHouse')">
+                                    </th>
+                                    <th class="lighter">
+                                        <input type="radio" id="VaDPH1" name="DPH" onchange="activateValves('PumpHouse')">
+                                    </th>
                                 </tr>
                             </table>
                         <p>Note: Le changement peut prendre 90 secondes.</p>
@@ -390,14 +402,14 @@
                             <tr>
                                 <td class="darker", id="name_PV1"></td>
                                 <td class="lighter", id="val_PV1">0</td>
-                                <td class="lighter", id="tOper_PV1">0</td>
+                                <td class="lighter", id="tOper_PV1", onclick="callResetOperTimer('EB-V1')">0</td>
                                 <td class="darker", id="name_V1"></td>
                                 <td class="lighter", id="val_V1">0</td>
                             </tr>
                             <tr>
                                 <td class="darker", id="name_PV2"></td>
                                 <td class="lighter", id="val_PV2">0</td>
-                                <td class="lighter", id="tOper_PV2">0</td>
+                                <td class="lighter", id="tOper_PV2", onclick="callResetOperTimer('EB-V2')">0</td>
                                 <td class="darker", id="name_V2"></td>
                                 <td class="lighter", id="val_V2">0</td>
                             </tr>    

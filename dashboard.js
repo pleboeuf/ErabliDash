@@ -371,7 +371,291 @@ exports.Dashboard = function (config, WebSocketClient) {
         return pump;
     }
 
-    var positionCode = ["Erreur", "Ouverte", "Fermé", "Partiel"];
+    const positionCode = ["Erreur", "Ouverte", "Fermé", "Partiel"];
+
+    function handlePumpEvent(device, event, evTopic, value) {
+        switch (evTopic) {
+            case "T1":
+                getPumpOfDevice(device).update(event, value);
+                break;
+            case "T2":
+                var pump = getPumpOfDevice(device);
+                pump.update(event, value);
+                pump.run2long = false;
+                break;
+            case "state":
+                getPumpOfDevice(device).update(event, value);
+                break;
+            case "T2_ONtime":
+                getPumpOfDevice(device).ONtime = Math.abs(value / 1000);
+                break;
+            case "T1_OFFtime":
+                getPumpOfDevice(device).OFFtime = Math.abs(value / 1000);
+                break;
+            case "CurrentDutyCycle":
+                getPumpOfDevice(device).duty = value / 1000;
+                break;
+            case "endCycle":
+                var pump = getPumpOfDevice(device);
+                pump.volume += (pump.ONtime * pump.capacity_gph) / 3600;
+                pumps.forEach(function (pump) {
+                    if (pump.device === device.name) {
+                        pump.duty = value / 1000;
+                        pump.lastUpdatedAt = event.published_at;
+                        event.object = extendPump(pump);
+                    }
+                });
+                break;
+            case "warningRunTooLong":
+                getPumpOfDevice(device).run2long = true;
+                break;
+            case "debutDeCoulee":
+                var pump = getPumpOfDevice(device);
+                pump.couleeEnCour = true;
+                pump.debutDeCouleeTS = data.timestamp;
+                if (pump.device === device.name) {
+                    pump.duty = value / 1000;
+                    pump.lastUpdatedAt = event.published_at;
+                    event.object = extendPump(pump);
+                }
+                break;
+            case "finDeCoulee":
+                var pump = getPumpOfDevice(device);
+                pump.couleeEnCour = false;
+                if (pump.device === device.name) {
+                    pump.duty = value / 1000;
+                    pump.lastUpdatedAt = event.published_at;
+                    event.object = extendPump(pump);
+                }
+                pump.duty = 0;
+                pump.volume = 0;
+                break;
+            case "RunTimeSinceMaint": // Vacuum pump event
+                var sensor = getVacuumSensorOfDevice(device);
+                if (sensor.device === device.name) {
+                    sensor.RunTimeSinceMaint = value;
+                    event.object = extendVacuum(sensor);
+                }
+                break;
+            case "NeedMaintenance": // Vacuum pump event
+                var sensor = getVacuumSensorOfDevice(device);
+                if (sensor.device === device.name) {
+                    sensor.NeedMaintenance = value;
+                    event.object = extendVacuum(sensor);
+                }
+                break;
+            default:
+                console.warn(
+                    "Unknown 'Pump' event topic from %s: %s %s",
+                    device.name,
+                    evTopic,
+                    event.data.eData
+                );
+        }
+    }
+
+    function handleSensorEvent(device, event, evTopic, value) {
+        switch (evTopic) {
+            case "ambientTemp":
+                device.ambientTemp = value;
+                break;
+            case "US100sensorTemp":
+                device.sensorTemp = value;
+                break;
+            case "enclosureTemp":
+                device.enclosureTemp = value;
+                break;
+            case "level":
+                tanks.forEach(function (tank) {
+                    if (tank.device === device.name) {
+                        tank.rawValue = value;
+                        tank.lastUpdatedAt = event.published_at;
+                        event.object = extendTank(tank);
+                    }
+                });
+                break;
+            case "outOfRange":
+                break;
+
+            case "Valve1Pos":
+                var valve = getValveOfDevice(device, 1);
+                if (valve.device === device.name) {
+                    valve.position = positionCode[value];
+                    event.object = extendValve(valve);
+                }
+                break;
+            case "Valve2Pos":
+                var valve = getValveOfDevice(device, 2);
+                if (valve.device === device.name) {
+                    valve.position = positionCode[value];
+                    event.object = extendValve(valve);
+                }
+                break;
+            case "vacuum":
+                const sensor = getVacuumSensorOfDevice(device);
+                sensor.rawValue = value;
+                sensor.lastUpdatedAt = event.published_at;
+                break;
+            default:
+                console.warn(
+                    "Unknown 'Sensor' event topic from %s: %s %s",
+                    device.name,
+                    evTopic,
+                    event.data.eData
+                );
+        }
+    }
+
+    function handleVacuumEvent(device, event, evTopic, value) {
+        switch (evTopic) {
+            case "Vacuum":
+                for (var i = 0; i < 4; i++) {
+                    var sensor = getVacuumSensorOfLineVacuumDevice(device, i);
+                    if (sensor !== undefined) {
+                        sensor.rawValue = data[sensor.inputName] * 100;
+                        sensor.lastUpdatedAt = event.published_at;
+                        sensor.temp = data["temp"];
+                        sensor.lightIntensity = data["li"];
+                        sensor.percentCharge = data["soc"];
+                        sensor.batteryVolt = data["volt"];
+                        sensor.rssi = data["rssi"];
+                        sensor.signalQual = data["qual"];
+                    } else {
+                        break;
+                    }
+                }
+                break;
+            default:
+                console.warn(
+                    "Unknown 'Vacuum' event topic from %s: %s %s",
+                    device.name,
+                    evTopic,
+                    event
+                );
+        }
+    }
+
+    function handleOutputEvent(device, event, evTopic, value) {
+        switch (evTopic) {
+            case "enclosureHeating":
+                device.enclosureHeating = value;
+                break;
+            case "ssrRelayState":
+                device.ssrRelayState = value;
+                break;
+            default:
+                console.warn(
+                    "Unknown 'Output' event topic from %s: %s %s",
+                    device.name,
+                    evTopic,
+                    event
+                );
+        }
+    }
+
+    function handleDeviceEvent(device, event, evTopic, value) {
+        switch (evTopic) {
+            case "boot":
+                // TODO Ignored
+                break;
+            case "NewGenSN":
+                // TODO Ignored
+                break;
+            default:
+                console.warn(
+                    "Unknown 'Device' event topic from %s: %s %s",
+                    device.name,
+                    evTopic,
+                    event
+                );
+        }
+    }
+
+    function handleOsmoseEvent(device, event, evTopic, value) {
+        const data = event.data;
+        const sensor = getOsmoseDevice(device);
+        switch (evTopic) {
+            case ("Start", "Stop"):
+                sensor.state = data.state;
+                sensor.fonction = data.fonction;
+                sensor.sequence = data.sequence;
+                sensor.alarmNo = data.alarmNo;
+                sensor.alarmMsg = data.alarmMsg;
+                sensor.startStopTime = data.startStopTime;
+                sensor.runTimeSec = data.runTimeSec;
+                sensor.lastUpdatedAt = event.published_at;
+                event.object = extendOsmose(theOsmose);
+                break;
+            case "timeCounter":
+                sensor.state = data.state;
+                sensor.TempsOperEnCour = data.TempsOperEnCour;
+                sensor.TempsSeq1234 = data.TempsSeq1234;
+                sensor.TempsSeq4321 = data.TempsSeq4321;
+                sensor.TempsDepuisLavage = data.TempsDepuisLavage;
+                sensor.lastUpdatedAt = event.published_at;
+                event.object = extendOsmose(theOsmose);
+                break;
+            case "operData":
+                sensor.sequence = data.sequence;
+                sensor.Col1 = data.Col1;
+                sensor.Col2 = data.Col2;
+                sensor.Col3 = data.Col3;
+                sensor.Col4 = data.Col4;
+                sensor.Conc = data.Conc;
+                sensor.Temp = data.Temp;
+                sensor.Pres = data.Pres;
+                sensor.lastUpdatedAt = event.published_at;
+                event.object = extendOsmose(theOsmose);
+                break;
+            case "concData":
+                sensor.sequence = data.sequence;
+                sensor.BrixSeve = data.BrixSeve;
+                sensor.BrixConc = data.BrixConc;
+                sensor.lastUpdatedAt = event.published_at;
+                event.object = extendOsmose(theOsmose);
+                break;
+            case "summaryData":
+                sensor.sequence = data.sequence;
+                sensor.PC_Conc = data.PC_Conc;
+                sensor.Conc_GPH = data.Conc_GPH;
+                sensor.Filtrat_GPH = data.Filtrat_GPH;
+                sensor.Total_GPH = data.Total_GPH;
+                sensor.runTimeSec = data.runTimeSec;
+                sensor.lastUpdatedAt = event.published_at;
+                event.object = extendOsmose(theOsmose);
+                break;
+            case "alarm":
+                sensor.state = data.state;
+                sensor.fonction = data.fonction;
+                sensor.sequence = data.sequence;
+                sensor.alarmNo = data.alarmNo;
+                sensor.alarmMsg = data.alarmMsg;
+                sensor.lastUpdatedAt = event.published_at;
+                event.object = extendOsmose(theOsmose);
+                break;
+            default:
+                console.warn(
+                    "Unknown 'Osmose' event topic from %s: %s %s",
+                    device.name,
+                    evTopic,
+                    event
+                );
+        }
+    }
+
+    function handleOptoInEvent(device, event, evTopic, value) {
+        switch (evTopic) {
+            case "To do":
+                break;
+            default:
+                console.warn(
+                    "Unknown 'OptoIn' event topic from %s: %s",
+                    device.name,
+                    evTopic,
+                    event
+                );
+        }
+    }
 
     function handleEvent(device, event) {
         const data = event.data;
@@ -389,201 +673,51 @@ exports.Dashboard = function (config, WebSocketClient) {
             data.eName = device.eventName;
         }
         var name = data.eName;
+        if (name) {
+            name = name.trim();
+        }
         // Some names are wrong...
         if (name === "Dev1_Vacuum/Lignes") {
             name = "Vacuum/Lignes";
         }
-        if (name) {
-            name = name.trim();
-        }
         device.lastUpdatedAt = event.published_at;
-        if (name === "sensor/ambientTemp") {
-            device.ambientTemp = value;
-        } else if (name === "sensor/US100sensorTemp") {
-            device.sensorTemp = value;
-        } else if (name === "sensor/enclosureTemp") {
-            device.enclosureTemp = value;
-        } else if (name === "output/enclosureHeating") {
-            device.enclosureHeating = value;
-        } else if (name === "sensor/vacuum") {
-            const sensor = getVacuumSensorOfDevice(device);
-            sensor.rawValue = value;
-            sensor.lastUpdatedAt = event.published_at;
-        } else if (name === "Vacuum/Lignes") {
-            for (var i = 0; i < 4; i++) {
-                var sensor = getVacuumSensorOfLineVacuumDevice(device, i);
-                if (sensor !== undefined) {
-                    sensor.rawValue = data[sensor.inputName] * 100;
-                    sensor.lastUpdatedAt = event.published_at;
-                    sensor.temp = data["temp"];
-                    sensor.lightIntensity = data["li"];
-                    sensor.percentCharge = data["soc"];
-                    sensor.batteryVolt = data["volt"];
-                    sensor.rssi = data["rssi"];
-                    sensor.signalQual = data["qual"];
-                } else {
-                    break;
-                }
-            }
-        } else if (name === "pump/T1") {
-            getPumpOfDevice(device).update(event, value);
-        } else if (name === "pump/T2") {
-            const pump = getPumpOfDevice(device);
-            pump.update(event, value);
-            pump.run2long = false;
-        } else if (name === "pump/state") {
-            getPumpOfDevice(device).update(event, value);
-        } else if (name === "pump/T2_ONtime") {
-            getPumpOfDevice(device).ONtime = Math.abs(value / 1000);
-        } else if (name === "pump/T1_OFFtime") {
-            getPumpOfDevice(device).OFFtime = Math.abs(value / 1000);
-        } else if (name === "pump/CurrentDutyCycle") {
-            getPumpOfDevice(device).duty = value / 1000;
-        } else if (name === "pump/endCycle") {
-            const pump = getPumpOfDevice(device);
-            pump.volume += (pump.ONtime * pump.capacity_gph) / 3600;
-            pumps.forEach(function (pump) {
-                if (pump.device === device.name) {
-                    pump.duty = value / 1000;
-                    pump.lastUpdatedAt = event.published_at;
-                    event.object = extendPump(pump);
-                }
-            });
-        } else if (name === "pump/warningRunTooLong") {
-            getPumpOfDevice(device).run2long = true;
-        } else if (name === "pump/debutDeCoulee") {
-            const pump = getPumpOfDevice(device);
-            pump.couleeEnCour = true;
-            pump.debutDeCouleeTS = data.timestamp;
-            if (pump.device === device.name) {
-                pump.duty = value / 1000;
-                pump.lastUpdatedAt = event.published_at;
-                event.object = extendPump(pump);
-            }
-        } else if (name === "pump/finDeCoulee") {
-            const pump = getPumpOfDevice(device);
-            pump.couleeEnCour = false;
-            if (pump.device === device.name) {
-                pump.duty = value / 1000;
-                pump.lastUpdatedAt = event.published_at;
-                event.object = extendPump(pump);
-            }
-            pump.duty = 0;
-            pump.volume = 0;
-            // Ajout de RunTimeSinceMaint
-        } else if (name === "pump/RunTimeSinceMaint") {
-            const sensor = getVacuumSensorOfDevice(device);
-            if (sensor.device === device.name) {
-                sensor.RunTimeSinceMaint = value;
-                event.object = extendVacuum(sensor);
-            }
-        } else if (name === "pump/NeedMaintenance") {
-            const sensor = getVacuumSensorOfDevice(device);
-            if (sensor.device === device.name) {
-                sensor.NeedMaintenance = value;
-                event.object = extendVacuum(sensor);
-            }
-        } else if (name === "sensor/Valve1Pos") {
-            const valve = getValveOfDevice(device, 1);
-            if (valve.device === device.name) {
-                valve.position = positionCode[value];
-                event.object = extendValve(valve);
-            }
-        } else if (name === "sensor/Valve2Pos") {
-            const valve = getValveOfDevice(device, 2);
-            if (valve.device === device.name) {
-                valve.position = positionCode[value];
-                event.object = extendValve(valve);
-            }
-        } else if (name === "sensor/level") {
-            tanks.forEach(function (tank) {
-                if (tank.device === device.name) {
-                    tank.rawValue = value;
-                    tank.lastUpdatedAt = event.published_at;
-                    event.object = extendTank(tank);
-                }
-            });
-        } else if (name === "Osmose/Start" || name === "Osmose/Stop") {
-            const sensor = getOsmoseDevice(device);
-            sensor.state = data.state;
-            sensor.fonction = data.fonction;
-            sensor.sequence = data.sequence;
-            sensor.alarmNo = data.alarmNo;
-            sensor.alarmMsg = data.alarmMsg;
-            sensor.startStopTime = data.startStopTime;
-            sensor.runTimeSec = data.runTimeSec;
-            sensor.lastUpdatedAt = event.published_at;
-            event.object = extendOsmose(theOsmose);
-        } else if (name === "Osmose/timeCounter") {
-            const sensor = getOsmoseDevice(device);
-            sensor.state = data.state;
-            sensor.TempsOperEnCour = data.TempsOperEnCour;
-            sensor.TempsSeq1234 = data.TempsSeq1234;
-            sensor.TempsSeq4321 = data.TempsSeq4321;
-            sensor.TempsDepuisLavage = data.TempsDepuisLavage;
-            sensor.lastUpdatedAt = event.published_at;
-            event.object = extendOsmose(theOsmose);
-        } else if (name === "Osmose/operData") {
-            const sensor = getOsmoseDevice(device);
-            sensor.sequence = data.sequence;
-            sensor.Col1 = data.Col1;
-            sensor.Col2 = data.Col2;
-            sensor.Col3 = data.Col3;
-            sensor.Col4 = data.Col4;
-            sensor.Conc = data.Conc;
-            sensor.Temp = data.Temp;
-            sensor.Pres = data.Pres;
-            sensor.lastUpdatedAt = event.published_at;
-            event.object = extendOsmose(theOsmose);
-        } else if (name === "Osmose/concData") {
-            const sensor = getOsmoseDevice(device);
-            sensor.sequence = data.sequence;
-            sensor.BrixSeve = data.BrixSeve;
-            sensor.BrixConc = data.BrixConc;
-            sensor.lastUpdatedAt = event.published_at;
-            event.object = extendOsmose(theOsmose);
-        } else if (name === "Osmose/summaryData") {
-            const sensor = getOsmoseDevice(device);
-            sensor.sequence = data.sequence;
-            sensor.PC_Conc = data.PC_Conc;
-            sensor.Conc_GPH = data.Conc_GPH;
-            sensor.Filtrat_GPH = data.Filtrat_GPH;
-            sensor.Total_GPH = data.Total_GPH;
-            sensor.runTimeSec = data.runTimeSec;
-            sensor.lastUpdatedAt = event.published_at;
-            event.object = extendOsmose(theOsmose);
-        } else if (name === "Osmose/alarm") {
-            const sensor = getOsmoseDevice(device);
-            sensor.state = data.state;
-            sensor.fonction = data.fonction;
-            sensor.sequence = data.sequence;
-            sensor.alarmNo = data.alarmNo;
-            sensor.alarmMsg = data.alarmMsg;
-            sensor.lastUpdatedAt = event.published_at;
-            event.object = extendOsmose(theOsmose);
-        } else if (name === "device/boot") {
-            // TODO Ignored
-        } else if (name === "device/NewGenSN") {
-            // TODO Ignored
-        } else if (name === "sensor/openSensorV1") {
-            // TODO Ignored
-        } else if (name === "sensor/closeSensorV1") {
-            // TODO Ignored
-        } else if (name === "sensor/openSensorV2") {
-            // TODO Ignored
-        } else if (name === "sensor/closeSensorV2") {
-            // TODO Ignored
-        } else if (name === "sensor/outOfRange") {
-            // TODO Ignored
-        } else if (name === "sensor/sensorTemp") {
-            // TODO Ignored
-        } else {
-            console.warn(
-                "Unknown event name from %s: %s",
-                device.name,
-                name,
-                event
-            );
+        console.log(
+            "Event '%s' from device: %s, value: %s",
+            name,
+            device.name,
+            value
+        );
+        let mainTopic = name.split("/")[0];
+        let subTopic = name.split("/")[1];
+        switch (mainTopic) {
+            case "pump":
+                handlePumpEvent(device, event, subTopic, value);
+                break;
+            case "sensor":
+                handleSensorEvent(device, event, subTopic, value);
+                break;
+            case "Vacuum":
+                handleVacuumEvent(device, event, subTopic, value);
+                break;
+            case "output":
+                handleOutputEvent(device, event, subTopic, value);
+                break;
+            case "device":
+                handleDeviceEvent(device, event, subTopic, value);
+                break;
+            case "Osmose":
+                handleOsmoseEvent(device, event, subTopic, value);
+                break;
+            case "optoIn":
+                handleOptoInEvent(device, event, subTopic, value);
+                break;
+            default:
+                console.warn(
+                    "Unknown event name from %s: %s",
+                    device.name,
+                    name,
+                    event
+                );
         }
         return publishData(event, device);
     }
