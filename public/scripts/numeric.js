@@ -391,6 +391,20 @@ var span = document.getElementsByClassName("close")[0];
 function showValveSelect(Uno) {
     // let secret = prompt("Entrer le code", "");
     // if (secret == Uno + Dos) {
+    // read actual relay state
+    const inValves = getAllTanksInputValves(0);
+    inValves.forEach(function (thisValve) {
+        let devName = thisValve.device;
+        let devId = getDeviceId(devName);
+
+        // console.log(
+        //     "Read Variable 'relayState' on device:'%s, %s",
+        //     devName,
+        //     devId
+        // );
+        let state = 1; // Off state
+    });
+    // now show the panel
     const modal = document.getElementById("valveSelect");
     modal.style.display = "block";
     // }
@@ -399,8 +413,19 @@ function showValveSelect(Uno) {
 // Close the modal (Sélecteur de valves d'entrée)
 // When the user clicks on <span (x)
 function hideValveSelect() {
-    const modal = document.getElementById("valveSelect");
-    modal.style.display = "none";
+    const VaES1 = document.getElementById("VaES1_ON");
+    const VaES2 = document.getElementById("VaES2_ON");
+    const VaES3 = document.getElementById("VaES3_ON");
+    if (
+        VaES1.checked == true ||
+        VaES2.checked == true ||
+        VaES3.checked == true
+    ) {
+        const modal = document.getElementById("valveSelect");
+        modal.style.display = "none";
+    } else {
+        alert("Au moins une des trois valves d'entrée doit être ouverte");
+    }
 }
 
 // Close the modal (Sélecteur de valves d'entrée)
@@ -408,7 +433,7 @@ function hideValveSelect() {
 window.onclick = function (event) {
     const modal = document.getElementById("valveSelect");
     if (event.target == modal) {
-        modal.style.display = "none";
+        hideValveSelect();
     }
 };
 
@@ -433,30 +458,97 @@ function tanksInputMode() {
 }
 
 // list the state of the valves selectors
-function activateValves(buttonName) {
+function inputValvesOnOff(buttonId) {
     const inValves = getAllTanksInputValves(0);
     // console.log(inValves);
-    const valveSel = document.getElementsByName(buttonName);
-    let text = "";
-    let rstate = "off";
-    valveSel.forEach(function (thisValve) {
-        let dn = inValves.filter(function (inValve) {
-            return inValve.code == thisValve.id;
-        });
-        let devName = dn[0].device;
-        let devId = getDeviceId(devName);
-        if (thisValve.checked) {
-            text = "Ouvrir la valve: ";
-            rstate = "on";
-        } else {
-            text = "Fermer la valve: ";
-            rstate = "off";
-        }
-        // console.log(
-        //     text + thisValve.id + " avec: " + devName + " id: " + devId
-        // );
-        let res = callFunction(devId, "relay", rstate);
+    const valveSel = document.getElementById(buttonId);
+    const dn = inValves.filter(function (thisValve) {
+        return thisValve.code == valveSel.name;
     });
+    let devName = dn[0].device;
+    let devId = getDeviceId(devName);
+    let text = "Ouvrir: ";
+    let rstate = "on";
+    if (buttonId.endsWith("_OFF") == true) {
+        text = "Fermer: ";
+        rstate = "off";
+    }
+    console.log(
+        text + valveSel.name + " avec device: " + devName + ", id: " + devId
+    );
+    callFunction(devId, "relay", rstate);
+}
+
+function PHinputValvesOnOff(buttonId) {
+    const inValves = getAllTanksInputValves(0);
+    // Le bouton cliqué
+    const valveSel = document.getElementById(buttonId);
+    // Les 4 boutons
+    const VaAPH1_ON = document.getElementById("VaAPH1_ON");
+    const VaDPH1_ON = document.getElementById("VaDPH1_ON");
+    const VaAPH1_OFF = document.getElementById("VaAPH1_OFF");
+    const VaDPH1_OFF = document.getElementById("VaDPH1_OFF");
+    // Les deviceId des deux valves sont requisent à chaque opération
+    let PHdn = inValves.filter(function (x) {
+        return x.code == "VaAPH1";
+    });
+    let phdevName = PHdn[0].device;
+    let phdevId = getDeviceId(phdevName);
+
+    let DPHdn = inValves.filter(function (y) {
+        return y.code == "VaDPH1";
+    });
+    let DPHdevName = DPHdn[0].device;
+    let DPHdevId = getDeviceId(DPHdevName);
+
+    let PHtext = "Ouvrir: ";
+    let PHRstate = "on";
+    let DPHtext = "Ouvrir: ";
+    let DPHRstate = "on";
+
+    if (buttonId == "VaAPH1_ON") {
+        PHtext = "Ouvrir: ";
+        PHRstate = "on";
+        VaDPH1_OFF.checked = true;
+        DPHtext = "Fermer: ";
+        DPHRstate = "off";
+    } else if (buttonId == "VaAPH1_OFF") {
+        PHtext = "Fermer: ";
+        PHRstate = "off";
+        VaDPH1_ON.checked = true;
+        DPHtext = "Ouvrir: ";
+        DPHRstate = "on";
+    } else if (buttonId == "VaDPH1_ON") {
+        DPHtext = "Ouvrir: ";
+        DPHRstate = "on";
+        VaAPH1_OFF.checked = true;
+        PHtext = "Fermer: ";
+        PHRstate = "off";
+    } else if (buttonId == "VaDPH1_OFF") {
+        DPHtext = "Fermer: ";
+        DPHRstate = "off";
+        VaAPH1_ON.checked = true;
+        PHtext = "Ouvrir: ";
+        PHRstate = "on";
+    }
+    console.log(
+        PHtext +
+            valveSel.name +
+            " avec device: " +
+            phdevName +
+            ", id: " +
+            phdevId
+    );
+    console.log(
+        DPHtext +
+            "l'autre valve" +
+            " avec device: " +
+            DPHdevName +
+            ", id: " +
+            DPHdevId
+    );
+    callFunction(phdevId, "relay", PHRstate);
+    callFunction(DPHdevId, "relay", DPHRstate);
 }
 
 function displayDevices() {
@@ -1443,23 +1535,6 @@ function stopCouleeCounter() {
 // Do not do this. Really, it's a horrible idea. There are much better
 // and safer techniques available.
 
-function readDeviceVariable(device, varName) {
-    particle
-        .getVariable({
-            device,
-            name: varName,
-            auth: myToken,
-        })
-        .then(
-            function (data) {
-                return data;
-            },
-            function (err) {
-                console.log("An error occurred while getting attrs:", err);
-            }
-        );
-}
-
 function getDeviceId(devName) {
     var deviceId = devices
         .filter(function (device) {
@@ -1484,8 +1559,26 @@ function callResetOperTimer(devName) {
     }
 }
 
+async function readDeviceVariable(device, varName) {
+    await particle
+        .getVariable({
+            deviceId: device,
+            name: varName,
+            auth: myToken,
+        })
+        .then(
+            function (data) {
+                return data.result;
+            },
+            function (err) {
+                console.log("An error occurred while getting attrs:", err);
+                return -1;
+            }
+        );
+}
+
 async function callFunction(devID, fname, fargument) {
-    var status = particle
+    var status = await particle
         .callFunction({
             deviceId: devID,
             name: fname,

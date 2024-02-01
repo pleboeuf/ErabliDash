@@ -67,8 +67,7 @@
                                     <th class="tablename" colspan="4">Sélecteur de valves d'entrée</th>
                                 </tr>
                                 <tr>
-                                    <th class="darker">Mode d'opération</th>
-                                    <th></th>
+                                    <th class="darker" colspan="2">Mode d'opération</th>
                                     <th class="lighter" style="text-align: left;" >
                                         <input type="radio" id="Manuel" name="autoMan" onchange="tanksInputMode()" checked disabled>
                                         <label for="Manuel">Manuel</label>
@@ -81,7 +80,7 @@
                                 <tr></tr>
                                 <tr>
                                     <th class="darker">Équipements</th>
-                                    <th class="darker">Valve/État</th>
+                                    <th class="darker">Valve d'entrée</th>
                                     <th class="darker">Ouverte</th>
                                     <th class="darker">Fermé</th>                             
                                 </tr>
@@ -89,50 +88,50 @@
                                     <th class="darker" style="text-align: left;">RS1</th>
                                     <th class="lighter">VaES1</th>
                                     <th class="lighter">
-                                        <input type="radio" id="VaES1" name="tanksRS1" onchange="activateValves('tanksRS1')" checked>
+                                        <input type="radio" id="VaES1_ON" name="VaES1" onclick="inputValvesOnOff('VaES1_ON')">
                                     </th>
                                     <th class="lighter">
-                                        <input type="radio" id="VaES1" name="tanksRS1" onchange="activateValves('tanksRS1')" checked>
+                                        <input type="radio" id="VaES1_OFF" name="VaES1" onclick="inputValvesOnOff('VaES1_OFF')">
                                     </th>
                                 </tr>
                                 <tr>
                                     <th class="darker" style="text-align: left;">RS2</th>
                                     <th class="lighter">VaES2</th>
                                     <th class="lighter" >
-                                        <input type="radio" id="VaES2" name="tanksRS2" onchange="activateValves('tanksRS2')">
+                                        <input type="radio" id="VaES2_ON" name="VaES2" onclick="inputValvesOnOff('VaES2_ON')">
                                     </th>
                                     <th class="lighter">
-                                        <input type="radio" id="VaES2" name="tanksRS2" onchange="activateValves('tanksRS2')">
+                                        <input type="radio" id="VaES2_OFF" name="VaES2" onclick="inputValvesOnOff('VaES2_OFF')">
                                     </th>
                                 </tr>
                                 <tr>
                                     <th class="darker" style="text-align: left;">RS3 + RS4</th>
                                     <th class="lighter">VaES3</th>
                                     <th class="lighter">
-                                        <input type="radio" id="VaES3" name="tanksRS3" onchange="activateValves('tanksRS3')">
+                                        <input type="radio" id="VaES3_ON" name="VaES3" onclick="inputValvesOnOff('VaES3_ON')">
                                     </th>
                                     <th class="lighter">
-                                        <input type="radio" id="VaES3" name="tanksRS3" onchange="activateValves('tanksRS3')">
+                                        <input type="radio" id="VaES3_OFF" name="VaES3" onclick="inputValvesOnOff('VaES3_OFF')">
                                     </th>
                                 </tr>
                                 <tr>
                                     <th class="darker" style="text-align: left;">PumpHouse</th>
-                                    <th class="lighter">VaPH1</th>
+                                    <th class="lighter">VaAPH1</th>
                                     <th class="lighter">
-                                        <input type="radio" id="VaPH1" name="PH" onchange="activateValves('PumpHouse')" checked>
+                                        <input type="radio" id="VaAPH1_ON" name="VaAPH1" onclick="PHinputValvesOnOff('VaAPH1_ON')">
                                     </th>
                                     <th class="lighter">
-                                        <input type="radio" id="VaPH1" name="PH" onchange="activateValves('PumpHouse')" checked>
+                                        <input type="radio" id="VaAPH1_OFF" name="VaAPH1" onclick="PHinputValvesOnOff('VaAPH1_OFF')">
                                     </th>
                                 </tr>
                                 <tr>
                                     <th class="darker" style="text-align: left;">Drain Ligne PumpHouse</th>
                                     <th class="lighter">VaDPH1</th>
                                     <th class="lighter">
-                                        <input type="radio" id="VaDPH1" name="DPH" onchange="activateValves('PumpHouse')">
+                                        <input type="radio" id="VaDPH1_ON" name="VaDPH1" onclick="PHinputValvesOnOff('VaDPH1_ON')">
                                     </th>
                                     <th class="lighter">
-                                        <input type="radio" id="VaDPH1" name="DPH" onchange="activateValves('PumpHouse')">
+                                        <input type="radio" id="VaDPH1_OFF" name="VaDPH1" onclick="PHinputValvesOnOff('VaDPH1_OFF')">
                                     </th>
                                 </tr>
                             </table>

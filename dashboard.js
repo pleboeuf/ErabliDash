@@ -286,7 +286,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             .shift();
         if (valve === undefined) {
             throw util.format(
-                "Device %s has no valve with identifier %d at %d,%d",
+                "Device %s has no valve with identifier %d at gen: %d, serial: %d",
                 device.name,
                 identifier,
                 device.generationId,
@@ -374,29 +374,28 @@ exports.Dashboard = function (config, WebSocketClient) {
     const positionCode = ["Erreur", "Ouverte", "Fermé", "Partiel"];
 
     function handlePumpEvent(device, event, evTopic, value) {
+        var pump = getPumpOfDevice(device);
         switch (evTopic) {
             case "T1":
-                getPumpOfDevice(device).update(event, value);
+                pump.update(event, value);
                 break;
             case "T2":
-                var pump = getPumpOfDevice(device);
                 pump.update(event, value);
                 pump.run2long = false;
                 break;
             case "state":
-                getPumpOfDevice(device).update(event, value);
+                pump.update(event, value);
                 break;
             case "T2_ONtime":
-                getPumpOfDevice(device).ONtime = Math.abs(value / 1000);
+                pump.ONtime = Math.abs(value / 1000);
                 break;
             case "T1_OFFtime":
-                getPumpOfDevice(device).OFFtime = Math.abs(value / 1000);
+                pump.OFFtime = Math.abs(value / 1000);
                 break;
             case "CurrentDutyCycle":
-                getPumpOfDevice(device).duty = value / 1000;
+                pump.duty = value / 1000;
                 break;
             case "endCycle":
-                var pump = getPumpOfDevice(device);
                 pump.volume += (pump.ONtime * pump.capacity_gph) / 3600;
                 pumps.forEach(function (pump) {
                     if (pump.device === device.name) {
@@ -407,10 +406,9 @@ exports.Dashboard = function (config, WebSocketClient) {
                 });
                 break;
             case "warningRunTooLong":
-                getPumpOfDevice(device).run2long = true;
+                pump.run2long = true;
                 break;
             case "debutDeCoulee":
-                var pump = getPumpOfDevice(device);
                 pump.couleeEnCour = true;
                 pump.debutDeCouleeTS = data.timestamp;
                 if (pump.device === device.name) {
@@ -420,7 +418,6 @@ exports.Dashboard = function (config, WebSocketClient) {
                 }
                 break;
             case "finDeCoulee":
-                var pump = getPumpOfDevice(device);
                 pump.couleeEnCour = false;
                 if (pump.device === device.name) {
                     pump.duty = value / 1000;
@@ -475,8 +472,8 @@ exports.Dashboard = function (config, WebSocketClient) {
                 });
                 break;
             case "outOfRange":
+                // To do
                 break;
-
             case "Valve1Pos":
                 var valve = getValveOfDevice(device, 1);
                 if (valve.device === device.name) {
@@ -508,7 +505,7 @@ exports.Dashboard = function (config, WebSocketClient) {
 
     function handleVacuumEvent(device, event, evTopic, value) {
         switch (evTopic) {
-            case "Vacuum":
+            case "Lignes":
                 for (var i = 0; i < 4; i++) {
                     var sensor = getVacuumSensorOfLineVacuumDevice(device, i);
                     if (sensor !== undefined) {
@@ -645,11 +642,16 @@ exports.Dashboard = function (config, WebSocketClient) {
 
     function handleOptoInEvent(device, event, evTopic, value) {
         switch (evTopic) {
-            case "To do":
+            case "state":
+                var valve = getValveOfDevice(device, 0);
+                if (valve.device === device.name) {
+                    valve.position = positionCode[value + 1];
+                    event.object = extendValve(valve);
+                }
                 break;
             default:
                 console.warn(
-                    "Unknown 'OptoIn' event topic from %s: %s",
+                    "Unknown 'OptoIn' event topic from '%s': %s %s",
                     device.name,
                     evTopic,
                     event
@@ -682,7 +684,7 @@ exports.Dashboard = function (config, WebSocketClient) {
         }
         device.lastUpdatedAt = event.published_at;
         console.log(
-            "Event '%s' from device: %s, value: %s",
+            "Event '%s' from device: '%s', value: %s",
             name,
             device.name,
             value
@@ -713,7 +715,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                 break;
             default:
                 console.warn(
-                    "Unknown event name from %s: %s",
+                    "Unknown event '%s' from %s: %s",
                     device.name,
                     name,
                     event
