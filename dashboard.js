@@ -371,6 +371,13 @@ exports.Dashboard = function (config, WebSocketClient) {
         return pump;
     }
 
+    // function getRelayOfDevice(device){
+    //     var relay = tanks
+    //         .filter(function (relay){
+    //             return tanks.device == ;
+    //         });
+    // }
+
     const positionCode = ["Erreur", "Ouverte", "Fermé", "Partiel"];
 
     function handlePumpEvent(device, event, evTopic, value) {

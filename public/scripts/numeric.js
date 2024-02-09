@@ -391,18 +391,20 @@ var span = document.getElementsByClassName("close")[0];
 function showValveSelect(Uno) {
     // let secret = prompt("Entrer le code", "");
     // if (secret == Uno + Dos) {
+
     // read actual relay state
     const inValves = getAllTanksInputValves(0);
     inValves.forEach(function (thisValve) {
+        button = document.getElementsByName(thisValve.code);
         let devName = thisValve.device;
-        let devId = getDeviceId(devName);
-
-        // console.log(
-        //     "Read Variable 'relayState' on device:'%s, %s",
-        //     devName,
-        //     devId
-        // );
-        let state = 1; // Off state
+        // ssrRealy is active low
+        let state = getRelayState(devName);
+        if (state === undefined) {
+            state = true;
+        }
+        button[0].checked = !state;
+        button[1].checked = state;
+        console.log(devName + " relay state: " + state);
     });
     // now show the panel
     const modal = document.getElementById("valveSelect");
@@ -458,25 +460,19 @@ function tanksInputMode() {
 }
 
 // list the state of the valves selectors
-function inputValvesOnOff(buttonId) {
+function inputValvesOnOff(buttonId, cmd) {
     const inValves = getAllTanksInputValves(0);
-    // console.log(inValves);
-    const valveSel = document.getElementById(buttonId);
+    const valveSel = document.getElementsByName(buttonId);
     const dn = inValves.filter(function (thisValve) {
-        return thisValve.code == valveSel.name;
+        return thisValve.code == buttonId;
     });
     let devName = dn[0].device;
     let devId = getDeviceId(devName);
-    let text = "Ouvrir: ";
-    let rstate = "on";
-    if (buttonId.endsWith("_OFF") == true) {
-        text = "Fermer: ";
-        rstate = "off";
-    }
+    let text = cmd == "ON" ? "Ouvrir: " : "Fermer: ";
     console.log(
-        text + valveSel.name + " avec device: " + devName + ", id: " + devId
+        text + buttonId + " avec device: " + devName + ", id: " + devId
     );
-    callFunction(devId, "relay", rstate);
+    callFunction(devId, "relay", cmd);
 }
 
 function PHinputValvesOnOff(buttonId) {
@@ -492,8 +488,8 @@ function PHinputValvesOnOff(buttonId) {
     let PHdn = inValves.filter(function (x) {
         return x.code == "VaAPH1";
     });
-    let phdevName = PHdn[0].device;
-    let phdevId = getDeviceId(phdevName);
+    let PHdevName = PHdn[0].device;
+    let PHdevId = getDeviceId(PHdevName);
 
     let DPHdn = inValves.filter(function (y) {
         return y.code == "VaDPH1";
@@ -501,10 +497,10 @@ function PHinputValvesOnOff(buttonId) {
     let DPHdevName = DPHdn[0].device;
     let DPHdevId = getDeviceId(DPHdevName);
 
-    let PHtext = "Ouvrir: ";
-    let PHRstate = "on";
-    let DPHtext = "Ouvrir: ";
-    let DPHRstate = "on";
+    let PHtext;
+    let PHRstate;
+    let DPHtext;
+    let DPHRstate;
 
     if (buttonId == "VaAPH1_ON") {
         PHtext = "Ouvrir: ";
@@ -532,12 +528,7 @@ function PHinputValvesOnOff(buttonId) {
         PHRstate = "on";
     }
     console.log(
-        PHtext +
-            valveSel.name +
-            " avec device: " +
-            phdevName +
-            ", id: " +
-            phdevId
+        PHtext + buttonId + " avec device: " + PHdevName + ", id: " + PHdevId
     );
     console.log(
         DPHtext +
@@ -547,7 +538,7 @@ function PHinputValvesOnOff(buttonId) {
             ", id: " +
             DPHdevId
     );
-    callFunction(phdevId, "relay", PHRstate);
+    callFunction(PHdevId, "relay", PHRstate);
     callFunction(DPHdevId, "relay", DPHRstate);
 }
 
@@ -1544,6 +1535,15 @@ function getDeviceId(devName) {
     return deviceId.id;
 }
 
+function getRelayState(devName) {
+    var deviceId = devices
+        .filter(function (device) {
+            return device.name === devName;
+        })
+        .shift();
+    return deviceId.ssrRelayState;
+}
+
 function callResetOperTimer(devName) {
     let text;
     if (confirm("Remettre à zéro le compteur?") == true) {
@@ -1588,7 +1588,6 @@ async function callFunction(devID, fname, fargument) {
         .then(
             function (data) {
                 console.log("Function called succesfully:", data);
-                // return "Remise à zéro CONFIRMÉ!";
             },
             function (err) {
                 console.log("An error occurred:", err);

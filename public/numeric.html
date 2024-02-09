@@ -88,30 +88,30 @@
                                     <th class="darker" style="text-align: left;">RS1</th>
                                     <th class="lighter">VaES1</th>
                                     <th class="lighter">
-                                        <input type="radio" id="VaES1_ON" name="VaES1" onclick="inputValvesOnOff('VaES1_ON')">
+                                        <input type="radio" id="VaES1_ON" name="VaES1" onclick="inputValvesOnOff('VaES1','ON')">
                                     </th>
                                     <th class="lighter">
-                                        <input type="radio" id="VaES1_OFF" name="VaES1" onclick="inputValvesOnOff('VaES1_OFF')">
+                                        <input type="radio" id="VaES1_OFF" name="VaES1" onclick="inputValvesOnOff('VaES1','OFF')">
                                     </th>
                                 </tr>
                                 <tr>
                                     <th class="darker" style="text-align: left;">RS2</th>
                                     <th class="lighter">VaES2</th>
                                     <th class="lighter" >
-                                        <input type="radio" id="VaES2_ON" name="VaES2" onclick="inputValvesOnOff('VaES2_ON')">
+                                        <input type="radio" id="VaES2_ON" name="VaES2" onclick="inputValvesOnOff('VaES2','ON')">
                                     </th>
                                     <th class="lighter">
-                                        <input type="radio" id="VaES2_OFF" name="VaES2" onclick="inputValvesOnOff('VaES2_OFF')">
+                                        <input type="radio" id="VaES2_OFF" name="VaES2" onclick="inputValvesOnOff('VaES2','OFF')">
                                     </th>
                                 </tr>
                                 <tr>
                                     <th class="darker" style="text-align: left;">RS3 + RS4</th>
                                     <th class="lighter">VaES3</th>
                                     <th class="lighter">
-                                        <input type="radio" id="VaES3_ON" name="VaES3" onclick="inputValvesOnOff('VaES3_ON')">
+                                        <input type="radio" id="VaES3_ON" name="VaES3" onclick="inputValvesOnOff('VaES3','ON')">
                                     </th>
                                     <th class="lighter">
-                                        <input type="radio" id="VaES3_OFF" name="VaES3" onclick="inputValvesOnOff('VaES3_OFF')">
+                                        <input type="radio" id="VaES3_OFF" name="VaES3" onclick="inputValvesOnOff('VaES3','OFF')">
                                     </th>
                                 </tr>
                                 <tr>
@@ -135,7 +135,7 @@
                                     </th>
                                 </tr>
                             </table>
-                        <p>Note: Le changement peut prendre 90 secondes.</p>
+                        <p>Note: Le changement prend environ 10 secondes.</p>
                     </div>
                     
                 </div>
@@ -471,7 +471,7 @@
             </div>
             
             <div class="w3-third", style="width:max-content;", id="allValves">
-                <table id="valves" , class="w3-table w3-striped w3-bordered" , style="visibility: hidden;">
+                <table id="valves" , class="w3-table w3-striped w3-bordered" , style="visibility: visible;">
                     <tr>
                         <td>
                             <h3>Valves</h3>
