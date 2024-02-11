@@ -14,6 +14,7 @@
         <script src="/scripts/numeric.js"></script>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/particle-api-js@9/dist/particle.min.js"></script>
         <script>src="https://cdn.jsdelivr.net/npm/dotenv@16"</script>
+        <script>src="https://cdn.jsdelivr.net/npm/password-prompt"</script>
         <script>
             const particle = new Particle();    
         </script>
@@ -81,8 +82,8 @@
                                 <tr>
                                     <th class="darker">Équipements</th>
                                     <th class="darker">Valve d'entrée</th>
-                                    <th class="darker">Ouverte</th>
-                                    <th class="darker">Fermé</th>                             
+                                    <th class="darker">Ouvrir</th>
+                                    <th class="darker">Fermer</th>                             
                                 </tr>
                                 <tr>
                                     <th class="darker" style="text-align: left;">RS1</th>
@@ -105,7 +106,7 @@
                                     </th>
                                 </tr>
                                 <tr>
-                                    <th class="darker" style="text-align: left;">RS3 + RS4</th>
+                                    <th class="darker" style="text-align: left;">RS3</th>
                                     <th class="lighter">VaES3</th>
                                     <th class="lighter">
                                         <input type="radio" id="VaES3_ON" name="VaES3" onclick="inputValvesOnOff('VaES3','ON')">
@@ -471,7 +472,7 @@
             </div>
             
             <div class="w3-third", style="width:max-content;", id="allValves">
-                <table id="valves" , class="w3-table w3-striped w3-bordered" , style="visibility: visible;">
+                <table id="valves" , class="w3-table w3-striped w3-bordered" , style="visibility: hidden;">
                     <tr>
                         <td>
                             <h3>Valves</h3>

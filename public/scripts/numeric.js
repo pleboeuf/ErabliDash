@@ -95,6 +95,8 @@ function displayTanks() {
     tankDefs.forEach(function (tank) {
         var tankElementId = "tank_" + tank.code;
         var tankElement = document.getElementById(tankElementId);
+        var tankNameElementId = tankElementId + "_name";
+        var tankNameElement;
         var contentsElementId = tankElementId + "_contents";
         var contentsElement;
         var percentElementId = tankElementId + "_percent";
@@ -135,9 +137,12 @@ function displayTanks() {
             // Add tank name
             var nameElement = document.createElement("td");
             nameElement.setAttribute("class", "tankname");
+            nameElement.setAttribute("id", tankNameElementId);
             nameElement.innerHTML = tank.code;
             if (tank.code == "RS5" || tank.code == "RS6") {
                 nameElement.innerHTML = tank.code + " (ph)";
+            } else if (tank.code == "RF2") {
+                nameElement.innerHTML = tank.code + " (Dph)";
             }
             tankElement.appendChild(nameElement);
 
@@ -215,6 +220,7 @@ function displayTanks() {
             SIRmaxElement = document.getElementById("SIRmax");
             SIRmaxElement.setAttribute("class", "tankcapacity");
         } else {
+            tankNameElement = document.getElementById(tankNameElementId);
             capacityElement = document.getElementById(capacityElementId);
             rawValueElement = document.getElementById(rawValueElementId);
             percentElement = document.getElementById(percentElementId);
@@ -274,6 +280,31 @@ function displayTanks() {
             if (typeof outValvePos !== null) {
                 outputElement.innerHTML = outValvePos;
                 setIndicatorColor(outputElement, outValvePos);
+            }
+        }
+        // set tank name color
+        if (tank.ssrRelay !== "none" && tank.ssrRelay !== undefined) {
+            let inValveElemId = "valve_" + tank.ssrRelay + "_position";
+            let inValvePosElem = document.getElementById(inValveElemId);
+            if (typeof inValvePos !== null) {
+                if (
+                    inValvePosElem.innerHTML !== "undefined" &&
+                    tankNameElement !== undefined
+                ) {
+                    if (tankNameElement.innerHTML == "RS4") {
+                        tankNameElement =
+                            document.getElementById("tank_RS5_name");
+                        tankNameElement.style.backgroundColor =
+                            inValvePosElem.style.backgroundColor;
+                        tankNameElement =
+                            document.getElementById("tank_RS6_name");
+                        tankNameElement.style.backgroundColor =
+                            inValvePosElem.style.backgroundColor;
+                    } else {
+                        tankNameElement.style.backgroundColor =
+                            inValvePosElem.style.backgroundColor;
+                    }
+                }
             }
         }
 
@@ -343,6 +374,7 @@ function displayTanks() {
             ).toFixed(0);
             SiropElement.innerHTML = SiropTotal;
         }
+        // Set tank color
     });
     $(".tankgauge").peity("pie", {
         fill: function (value, index, values) {
@@ -390,26 +422,25 @@ var span = document.getElementsByClassName("close")[0];
 // Open the modal (Sélecteur de valves d'entrée)
 function showValveSelect(Uno) {
     // let secret = prompt("Entrer le code", "");
-    // if (secret == Uno + Dos) {
-
-    // read actual relay state
-    const inValves = getAllTanksInputValves(0);
-    inValves.forEach(function (thisValve) {
-        button = document.getElementsByName(thisValve.code);
-        let devName = thisValve.device;
-        // ssrRealy is active low
-        let state = getRelayState(devName);
-        if (state === undefined) {
-            state = true;
-        }
-        button[0].checked = !state;
-        button[1].checked = state;
-        console.log(devName + " relay state: " + state);
-    });
-    // now show the panel
-    const modal = document.getElementById("valveSelect");
-    modal.style.display = "block";
-    // }
+    if (prompt("Entrer le code", "") == Uno + Dos) {
+        // read actual relay state
+        const inValves = getAllTanksInputValves(0);
+        inValves.forEach(function (thisValve) {
+            button = document.getElementsByName(thisValve.code);
+            let devName = thisValve.device;
+            // ssrRealy is active low
+            let state = getRelayState(devName);
+            if (state === undefined) {
+                state = true;
+            }
+            button[0].checked = !state;
+            button[1].checked = state;
+            console.log(devName + " relay state: " + state);
+        });
+        // now show the panel
+        const modal = document.getElementById("valveSelect");
+        modal.style.display = "block";
+    }
 }
 
 // Close the modal (Sélecteur de valves d'entrée)
@@ -540,6 +571,45 @@ function PHinputValvesOnOff(buttonId) {
     );
     callFunction(PHdevId, "relay", PHRstate);
     callFunction(DPHdevId, "relay", DPHRstate);
+}
+
+function PHinputValvesOnOff_GPT(buttonId) {
+    const inValves = getAllTanksInputValves(0);
+    // const valveSel = document.getElementById(buttonId);
+    const VaAPH1_ON = document.getElementById("VaAPH1_ON");
+    const VaDPH1_ON = document.getElementById("VaDPH1_ON");
+    const VaAPH1_OFF = document.getElementById("VaAPH1_OFF");
+    const VaDPH1_OFF = document.getElementById("VaDPH1_OFF");
+
+    const valveMap = {
+        VaAPH1_ON: { text: "Ouvrir: ", state: "on", otherButton: VaDPH1_OFF },
+        VaAPH1_OFF: { text: "Fermer: ", state: "off", otherButton: VaDPH1_ON },
+        VaDPH1_ON: { text: "Ouvrir: ", state: "on", otherButton: VaAPH1_OFF },
+        VaDPH1_OFF: { text: "Fermer: ", state: "off", otherButton: VaAPH1_ON },
+    };
+
+    const currentValve = valveMap[buttonId];
+    const otherValve = currentValve.otherButton;
+
+    console.log(
+        currentValve.text +
+            buttonId +
+            " avec device: " +
+            inValves[0].device +
+            ", id: " +
+            getDeviceId(inValves[0].device)
+    );
+    console.log(
+        otherValve.text +
+            "l'autre valve" +
+            " avec device: " +
+            inValves[1].device +
+            ", id: " +
+            getDeviceId(inValves[1].device)
+    );
+
+    callFunction(getDeviceId(inValves[0].device), "relay", currentValve.state);
+    callFunction(getDeviceId(inValves[1].device), "relay", otherValve.state);
 }
 
 function displayDevices() {
