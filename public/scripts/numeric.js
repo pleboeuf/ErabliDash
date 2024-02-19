@@ -506,110 +506,66 @@ function inputValvesOnOff(buttonId, cmd) {
     callFunction(devId, "relay", cmd);
 }
 
-function PHinputValvesOnOff(buttonId) {
-    const inValves = getAllTanksInputValves(0);
-    // Le bouton cliqué
-    const valveSel = document.getElementById(buttonId);
-    // Les 4 boutons
+function PHinputValvesOnOff(buttonId, cmd) {
     const VaAPH1_ON = document.getElementById("VaAPH1_ON");
     const VaDPH1_ON = document.getElementById("VaDPH1_ON");
     const VaAPH1_OFF = document.getElementById("VaAPH1_OFF");
     const VaDPH1_OFF = document.getElementById("VaDPH1_OFF");
-    // Les deviceId des deux valves sont requisent à chaque opération
+    const inValves = getAllTanksInputValves(0);
     let PHdn = inValves.filter(function (x) {
         return x.code == "VaAPH1";
     });
     let PHdevName = PHdn[0].device;
     let PHdevId = getDeviceId(PHdevName);
-
     let DPHdn = inValves.filter(function (y) {
         return y.code == "VaDPH1";
     });
     let DPHdevName = DPHdn[0].device;
     let DPHdevId = getDeviceId(DPHdevName);
-
-    let PHtext;
-    let PHRstate;
-    let DPHtext;
-    let DPHRstate;
-
-    if (buttonId == "VaAPH1_ON") {
-        PHtext = "Ouvrir: ";
-        PHRstate = "on";
+    const cmdMap = {
+        ON: {
+            text: "Ouvrir: ",
+            otherText: "Fermer: ",
+            state: "on",
+            otherState: "off",
+            otherCheckState: true,
+        },
+        OFF: {
+            text: "Fermer: ",
+            otherText: "Ouvrir: ",
+            state: "off",
+            otherState: "on",
+            otherCheckState: true,
+        },
+    };
+    if (buttonId == "VaAPH1" && cmd == "ON") {
         VaDPH1_OFF.checked = true;
-        DPHtext = "Fermer: ";
-        DPHRstate = "off";
-    } else if (buttonId == "VaAPH1_OFF") {
-        PHtext = "Fermer: ";
-        PHRstate = "off";
+    } else if (buttonId == "VaAPH1" && cmd == "OFF") {
         VaDPH1_ON.checked = true;
-        DPHtext = "Ouvrir: ";
-        DPHRstate = "on";
-    } else if (buttonId == "VaDPH1_ON") {
-        DPHtext = "Ouvrir: ";
-        DPHRstate = "on";
+    } else if (buttonId == "VaDPH1" && cmd == "ON") {
         VaAPH1_OFF.checked = true;
-        PHtext = "Fermer: ";
-        PHRstate = "off";
-    } else if (buttonId == "VaDPH1_OFF") {
-        DPHtext = "Fermer: ";
-        DPHRstate = "off";
+    } else {
         VaAPH1_ON.checked = true;
-        PHtext = "Ouvrir: ";
-        PHRstate = "on";
     }
+    const thisCmd = cmdMap[cmd];
     console.log(
-        PHtext + buttonId + " avec device: " + PHdevName + ", id: " + PHdevId
+        thisCmd.text +
+            buttonId +
+            " avec device: " +
+            PHdevName +
+            ", id: " +
+            PHdevId
     );
     console.log(
-        DPHtext +
+        thisCmd.otherText +
             "l'autre valve" +
             " avec device: " +
             DPHdevName +
             ", id: " +
             DPHdevId
     );
-    callFunction(PHdevId, "relay", PHRstate);
-    callFunction(DPHdevId, "relay", DPHRstate);
-}
-
-function PHinputValvesOnOff_GPT(buttonId) {
-    const inValves = getAllTanksInputValves(0);
-    // const valveSel = document.getElementById(buttonId);
-    const VaAPH1_ON = document.getElementById("VaAPH1_ON");
-    const VaDPH1_ON = document.getElementById("VaDPH1_ON");
-    const VaAPH1_OFF = document.getElementById("VaAPH1_OFF");
-    const VaDPH1_OFF = document.getElementById("VaDPH1_OFF");
-
-    const valveMap = {
-        VaAPH1_ON: { text: "Ouvrir: ", state: "on", otherButton: VaDPH1_OFF },
-        VaAPH1_OFF: { text: "Fermer: ", state: "off", otherButton: VaDPH1_ON },
-        VaDPH1_ON: { text: "Ouvrir: ", state: "on", otherButton: VaAPH1_OFF },
-        VaDPH1_OFF: { text: "Fermer: ", state: "off", otherButton: VaAPH1_ON },
-    };
-
-    const currentValve = valveMap[buttonId];
-    const otherValve = currentValve.otherButton;
-
-    console.log(
-        currentValve.text +
-            buttonId +
-            " avec device: " +
-            inValves[0].device +
-            ", id: " +
-            getDeviceId(inValves[0].device)
-    );
-    console.log(
-        otherValve.text +
-            "l'autre valve" +
-            " avec device: " +
-            inValves[1].device +
-            ", id: " +
-            getDeviceId(inValves[1].device)
-    );
-
-    callFunction(getDeviceId(inValves[0].device), "relay", currentValve.state);
-    callFunction(getDeviceId(inValves[1].device), "relay", otherValve.state);
+    callFunction(PHdevId, "relay", thisCmd.state);
+    callFunction(DPHdevId, "relay", thisCmd.otherState);
 }
 
 function displayDevices() {
