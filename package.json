@@ -12,7 +12,7 @@
         "json-schema": "^0.4.0",
         "mime": "1.4.1",
         "npm": "^9.9.0",
-        "particle-api-js": "^9.4.1",
+        "particle-api-js": "^10.4.2",
         "promise": "^8.3.0",
         "underscore": "^1.13.6",
         "websocket": "^1.0.34"
