@@ -737,8 +737,8 @@ function displayOsmose() {
         var fonctionElem;
         var fonctionElemId = "Osmose" + "_fonction";
         fonctionElem = document.getElementById(fonctionElemId);
-        fonctionElem.innerHTML = osm.fonction;
-
+        fonctionElem.innerHTML =
+            osm.fonction === !undefined ? osm.fonction : "   -indéfini-   ";
         var alarmCodeElem;
         var alarmCodeElemId = "Osmose" + "_alarmNo";
         alarmCodeElem = document.getElementById(alarmCodeElemId);
@@ -1533,14 +1533,21 @@ function pad(val) {
 }
 
 function startCouleeCounter(date) {
-    couleTimer = setInterval(function () {
-        sec = parseInt(Math.abs(Date.now() / 1e3 - new Date(date).getTime()));
-        var timeStr = "</br>" + parseInt(sec / 86400, 10);
-        timeStr = timeStr + "j " + pad(parseInt(sec / 3600, 10) % 24);
-        timeStr = timeStr + "h " + pad(parseInt(sec / 60, 10) % 60);
-        timeStr = timeStr + "m " + pad(sec % 60) + "s";
-        document.getElementById("compteurDeTemps").innerHTML = timeStr;
-    }, 1000);
+    if (!date == undefined) {
+        couleTimer = setInterval(function () {
+            sec = parseInt(
+                Math.abs(Date.now() / 1e3 - new Date(date).getTime())
+            );
+            var timeStr = "</br>" + parseInt(sec / 86400, 10);
+            timeStr = timeStr + "j " + pad(parseInt(sec / 3600, 10) % 24);
+            timeStr = timeStr + "h " + pad(parseInt(sec / 60, 10) % 60);
+            timeStr = timeStr + "m " + pad(sec % 60) + "s";
+            document.getElementById("compteurDeTemps").innerHTML = timeStr;
+        }, 1000);
+    } else {
+        document.getElementById("compteurDeTemps").innerHTML =
+            "</br>Début inconnu";
+    }
     // console.log("Affichage début de coulée");
 }
 
