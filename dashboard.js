@@ -510,7 +510,7 @@ exports.Dashboard = function (config, WebSocketClient) {
         }
     }
 
-    function handleVacuumEvent(device, event, evTopic, value) {
+    function handleVacuumEvent(device, event, evTopic, data) {
         switch (evTopic) {
             case "Lignes":
                 for (var i = 0; i < 4; i++) {
@@ -706,7 +706,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                 handleSensorEvent(device, event, subTopic, value);
                 break;
             case "Vacuum":
-                handleVacuumEvent(device, event, subTopic, value);
+                handleVacuumEvent(device, event, subTopic, data);
                 break;
             case "output":
                 handleOutputEvent(device, event, subTopic, value);
