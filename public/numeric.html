@@ -45,7 +45,7 @@
                 <div class="w3-third", style="width:max-content; margin-right:2%;", id="Reservoirs">
                     <table id="tanklist">
                         <tr>
-                            <th class="tablename" colspan="7" ondblclick = "showValveSelect('534');">Réservoirs</th>
+                            <th class="tablename" colspan="7" ondblclick = "showValveSelector('534');">Réservoirs</th>
                         </tr>
                         <tr>
                             <th class="darker">Réservoirs</th>
@@ -62,7 +62,7 @@
                 <!-- Le selecteur de valves d'entrée -->
                 <div id="valveSelect" class="w3-container w3-modal">
                     <div class="w3-modal-content">
-                        <span class="close" onclick="hideValveSelect()">&times;</span>
+                        <span class="close" onclick="hideValveSelector()">&times;</span>
                             <table id="inValves" class="tablename">
                                 <tr>
                                     <th class="tablename" colspan="4">Sélecteur de valves d'entrée</th>
@@ -460,7 +460,7 @@
             <div class="w3-third", style="margin-right: 2%; width:max-content; margin-right:2%;", id="Devices">
                 <table id="devicelist">
                     <tr>
-                        <th class="tablename", colspan="4", ondblclick = "showHideValves();">Tous les Équipements</th>
+                        <th class="tablename", colspan="4", ondblclick = "toggleTablesVisibility('allValves');">Tous les Équipements</th>
                     </tr>
                     <tr>
                         <th class="darker">Nom</th>
@@ -471,20 +471,16 @@
                 </table>
             </div>
             
-            <div class="w3-third", style="width:max-content;", id="allValves">
-                <table id="valves" , class="w3-table w3-striped w3-bordered", style="visibility: hidden;">
-                    <tr>
-                        <td>
-                            <h3>Valves</h3>
-                            <table id="valvelist">
-                                <tr>
-                                    <th>Name</th>
-                                    <th id="valvesPos">Position</th>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
+            <div class="w3-third", style="width:max-content;margin-left: 2%;visibility: hidden;", id="allValves">
+                    <table id="valvelist">
+                        <tr>
+                            <th class="tablename", colspan="2">Valves</th>
+                        </tr>
+                        <tr>
+                            <th class="darker">Name</th>
+                            <th class="darker", id="valvesPos">Position</th>
+                        </tr>
+                    </table>
             </div>
         </div>
 </body>

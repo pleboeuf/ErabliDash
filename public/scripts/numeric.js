@@ -420,7 +420,7 @@ function functionPlusRF2() {
 var span = document.getElementsByClassName("close")[0];
 
 // Open the modal (Sélecteur de valves d'entrée)
-function showValveSelect(Uno) {
+function showValveSelector(Uno) {
     // let secret = prompt("Entrer le code", "");
     if (prompt("Entrer le code", "") == Uno + Dos) {
         // read actual relay state
@@ -445,7 +445,7 @@ function showValveSelect(Uno) {
 
 // Close the modal (Sélecteur de valves d'entrée)
 // When the user clicks on <span (x)
-function hideValveSelect() {
+function hideValveSelector() {
     const VaES1 = document.getElementById("VaES1_ON");
     const VaES2 = document.getElementById("VaES2_ON");
     const VaES3 = document.getElementById("VaES3_ON");
@@ -461,21 +461,12 @@ function hideValveSelect() {
     }
 }
 
-function showHideValves() {
-    const allValvesElem = document.getElementById("valves");
-    if (allValvesElem.style.visibility == "hidden") {
-        allValvesElem.style.visibility = "visible";
-    } else {
-        allValvesElem.style.visibility = "hidden";
-    }
-}
-
 // Close the modal (Sélecteur de valves d'entrée)
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function (event) {
     const modal = document.getElementById("valveSelect");
     if (event.target == modal) {
-        hideValveSelect();
+        hideValveSelector();
     }
 };
 
@@ -684,6 +675,7 @@ function displayValves() {
 
             var codeElement = document.createElement("td");
             codeElement.innerHTML = valve.code;
+            codeElement.setAttribute("class", "darker");
             valveElem.appendChild(codeElement);
 
             positionElem = document.createElement("td");
@@ -1461,13 +1453,10 @@ function setVacuumDropColor(vacuumDrop) {
 }
 
 function toggleTablesVisibility(thisTable) {
-    var btnElem = document.getElementById(thisTable + "TblBtn");
     var TableElem = document.getElementById(thisTable);
     if (TableElem.style.visibility == "hidden") {
         TableElem.style.visibility = "visible";
-        btnElem.innerHTML = "Cacher les " + thisTable;
     } else if (TableElem.style.visibility == "visible") {
-        btnElem.innerHTML = "Voir les " + thisTable;
         TableElem.style.visibility = "hidden";
     }
 }
