@@ -461,6 +461,15 @@ function hideValveSelect() {
     }
 }
 
+function showHideValves() {
+    const allValvesElem = document.getElementById("valves");
+    if (allValvesElem.style.visibility == "hidden") {
+        allValvesElem.style.visibility = "visible";
+    } else {
+        allValvesElem.style.visibility = "hidden";
+    }
+}
+
 // Close the modal (Sélecteur de valves d'entrée)
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function (event) {
