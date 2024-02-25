@@ -380,7 +380,7 @@ exports.Dashboard = function (config, WebSocketClient) {
 
     const positionCode = ["Erreur", "Ouverte", "Fermé", "Partiel"];
 
-    function handlePumpEvent(device, event, evTopic, value) {
+    function handlePumpEvent(device, event, evTopic, data, value) {
         var pump = getPumpOfDevice(device);
         switch (evTopic) {
             case "T1":
@@ -557,7 +557,7 @@ exports.Dashboard = function (config, WebSocketClient) {
         }
     }
 
-    function handleDeviceEvent(device, event, evTopic, value) {
+    function handleDeviceEvent(device, event, evTopic) {
         switch (evTopic) {
             case "boot":
                 // TODO Ignored
@@ -575,8 +575,7 @@ exports.Dashboard = function (config, WebSocketClient) {
         }
     }
 
-    function handleOsmoseEvent(device, event, evTopic, value) {
-        const data = event.data;
+    function handleOsmoseEvent(device, event, evTopic, data) {
         const sensor = getOsmoseDevice(device);
         switch (evTopic) {
             case ("Start", "Stop"):
@@ -700,7 +699,7 @@ exports.Dashboard = function (config, WebSocketClient) {
         let subTopic = name.split("/")[1];
         switch (mainTopic) {
             case "pump":
-                handlePumpEvent(device, event, subTopic, value);
+                handlePumpEvent(device, event, subTopic, data, value);
                 break;
             case "sensor":
                 handleSensorEvent(device, event, subTopic, value);
@@ -712,10 +711,10 @@ exports.Dashboard = function (config, WebSocketClient) {
                 handleOutputEvent(device, event, subTopic, value);
                 break;
             case "device":
-                handleDeviceEvent(device, event, subTopic, value);
+                handleDeviceEvent(device, event, subTopic);
                 break;
             case "Osmose":
-                handleOsmoseEvent(device, event, subTopic, value);
+                handleOsmoseEvent(device, event, subTopic, data);
                 break;
             case "optoIn":
                 handleOptoInEvent(device, event, subTopic, value);
