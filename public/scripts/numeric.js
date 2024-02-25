@@ -1533,6 +1533,7 @@ function pad(val) {
 }
 
 function startCouleeCounter(date) {
+    console.log("Début de coulée: " + date);
     if (!date == undefined) {
         couleTimer = setInterval(function () {
             sec = parseInt(
@@ -1548,16 +1549,12 @@ function startCouleeCounter(date) {
         document.getElementById("compteurDeTemps").innerHTML =
             "</br>Début inconnu";
     }
-    // console.log("Affichage début de coulée");
 }
 
 function stopCouleeCounter() {
     clearInterval(couleTimer);
     document.getElementById("compteurDeTemps").innerHTML = "";
-    // console.log("Affichage fin de coulée");
 }
-// Do not do this. Really, it's a horrible idea. There are much better
-// and safer techniques available.
 
 function getDeviceId(devName) {
     var deviceId = devices
