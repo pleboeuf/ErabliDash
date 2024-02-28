@@ -739,7 +739,7 @@ function displayOsmose() {
         var fonctionElemId = "Osmose" + "_fonction";
         fonctionElem = document.getElementById(fonctionElemId);
         fonctionElem.innerHTML =
-            osm.fonction === !undefined ? osm.fonction : "   -indéfini-   ";
+            osm.fonction !== undefined ? osm.fonction : "   -indéfini-   ";
         var alarmCodeElem;
         var alarmCodeElemId = "Osmose" + "_alarmNo";
         alarmCodeElem = document.getElementById(alarmCodeElemId);
@@ -1043,7 +1043,8 @@ function displayPumps() {
         stateElem.innerHTML = pump.state ? "ON" : "OFF";
         setIndicatorColor(stateElem, pump.state);
         if (pump.duty !== undefined && pump.duty >= 0) {
-            var rate = pump.duty * pump.capacity_gph;
+            // var rate = pump.duty * pump.capacity_gph;
+            var rate = (3600 * pump.Volume_Relacheur) / pump.OFFtime;
         }
         if (pump.volume !== undefined && pump.volume >= 0) {
             var volume = Math.abs(pump.volume);
@@ -1532,14 +1533,21 @@ function pad(val) {
 
 function startCouleeCounter(date) {
     console.log("Début de coulée: " + date);
-    couleTimer = setInterval(function () {
-        sec = parseInt(Math.abs(Date.now() / 1e3 - new Date(date).getTime()));
-        var timeStr = "</br>" + parseInt(sec / 86400, 10);
-        timeStr = timeStr + "j " + pad(parseInt(sec / 3600, 10) % 24);
-        timeStr = timeStr + "h " + pad(parseInt(sec / 60, 10) % 60);
-        timeStr = timeStr + "m " + pad(sec % 60) + "s";
-        document.getElementById("compteurDeTemps").innerHTML = timeStr;
-    }, 1000);
+    if (date !== undefined) {
+        couleTimer = setInterval(function () {
+            sec = parseInt(
+                Math.abs(Date.now() / 1e3 - new Date(date).getTime())
+            );
+            var timeStr = "</br>" + parseInt(sec / 86400, 10);
+            timeStr = timeStr + "j " + pad(parseInt(sec / 3600, 10) % 24);
+            timeStr = timeStr + "h " + pad(parseInt(sec / 60, 10) % 60);
+            timeStr = timeStr + "m " + pad(sec % 60) + "s";
+            document.getElementById("compteurDeTemps").innerHTML = timeStr;
+        }, 1000);
+    } else {
+        document.getElementById("compteurDeTemps").innerHTML =
+            "</br>Début inconnu";
+    }
 }
 
 function stopCouleeCounter() {
