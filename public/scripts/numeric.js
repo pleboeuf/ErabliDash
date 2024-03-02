@@ -522,50 +522,28 @@ function PHinputValvesOnOff(buttonId, cmd) {
     });
     let DPHdevName = DPHdn[0].device;
     let DPHdevId = getDeviceId(DPHdevName);
-    const cmdMap = {
-        ON: {
-            text: "Ouvrir: ",
-            otherText: "Fermer: ",
-            state: "on",
-            otherState: "off",
-            otherCheckState: true,
-        },
-        OFF: {
-            text: "Fermer: ",
-            otherText: "Ouvrir: ",
-            state: "off",
-            otherState: "on",
-            otherCheckState: true,
-        },
-    };
+
     if (buttonId == "VaAPH1" && cmd == "ON") {
         VaDPH1_OFF.checked = true;
+        console.log("Ouvrir VaPH1 avec RS4, Fermer VaDPH1 avec RF2");
+        callFunction(PHdevId, "relay", "on");
+        callFunction(DPHdevId, "relay", "off");
     } else if (buttonId == "VaAPH1" && cmd == "OFF") {
         VaDPH1_ON.checked = true;
+        console.log("Fermer VaPH1 avec RS4, Ouvrie VaDPH1 avec RF2");
+        callFunction(PHdevId, "relay", "off");
+        callFunction(DPHdevId, "relay", "on");
     } else if (buttonId == "VaDPH1" && cmd == "ON") {
         VaAPH1_OFF.checked = true;
-    } else {
+        console.log("Ouvrir VaDPH1 avec RF2, Fermer VaPH1 avec RS4");
+        callFunction(DPHdevId, "relay", "on");
+        callFunction(PHdevId, "relay", "off");
+    } else if (buttonId == "VaDPH1" && cmd == "OFF") {
         VaAPH1_ON.checked = true;
+        console.log("Fermer VaDPH1 avec RF2, Ouvrir VaPH1 avec RS4");
+        callFunction(DPHdevId, "relay", "off");
+        callFunction(PHdevId, "relay", "on");
     }
-    const thisCmd = cmdMap[cmd];
-    console.log(
-        thisCmd.text +
-            buttonId +
-            " avec device: " +
-            PHdevName +
-            ", id: " +
-            PHdevId
-    );
-    console.log(
-        thisCmd.otherText +
-            "l'autre valve" +
-            " avec device: " +
-            DPHdevName +
-            ", id: " +
-            DPHdevId
-    );
-    callFunction(PHdevId, "relay", thisCmd.state);
-    callFunction(DPHdevId, "relay", thisCmd.otherState);
 }
 
 function displayDevices() {
