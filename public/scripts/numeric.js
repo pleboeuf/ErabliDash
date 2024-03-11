@@ -1020,7 +1020,7 @@ function displayPumps() {
         }
         stateElem.innerHTML = pump.state ? "ON" : "OFF";
         setIndicatorColor(stateElem, pump.state);
-        if (pump.duty !== undefined && pump.duty >= 0) {
+        if (pump.duty !== undefined && pump.duty > 0) {
             // var rate = pump.duty * pump.capacity_gph;
             var rate = (3600 * pump.Volume_Relacheur) / pump.OFFtime;
         } else {
