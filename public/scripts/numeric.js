@@ -530,7 +530,7 @@ function PHinputValvesOnOff(buttonId, cmd) {
         callFunction(DPHdevId, "relay", "off");
     } else if (buttonId == "VaAPH1" && cmd == "OFF") {
         VaDPH1_ON.checked = true;
-        console.log("Fermer VaPH1 avec RS4, Ouvrie VaDPH1 avec RF2");
+        console.log("Fermer VaPH1 avec RS4, Ouvrir VaDPH1 avec RF2");
         callFunction(PHdevId, "relay", "off");
         callFunction(DPHdevId, "relay", "on");
     } else if (buttonId == "VaDPH1" && cmd == "ON") {
@@ -1023,6 +1023,8 @@ function displayPumps() {
         if (pump.duty !== undefined && pump.duty >= 0) {
             // var rate = pump.duty * pump.capacity_gph;
             var rate = (3600 * pump.Volume_Relacheur) / pump.OFFtime;
+        } else {
+            var rate = 0;
         }
         if (pump.volume !== undefined && pump.volume >= 0) {
             var volume = Math.abs(pump.volume);
@@ -1066,6 +1068,7 @@ function displayPumps() {
     totalVolumeElem.innerHTML = parseInt(totalVolume) || 0;
     var seveBrix = document.getElementById("Osmose_BrixSeve").innerHTML;
     var debitSirop = (seveBrix * parseInt(totalRate)) / 66.0;
+    debitSirop = isNaN(debitSirop) ? 0 : debitSirop;
     var totalSirop = (seveBrix * parseInt(totalVolume)) / 66.0;
     SiropElem = document.getElementById("estimSirop");
     SiropElem.innerHTML = totalSirop.toFixed(0) || 0;
