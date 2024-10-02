@@ -1023,6 +1023,10 @@ function displayPumps() {
         if (pump.duty !== undefined && pump.duty > 0) {
             // var rate = pump.duty * pump.capacity_gph;
             var rate = (3600 * pump.Volume_Relacheur) / pump.OFFtime;
+            // if (pump.duty !== undefined && pump.duty >= 0) {
+            //     var rate_out = pump.duty * pump.capacity_gph;
+            //     var rate_in = (3600 * pump.Volume_Relacheur) / pump.OFFtime;
+            //     var rate = (rate_in + rate_out) / 2;
         } else {
             var rate = 0;
         }
