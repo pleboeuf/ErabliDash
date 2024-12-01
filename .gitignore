@@ -2,6 +2,7 @@ node_modules
 dashboard.sqlite3
 dashboard.sqlite3-journal
 data
+Datacer
 config.json
 config.json.bk
 config20*.json
