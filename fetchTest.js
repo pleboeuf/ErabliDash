@@ -5,7 +5,7 @@ const tankEndpoint = "https://da1222.base.datacer.online/tank";
 const waterEndpoint = "https://da1222.base.datacer.online/water";
 const allEndpoint = "https://da1222.base.datacer.online/all";
 
-async function getData(url) {
+async function getDatacerData(url) {
     try {
         const response = await fetch(url);
         if (!response.ok) {

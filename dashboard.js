@@ -184,7 +184,7 @@ var Pump = (exports.Pump = function (pumpConfig) {
     };
 });
 
-async function getData(url) {
+async function getDatacerData(url) {
     try {
         const response = await fetch(url);
         if (!response.ok) {
