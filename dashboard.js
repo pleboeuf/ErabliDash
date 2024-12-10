@@ -1,12 +1,18 @@
-const mydotenv = require("dotenv").config({ path: "../.prcred" });
+require("dotenv").config();
 // const accessToken = process.env.PARTICLE_TOKEN;
 const fs = require("fs");
 const path = require("path");
 const util = require("util");
 const Promise = require("promise");
 const _ = require("underscore");
-var readFile = Promise.denodeify(fs.readFile);
-var writeFile = Promise.denodeify(fs.writeFile);
+
+const datacerVac = process.env.Endpoint_vac;
+const datacerTank = process.env.Endpoint_tank;
+const datacerWater = process.env.Endpoint_water;
+const datacerAll = process.env.Endpoint_all;
+
+const readFile = Promise.denodeify(fs.readFile);
+const writeFile = Promise.denodeify(fs.writeFile);
 
 exports.Device = function (
     id,
@@ -24,12 +30,13 @@ exports.Device = function (
     this.maxDelayMinutes = maxDelayMinutes;
     this.eventName = eventName;
     this.retired = retired;
-    this.updateFrom = function (dev) {
-        this.generationId = dev.generationId;
-        this.lastEventSerial = dev.lastEventSerial;
-        this.name = dev.name;
-        return this;
-    };
+};
+
+exports.Device.prototype.updateFrom = function (dev) {
+    this.generationId = dev.generationId;
+    this.lastEventSerial = dev.lastEventSerial;
+    this.name = dev.name;
+    return this;
 };
 
 var HorizontalCylindricTank = function (self) {
@@ -70,17 +77,20 @@ var UShapedTank = function (self) {
     }
 
     function getBottomFill(level) {
-        level = Math.min(level, self.diameter / 2);
+        const adjustedLevel = Math.min(level, self.diameter / 2);
         return HorizontalCylindricTank.getFill(
-            level,
+            adjustedLevel,
             self.diameter,
             self.length
         );
     }
 
     function getTopFill(level) {
-        level = Math.max(0, level - self.diameter / 2);
-        return ((((self.diameter / 100) * self.length) / 100) * level) / 100;
+        const adjustedLevel = Math.max(0, level - self.diameter / 2);
+        return (
+            ((((self.diameter / 100) * self.length) / 100) * adjustedLevel) /
+            100
+        );
     }
 };
 
@@ -173,6 +183,20 @@ var Pump = (exports.Pump = function (pumpConfig) {
         );
     };
 });
+
+async function getData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(error.message);
+    }
+}
 
 exports.Dashboard = function (config, WebSocketClient) {
     var Device = exports.Device;
@@ -371,13 +395,6 @@ exports.Dashboard = function (config, WebSocketClient) {
         return pump;
     }
 
-    // function getRelayOfDevice(device){
-    //     var relay = tanks
-    //         .filter(function (relay){
-    //             return tanks.device == ;
-    //         });
-    // }
-
     const positionCode = ["Erreur", "Ouverte", "Fermé", "Partiel"];
 
     function handlePumpEvent(device, event, evTopic, data, value) {
@@ -459,22 +476,38 @@ exports.Dashboard = function (config, WebSocketClient) {
     }
 
     function handleSensorEvent(device, event, evTopic, value) {
+        const updateDevice = (property, value) => {
+            device[property] = value;
+        };
+
+        const updateTank = (tank, value) => {
+            tank.rawValue = value;
+            tank.lastUpdatedAt = event.published_at;
+            event.object = extendTank(tank);
+        };
+
+        const updateValve = (device, valveNumber, value) => {
+            const valve = getValveOfDevice(device, valveNumber);
+            if (valve.device === device.name) {
+                valve.position = positionCode[value];
+                event.object = extendValve(valve);
+            }
+        };
+
         switch (evTopic) {
             case "ambientTemp":
-                device.ambientTemp = value;
+                updateDevice("ambientTemp", value);
                 break;
             case "US100sensorTemp":
-                device.sensorTemp = value;
+                updateDevice("sensorTemp", value);
                 break;
             case "enclosureTemp":
-                device.enclosureTemp = value;
+                updateDevice("enclosureTemp", value);
                 break;
             case "level":
-                tanks.forEach(function (tank) {
+                tanks.forEach((tank) => {
                     if (tank.device === device.name) {
-                        tank.rawValue = value;
-                        tank.lastUpdatedAt = event.published_at;
-                        event.object = extendTank(tank);
+                        updateTank(tank, value);
                     }
                 });
                 break;
@@ -482,18 +515,10 @@ exports.Dashboard = function (config, WebSocketClient) {
                 // To do
                 break;
             case "Valve1Pos":
-                var valve = getValveOfDevice(device, 1);
-                if (valve.device === device.name) {
-                    valve.position = positionCode[value];
-                    event.object = extendValve(valve);
-                }
+                updateValve(device, 1, value);
                 break;
             case "Valve2Pos":
-                var valve = getValveOfDevice(device, 2);
-                if (valve.device === device.name) {
-                    valve.position = positionCode[value];
-                    event.object = extendValve(valve);
-                }
+                updateValve(device, 2, value);
                 break;
             case "vacuum":
                 const sensor = getVacuumSensorOfDevice(device);
@@ -513,17 +538,19 @@ exports.Dashboard = function (config, WebSocketClient) {
     function handleVacuumEvent(device, event, evTopic, data) {
         switch (evTopic) {
             case "Lignes":
-                for (var i = 0; i < 4; i++) {
-                    var sensor = getVacuumSensorOfLineVacuumDevice(device, i);
+                for (let i = 0; i < 4; i++) {
+                    const sensor = getVacuumSensorOfLineVacuumDevice(device, i);
                     if (sensor !== undefined) {
-                        sensor.rawValue = data[sensor.inputName] * 100;
-                        sensor.lastUpdatedAt = event.published_at;
-                        sensor.temp = data["temp"];
-                        sensor.lightIntensity = data["li"];
-                        sensor.percentCharge = data["soc"];
-                        sensor.batteryVolt = data["volt"];
-                        sensor.rssi = data["rssi"];
-                        sensor.signalQual = data["qual"];
+                        Object.assign(sensor, {
+                            rawValue: data[sensor.inputName] * 100,
+                            lastUpdatedAt: event.published_at,
+                            temp: data["temp"],
+                            lightIntensity: data["li"],
+                            percentCharge: data["soc"],
+                            batteryVolt: data["volt"],
+                            rssi: data["rssi"],
+                            signalQual: data["qual"],
+                        });
                     } else {
                         break;
                     }
@@ -540,12 +567,16 @@ exports.Dashboard = function (config, WebSocketClient) {
     }
 
     function handleOutputEvent(device, event, evTopic, value) {
+        const updateDevice = (property, value) => {
+            device[property] = value;
+        };
+
         switch (evTopic) {
             case "enclosureHeating":
-                device.enclosureHeating = value;
+                updateDevice("enclosureHeating", value);
                 break;
             case "ssrRelayState":
-                device.ssrRelayState = value;
+                updateDevice("ssrRelayState", value);
                 break;
             default:
                 console.warn(
@@ -577,64 +608,71 @@ exports.Dashboard = function (config, WebSocketClient) {
 
     function handleOsmoseEvent(device, event, evTopic, data) {
         const sensor = getOsmoseDevice(device);
+        const commonUpdates = (updates) => {
+            Object.assign(sensor, updates);
+            sensor.lastUpdatedAt = event.published_at;
+            event.object = extendOsmose(theOsmose);
+        };
+
         switch (evTopic) {
-            case ("Start", "Stop"):
-                sensor.state = data.state;
-                sensor.fonction = data.fonction;
-                sensor.sequence = data.sequence;
-                sensor.alarmNo = data.alarmNo;
-                sensor.alarmMsg = data.alarmMsg;
-                sensor.startStopTime = data.startStopTime;
-                sensor.runTimeSec = data.runTimeSec;
-                sensor.lastUpdatedAt = event.published_at;
-                event.object = extendOsmose(theOsmose);
+            case "Start":
+            case "Stop":
+                commonUpdates({
+                    state: data.state,
+                    fonction: data.fonction,
+                    sequence: data.sequence,
+                    alarmNo: data.alarmNo,
+                    alarmMsg: data.alarmMsg,
+                    startStopTime: data.startStopTime,
+                    runTimeSec: data.runTimeSec,
+                });
                 break;
             case "timeCounter":
-                sensor.state = data.state;
-                sensor.TempsOperEnCour = data.TempsOperEnCour;
-                sensor.TempsSeq1234 = data.TempsSeq1234;
-                sensor.TempsSeq4321 = data.TempsSeq4321;
-                sensor.TempsDepuisLavage = data.TempsDepuisLavage;
-                sensor.lastUpdatedAt = event.published_at;
-                event.object = extendOsmose(theOsmose);
+                commonUpdates({
+                    state: data.state,
+                    TempsOperEnCour: data.TempsOperEnCour,
+                    TempsSeq1234: data.TempsSeq1234,
+                    TempsSeq4321: data.TempsSeq4321,
+                    TempsDepuisLavage: data.TempsDepuisLavage,
+                });
                 break;
             case "operData":
-                sensor.sequence = data.sequence;
-                sensor.Col1 = data.Col1;
-                sensor.Col2 = data.Col2;
-                sensor.Col3 = data.Col3;
-                sensor.Col4 = data.Col4;
-                sensor.Conc = data.Conc;
-                sensor.Temp = data.Temp;
-                sensor.Pres = data.Pres;
-                sensor.lastUpdatedAt = event.published_at;
-                event.object = extendOsmose(theOsmose);
+                commonUpdates({
+                    sequence: data.sequence,
+                    Col1: data.Col1,
+                    Col2: data.Col2,
+                    Col3: data.Col3,
+                    Col4: data.Col4,
+                    Conc: data.Conc,
+                    Temp: data.Temp,
+                    Pres: data.Pres,
+                });
                 break;
             case "concData":
-                sensor.sequence = data.sequence;
-                sensor.BrixSeve = data.BrixSeve;
-                sensor.BrixConc = data.BrixConc;
-                sensor.lastUpdatedAt = event.published_at;
-                event.object = extendOsmose(theOsmose);
+                commonUpdates({
+                    sequence: data.sequence,
+                    BrixSeve: data.BrixSeve,
+                    BrixConc: data.BrixConc,
+                });
                 break;
             case "summaryData":
-                sensor.sequence = data.sequence;
-                sensor.PC_Conc = data.PC_Conc;
-                sensor.Conc_GPH = data.Conc_GPH;
-                sensor.Filtrat_GPH = data.Filtrat_GPH;
-                sensor.Total_GPH = data.Total_GPH;
-                sensor.runTimeSec = data.runTimeSec;
-                sensor.lastUpdatedAt = event.published_at;
-                event.object = extendOsmose(theOsmose);
+                commonUpdates({
+                    sequence: data.sequence,
+                    PC_Conc: data.PC_Conc,
+                    Conc_GPH: data.Conc_GPH,
+                    Filtrat_GPH: data.Filtrat_GPH,
+                    Total_GPH: data.Total_GPH,
+                    runTimeSec: data.runTimeSec,
+                });
                 break;
             case "alarm":
-                sensor.state = data.state;
-                sensor.fonction = data.fonction;
-                sensor.sequence = data.sequence;
-                sensor.alarmNo = data.alarmNo;
-                sensor.alarmMsg = data.alarmMsg;
-                sensor.lastUpdatedAt = event.published_at;
-                event.object = extendOsmose(theOsmose);
+                commonUpdates({
+                    state: data.state,
+                    fonction: data.fonction,
+                    sequence: data.sequence,
+                    alarmNo: data.alarmNo,
+                    alarmMsg: data.alarmMsg,
+                });
                 break;
             default:
                 console.warn(
@@ -647,13 +685,17 @@ exports.Dashboard = function (config, WebSocketClient) {
     }
 
     function handleOptoInEvent(device, event, evTopic, value) {
+        const updateValve = (device, valveNumber, value) => {
+            const valve = getValveOfDevice(device, valveNumber);
+            if (valve.device === device.name) {
+                valve.position = positionCode[value + 1];
+                event.object = extendValve(valve);
+            }
+        };
+
         switch (evTopic) {
             case "state":
-                var valve = getValveOfDevice(device, 0);
-                if (valve.device === device.name) {
-                    valve.position = positionCode[value + 1];
-                    event.object = extendValve(valve);
-                }
+                updateValve(device, 0, value);
                 break;
             default:
                 console.warn(
@@ -674,20 +716,17 @@ exports.Dashboard = function (config, WebSocketClient) {
             });
         }
         const value = data.eData;
-        // Some events do not have their name in the payload.
-        // For those, we override the event name from configuration.
+
+        // Override event name from configuration if not present in payload
         if (!data.eName && device.eventName) {
-            // console.log(util.format("Overriding event name to %s for device %s", device.eventName, device.id));
             data.eName = device.eventName;
         }
-        var name = data.eName;
-        if (name) {
-            name = name.trim();
-        }
-        // Some names are wrong...
+
+        let name = data.eName ? data.eName.trim() : "";
         if (name === "Dev1_Vacuum/Lignes") {
             name = "Vacuum/Lignes";
         }
+
         device.lastUpdatedAt = event.published_at;
         console.log(
             "Event '%s' from device: '%s', value: %s",
@@ -695,8 +734,8 @@ exports.Dashboard = function (config, WebSocketClient) {
             device.name,
             value
         );
-        let mainTopic = name.split("/")[0];
-        let subTopic = name.split("/")[1];
+
+        const [mainTopic, subTopic] = name.split("/");
         switch (mainTopic) {
             case "pump":
                 handlePumpEvent(device, event, subTopic, data, value);
@@ -732,9 +771,7 @@ exports.Dashboard = function (config, WebSocketClient) {
 
     function publishData(event, device) {
         return Promise.all(
-            listeners.map(function (listener) {
-                return listener(getData(), event, device);
-            })
+            listeners.map((listener) => listener(getData(), event, device))
         );
     }
 
@@ -742,20 +779,20 @@ exports.Dashboard = function (config, WebSocketClient) {
         if (message.name && message.name.startsWith("collector/")) {
             return handleCollectorMessage(message);
         }
-        var deviceId = message.coreid;
+
+        const deviceId = message.coreid;
         message.data = JSON.parse(message.data);
-        var serialNo = message.data.noSerie;
-        var generationId = message.data.generation;
-        return getDevice(deviceId).then(function (device) {
+        const { noSerie: serialNo, generation: generationId } = message.data;
+
+        return getDevice(deviceId).then((device) => {
             eventsSinceStore++;
-            if (device === undefined) {
+            if (!device) {
                 console.log("Device " + deviceId + " is new!");
                 // TODO This adds duplicate devices to dashboard.json!
                 // return addDevice(new Device(deviceId, "New" + deviceId, generationId, serialNo)).then(handleEvent);
             } else {
-                var handleEventFunc = function () {
-                    return handleEvent(device, message);
-                };
+                const handleEventFunc = () => handleEvent(device, message);
+
                 if (typeof device.generationId === "undefined") {
                     console.log(
                         "First event received for device %s (%s,%s)",
@@ -796,7 +833,6 @@ exports.Dashboard = function (config, WebSocketClient) {
                 } else if (device.lastEventSerial === serialNo) {
                     // Ignoring duplicate event
                 } else {
-                    // console.log(util.format("Old event from device %s in current generation %d: received %d but currently at %d", deviceId, device.generationId, serialNo, device.lastEventSerial), message);
                     return Promise.reject({
                         error: util.format(
                             "Received old event for device %s: %d, %s",
