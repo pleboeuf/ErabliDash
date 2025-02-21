@@ -1,3 +1,4 @@
+"use strict";
 require("dotenv").config();
 // const accessToken = process.env.PARTICLE_TOKEN;
 const fs = require("fs");
@@ -6,9 +7,9 @@ const util = require("util");
 const Promise = require("promise");
 const _ = require("underscore");
 
-const datacerVac = process.env.Endpoint_vac;
-const datacerTank = process.env.Endpoint_tank;
-const datacerWater = process.env.Endpoint_water;
+const datacerVac = process.env.ENDPOINT_VAC;
+const datacerTank = process.env.ENDPOINT_TANK;
+const datacerWater = process.env.ENDPOINT_WATER;
 const datacerAll = process.env.Endpoint_all;
 
 const readFile = Promise.denodeify(fs.readFile);
@@ -190,9 +191,8 @@ async function getDatacerData(url) {
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
         }
-
-        const data = await response.json();
-        return data;
+        const datacerData = await response.json();
+        return datacerData;
     } catch (error) {
         console.error(error.message);
     }
@@ -959,7 +959,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             vacuum: vacuumSensors,
             pumps: pumps.map(extendPump),
             osmose: theOsmose,
-            token: process.env.PARTICLE_TOKEN,
+            // token: process.env.PARTICLE_TOKEN,
         };
     }
 
@@ -979,8 +979,7 @@ exports.Dashboard = function (config, WebSocketClient) {
 
     function extendValve(valve) {
         valve = _.extend({}, valve);
-        valve_name = valve.code;
-        valve_position = valve.position;
+        valve.name = valve.code;
         return valve;
     }
 
@@ -1139,14 +1138,67 @@ exports.Dashboard = function (config, WebSocketClient) {
         }
     }
 
+    // Fonction générique pour mettre à jour les données
+    function updateData(source, destination, keySource) {
+        // Crée un index des codes de destination pour une recherche plus rapide
+        const destinationIndex = destination.reduce((acc, destItem) => {
+            acc[destItem.code] = destItem;
+            return acc;
+        }, {});
+
+        source.forEach((sourceItem) => {
+            const matchingDest = destinationIndex[sourceItem[keySource]];
+            if (matchingDest) {
+                // Mise à jour des valeurs
+                matchingDest.rawValue = parseFloat(sourceItem.rawValue) || 0; // Conversion en nombre
+                matchingDest.lastUpdatedAt = new Date(
+                    sourceItem.lastUpdatedAt
+                ).toISOString(); // Conversion en format ISO
+                // console.log(
+                //     "Datacer: ",
+                //     sourceItem[keySource],
+                //     "  ",
+                //     matchingDest.rawValue
+                // );
+            }
+        });
+    }
+
+    // Fonction pour mettre à jour les données des tanks
+    function updateTankData(source, destination) {
+        updateData(source, destination, "name"); // On passe 'name' comme clé pour la source
+    }
+
+    // Fonction pour mettre à jour les données des vacuum sensors
+    function updateVacuumData(source, destination) {
+        updateData(source, destination, "label"); // On passe 'label' comme clé pour la source
+    }
+
+    // Fonction principale pour lire les données et les mettre à jour
+    async function readDatacer() {
+        try {
+            // const dtcTankData = await getDatacerData(datacerTank);
+            // updateTankData(dtcTankData.tank, tanks);
+
+            const dtcVacuumData = await getDatacerData(datacerVac);
+            updateVacuumData(dtcVacuumData.vacuum, vacuumSensors);
+            console.log("Update from Datacer");
+        } catch (error) {
+            console.error("Erreur lors de la lecture des données :", error);
+        }
+    }
+
     var storeInterval;
+    var datacerInterval;
 
     function start() {
         storeInterval = setInterval(checkStore, 1000 * 5);
+        datacerInterval = setInterval(readDatacer, 1000 * 60);
     }
 
     function stop() {
         clearInterval(storeInterval);
+        clearInterval(datacerInterval);
         return store();
     }
 
