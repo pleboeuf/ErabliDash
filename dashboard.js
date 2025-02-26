@@ -1193,7 +1193,7 @@ exports.Dashboard = function (config, WebSocketClient) {
 
     function start() {
         storeInterval = setInterval(checkStore, 1000 * 5);
-        datacerInterval = setInterval(readDatacer, 1000 * 60);
+        datacerInterval = setInterval(readDatacer, 1000 * 120);
     }
 
     function stop() {
