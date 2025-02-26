@@ -1184,7 +1184,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             updateVacuumData(dtcVacuumData.vacuum, vacuumSensors);
             console.log("Update from Datacer");
         } catch (error) {
-            console.error("Erreur lors de la lecture des données :", error);
+            console.error("Update from Datacer FAILED:", error);
         }
     }
 
