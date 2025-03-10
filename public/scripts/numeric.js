@@ -1,3 +1,5 @@
+const datacerVac = "/api/vacuum"; // Use the new proxy route
+
 function wsUri(path) {
     var l = window.location;
     return (
@@ -8,12 +10,12 @@ function wsUri(path) {
         path
     );
 }
-var jsonElement;
-var websocket;
-let Dos = "1222";
+// var jsonElement;
+let websocket;
+const Dos = "1222";
 
 // Note: Capacity in Liters
-var tankDefs = [
+let tankDefs = [
     {
         code: "RS1",
     },
@@ -48,17 +50,17 @@ var tankDefs = [
         code: "RHC",
     },
 ];
-var devices = [];
-var valves = [];
-var pumps = [];
-var vacuums = [];
-var osmose = [];
-var couleeActive = false;
-var tempAge = 0;
+let devices = [];
+let valves = [];
+let pumps = [];
+let vacuums = [];
+let osmose = [];
+let couleeActive = false;
+let tempAge = 0;
 const maximumAge = 5;
-var actualSiteName;
-var valueRef = {};
-var myToken;
+let actualSiteName;
+let valueRef = {};
+let myToken;
 
 function liters2gallons(liters) {
     return Math.ceil(liters / 4.54609188);
@@ -66,13 +68,14 @@ function liters2gallons(liters) {
 
 function onLoad() {
     openSocket();
-    setInterval(displayDevices, 10000);
-    var myURL = document.URL;
-    var domaineStart = myURL.indexOf("://") + 3;
-    var domaineEnd = myURL.lastIndexOf(":");
-    var thisDomain = myURL.substring(domaineStart, domaineEnd);
-    var thisSiteNameElement = document.getElementById("siteName");
-    var prefix = thisSiteNameElement.innerHTML;
+    const displayDevicesInterval = setInterval(displayDevices, 10000);
+    const datacerInterval = setInterval(readDatacer, 1000 * 60);
+    const myURL = document.URL;
+    const domaineStart = myURL.indexOf("://") + 3;
+    const domaineEnd = myURL.lastIndexOf(":");
+    const thisDomain = myURL.substring(domaineStart, domaineEnd);
+    let thisSiteNameElement = document.getElementById("siteName");
+    let prefix = thisSiteNameElement.innerHTML;
     // if (myURL.search("pl-net.duckdns.org:3300") >= 0 || myURL.search("http://localhost:3300") >= 0) {
     //     prefix = "Serveur Dev. • 'α'";
     // } else if (myURL.search("http://pl-net.duckdns.org:3300") >= 0) {
@@ -83,51 +86,53 @@ function onLoad() {
     // actualSiteName =  prefix + " • " + "(" + thisDomain + ")";
     actualSiteName = prefix;
     thisSiteNameElement.innerHTML = actualSiteName;
+    readDatacer();
+    displayVacuumLignes();
 }
 
 function displayTanks() {
-    var RStotal = 0;
-    var RStotalCap = 0;
-    var RFtotal = 0;
-    var RFtotalCap = 0;
-    var RCtotal = 0;
-    var RCtotalCap = 0;
+    let RStotal = 0;
+    let RStotalCap = 0;
+    let RFtotal = 0;
+    let RFtotalCap = 0;
+    let RCtotal = 0;
+    let RCtotalCap = 0;
     tankDefs.forEach(function (tank) {
-        var tankElementId = "tank_" + tank.code;
-        var tankElement = document.getElementById(tankElementId);
-        var tankNameElementId = tankElementId + "_name";
-        var tankNameElement;
-        var contentsElementId = tankElementId + "_contents";
-        var contentsElement;
-        var percentElementId = tankElementId + "_percent";
-        var percentElement;
-        var rawValueElementId = tankElementId + "_rawvalue";
-        var rawValueElement;
-        var capacityElementId = tankElementId + "_capacity";
-        var capacityElement;
-        var outputElementId = tankElementId + "_output";
-        var outputElement;
-        var drainElementId = tankElementId + "_drain";
-        var drainElement;
+        let tankElementId = "tank_" + tank.code;
+        let tankElement = document.getElementById(tankElementId);
+        let tankNameElementId = tankElementId + "_name";
+        let tankNameElement;
+        let contentsElementId = tankElementId + "_contents";
+        let contentsElement;
+        let percentElementId = tankElementId + "_percent";
+        let percentElement;
+        let rawValueElementId = tankElementId + "_rawvalue";
+        let rawValueElement;
+        let capacityElementId = tankElementId + "_capacity";
+        let capacityElement;
+        let outputElementId = tankElementId + "_output";
+        let outputElement;
+        let drainElementId = tankElementId + "_drain";
+        let drainElement;
 
-        var RStotElement;
-        var RStotPCElem;
-        var RStoSiropElement;
-        var RSdispElement;
-        var RSmaxElement;
+        let RStotElement;
+        let RStotPCElem;
+        let RStoSiropElement;
+        let RSdispElement;
+        let RSmaxElement;
 
-        var RFtotElement;
-        var RFtotPCElement;
-        var RFdispElement;
-        var RFmaxElement;
+        let RFtotElement;
+        let RFtotPCElement;
+        let RFdispElement;
+        let RFmaxElement;
 
-        var RCtotElement;
-        var RCtotPCElement;
-        var RCtoSiropElement;
-        var RCdispElement;
-        var RCmaxElement;
+        let RCtotElement;
+        let RCtotPCElement;
+        let RCtoSiropElement;
+        let RCdispElement;
+        let RCmaxElement;
 
-        var SiropElement;
+        let SiropElement;
 
         if (tankElement == null) {
             tankElement = document.createElement("tr");
@@ -135,7 +140,7 @@ function displayTanks() {
             tankElement.setAttribute("class", "tank");
 
             // Add tank name
-            var nameElement = document.createElement("td");
+            let nameElement = document.createElement("td");
             nameElement.setAttribute("class", "tankname");
             nameElement.setAttribute("id", tankNameElementId);
             nameElement.innerHTML = tank.code;
@@ -248,7 +253,7 @@ function displayTanks() {
             SiropElement = document.getElementById("SIRtotal");
         }
         // Display the data
-        var tankPercent = ((tank.contents / tank.capacity) * 100).toFixed(0);
+        let tankPercent = ((tank.contents / tank.capacity) * 100).toFixed(0);
         tankElement.setAttribute("data-percent", tankPercent);
         capacityElement.innerHTML = liters2gallons(tank.capacity);
         rawValueElement.innerHTML = tank.rawValue;
@@ -259,7 +264,7 @@ function displayTanks() {
         }
 
         // Create the pie chart
-        var gaugeElement = document.createElement("span");
+        let gaugeElement = document.createElement("span");
         gaugeElement.innerHTML = tankPercent + "/100";
         if (tank.code == "RHC") {
             gaugeElement.setAttribute("class", "fueltankgauge");
@@ -274,9 +279,9 @@ function displayTanks() {
 
         // Copy the output valve state from the valve table
         if (tank.output !== "none" && tank.output !== undefined) {
-            var outValveElemId = "valve_" + tank.output + "_position";
-            var outValvePosElem = document.getElementById(outValveElemId);
-            var outValvePos = outValvePosElem.innerHTML;
+            let outValveElemId = "valve_" + tank.output + "_position";
+            let outValvePosElem = document.getElementById(outValveElemId);
+            let outValvePos = outValvePosElem.innerHTML;
             if (typeof outValvePos !== null) {
                 outputElement.innerHTML = outValvePos;
                 setIndicatorColor(outputElement, outValvePos);
@@ -310,19 +315,19 @@ function displayTanks() {
 
         // Copy the drain valve state from the valve table
         if (tank.drain !== "none" && tank.drain !== undefined) {
-            var drainValveElemId = "valve_" + tank.drain + "_position";
-            var drainValvePosElem = document.getElementById(drainValveElemId);
-            var drainValvePos = drainValvePosElem.innerHTML;
+            let drainValveElemId = "valve_" + tank.drain + "_position";
+            let drainValvePosElem = document.getElementById(drainValveElemId);
+            let drainValvePos = drainValvePosElem.innerHTML;
             if (typeof drainValvePos !== null) {
                 drainElement.innerHTML = drainValvePos;
                 setIndicatorColor(drainElement, drainValvePos);
             }
         }
         // Set color of line based on device lastUpdatedAt
-        var tankElem = document.getElementById("tank_" + tank.code);
+        let tankElem = document.getElementById("tank_" + tank.code);
         setAgeColor(tankElem, tank.device);
 
-        var plusRF2Check = document.getElementById("CheckRF2");
+        let plusRF2Check = document.getElementById("CheckRF2");
         if (
             tank.code.search("RS") >= 0 ||
             (plusRF2Check.checked == true && tank.code == "RF2")
@@ -333,7 +338,7 @@ function displayTanks() {
             RStotElement.innerHTML = RStotal.toFixed(0);
             RStotPCElem.innerHTML =
                 ((RStotal / RStotalCap) * 100).toFixed(0) + "%";
-            var seveBrix = document.getElementById("Osmose_BrixSeve").innerHTML;
+            let seveBrix = document.getElementById("Osmose_BrixSeve").innerHTML;
             RStoSiropElement.innerHTML = ((RStotal * seveBrix) / 66.0).toFixed(
                 0
             );
@@ -361,14 +366,14 @@ function displayTanks() {
             RCtotElement.innerHTML = RCtotal.toFixed(0);
             RCtotPCElement.innerHTML =
                 ((RCtotal / RCtotalCap) * 100).toFixed(0) + "%";
-            var concBrix = document.getElementById("Osmose_BrixConc").innerHTML;
+            let concBrix = document.getElementById("Osmose_BrixConc").innerHTML;
             RCtoSiropElement.innerHTML = ((RCtotal * concBrix) / 66.0).toFixed(
                 0
             );
             RCdispElement.innerHTML = (RCtotalCap - RCtotal).toFixed(0);
             RCmaxElement.innerHTML = RCtotalCap.toFixed(0);
-            var seveBrix = document.getElementById("Osmose_BrixSeve").innerHTML;
-            var SiropTotal = (
+            let seveBrix = document.getElementById("Osmose_BrixSeve").innerHTML;
+            let SiropTotal = (
                 (RStotal * seveBrix) / 66.0 +
                 (RCtotal * concBrix) / 66.0
             ).toFixed(0);
@@ -407,8 +412,8 @@ function displayTanks() {
 }
 
 function functionPlusRF2() {
-    var plusRF2Check = document.getElementById("CheckRF2");
-    var RFsummaryNameElement = document.getElementById("RFsummaryName");
+    let plusRF2Check = document.getElementById("CheckRF2");
+    let RFsummaryNameElement = document.getElementById("RFsummaryName");
     if (CheckRF2.checked == true) {
         RFsummaryNameElement.innerHTML = "RF1";
     } else {
@@ -417,7 +422,7 @@ function functionPlusRF2() {
 }
 
 // Get the <span> element that closes the modal
-var span = document.getElementsByClassName("close")[0];
+let span = document.getElementsByClassName("close")[0];
 
 // Open the modal (Sélecteur de valves d'entrée)
 function showValveSelector(Uno) {
@@ -547,23 +552,23 @@ function PHinputValvesOnOff(buttonId, cmd) {
 }
 
 function displayDevices() {
-    var oldestAge = 0;
-    var ageDisplayTop = "";
+    let oldestAge = 0;
+    let ageDisplayTop = "";
     devices.forEach(function (device) {
         if (device.retired) {
             return;
         }
-        var lastUpdatedAtElemId = "device_" + device.name + "_lastUpdatedAt";
-        var generationElemId = "device_" + device.name + "_generationId";
-        var serialElemId = "device_" + device.name + "_serial";
-        var lastUpdatedAtElem;
-        var deviceElemId = "device_" + device.name;
+        let lastUpdatedAtElemId = "device_" + device.name + "_lastUpdatedAt";
+        let generationElemId = "device_" + device.name + "_generationId";
+        let serialElemId = "device_" + device.name + "_serial";
+        let lastUpdatedAtElem;
+        let deviceElemId = "device_" + device.name;
         if (document.getElementById(deviceElemId) == null) {
-            var deviceElem = document.createElement("tr");
+            let deviceElem = document.createElement("tr");
             deviceElem.setAttribute("id", deviceElemId);
             document.getElementById("devicelist").appendChild(deviceElem);
 
-            var nameElement = document.createElement("td");
+            let nameElement = document.createElement("td");
             nameElement.innerHTML = device.name;
             nameElement.setAttribute("class", "darker");
             deviceElem.appendChild(nameElement);
@@ -587,10 +592,10 @@ function displayDevices() {
             generationElem = document.getElementById(generationElemId);
             serialElem = document.getElementById(serialElemId);
         }
-        var ageInMinutes = Math.floor(
+        let ageInMinutes = Math.floor(
             getMinutesAgo(new Date(device.lastUpdatedAt))
         );
-        var ageDisplay = "?";
+        let ageDisplay = "?";
         if (ageInMinutes == 0) {
             ageDisplay = "now";
         } else if (ageInMinutes > 0) {
@@ -610,7 +615,7 @@ function displayDevices() {
         oldestAge = Math.max(ageInMinutes, oldestAge);
         ageDisplayTop = oldestAge + " min.";
         // console.log('oldestAge: ' + oldestAge + ', ageDisplayTop; ' + ageDisplayTop);
-        var lastestUpdateElement = document.getElementById("lastestUpdate");
+        let lastestUpdateElement = document.getElementById("lastestUpdate");
         if (oldestAge > device.maxDelayMinutes) {
             lastestUpdateElement.innerHTML = "Délais:</br>anormal";
             lastestUpdateElement.style.color = "FireBrick";
@@ -621,7 +626,7 @@ function displayDevices() {
 
         // Display outside temperature if available on device RS1
         if (device.name.includes("RS1")) {
-            var tempExtElem = document.getElementById("tempExt");
+            let tempExtElem = document.getElementById("tempExt");
             if (typeof tempExtElem !== "undefined" && tempExtElem !== null) {
                 if (
                     device.ambientTemp !== undefined &&
@@ -643,15 +648,15 @@ function getMinutesAgo(date) {
 
 function displayValves() {
     valves.forEach(function (valve) {
-        var positionElem;
-        var positionElemId = "valve_" + valve.code + "_position";
-        var valveElemId = "valve_" + valve.code;
+        let positionElem;
+        let positionElemId = "valve_" + valve.code + "_position";
+        let valveElemId = "valve_" + valve.code;
         if (document.getElementById(valveElemId) == null) {
-            var valveElem = document.createElement("tr");
+            let valveElem = document.createElement("tr");
             valveElem.setAttribute("id", valveElemId);
             document.getElementById("valvelist").appendChild(valveElem);
 
-            var codeElement = document.createElement("td");
+            let codeElement = document.createElement("td");
             codeElement.innerHTML = valve.code;
             codeElement.setAttribute("class", "darker");
             valveElem.appendChild(codeElement);
@@ -666,8 +671,8 @@ function displayValves() {
         setIndicatorColor(positionElem, valve.position);
         // Copy valve VaEC postion to Autres Valves table
         if (valve.code == "VaEC") {
-            var VaECElemId = valve.code + "_position";
-            var VaECElem = document.getElementById(VaECElemId);
+            let VaECElemId = valve.code + "_position";
+            VaECElem = document.getElementById(VaECElemId);
             if (typeof VaECElem !== "undefined" && VaECElem !== null) {
                 VaECElem.innerHTML = valve.position;
                 setIndicatorColor(VaECElem, valve.position);
@@ -677,8 +682,8 @@ function displayValves() {
         }
         // Copy valve VaTk postion to Autres Valves table
         if (valve.code == "VaTk") {
-            var VaTkElemId = valve.code + "_position";
-            var VaTkElem = document.getElementById(VaTkElemId);
+            let VaTkElemId = valve.code + "_position";
+            VaTkElem = document.getElementById(VaTkElemId);
             if (typeof VaTkElem !== "undefined" && VaTkElem !== null) {
                 VaTkElem.innerHTML = valve.position;
                 setIndicatorColor(VaTkElem, valve.position);
@@ -690,7 +695,7 @@ function displayValves() {
 }
 
 function displaySiteNameOrError(errNo, err) {
-    var thisSiteNameElement = document.getElementById("siteName");
+    let thisSiteNameElement = document.getElementById("siteName");
     if (errNo < 0) {
         thisSiteNameElement.innerHTML = "Alarme Osmose: " + err;
         thisSiteNameElement.style.backgroundColor = "red";
@@ -703,7 +708,7 @@ function displaySiteNameOrError(errNo, err) {
 function displayOsmose() {
     osmose.forEach(function (osm) {
         var stateElem;
-        var stateElemId = "Osmose" + "_state";
+        let stateElemId = "Osmose" + "_state";
         stateElem = document.getElementById(stateElemId);
         if (osm.state == 1) {
             stateElem.innerHTML = "ON";
@@ -714,12 +719,12 @@ function displayOsmose() {
         }
 
         var fonctionElem;
-        var fonctionElemId = "Osmose" + "_fonction";
+        let fonctionElemId = "Osmose" + "_fonction";
         fonctionElem = document.getElementById(fonctionElemId);
         fonctionElem.innerHTML =
             osm.fonction !== undefined ? osm.fonction : "   -indéfini-   ";
         var alarmCodeElem;
-        var alarmCodeElemId = "Osmose" + "_alarmNo";
+        let alarmCodeElemId = "Osmose" + "_alarmNo";
         alarmCodeElem = document.getElementById(alarmCodeElemId);
         if (osm.alarmNo !== undefined) {
             alarmCodeElem.innerHTML = osm.alarmNo;
@@ -728,7 +733,7 @@ function displayOsmose() {
         }
 
         var alarmMsgElem;
-        var alarmMsgElemId = "Osmose_alarmMsg";
+        let alarmMsgElemId = "Osmose_alarmMsg";
         alarmMsgElem = document.getElementById(alarmMsgElemId);
         if (osm.alarmMsg !== undefined) {
             alarmMsgElem.innerHTML = osm.alarmMsg;
@@ -743,8 +748,8 @@ function displayOsmose() {
         }
         displaySiteNameOrError(osm.alarmNo, osm.alarmMsg);
 
-        var seqElem;
-        var seqElemId = "Osmose" + "_sequence";
+        // var seqElem;
+        let seqElemId = "Osmose" + "_sequence";
         seqElem = document.getElementById(seqElemId);
         if (osm.sequence !== undefined) {
             seqElem.innerHTML = osm.sequence;
@@ -1189,7 +1194,7 @@ function displayVacuumLignes() {
                 updatedElem = document.getElementById(updatedElemId);
             }
         }
-        vacuumValue = (vacuum.rawValue + vacuum.offset) / 100;
+        vacuumValue = vacuum.rawValue;
         valueElem.innerHTML = vacuumValue.toFixed(1);
         valueElem.style.textAlign = "right";
 
@@ -1205,18 +1210,19 @@ function displayVacuumLignes() {
             valueRef[vacuum.ref] = vacuumValue;
         }
 
-        vacuumDrop = vacuumValue - valueRef[vacuum.ref];
+        // vacuumDrop = vacuumValue - valueRef[vacuum.ref];
+        vacuumDrop = vacuumValue - vacuum.ref;
         deltaVacElem.innerHTML = vacuumDrop.toFixed(1);
         deltaVacElem.style.textAlign = "right";
         deltaVacElem.style.backgroundColor = setVacuumDropColor(vacuumDrop);
 
         if ("temp" in vacuum) {
-            var vacuumTemp = vacuum.temp;
+            let vacuumTemp = vacuum.temp;
             tempElem.innerHTML = vacuumTemp.toFixed(1);
             tempElem.style.textAlign = "right";
         }
         if ("percentCharge" in vacuum) {
-            var chargeTemp = vacuum.percentCharge;
+            let chargeTemp = vacuum.percentCharge;
             chargeElem.innerHTML = chargeTemp.toFixed(0);
             chargeElem.style.textAlign = "right";
             chargeElem.style.backgroundColor = setBatteryColorLineVacuum(
@@ -1224,25 +1230,25 @@ function displayVacuumLignes() {
             );
         }
         if ("lightIntensity" in vacuum) {
-            var illumTemp = vacuum.lightIntensity;
+            let illumTemp = vacuum.lightIntensity;
             illumElem.innerHTML = illumTemp.toFixed(0);
             illumElem.style.textAlign = "right";
         }
-        if ("rssi" in vacuum) {
-            var signalTemp = "" + vacuum.rssi + ", ?";
-            if ("signalQual" in vacuum) {
-                signalTemp = "" + vacuum.rssi + ", " + vacuum.signalQual;
-            }
-            rssiElem.innerHTML = signalTemp;
-            rssiElem.style.textAlign = "right";
-        }
-        if ("lastUpdate" in vacuum) {
-            var ageInMinutes = Math.floor(
+        // if ("rssi" in vacuum) {
+        //     let signalTemp = "" + vacuum.rssi + ", ?";
+        //     if ("signalQual" in vacuum) {
+        //         signalTemp = "" + vacuum.rssi + ", " + vacuum.signalQual;
+        //     }
+        //     rssiElem.innerHTML = signalTemp;
+        //     rssiElem.style.textAlign = "right";
+        // }
+        if ("lastUpdatedAt" in vacuum) {
+            let ageInMinutes = Math.floor(
                 getMinutesAgo(new Date(vacuum.device.lastUpdatedAt))
             );
             // console.log("ageInMinutes= ", ageInMinutes);
-            updatedTemp = ageInMinutes;
-            updatedElem.innerHTML = updatedTemp.toFixed(0);
+            // updatedTemp = ageInMinutes;
+            updatedElem.innerHTML = ageInMinutes.toFixed(0);
             updatedElem.style.textAlign = "right";
         }
         var vacuumElem = document.getElementById("vacuum_" + vacuum.code);
@@ -1459,6 +1465,7 @@ function toggleStatusColor() {
 }
 
 function openSocket() {
+    let firstLoop = true;
     websocket = new WebSocket(wsUri(""), "dashboard-stream");
     websocket.onopen = function (evt) {
         console.log("Socket opened.");
@@ -1488,7 +1495,10 @@ function openSocket() {
 
             devices = data.devices;
             valves = data.valves;
-            vacuums = data.vacuum;
+            if (firstLoop == true) {
+                vacuums = data.vacuum;
+                firstLoop = false;
+            }
             pumps = data.pumps;
             osmose = data.osmose;
             myToken = data.token;
@@ -1614,5 +1624,87 @@ async function callFunction(devID, fname, fargument) {
 setTimeout(function () {
     window.location.reload(1);
 }, 3600000);
+
+async function getDatacerData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+        const datacerData = await response.json();
+        return datacerData;
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
+function normalizeLabel(label) {
+    return label.replace(/([A-Z])0*/, "$1");
+}
+
+// Fonction générique pour mettre à jour les données
+function updateData(source, destination, keySource) {
+    // Crée un index des codes de destination pour une recherche plus rapide
+    const destinationIndex = destination.reduce((acc, destItem) => {
+        acc[destItem.code] = destItem;
+        return acc;
+    }, {});
+    // Clear existing vacuum data
+    let vacData = [];
+
+    source.forEach((item) => {
+        const matchingDest = destinationIndex[normalizeLabel(item[keySource])];
+        if (matchingDest) {
+            // Mise à jour des valeurs
+            matchingDest.rawValue = parseFloat(item.rawValue) || 0; // Conversion en nombre
+            matchingDest.temp = parseFloat(item.temp) || 0; // Conversion en nombre
+            matchingDest.lastUpdatedAt = item.lastUpdatedAt; // Date
+            matchingDest.percentCharge = parseFloat(item.percentCharge) || 0;
+            matchingDest.ref = parseFloat(item.referencialValue) || 0;
+            matchingDest.offset = item.offset;
+            vacData.push({
+                code: matchingDest.code,
+                label: matchingDest.label,
+                rawValue: matchingDest.rawValue,
+                temp: matchingDest.temp,
+                ref: matchingDest.ref,
+                percentCharge: matchingDest.percentCharge,
+                lightIntensity: 0,
+                rssi: 0,
+                signalQual: 0,
+                lastUpdate: matchingDest.lastUpdatedAt,
+                // device: dev,
+            });
+        }
+    });
+    console.log("vacuums.length: " + vacData.length);
+    return vacData;
+}
+
+// Fonction pour mettre à jour les données des tanks
+// function updateTankData(source, destination) {
+//     updateData(source, destination, "name"); // On passe 'name' comme clé pour la source
+// }
+
+// Fonction pour mettre à jour les données des vacuum sensors
+function updateVacuumData(source, destination) {
+    // vacuums = [];
+    vacuums = updateData(source, destination, "label"); // On passe 'label' comme clé pour la source
+}
+
+// Fonction principale pour lire les données et les mettre à jour
+async function readDatacer() {
+    try {
+        // const dtcTankData = await getDatacerData(datacerTank);
+        // updateTankData(dtcTankData.tank, tanks);
+
+        const dtcVacuumData = await getDatacerData(datacerVac);
+        // vacuums.length = 0;
+        updateVacuumData(dtcVacuumData.vacuum, vacuums);
+        console.log("Update from Datacer");
+    } catch (error) {
+        console.error("Update from Datacer FAILED:", error);
+    }
+}
 
 window.addEventListener("load", onLoad, false);
