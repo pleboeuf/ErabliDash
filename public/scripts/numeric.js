@@ -1124,8 +1124,7 @@ function displayVacuumLignes() {
         var deltaVacElemId = "vacuum_" + vacuum.code + "_deltaVac";
         var tempElemId = "vacuum_" + vacuum.code + "_temp";
         var chargeElemId = "vacuum_" + vacuum.code + "_percentCharge";
-        var illumElemId = "vacuum_" + vacuum.code + "_lightIntensity";
-        var rssiElemId = "vacuum_" + vacuum.code + "_rssi";
+        var vacRefElemId = "vacuum_" + vacuum.code + "_ref";
         var updatedElemId = "vacuum_" + vacuum.code + "_lastUpdate";
         if (document.getElementById(vacuumElemId) == null) {
             var vacuumElem = document.createElement("tr");
@@ -1158,20 +1157,15 @@ function displayVacuumLignes() {
             chargeElem.setAttribute("class", "vacuumtemp");
             vacuumElem.appendChild(chargeElem);
 
-            var illumElem = document.createElement("td");
-            illumElem.setAttribute("id", illumElemId);
-            illumElem.setAttribute("class", "vacuumtemp");
-            vacuumElem.appendChild(illumElem);
-
-            var rssiElem = document.createElement("td");
-            rssiElem.setAttribute("id", rssiElemId);
-            rssiElem.setAttribute("class", "vacuumtemp");
-            vacuumElem.appendChild(rssiElem);
+            var vacRefElem = document.createElement("td");
+            vacRefElem.setAttribute("id", vacRefElemId);
+            vacRefElem.setAttribute("class", "vacuumtemp");
+            vacuumElem.appendChild(vacRefElem);
 
             var updatedElem = document.createElement("td");
             updatedElem.setAttribute("id", updatedElemId);
             updatedElem.setAttribute("class", "vacuumtemp");
-            updatedElem.style.visibility = "collapse";
+            updatedElem.style.visibility = "visible";
             vacuumElem.appendChild(updatedElem);
         } else {
             valueElem = document.getElementById(valueElemId);
@@ -1184,13 +1178,10 @@ function displayVacuumLignes() {
             if ("percentCharge" in vacuum) {
                 chargeElem = document.getElementById(chargeElemId);
             }
-            if ("lightIntensity" in vacuum) {
-                illumElem = document.getElementById(illumElemId);
+            if ("ref" in vacuum) {
+                vacRefElem = document.getElementById(vacRefElemId);
             }
-            if ("rssi" in vacuum) {
-                rssiElem = document.getElementById(rssiElemId);
-            }
-            if ("lastUpdate" in vacuum) {
+            if ("lastUpdatedAt" in vacuum) {
                 updatedElem = document.getElementById(updatedElemId);
             }
         }
@@ -1207,11 +1198,14 @@ function displayVacuumLignes() {
             vacuum.code == "PV2" ||
             vacuum.code == "PV3"
         ) {
-            valueRef[vacuum.ref] = vacuumValue;
+            // valueRef[vacuum.ref] = vacuumValue;
+            vacuumDrop = 0;
+        } else {
+            vacuumDrop = vacuumValue - vacuum.ref;
         }
 
         // vacuumDrop = vacuumValue - valueRef[vacuum.ref];
-        vacuumDrop = vacuumValue - vacuum.ref;
+
         deltaVacElem.innerHTML = vacuumDrop.toFixed(1);
         deltaVacElem.style.textAlign = "right";
         deltaVacElem.style.backgroundColor = setVacuumDropColor(vacuumDrop);
@@ -1229,20 +1223,17 @@ function displayVacuumLignes() {
                 vacuum.percentCharge
             );
         }
-        if ("lightIntensity" in vacuum) {
-            let illumTemp = vacuum.lightIntensity;
-            illumElem.innerHTML = illumTemp.toFixed(0);
-            illumElem.style.textAlign = "right";
+        if ("ref" in vacuum) {
+            let vacRef = vacuum.ref;
+            if (typeof vacRef === "number") {
+                vacRefElem.innerHTML = vacRef.toFixed(1);
+                vacRefElem.style.textAlign = "right";
+            }
         }
-        // if ("rssi" in vacuum) {
-        //     let signalTemp = "" + vacuum.rssi + ", ?";
-        //     if ("signalQual" in vacuum) {
-        //         signalTemp = "" + vacuum.rssi + ", " + vacuum.signalQual;
-        //     }
-        //     rssiElem.innerHTML = signalTemp;
-        //     rssiElem.style.textAlign = "right";
-        // }
         if ("lastUpdatedAt" in vacuum) {
+            if (vacuum.device === undefined) {
+                return;
+            }
             let ageInMinutes = Math.floor(
                 getMinutesAgo(new Date(vacuum.device.lastUpdatedAt))
             );
@@ -1282,7 +1273,7 @@ function displayVacuumErabliere() {
             setAgeColor(videElem, vacuum.device);
         }
         videValElem = document.getElementById(videValElemId);
-        vacValue = (vacuum.rawValue + vacuum.offset) / 100;
+        vacValue = vacuum.rawValue / 100;
         if (videValElem !== null) {
             videValElem.innerHTML = vacValue.toFixed(1);
             videValElem.style.textAlign = "right";
@@ -1305,47 +1296,6 @@ function displayVacuumErabliere() {
                 timeElem.innerHTML = "";
             }
         }
-    });
-}
-
-function displayTemperatures() {
-    devices.forEach(function (device) {
-        var ambientTempElemId = "device_" + device.name + "_ambientTemp";
-        var enclosureTempElemId = "device_" + device.name + "_enclosureTemp";
-        var sensorUS100TempElemId = "device_" + device.name + "_sensorTemp";
-        var lastUpdatedAtElem;
-        var deviceElemId = "device_" + device.name;
-        if (document.getElementById(deviceElemId) == null) {
-            var deviceElem = document.createElement("tr");
-            deviceElem.setAttribute("id", deviceElemId);
-            document.getElementById("temperaturelist").appendChild(deviceElem);
-
-            var nameElement = document.createElement("td");
-            nameElement.innerHTML = device.name;
-            deviceElem.appendChild(nameElement);
-
-            ambientTempElem = document.createElement("td");
-            ambientTempElem.setAttribute("id", ambientTempElemId);
-            deviceElem.appendChild(ambientTempElem);
-
-            enclosureTempElem = document.createElement("td");
-            enclosureTempElem.setAttribute("id", enclosureTempElemId);
-            deviceElem.appendChild(enclosureTempElem);
-
-            sensorUS100TempElem = document.createElement("td");
-            sensorUS100TempElem.setAttribute("id", sensorUS100TempElemId);
-            deviceElem.appendChild(sensorUS100TempElem);
-        } else {
-            ambientTempElem = document.getElementById(ambientTempElemId);
-            enclosureTempElem = document.getElementById(enclosureTempElemId);
-            sensorUS100TempElem = document.getElementById(
-                sensorUS100TempElemId
-            );
-        }
-
-        ambientTempElem.innerHTML = device.ambientTempElemId;
-        enclosureTempElem.innerHTML = device.enclosureTempElemId;
-        sensorUS100TempElem.innerHTML = device.sensorTemp;
     });
 }
 
@@ -1374,6 +1324,9 @@ function setPumpWarning(deviceElem, warningState) {
 }
 
 function setAgeColor(displayElem, deviceDevice) {
+    if (deviceDevice === undefined) {
+        return;
+    }
     try {
         var lastUpdatedAtElemId = "device_" + deviceDevice + "_lastUpdatedAt";
         if (
@@ -1390,11 +1343,14 @@ function setAgeColor(displayElem, deviceDevice) {
             }
         }
     } catch (err) {
-        console.log("lastUpdatedAtElemId: " + lastUpdatedAtElemId + " " + err);
+        console.log("lastUpdatedAtElemId: " + deviceDevice + " " + err);
     }
 }
 
 function setAgeLineVacuum(displayElem, deviceDevice) {
+    if (deviceDevice === undefined) {
+        return;
+    }
     try {
         var lastUpdatedAtElemId = "device_" + deviceDevice + "_lastUpdatedAt";
         if (
@@ -1411,7 +1367,7 @@ function setAgeLineVacuum(displayElem, deviceDevice) {
             }
         }
     } catch (err) {
-        console.log("lastUpdatedAtElemId: " + lastUpdatedAtElemId + " " + err);
+        console.log("lastUpdatedAtElemId: " + deviceDevice + " " + err);
     }
 }
 
@@ -1511,7 +1467,6 @@ function openSocket() {
         displayVacuumErabliere();
         displayVacuumLignes();
         displayOsmose();
-        // displayTemperatures();
         toggleStatusColor();
     };
     websocket.onerror = function (evt) {
@@ -1664,6 +1619,7 @@ function updateData(source, destination, keySource) {
             matchingDest.offset = item.offset;
             vacData.push({
                 code: matchingDest.code,
+                device: item.device,
                 label: matchingDest.label,
                 rawValue: matchingDest.rawValue,
                 temp: matchingDest.temp,
@@ -1672,7 +1628,7 @@ function updateData(source, destination, keySource) {
                 lightIntensity: 0,
                 rssi: 0,
                 signalQual: 0,
-                lastUpdate: matchingDest.lastUpdatedAt,
+                lastUpdatedAt: matchingDest.lastUpdatedAt,
                 // device: dev,
             });
         }
@@ -1688,7 +1644,6 @@ function updateData(source, destination, keySource) {
 
 // Fonction pour mettre à jour les données des vacuum sensors
 function updateVacuumData(source, destination) {
-    // vacuums = [];
     vacuums = updateData(source, destination, "label"); // On passe 'label' comme clé pour la source
 }
 
@@ -1699,7 +1654,6 @@ async function readDatacer() {
         // updateTankData(dtcTankData.tank, tanks);
 
         const dtcVacuumData = await getDatacerData(datacerVac);
-        // vacuums.length = 0;
         updateVacuumData(dtcVacuumData.vacuum, vacuums);
         console.log("Update from Datacer");
     } catch (error) {

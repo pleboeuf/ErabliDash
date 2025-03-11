@@ -959,7 +959,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             vacuum: vacuumSensors,
             pumps: pumps.map(extendPump),
             osmose: theOsmose,
-            // token: process.env.PARTICLE_TOKEN,
+            token: process.env.PARTICLE_TOKEN,
         };
     }
 
