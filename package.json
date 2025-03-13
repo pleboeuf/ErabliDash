@@ -6,11 +6,13 @@
         "start": "node app.js"
     },
     "dependencies": {
+        "cors": "^2.8.5",
         "dotenv": "^16.4.7",
         "express": "^4.21.1",
         "influx": "^5.9.3",
         "json-schema": "^0.4.0",
         "mime": "1.4.1",
+        "node-fetch": "^3.3.2",
         "npm": "^9.9.0",
         "particle-api-js": "^10.6.0",
         "promise": "^8.3.0",
