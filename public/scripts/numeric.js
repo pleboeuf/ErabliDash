@@ -551,92 +551,90 @@ function PHinputValvesOnOff(buttonId, cmd) {
     }
 }
 
+function createCell(id, className, parentElem) {
+    let cell = document.createElement("td");
+    if (id) cell.setAttribute("id", id);
+    cell.setAttribute("class", className);
+    parentElem.appendChild(cell);
+    return cell;
+}
+
 function displayDevices() {
     let oldestAge = 0;
-    let ageDisplayTop = "";
+    const devicelistElem = document.getElementById("devicelist");
+    const latestUpdateElement = document.getElementById("lastestUpdate");
     devices.forEach(function (device) {
-        if (device.retired) {
-            return;
-        }
-        let lastUpdatedAtElemId = "device_" + device.name + "_lastUpdatedAt";
-        let generationElemId = "device_" + device.name + "_generationId";
-        let serialElemId = "device_" + device.name + "_serial";
-        let lastUpdatedAtElem;
-        let deviceElemId = "device_" + device.name;
-        if (document.getElementById(deviceElemId) == null) {
-            let deviceElem = document.createElement("tr");
+        if (device.retired) return;
+
+        const deviceElemId = `device_${device.name}`;
+        const lastUpdatedAtElemId = `${deviceElemId}_lastUpdatedAt`;
+        const generationElemId = `${deviceElemId}_generationId`;
+        const serialElemId = `${deviceElemId}_serial`;
+
+        let deviceElem = document.getElementById(deviceElemId);
+        if (!deviceElem) {
+            deviceElem = document.createElement("tr");
             deviceElem.setAttribute("id", deviceElemId);
-            document.getElementById("devicelist").appendChild(deviceElem);
+            devicelistElem.appendChild(deviceElem);
 
-            let nameElement = document.createElement("td");
+            // Create table cells
+            const nameElement = createCell(null, "darker", deviceElem);
             nameElement.innerHTML = device.name;
-            nameElement.setAttribute("class", "darker");
-            deviceElem.appendChild(nameElement);
-
-            lastUpdatedAtElem = document.createElement("td");
-            lastUpdatedAtElem.setAttribute("id", lastUpdatedAtElemId);
-            lastUpdatedAtElem.setAttribute("class", "lighter");
-            deviceElem.appendChild(lastUpdatedAtElem);
-
-            generationElem = document.createElement("td");
-            generationElem.setAttribute("id", generationElemId);
-            generationElem.setAttribute("class", "lighter");
-            deviceElem.appendChild(generationElem);
-
-            serialElem = document.createElement("td");
-            serialElem.setAttribute("id", serialElemId);
-            serialElem.setAttribute("class", "lighter rawvalue");
-            deviceElem.appendChild(serialElem);
-        } else {
-            lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
-            generationElem = document.getElementById(generationElemId);
-            serialElem = document.getElementById(serialElemId);
+            createCell(lastUpdatedAtElemId, "lighter", deviceElem);
+            createCell(generationElemId, "lighter", deviceElem);
+            createCell(serialElemId, "lighter rawvalue", deviceElem);
         }
-        let ageInMinutes = Math.floor(
+
+        const lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
+        const generationElem = document.getElementById(generationElemId);
+        const serialElem = document.getElementById(serialElemId);
+
+        const ageInMinutes = Math.floor(
             getMinutesAgo(new Date(device.lastUpdatedAt))
         );
-        let ageDisplay = "?";
-        if (ageInMinutes == 0) {
-            ageDisplay = "now";
-        } else if (ageInMinutes > 0) {
-            ageDisplay = ageInMinutes + " min.";
+
+        let ageDisplay = ageInMinutes === 0 ? "now" : `${ageInMinutes} min.`;
+        if (isNaN(ageInMinutes) || ageInMinutes === NaN) {
+            ageDisplay = "---";
         }
-        if (ageInMinutes > device.maxDelayMinutes || ageDisplay == "?") {
-            lastUpdatedAtElem.style.color = "FireBrick";
-        } else {
-            lastUpdatedAtElem.style.color = "black";
-        }
+
         lastUpdatedAtElem.innerHTML = ageDisplay;
-        generationElem.innerHTML = device.generationId;
-        serialElem.innerHTML = device.lastEventSerial;
 
-        // Display the yongest age at the top of the screen.
-        // If more than 5 min. there's a problem.
-        oldestAge = Math.max(ageInMinutes, oldestAge);
-        ageDisplayTop = oldestAge + " min.";
-        // console.log('oldestAge: ' + oldestAge + ', ageDisplayTop; ' + ageDisplayTop);
-        let lastestUpdateElement = document.getElementById("lastestUpdate");
-        if (oldestAge > device.maxDelayMinutes) {
-            lastestUpdateElement.innerHTML = "Délais:</br>anormal";
-            lastestUpdateElement.style.color = "FireBrick";
+        lastUpdatedAtElem.style.color =
+            ageInMinutes > device.maxDelayMinutes || ageDisplay === "?"
+                ? "FireBrick"
+                : "black";
+
+        if (device.generationId !== undefined) {
+            generationElem.innerHTML = device.generationId;
+            serialElem.innerHTML = device.lastEventSerial;
         } else {
-            lastestUpdateElement.innerHTML = "Délais:</br>normal";
-            lastestUpdateElement.style.color = "white";
+            generationElem.innerHTML = "---";
+            generationElem.style.textAlign = "center";
+            serialElem.innerHTML = "---";
+            serialElem.style.textAlign = "center";
         }
 
-        // Display outside temperature if available on device RS1
+        oldestAge = Math.max(ageInMinutes, oldestAge);
+        const ageDisplayTop = `${oldestAge} min.`;
+        if (oldestAge > device.maxDelayMinutes) {
+            latestUpdateElement.innerHTML = "Délais:</br>anormal";
+            latestUpdateElement.style.color = "FireBrick";
+        } else {
+            latestUpdateElement.innerHTML = "Délais:</br>normal";
+            latestUpdateElement.style.color = "white";
+        }
+
         if (device.name.includes("RS1")) {
-            let tempExtElem = document.getElementById("tempExt");
-            if (typeof tempExtElem !== "undefined" && tempExtElem !== null) {
-                if (
+            const tempExtElem = document.getElementById("tempExt");
+            if (tempExtElem) {
+                const isTempValid =
                     device.ambientTemp !== undefined &&
                     device.ambientTemp !== 99 &&
-                    device.ambientTemp !== -127
-                ) {
-                    tempExtElem.innerHTML = device.ambientTemp + "°C";
-                } else {
-                    tempExtElem.innerHTML = "---°C";
-                }
+                    device.ambientTemp !== -127;
+                tempExtElem.innerHTML = isTempValid
+                    ? `${device.ambientTemp}°C`
+                    : "---°C";
             }
         }
     });
@@ -947,98 +945,66 @@ function secToHrMin(totalSec) {
 }
 
 function displayPumps() {
-    var totalRate = 0;
-    var totalVolume = 0;
-    var gph = 0;
-    var pumpDuty = 0;
-    var dateStart;
-    allWaterPumps = [false, false, false];
+    let totalRate = 0;
+    let totalVolume = 0;
+    let pumpDuty = 0;
+    let dateStart;
+    const allWaterPumps = [false, false, false];
+
     pumps.forEach(function (pump) {
-        var PVvacId;
-        var codeElement;
-        var codeElementId = "pump_" + pump.code;
-        var stateElem;
-        var stateElemId = "pump_" + pump.code + "_state";
-        var dutyElem;
-        var dutyElemId = "pump_" + pump.code + "_duty";
-        var rateElem;
-        var rateElemId = "pump_" + pump.code + "_rate";
-        var volumeElem;
-        var volumeElemId = "pump_" + pump.code + "_volume";
-        var pumpElemId = "pump_" + pump.code;
-        var pumpElem = document.getElementById(pumpElemId);
-        var SiropElem = document.getElementById("estimSirop");
-        var debitSiropElem = document.getElementById("debitEstimSirop");
-        if (document.getElementById(pumpElemId) == null) {
-            var pumpElem = document.createElement("tr");
+        const pumpElemId = `pump_${pump.code}`;
+        const stateElemId = `${pumpElemId}_state`;
+        const dutyElemId = `${pumpElemId}_duty`;
+        const rateElemId = `${pumpElemId}_rate`;
+        const volumeElemId = `${pumpElemId}_volume`;
+
+        let pumpElem = document.getElementById(pumpElemId);
+        if (!pumpElem) {
+            pumpElem = document.createElement("tr");
             pumpElem.setAttribute("id", pumpElemId);
-            var totalRow = document.getElementById("pumptotalrow");
+            const totalRow = document.getElementById("pumptotalrow");
             totalRow.parentElement.insertBefore(pumpElem, totalRow);
 
-            codeElement = document.createElement("td");
-            codeElement.innerHTML = pump.code;
-            pumpElem.setAttribute("class", "pumpcode");
-            // pumpElem.setAttribute('class', 'darker');
-            pumpElem.appendChild(codeElement);
-
-            stateElem = document.createElement("td");
-            stateElem.setAttribute("id", stateElemId);
-            stateElem.setAttribute("class", "pumpstate");
-            pumpElem.appendChild(stateElem);
-
-            dutyElem = document.createElement("td");
-            dutyElem.setAttribute("id", dutyElemId);
-            dutyElem.setAttribute("class", "pumpduty");
-            pumpElem.appendChild(dutyElem);
-
-            rateElem = document.createElement("td");
-            rateElem.setAttribute("id", rateElemId);
-            rateElem.setAttribute("class", "pumprate");
-            pumpElem.appendChild(rateElem);
-
-            volumeElem = document.createElement("td");
-            volumeElem.setAttribute("id", volumeElemId);
-            volumeElem.setAttribute("class", "pumpvolume");
-            pumpElem.appendChild(volumeElem);
-        } else {
-            stateElem = document.getElementById(stateElemId);
-            dutyElem = document.getElementById(dutyElemId);
-            rateElem = document.getElementById(rateElemId);
-            volumeElem = document.getElementById(volumeElemId);
-            SiropElem = document.getElementById("estimSirop");
-            debitSiropElem = document.getElementById("debitEstimSirop");
+            // Création des cellules via createCell
+            createCell(null, "pumpcode", pumpElem).innerHTML = pump.code;
+            createCell(stateElemId, "pumpstate", pumpElem);
+            createCell(dutyElemId, "pumpduty", pumpElem);
+            createCell(rateElemId, "pumprate", pumpElem);
+            createCell(volumeElemId, "pumpvolume", pumpElem);
         }
+
+        const stateElem = document.getElementById(stateElemId);
+        const dutyElem = document.getElementById(dutyElemId);
+        const rateElem = document.getElementById(rateElemId);
+        const volumeElem = document.getElementById(volumeElemId);
+
         setPumpWarning(pumpElem, pump.run2long);
+
         if (pump.code.includes("Vide")) {
-            var pvid = "vacuum_PV" + pump.code.charAt(4) + "_value";
-            PVvacId = document.getElementById(pvid);
-            if (PVvacId !== null) {
+            const pvid = `vacuum_PV${pump.code.charAt(4)}_value`;
+            const PVvacId = document.getElementById(pvid);
+            if (PVvacId) {
                 if (
-                    pump.state == true ||
-                    (PVvacId.innerHTML < -10 && pump.state == false)
+                    pump.state === true ||
+                    (PVvacId.innerHTML < -10 && pump.state === false)
                 ) {
                     pump.state = true;
-                } else if (PVvacId.innerHTML > -5 && pump.state == true) {
+                } else if (PVvacId.innerHTML > -5 && pump.state === true) {
                     pump.state = false;
                 }
             }
         }
+
         stateElem.innerHTML = pump.state ? "ON" : "OFF";
         setIndicatorColor(stateElem, pump.state);
-        if (pump.duty !== undefined && pump.duty > 0) {
-            // var rate = pump.duty * pump.capacity_gph;
-            var rate = (3600 * pump.Volume_Relacheur) / pump.OFFtime;
-            // if (pump.duty !== undefined && pump.duty >= 0) {
-            //     var rate_out = pump.duty * pump.capacity_gph;
-            //     var rate_in = (3600 * pump.Volume_Relacheur) / pump.OFFtime;
-            //     var rate = (rate_in + rate_out) / 2;
-        } else {
-            var rate = 0;
-        }
-        if (pump.volume !== undefined && pump.volume >= 0) {
-            var volume = Math.abs(pump.volume);
-        }
-        if (pump.code == "P1" || pump.code == "P2" || pump.code == "P3") {
+
+        const rate =
+            pump.duty && pump.duty > 0
+                ? (3600 * pump.Volume_Relacheur) / pump.OFFtime
+                : 0;
+        const volume = pump.volume !== undefined ? Math.abs(pump.volume) : 0;
+
+        if (["P1", "P2", "P3"].includes(pump.code)) {
             totalRate += rate;
             totalVolume += volume;
             pumpDuty = (pump.duty * 100).toFixed(1);
@@ -1046,42 +1012,37 @@ function displayPumps() {
             rateElem.innerHTML = parseInt(rate) || "";
             volumeElem.innerHTML = parseInt(volume) || "";
 
-            // Noter l'état de coulée des pompes.
-            if (pump.couleeEnCour !== undefined) {
-                if (pump.code == "P1") {
-                    allWaterPumps[0] = pump.couleeEnCour;
-                    if (allWaterPumps[0]) {
-                        dateStart = pump.debutDeCouleeTS;
-                    }
-                } else if (pump.code == "P2") {
-                    allWaterPumps[1] = pump.couleeEnCour;
-                    if (allWaterPumps[1]) {
-                        dateStart = pump.debutDeCouleeTS;
-                    }
-                } else if (pump.code == "P3") {
-                    allWaterPumps[2] = pump.couleeEnCour;
-                    if (allWaterPumps[2]) {
-                        dateStart = pump.debutDeCouleeTS;
-                    }
+            // Enregistrer l'état des pompes
+            const pumpIndex = ["P1", "P2", "P3"].indexOf(pump.code);
+            if (pump.couleeEnCour !== undefined && pumpIndex >= 0) {
+                allWaterPumps[pumpIndex] = pump.couleeEnCour;
+                if (allWaterPumps[pumpIndex]) {
+                    dateStart = pump.debutDeCouleeTS;
                 }
             }
         }
-        // Set color of line based on device lastUpdatedAt
-        var codeElem = document.getElementById("pump_" + pump.code);
-        setAgeColor(codeElem, pump.device);
+
+        setAgeColor(document.getElementById(`pump_${pump.code}`), pump.device);
     });
-    checkCouleeEnCour(allWaterPumps, dateStart); // Gérer le message de coulée en cours
-    var totalRateElem = document.getElementById("pumptotalrate");
+
+    checkCouleeEnCour(allWaterPumps, dateStart);
+
+    const totalRateElem = document.getElementById("pumptotalrate");
     totalRateElem.innerHTML = parseInt(totalRate) || 0;
-    var totalVolumeElem = document.getElementById("volumetotal");
+
+    const totalVolumeElem = document.getElementById("volumetotal");
     totalVolumeElem.innerHTML = parseInt(totalVolume) || 0;
-    var seveBrix = document.getElementById("Osmose_BrixSeve").innerHTML;
-    var debitSirop = (seveBrix * parseInt(totalRate)) / 66.0;
+
+    const seveBrix = document.getElementById("Osmose_BrixSeve").innerHTML;
+    let debitSirop = (seveBrix * totalRate) / 66.0;
     debitSirop = isNaN(debitSirop) ? 0 : debitSirop;
-    var totalSirop = (seveBrix * parseInt(totalVolume)) / 66.0;
-    SiropElem = document.getElementById("estimSirop");
+
+    let totalSirop = (seveBrix * totalVolume) / 66.0;
+
+    const SiropElem = document.getElementById("estimSirop");
     SiropElem.innerHTML = totalSirop.toFixed(0) || 0;
-    debitSiropElem = document.getElementById("debitEstimSirop");
+
+    const debitSiropElem = document.getElementById("debitEstimSirop");
     debitSiropElem.innerHTML = debitSirop.toFixed(1) || 0.0;
 }
 
@@ -1116,139 +1077,106 @@ function checkCouleeEnCour(allWaterPumps, dateStart) {
 
 function displayVacuumLignes() {
     vacuums.forEach(function (vacuum) {
-        var vacuumValue = 0;
-        var vacuumTemp = 0;
-        var vacuumDrop = 0;
-        var valueElemId = "vacuum_" + vacuum.code + "_value";
-        var vacuumElemId = "vacuum_" + vacuum.code;
-        var deltaVacElemId = "vacuum_" + vacuum.code + "_deltaVac";
-        var tempElemId = "vacuum_" + vacuum.code + "_temp";
-        var chargeElemId = "vacuum_" + vacuum.code + "_percentCharge";
-        var vacRefElemId = "vacuum_" + vacuum.code + "_ref";
-        var updatedElemId = "vacuum_" + vacuum.code + "_lastUpdate";
-        if (document.getElementById(vacuumElemId) == null) {
-            var vacuumElem = document.createElement("tr");
+        let vacuumValue = 0;
+        let vacuumDrop = 0;
+
+        const vacuumElemId = `vacuum_${vacuum.code}`;
+        const valueElemId = `${vacuumElemId}_value`;
+        const deltaVacElemId = `${vacuumElemId}_deltaVac`;
+        const tempElemId = `${vacuumElemId}_temp`;
+        const chargeElemId = `${vacuumElemId}_percentCharge`;
+        const vacRefElemId = `${vacuumElemId}_ref`;
+        const updatedElemId = `${vacuumElemId}_lastUpdate`;
+
+        let vacuumElem = document.getElementById(vacuumElemId);
+        let skipped = ["V1", "V2", "V3", "PV1", "PV2", "PV3"].includes(
+            vacuum.code
+        );
+        if (!vacuumElem && !skipped) {
+            vacuumElem = document.createElement("tr");
             vacuumElem.setAttribute("id", vacuumElemId);
             document.getElementById("vacuumlist").appendChild(vacuumElem);
 
-            var codeElement = document.createElement("td");
-            codeElement.innerHTML = vacuum.label;
-            codeElement.setAttribute("class", "vacuumcode");
-            vacuumElem.appendChild(codeElement);
-
-            var valueElem = document.createElement("td");
-            valueElem.setAttribute("id", valueElemId);
-            valueElem.setAttribute("class", "vacuumtemp");
-            vacuumElem.appendChild(valueElem);
-
-            // Perte de vide sur la ligne
-            var deltaVacElem = document.createElement("td");
-            deltaVacElem.setAttribute("id", deltaVacElemId);
-            deltaVacElem.setAttribute("class", "vacuumtemp");
-            vacuumElem.appendChild(deltaVacElem);
-
-            var tempElem = document.createElement("td");
-            tempElem.setAttribute("id", tempElemId);
-            tempElem.setAttribute("class", "vacuumtemp");
-            vacuumElem.appendChild(tempElem);
-
-            var chargeElem = document.createElement("td");
-            chargeElem.setAttribute("id", chargeElemId);
-            chargeElem.setAttribute("class", "vacuumtemp");
-            vacuumElem.appendChild(chargeElem);
-
-            var vacRefElem = document.createElement("td");
-            vacRefElem.setAttribute("id", vacRefElemId);
-            vacRefElem.setAttribute("class", "vacuumtemp");
-            vacuumElem.appendChild(vacRefElem);
-
-            var updatedElem = document.createElement("td");
-            updatedElem.setAttribute("id", updatedElemId);
-            updatedElem.setAttribute("class", "vacuumtemp");
-            updatedElem.style.visibility = "visible";
-            vacuumElem.appendChild(updatedElem);
-        } else {
-            valueElem = document.getElementById(valueElemId);
-            if ("temp" in vacuum) {
-                tempElem = document.getElementById(tempElemId);
-            }
-            if ("ref" in vacuum) {
-                deltaVacElem = document.getElementById(deltaVacElemId);
-            }
-            if ("percentCharge" in vacuum) {
-                chargeElem = document.getElementById(chargeElemId);
-            }
-            if ("ref" in vacuum) {
-                vacRefElem = document.getElementById(vacRefElemId);
-            }
-            if ("lastUpdatedAt" in vacuum) {
-                updatedElem = document.getElementById(updatedElemId);
-            }
+            // Création des cellules via la fonction utilitaire
+            createCell(null, "vacuumcode", vacuumElem).innerHTML = vacuum.label;
+            createCell(valueElemId, "vacuumtemp", vacuumElem);
+            createCell(deltaVacElemId, "vacuumtemp", vacuumElem);
+            createCell(tempElemId, "vacuumtemp", vacuumElem);
+            createCell(chargeElemId, "vacuumtemp", vacuumElem);
+            createCell(vacRefElemId, "vacuumtemp", vacuumElem);
+            const updatedCell = createCell(
+                updatedElemId,
+                "vacuumtemp",
+                vacuumElem
+            );
+            updatedCell.style.visibility = "visible";
         }
-        vacuumValue = vacuum.rawValue;
-        valueElem.innerHTML = vacuumValue.toFixed(1);
-        valueElem.style.textAlign = "right";
 
-        // Sauve les valeurs de références pour le calcul des perte de vide
-        if (
-            vacuum.code == "V1" ||
-            vacuum.code == "V2" ||
-            vacuum.code == "V3" ||
-            vacuum.code == "PV1" ||
-            vacuum.code == "PV2" ||
-            vacuum.code == "PV3"
-        ) {
-            // valueRef[vacuum.ref] = vacuumValue;
+        // Mise à jour des valeurs dynamiques
+        const valueElem = document.getElementById(valueElemId);
+        const deltaVacElem = document.getElementById(deltaVacElemId);
+        const tempElem = document.getElementById(tempElemId);
+        const chargeElem = document.getElementById(chargeElemId);
+        const vacRefElem = document.getElementById(vacRefElemId);
+        const updatedElem = document.getElementById(updatedElemId);
+
+        vacuumValue = vacuum.rawValue;
+
+        // Calcul des pertes de vide
+        if (["V1", "V2", "V3", "PV1", "PV2", "PV3"].includes(vacuum.code)) {
+            vacuumValue = vacuum.rawValue;
             vacuumDrop = 0;
         } else {
             vacuumDrop = vacuumValue - vacuum.ref;
         }
 
-        // vacuumDrop = vacuumValue - valueRef[vacuum.ref];
+        valueElem.innerHTML = vacuumValue.toFixed(1);
+        valueElem.style.textAlign = "right";
 
         deltaVacElem.innerHTML = vacuumDrop.toFixed(1);
         deltaVacElem.style.textAlign = "right";
         deltaVacElem.style.backgroundColor = setVacuumDropColor(vacuumDrop);
 
         if ("temp" in vacuum) {
-            let vacuumTemp = vacuum.temp;
-            tempElem.innerHTML = vacuumTemp.toFixed(1);
+            tempElem.innerHTML = vacuum.temp.toFixed(1);
             tempElem.style.textAlign = "right";
         }
+
         if ("percentCharge" in vacuum) {
-            let chargeTemp = vacuum.percentCharge;
-            chargeElem.innerHTML = chargeTemp.toFixed(0);
+            chargeElem.innerHTML = vacuum.percentCharge.toFixed(0);
             chargeElem.style.textAlign = "right";
             chargeElem.style.backgroundColor = setBatteryColorLineVacuum(
                 vacuum.percentCharge
             );
         }
+
         if ("ref" in vacuum) {
-            let vacRef = vacuum.ref;
-            if (typeof vacRef === "number") {
-                vacRefElem.innerHTML = vacRef.toFixed(1);
+            if (typeof vacuum.ref === "number") {
+                vacRefElem.innerHTML = vacuum.ref.toFixed(1);
                 vacRefElem.style.textAlign = "right";
             }
         }
+
         if ("lastUpdatedAt" in vacuum) {
-            if (vacuum.device === undefined) {
-                return;
-            }
-            let ageInMinutes = Math.floor(
-                getMinutesAgo(new Date(vacuum.device.lastUpdatedAt))
+            if (vacuum.device === undefined) return;
+
+            const ageInMinutes = Math.floor(
+                getMinutesAgo(new Date(vacuum.lastUpdatedAt))
             );
-            // console.log("ageInMinutes= ", ageInMinutes);
-            // updatedTemp = ageInMinutes;
-            updatedElem.innerHTML = ageInMinutes.toFixed(0);
+            const ageDisplay =
+                ageInMinutes === 0 ? "now" : `${ageInMinutes} min.`;
+
+            updatedElem.innerHTML = ageDisplay;
             updatedElem.style.textAlign = "right";
         }
-        var vacuumElem = document.getElementById("vacuum_" + vacuum.code);
-        setAgeColor(vacuumElem, vacuum.device);
-        updatedElem = document.getElementById(updatedElemId);
-        setAgeLineVacuum(updatedElem, vacuum.device);
+        // var vacuumElem = document.getElementById("vacuum_" + vacuum.code);
+        // setAgeColor(vacuumElem, vacuum.device);
+        // updatedElem = document.getElementById(updatedElemId);
+        // setAgeLineVacuum(updatedElem, vacuum.device);
     });
 }
 
+// Affichage des pompes et relâcheurs dans les première lignes du tableau Vacuum
 function displayVacuumErabliere() {
     let videElemId;
     let videElem;
@@ -1261,7 +1189,14 @@ function displayVacuumErabliere() {
     const alarmLimit = 216000;
 
     vacuums.forEach(function (vacuum) {
-        if (vacuum.label.indexOf("Ligne") == 0) return;
+        // if (vacuum.label.indexOf("Ligne") !== 0) return;
+        if (
+            !["Vac3-POMPE 1", "Vac3-POMPE 2", "Vac3-POMPE PUMP HOUSE"].includes(
+                vacuum.label
+            )
+        ) {
+            return;
+        }
 
         videElemId = "name_" + vacuum.code;
         videValElemId = "val_" + vacuum.code;
@@ -1273,7 +1208,7 @@ function displayVacuumErabliere() {
             setAgeColor(videElem, vacuum.device);
         }
         videValElem = document.getElementById(videValElemId);
-        vacValue = vacuum.rawValue / 100;
+        vacValue = vacuum.rawValue;
         if (videValElem !== null) {
             videValElem.innerHTML = vacValue.toFixed(1);
             videValElem.style.textAlign = "right";
@@ -1343,7 +1278,7 @@ function setAgeColor(displayElem, deviceDevice) {
             }
         }
     } catch (err) {
-        console.log("lastUpdatedAtElemId: " + deviceDevice + " " + err);
+        // console.log("lastUpdatedAtElemId: " + deviceDevice + " " + err);
     }
 }
 
@@ -1373,9 +1308,9 @@ function setAgeLineVacuum(displayElem, deviceDevice) {
 
 function setBatteryColorLineVacuum(percentCharge) {
     try {
-        if (percentCharge >= 60) {
+        if (percentCharge >= 50) {
             return "#e6e6e6"; // Light gray - Normal. 70% et plus
-        } else if (percentCharge >= 40) {
+        } else if (percentCharge >= 30) {
             return "Orange"; // Orange - Faible. Entre 50% et 69%
         } else {
             return "Red"; // Red - Critique. Moins de 50%
@@ -1589,7 +1524,8 @@ async function getDatacerData(url) {
         const datacerData = await response.json();
         return datacerData;
     } catch (error) {
-        console.error(error.message);
+        console.warn(error.message);
+        return null;
     }
 }
 
@@ -1599,41 +1535,25 @@ function normalizeLabel(label) {
 
 // Fonction générique pour mettre à jour les données
 function updateData(source, destination, keySource) {
-    // Crée un index des codes de destination pour une recherche plus rapide
-    const destinationIndex = destination.reduce((acc, destItem) => {
-        acc[destItem.code] = destItem;
-        return acc;
-    }, {});
     // Clear existing vacuum data
     let vacData = [];
 
     source.forEach((item) => {
-        const matchingDest = destinationIndex[normalizeLabel(item[keySource])];
-        if (matchingDest) {
-            // Mise à jour des valeurs
-            matchingDest.rawValue = parseFloat(item.rawValue) || 0; // Conversion en nombre
-            matchingDest.temp = parseFloat(item.temp) || 0; // Conversion en nombre
-            matchingDest.lastUpdatedAt = item.lastUpdatedAt; // Date
-            matchingDest.percentCharge = parseFloat(item.percentCharge) || 0;
-            matchingDest.ref = parseFloat(item.referencialValue) || 0;
-            matchingDest.offset = item.offset;
-            vacData.push({
-                code: matchingDest.code,
-                device: item.device,
-                label: matchingDest.label,
-                rawValue: matchingDest.rawValue,
-                temp: matchingDest.temp,
-                ref: matchingDest.ref,
-                percentCharge: matchingDest.percentCharge,
-                lightIntensity: 0,
-                rssi: 0,
-                signalQual: 0,
-                lastUpdatedAt: matchingDest.lastUpdatedAt,
-                // device: dev,
-            });
-        }
+        vacData.push({
+            code: normalizeLabel(item.label),
+            label: item.label,
+            device: item.device,
+            rawValue: parseFloat(item.rawValue) || 0, // Conversion en nombre
+            temp: parseFloat(item.temp) || 0,
+            ref: parseFloat(item.referencialValue) || 0,
+            percentCharge: parseFloat(item.percentCharge) || 0,
+            offset: item.offset,
+            lightIntensity: 0,
+            rssi: 0,
+            signalQual: 0,
+            lastUpdatedAt: item.lastUpdatedAt,
+        });
     });
-    console.log("vacuums.length: " + vacData.length);
     return vacData;
 }
 
@@ -1654,8 +1574,14 @@ async function readDatacer() {
         // updateTankData(dtcTankData.tank, tanks);
 
         const dtcVacuumData = await getDatacerData(datacerVac);
-        updateVacuumData(dtcVacuumData.vacuum, vacuums);
-        console.log("Update from Datacer");
+        if (dtcVacuumData !== null) {
+            updateVacuumData(dtcVacuumData.vacuum, vacuums);
+            console.log("Update from Datacer");
+            displayVacuumErabliere();
+            displayVacuumLignes();
+        } else {
+            console.log("Failed to fetch data from Datacer :(");
+        }
     } catch (error) {
         console.error("Update from Datacer FAILED:", error);
     }
