@@ -932,7 +932,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             devices: config.devices,
             tanks: config.tanks,
             valves: config.valves,
-            vacuum: config.vacuum,
+            vacuums: config.vacuums,
             pumps: config.pumps,
             osmose: config.osmose,
             // "temperatures": config.temperatures
@@ -956,7 +956,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             devices: devices,
             tanks: tanks.map(extendTank),
             valves: valves.map(extendValve),
-            vacuum: vacuumSensors,
+            vacuums: vacuumSensors,
             pumps: pumps.map(extendPump),
             osmose: theOsmose,
             token: process.env.PARTICLE_TOKEN,
@@ -1063,13 +1063,13 @@ exports.Dashboard = function (config, WebSocketClient) {
             return _.extend(valve, _.omit(valveData, "code", "name", "device"));
         });
 
-        vacuumSensors = config.vacuum.map(function (sensor) {
-            var sensorData = data.vacuum
+        vacuumSensors = config.vacuums.map(function (sensor) {
+            var sensorData = data.vacuums
                 .filter(function (sensorData) {
                     return sensor.code === sensorData.code;
                 })
                 .shift();
-            if (!data.vacuum) {
+            if (!data.vacuums) {
                 return sensor;
             }
             console.log(
@@ -1138,55 +1138,89 @@ exports.Dashboard = function (config, WebSocketClient) {
         }
     }
 
-    // // Fonction générique pour mettre à jour les données
-    // function updateData(source, destination, keySource) {
-    //     // Crée un index des codes de destination pour une recherche plus rapide
-    //     const destinationIndex = destination.reduce((acc, destItem) => {
-    //         acc[destItem.code] = destItem;
-    //         return acc;
-    //     }, {});
+    // Fonction générique pour mettre à jour les données
+    function updateData(source, destination, keySource) {
+        const destinationIndex = destination.reduce((acc, destItem) => {
+            acc[destItem.code] = destItem;
+            return acc;
+        }, {});
 
-    //     source.forEach((sourceItem) => {
-    //         const matchingDest = destinationIndex[sourceItem[keySource]];
-    //         if (matchingDest) {
-    //             // Mise à jour des valeurs
-    //             matchingDest.rawValue = parseFloat(sourceItem.rawValue) || 0; // Conversion en nombre
-    //             matchingDest.lastUpdatedAt = new Date(
-    //                 sourceItem.lastUpdatedAt
-    //             ).toISOString(); // Conversion en format ISO
-    //             // console.log(
-    //             //     "Datacer: ",
-    //             //     sourceItem[keySource],
-    //             //     "  ",
-    //             //     matchingDest.rawValue
-    //             // );
-    //         }
-    //     });
-    // }
+        // Clear existing vacuum data
+        let vacData = [];
+        let indice = 0;
+        let theLabel = "";
 
-    // // Fonction pour mettre à jour les données des tanks
+        source.forEach((item) => {
+            const matchingDest =
+                destinationIndex[normalizeLabel(item[keySource])];
+            if (item.label.includes("Vac3-")) {
+                theLabel = item.label.slice(5);
+            } else {
+                theLabel = matchingDest.label;
+            }
+            vacData.push({
+                code: normalizeLabel(item.label),
+                label: theLabel,
+                device: item.device,
+                rawValue: parseFloat(item.rawValue) || 0, // Conversion en nombre
+                temp: parseFloat(item.temp) || 0,
+                ref: parseFloat(item.referencialValue) || 0,
+                percentCharge: parseFloat(item.percentCharge) || 0,
+                offset: item.offset,
+                lightIntensity: 0,
+                rssi: 0,
+                signalQual: 0,
+                lastUpdatedAt: item.lastUpdatedAt,
+            });
+            // Mise à jour des devices
+            indice = devices.findIndex((device) => device.name === item.device);
+            if (indice >= 0) {
+                devices[indice].lastUpdatedAt = item.lastUpdatedAt;
+            }
+        });
+        return vacData;
+    }
+
+    // Fonction pour mettre à jour les données des tanks
     // function updateTankData(source, destination) {
     //     updateData(source, destination, "name"); // On passe 'name' comme clé pour la source
     // }
 
-    // // Fonction pour mettre à jour les données des vacuum sensors
-    // function updateVacuumData(source, destination) {
-    //     updateData(source, destination, "label"); // On passe 'label' comme clé pour la source
-    // }
+    // Fonction pour mettre à jour les données des vacuum sensors
+    function updateVacuumData(source, destination) {
+        vacuums = updateData(source, destination, "label"); // On passe 'label' comme clé pour la source
+    }
 
-    // // Fonction principale pour lire les données et les mettre à jour
-    // async function readDatacer() {
-    //     try {
-    //         // const dtcTankData = await getDatacerData(datacerTank);
-    //         // updateTankData(dtcTankData.tank, tanks);
+    // Fonction principale pour lire les données et les mettre à jour
+    async function readDatacer() {
+        try {
+            // const dtcTankData = await getDatacerData(datacerTank);
+            // updateTankData(dtcTankData.tank, tanks);
 
-    //         const dtcVacuumData = await getDatacerData(datacerVac);
-    //         updateVacuumData(dtcVacuumData.vacuum, vacuumSensors);
-    //         console.log("Update from Datacer");
-    //     } catch (error) {
-    //         console.error("Update from Datacer FAILED:", error);
-    //     }
-    // }
+            const dtcVacuumData = await getDatacerData(datacerVac);
+            if (dtcVacuumData !== null) {
+                updateVacuumData(dtcVacuumData.vacuum, vacuums);
+                console.log(
+                    "Update from Datacer",
+                    new Date(Date.now()).toLocaleString()
+                );
+                displayDevices();
+                displayVacuumErabliere();
+                displayVacuumLignes();
+            } else {
+                console.log(
+                    "Failed to fetch data from Datacer :(",
+                    new Date(Date.now()).toLocaleString()
+                );
+            }
+        } catch (error) {
+            console.error(
+                "Update from Datacer FAILED:",
+                error,
+                new Date(Date.now()).toLocaleString()
+            );
+        }
+    }
 
     var storeInterval;
     // var datacerInterval;

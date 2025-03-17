@@ -87,7 +87,6 @@ function onLoad() {
     actualSiteName = prefix;
     thisSiteNameElement.innerHTML = actualSiteName;
     readDatacer();
-    displayVacuumLignes();
 }
 
 function displayTanks() {
@@ -601,9 +600,7 @@ function displayDevices() {
         lastUpdatedAtElem.innerHTML = ageDisplay;
 
         lastUpdatedAtElem.style.color =
-            ageInMinutes > device.maxDelayMinutes || ageDisplay === "?"
-                ? "FireBrick"
-                : "black";
+            ageInMinutes > device.maxDelayMinutes ? "FireBrick" : "black";
 
         if (device.generationId !== undefined) {
             generationElem.innerHTML = device.generationId;
@@ -980,22 +977,20 @@ function displayPumps() {
 
         setPumpWarning(pumpElem, pump.run2long);
 
-        if (pump.code.includes("Vide")) {
-            const pvid = `vacuum_PV${pump.code.charAt(4)}_value`;
+        if (pump.code.includes("PV")) {
+            const pvid = `val_${pump.device}`;
             const PVvacId = document.getElementById(pvid);
             if (PVvacId) {
-                if (
-                    pump.state === true ||
-                    (PVvacId.innerHTML < -10 && pump.state === false)
-                ) {
+                if (pump.state === true || PVvacId.innerHTML < -10) {
                     pump.state = true;
-                } else if (PVvacId.innerHTML > -5 && pump.state === true) {
+                } else if (PVvacId.innerHTML > -5) {
                     pump.state = false;
                 }
             }
         }
 
         stateElem.innerHTML = pump.state ? "ON" : "OFF";
+        stateElem.style.color = "black";
         setIndicatorColor(stateElem, pump.state);
 
         const rate =
@@ -1100,10 +1095,10 @@ function displayVacuumLignes() {
             // Création des cellules via la fonction utilitaire
             createCell(null, "vacuumcode", vacuumElem).innerHTML = vacuum.label;
             createCell(valueElemId, "vacuumtemp", vacuumElem);
+            createCell(vacRefElemId, "vacuumtemp", vacuumElem);
             createCell(deltaVacElemId, "vacuumtemp", vacuumElem);
             createCell(tempElemId, "vacuumtemp", vacuumElem);
             createCell(chargeElemId, "vacuumtemp", vacuumElem);
-            createCell(vacRefElemId, "vacuumtemp", vacuumElem);
             const updatedCell = createCell(
                 updatedElemId,
                 "vacuumtemp",
@@ -1124,8 +1119,7 @@ function displayVacuumLignes() {
 
         // Calcul des pertes de vide
         if (["V1", "V2", "V3", "PV1", "PV2", "PV3"].includes(vacuum.code)) {
-            vacuumValue = vacuum.rawValue;
-            vacuumDrop = 0;
+            return;
         } else {
             vacuumDrop = vacuumValue - vacuum.ref;
         }
@@ -1169,8 +1163,10 @@ function displayVacuumLignes() {
             updatedElem.innerHTML = ageDisplay;
             updatedElem.style.textAlign = "right";
         }
-        // var vacuumElem = document.getElementById("vacuum_" + vacuum.code);
-        // setAgeColor(vacuumElem, vacuum.device);
+        vacuumElem = document.getElementById("vacuum_" + vacuum.device);
+        // if (vacuumElem !== null) {
+        //     setAgeColor(vacuumElem, vacuum.device);
+        // }
         // updatedElem = document.getElementById(updatedElemId);
         // setAgeLineVacuum(updatedElem, vacuum.device);
     });
@@ -1191,26 +1187,28 @@ function displayVacuumErabliere() {
     vacuums.forEach(function (vacuum) {
         // if (vacuum.label.indexOf("Ligne") !== 0) return;
         if (
-            !["Vac3-POMPE 1", "Vac3-POMPE 2", "Vac3-POMPE PUMP HOUSE"].includes(
-                vacuum.label
-            )
+            !["POMPE 1", "POMPE 2", "POMPE PUMP HOUSE"].includes(vacuum.device)
         ) {
             return;
         }
 
-        videElemId = "name_" + vacuum.code;
-        videValElemId = "val_" + vacuum.code;
-        timeElemId = "tOper_" + vacuum.code;
+        const videElemId = `name_${vacuum.device}`;
+        const videValElemId = `val_${vacuum.device}`;
+        const timeElemId = `tOper_${vacuum.device}`;
 
         videElem = document.getElementById(videElemId);
         if (videElem !== null) {
-            videElem.innerHTML = vacuum.label;
-            setAgeColor(videElem, vacuum.device);
+            videElem.innerHTML = vacuum.device;
+            // setAgeColor(videElem, vacuum.device);
         }
         videValElem = document.getElementById(videValElemId);
         vacValue = vacuum.rawValue;
-        if (videValElem !== null) {
-            videValElem.innerHTML = vacValue.toFixed(1);
+        if (
+            videValElem !== null &&
+            vacValue !== undefined &&
+            vacValue !== null
+        ) {
+            videValElem.innerHTML = vacValue.toFixed(1) || 0.0;
             videValElem.style.textAlign = "right";
         }
         timeElem = document.getElementById(timeElemId);
@@ -1243,9 +1241,9 @@ function setIndicatorColor(IndicatorElem, IndicatorValue) {
         IndicatorElem.style.backgroundColor = "yellow"; // Jaune
     } else if (IndicatorValue == "Erreur") {
         IndicatorElem.style.backgroundColor = "#bfbfff"; // Bleu
-    } else if (IndicatorValue == "OFF" || IndicatorValue == 0) {
+    } else if (IndicatorValue == "OFF" || IndicatorValue == false) {
         IndicatorElem.style.backgroundColor = "#ff3f3f"; // Rouge
-    } else if (IndicatorValue == "ON" || IndicatorValue == 1) {
+    } else if (IndicatorValue == "ON" || IndicatorValue == true) {
         IndicatorElem.style.backgroundColor = "lime"; // Vert
     }
 }
@@ -1263,7 +1261,7 @@ function setAgeColor(displayElem, deviceDevice) {
         return;
     }
     try {
-        var lastUpdatedAtElemId = "device_" + deviceDevice + "_lastUpdatedAt";
+        let lastUpdatedAtElemId = "device_" + deviceDevice + "_lastUpdatedAt";
         if (
             typeof lastUpdatedAtElemId !== undefined ||
             typeof lastUpdatedAtElemId !== null
@@ -1278,7 +1276,7 @@ function setAgeColor(displayElem, deviceDevice) {
             }
         }
     } catch (err) {
-        // console.log("lastUpdatedAtElemId: " + deviceDevice + " " + err);
+        console.log("lastUpdatedAtElemId: " + deviceDevice + " " + err);
     }
 }
 
@@ -1387,7 +1385,7 @@ function openSocket() {
             devices = data.devices;
             valves = data.valves;
             if (firstLoop == true) {
-                vacuums = data.vacuum;
+                vacuums = data.vacuums;
                 firstLoop = false;
             }
             pumps = data.pumps;
@@ -1535,13 +1533,26 @@ function normalizeLabel(label) {
 
 // Fonction générique pour mettre à jour les données
 function updateData(source, destination, keySource) {
+    const destinationIndex = destination.reduce((acc, destItem) => {
+        acc[destItem.code] = destItem;
+        return acc;
+    }, {});
+
     // Clear existing vacuum data
     let vacData = [];
+    let indice = 0;
+    let theLabel = "";
 
     source.forEach((item) => {
+        const matchingDest = destinationIndex[normalizeLabel(item[keySource])];
+        if (item.label.includes("Vac3-")) {
+            theLabel = item.label.slice(5);
+        } else {
+            theLabel = matchingDest.label;
+        }
         vacData.push({
             code: normalizeLabel(item.label),
-            label: item.label,
+            label: theLabel,
             device: item.device,
             rawValue: parseFloat(item.rawValue) || 0, // Conversion en nombre
             temp: parseFloat(item.temp) || 0,
@@ -1553,6 +1564,11 @@ function updateData(source, destination, keySource) {
             signalQual: 0,
             lastUpdatedAt: item.lastUpdatedAt,
         });
+        // Mise à jour des devices
+        indice = devices.findIndex((device) => device.name === item.device);
+        if (indice >= 0) {
+            devices[indice].lastUpdatedAt = item.lastUpdatedAt;
+        }
     });
     return vacData;
 }
@@ -1576,14 +1592,25 @@ async function readDatacer() {
         const dtcVacuumData = await getDatacerData(datacerVac);
         if (dtcVacuumData !== null) {
             updateVacuumData(dtcVacuumData.vacuum, vacuums);
-            console.log("Update from Datacer");
+            console.log(
+                "Update from Datacer",
+                new Date(Date.now()).toLocaleString()
+            );
+            displayDevices();
             displayVacuumErabliere();
             displayVacuumLignes();
         } else {
-            console.log("Failed to fetch data from Datacer :(");
+            console.log(
+                "Failed to fetch data from Datacer :(",
+                new Date(Date.now()).toLocaleString()
+            );
         }
     } catch (error) {
-        console.error("Update from Datacer FAILED:", error);
+        console.error(
+            "Update from Datacer FAILED:",
+            error,
+            new Date(Date.now()).toLocaleString()
+        );
     }
 }
 
