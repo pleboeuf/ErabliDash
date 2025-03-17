@@ -40,21 +40,24 @@
             ]
         },
         {
-            "name": "Vac3-POMPE 1",
+            "name": "POMPE 1",
+            "label": "POMPE 1",
             "description": "Pompe a vide #1",
-            "id": "V1",
+            "id": "Vide1",
             "maxDelayMinutes": 5
         },
         {
-            "name": "Vac3-POMPE 2",
+            "name": "POMPE 2",
+            "label": "POMPE 2",
             "description": "Pompe a vide #2",
-            "id": "V2",
+            "id": "Vide2",
             "maxDelayMinutes": 5
         },
         {
-            "name": "Vac3-POMPE PUMP HOUSE",
+            "name": "POMPE PUMP HOUSE",
+            "label": "POMPE PUMP HOUSE",
             "description": "Pompe a vide #3",
-            "id": "V3",
+            "id": "Vide3",
             "maxDelayMinutes": 5
         },
         {
@@ -150,182 +153,182 @@
         {
             "name": "A1-A2",
             "description": "Vacuum lignes A1 à A2",
-            "id": "",
+            "id": "VA1-2",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "A3-A4",
             "description": "Vacuum lignes A3, A4",
-            "id": "",
+            "id": "VA3-4",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "A5-B1-B2",
             "description": "Vacuum lignes A5, B1, B2",
-            "id": "",
+            "id": "VA5B1-2",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "C1-C2-C3",
             "description": "Vacuum lignes C1 à C3",
-            "id": "",
+            "id": "VC1-3",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "C4-C5-C6",
             "description": "Vacuum lignes C4 à C6",
-            "id": "",
+            "id": "VC4-6",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "C7-C8",
             "description": "Vacuum lignes C7 à C8",
-            "id": "",
+            "id": "VC7-8",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "D1A-D1B-D2A",
             "description": "Vacuum lignes D1A, D1B, D2A",
-            "id": "",
+            "id": "VD1ABVD2A",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "D2B",
             "description": "Vacuum lignes D2B",
-            "id": "",
+            "id": "VD2B",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "E1-E2-E3",
             "description": "Vacuum lignes E1 à E3",
-            "id": "",
+            "id": "VE1-3",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "E4-E5-E6",
             "description": "Vacuum lignes E4 à E6",
-            "id": "",
+            "id": "VE4-6",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "E7-E8-E9",
             "description": "Vacuum lignes E7 à E9",
-            "id": "",
+            "id": "VE7-9",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "E10-E11-E12",
             "description": "Vacuum lignes E10 à E12",
-            "id": "",
+            "id": "VE10-12",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "F1-F2-F3",
             "description": "Vacuum lignes F1 et F3",
-            "id": "",
+            "id": "VF1-3",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "F4-F5-F6",
             "description": "Vacuum lignes F4 à F6",
-            "id": "",
+            "id": "VF4-6",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "F7-F8-F9",
             "description": "Vacuum lignes F7 à F9",
-            "id": "",
+            "id": "VF7-9",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "F10-F11-F12",
             "description": "Vacuum lignes F10 à F12",
-            "id": "",
+            "id": "VF10-12",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "F13-F14-F15",
             "description": "Vacuum lignes F13 à F15",
-            "id": "",
+            "id": "VF13-15",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "H14-G1-G2",
             "description": "Vacuum lignes G1, G2 et H14",
-            "id": "",
+            "id": "VG1-2VH14",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "G3-G4-G5",
             "description": "Vacuum lignes G3 à G5",
-            "id": "",
+            "id": "VG3-5",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "G6-G7-G8",
             "description": "Vacuum lignes G6 à G8",
-            "id": "",
+            "id": "VG6-8",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "G9-G10",
             "description": "Vacuum lignes G9 à G10",
-            "id": "",
+            "id": "VG9-10",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "G11-G12",
             "description": "Vacuum lignes G11 à G12",
-            "id": "",
+            "id": "VG11-12",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "H2-H3-H4",
             "description": "Vacuum lignes H2 à H4",
-            "id": "",
+            "id": "VH2-4",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "H5-H6-H7",
             "description": "Vacuum lignes H5 à H7",
-            "id": "",
+            "id": "VH5-7",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "H8-H9-H10",
             "description": "Vacuum lignes H8 à H10",
-            "id": "",
+            "id": "VH8-10",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "H-11-12-13",
             "description": "Vacuum lignes H11 à H13",
-            "id": "",
+            "id": "VH11-13",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
@@ -690,46 +693,46 @@
             "identifier": 2
         }
     ],
-    "vacuum": [
+    "vacuums": [
         {
             "code": "V1",
             "label": "Rel1",
             "device": "EB-P1",
             "offset": 82,
-            "ref": "V1"
+            "ref": "PV1"
         },
         {
             "code": "V2",
             "label": "Rel2",
             "device": "EB-P2",
             "offset": 58,
-            "ref": "V2"
+            "ref": "PV2"
         },
         {
             "code": "V3",
             "label": "Rel3",
             "device": "EB-P3",
             "offset": 0,
-            "ref": "V3"
+            "ref": "PV3"
         },
         {
             "code": "PV1",
-            "label": "Pompe V1",
-            "device": "EB-V1",
+            "label": "Vide1",
+            "device": "POMPE 1",
             "offset": 0,
             "ref": "PV1"
         },
         {
             "code": "PV2",
-            "label": "Pompe V2",
-            "device": "EB-V2",
+            "label": "Vide2",
+            "device": "POMPE 2",
             "offset": 0,
-            "ref": "PV2"
+            "ref": "PV3"
         },
         {
             "code": "PV3",
-            "label": "Pompe V3",
-            "device": "EB-V3",
+            "label": "Vide3 (ph)",
+            "device": "POMPE PUMP HOUSE",
             "offset": 0,
             "ref": "PV3"
         },
@@ -1409,18 +1412,18 @@
             "capacity_gph": 0
         },
         {
-            "code": "Vide1",
-            "device": "Vac3-POMPE 1",
+            "code": "PV1",
+            "device": "POMPE 1",
             "capacity_gph": 0
         },
         {
-            "code": "Vide2",
-            "device": "Vac3-POMPE 2",
+            "code": "PV2",
+            "device": "POMPE 2",
             "capacity_gph": 0
         },
         {
-            "code": "Vide3",
-            "device": "Vac3-POMPE PUMP HOUSE",
+            "code": "PV3 (ph)",
+            "device": "POMPE PUMP HOUSE",
             "capacity_gph": 0
         }
     ],
