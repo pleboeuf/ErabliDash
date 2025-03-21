@@ -13,7 +13,7 @@ var MAXDELAI = 60 * 25 * 1000; // 25 min en millisecdelai avant de déclarer un 
 //var polyautres = [];
 //var marker = [];
 var map;
-var grosseurText = 24;
+var grosseurText = 20 ; //  original 24;
 // var lignesCache = [];
 
 // haut droit 45.298438, -72.688772
@@ -73,10 +73,24 @@ function go() {
         scanpoint(a2[2].responseText, pointsV, pointsT);
         loadMarqueurV(pointsV);
         loadMarqueurT(pointsT);
-        setTimeout(openSocket, 4000); // donne le temps a demarre openSocket();
+//
+//  DATACER remplace
+//         setTimeout(openSocket, 4000); // donne le temps a demarre openSocket();
 //        zoombound();
+
+   //  AJOUT DATACER
+   if(DebugON) console.log("start readdatacer ");
+
+   //  AJOUT DATACER
+    if(DebugON) console.log("start readdatacer ");
+    
+        const datacerInterval = setInterval(readDatacer, 1000 * 60);  // 60 * 1000 ms = 2 min  original 1000
+        readDatacer();
+
     });
-    if(DebugON) console.log("fin go");
+
+ 
+    
 }
 function scanpoint(datagpx, pointsV, pointsT) {
 
@@ -150,7 +164,7 @@ function openSocket() {
     };
     websocket.onmessage = function (msg) {
         if (DebugON)
-            console.log('Socket onmessage.');
+            console.log('Socket onmessage.', msg.data);
         var data = JSON.parse(msg.data);
         parseEvent(data);
 //        coulee();
@@ -169,7 +183,9 @@ function openSocket() {
 }
 function wsUri(path) {
     var l = window.location;
-    return "ws://boilerhouse.ddns.net:3300/" + l.pathname + path;
+    
+ //   return "ws://boilerhouse.ddns.net:3300/" + l.pathname + path;
+    return "ws://pl-net.ddns.net:3300/" + l.pathname + path;
     return ((l.protocol === "https:") ? "wss://" : "ws://") + l.hostname + (((l.port !== 80) && (l.port !== 443)) ? ":" + l.port : "") + l.pathname + path;
 }
 
@@ -180,7 +196,7 @@ function scanvacuum(arrlocal) {
 
   
         if(DebugON) console.log("scanvacuum: nb vacuum " + arrlocal.length);
-    var facteurCorrection = 0.01;
+    var facteurCorrection = 1.0;
     arrlocal.forEach(function (no, i) {
         var temp;
         var nom = no.code;
@@ -248,6 +264,9 @@ function LV(nom) {
             return (false);
         }
     }
+
+
+
 
     this.update = function (vacuum, datelecture, temperature) {
         if (typeof datelecture !== 'undefined') {  // bail out si pas de date
@@ -416,6 +435,80 @@ function nomT(str) {
     return(l + no);
 }
 
+///// DATACER
+
+const dtcurl = "http://pl-net.ddns.net:3300"
+const datacerVac = dtcurl + "/api/vacuum";
+// Fonction pour mettre à jour les données des vacuum sensors
+function normalizeLabel(label) {
+    return label.replace(/(\D)\S*\s?0?(\d)/, "$1$2");  // works for    V01';'V1' 'Vaccum-3 1';
+ //return label.replace(/([A-Z])0*/, "$1"); // original
+}
+
+// Fonction générique pour mettre à jour les données
+function updateData(source, destination, keySource) {
+    // Clear existing vacuum data
+    let vacData = [];
+
+    source.forEach((item) => {
+        vacData.push({
+            code: normalizeLabel(item.label),
+            label: item.label,
+            device: item.device,
+            rawValue: parseFloat(item.rawValue) || 0, // Conversion en nombre
+            temp: parseFloat(item.temp) || 0,
+            ref: parseFloat(item.referencialValue) || 0,
+            percentCharge: parseFloat(item.percentCharge) || 0,
+            offset: item.offset,
+            lightIntensity: 0,
+            rssi: 0,
+            signalQual: 0,
+            lastUpdatedAt: item.lastUpdatedAt,
+        });
+    });
+    return vacData;
+}
+
+function updateVacuumData(source, destination) {
+    return(updateData(source, destination, "label")); // On passe 'label' comme clé pour la source
+
+}
+
+async function readDatacer() {
+    var vacuums=[];
+    try {
+
+        const dtcVacuumData = await getDatacerData(datacerVac);
+        if (dtcVacuumData !== null) {
+            scanvacuum( updateVacuumData(dtcVacuumData.vacuum, vacuums));
+            console.log("Update from Datacer");
+ //           displayVacuumErabliere();
+ //           displayVacuumLignes();
+        } else {
+            console.log("Failed to fetch data from Datacer :(");
+        }
+    } catch (error) {
+        console.error("Update from Datacer FAILED:", error);
+    }
+}
+
+async function getDatacerData(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+        const datacerData = await response.json();
+        return datacerData;
+    } catch (error) {
+        console.warn(error.message);
+        return null;
+    }
+}
+
+
+
+    // fin DATACER
 
 
 //
@@ -678,7 +771,12 @@ function isMobile() {
 function initMap() {
     // set up the map
     var myterrain = 'mapbox://styles/gagnonandre/cjtd3uzfq3n0l1fqmd08kw5ic';
-    myterrain =  'mapbox://styles/gagnonandre/ck76k1k14109p1irveptkljra';
+    // myterrain = 'mapbox://styles/gagnonandre/cjtd3uzfq3n0l1fqmd08kw5ic' ; //cali
+    myterrain = 'mapbox://styles/gagnonandre/ck7ja7cur3ss61inthnqbzi7m';  // cabane
+    // 'mapbox://styles/gagnonandre/ck76k1k14109p1irveptkljra'; // cabane2 
+    // myterrain = 'mapbox://styles/gagnonandre/ck7jayekf3tpp1iqkxjehbq2l'; // cabaneNew style outdoor
+     
+    
     
     var terrainoriginal = 'mapbox://styles/mapbox/streets-v9';
 // start the map centre de la zone
@@ -728,13 +826,13 @@ if (isMobile()){
 //    you should be able to do this to fit your map to the bounds of your GeoJSON markers object:
 //
 //map.fitBounds(geojsonExtent(markers));
-
+addCabane();
 }
 
 function addClick(nom) {
     map.on('click', nom, function (e) {
         var coordinates = e.lngLat; // features[0].geometry.coordinates.slice();
-        var description = nom + " " + e.features[0].properties.valeur + " " + e.features[0].properties.HeureLecture.toLocaleString();
+        var description = "<h2>"+nom + " " + e.features[0].properties.valeur + " " + e.features[0].properties.HeureLecture.toLocaleString()+"</h2>";
 
 // Ensure that if the map is zoomed out such that multiple
 // copies of the feature are visible, the popup appears

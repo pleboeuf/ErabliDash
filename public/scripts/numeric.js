@@ -642,13 +642,23 @@ function getMinutesAgo(date) {
 }
 
 function displayValves() {
-    valves.forEach(function (valve) {
+    valves.forEach(async function (valve) {
         let positionElem;
         let positionElemId = "valve_" + valve.code + "_position";
         let valveElemId = "valve_" + valve.code;
         if (document.getElementById(valveElemId) == null) {
             let valveElem = document.createElement("tr");
             valveElem.setAttribute("id", valveElemId);
+            if (
+                valve.code.includes("A") ||
+                valve.code.includes("ES") ||
+                valve.code.includes("DPH")
+            ) {
+                valveElem.style.fontWeight = "bold";
+                // const relayState = await readDeviceVariable(deviceId, varName);
+                // console.log(`Valve  '${valve.code}' state is: `, thisState);
+            }
+
             document.getElementById("valvelist").appendChild(valveElem);
 
             let codeElement = document.createElement("td");
@@ -1084,9 +1094,17 @@ function displayVacuumLignes() {
         const updatedElemId = `${vacuumElemId}_lastUpdate`;
 
         let vacuumElem = document.getElementById(vacuumElemId);
-        let skipped = ["V1", "V2", "V3", "PV1", "PV2", "PV3"].includes(
-            vacuum.code
-        );
+        let skipped = [
+            "V1",
+            "V2",
+            "V3",
+            "PV1",
+            "PV2",
+            "PV3",
+            "EB-V1",
+            "EB-V2",
+            "EB-V3",
+        ].includes(vacuum.code);
         if (!vacuumElem && !skipped) {
             vacuumElem = document.createElement("tr");
             vacuumElem.setAttribute("id", vacuumElemId);
@@ -1118,12 +1136,23 @@ function displayVacuumLignes() {
         vacuumValue = vacuum.rawValue;
 
         // Calcul des pertes de vide
-        if (["V1", "V2", "V3", "PV1", "PV2", "PV3"].includes(vacuum.code)) {
+        if (
+            [
+                "V1",
+                "V2",
+                "V3",
+                "PV1",
+                "PV2",
+                "PV3",
+                "EB-V1",
+                "EB-V2",
+                "EB-V3",
+            ].includes(vacuum.code)
+        ) {
             return;
-        } else {
-            vacuumDrop = vacuumValue - vacuum.ref;
         }
-
+        if (vacuumValue == undefined) vacuumValue = 0.0;
+        vacuumDrop = vacuumValue - vacuum.ref;
         valueElem.innerHTML = vacuumValue.toFixed(1);
         valueElem.style.textAlign = "right";
 
@@ -1187,7 +1216,14 @@ function displayVacuumErabliere() {
     vacuums.forEach(function (vacuum) {
         // if (vacuum.label.indexOf("Ligne") !== 0) return;
         if (
-            !["POMPE 1", "POMPE 2", "POMPE PUMP HOUSE"].includes(vacuum.device)
+            ![
+                "POMPE 1",
+                "POMPE 2",
+                "POMPE PUMP HOUSE",
+                "EB-V1",
+                "EB-V2",
+                "EB-V3",
+            ].includes(vacuum.device)
         ) {
             return;
         }
@@ -1211,6 +1247,9 @@ function displayVacuumErabliere() {
             videValElem.innerHTML = vacValue.toFixed(1) || 0.0;
             videValElem.style.textAlign = "right";
         }
+        // if (vacuum.device === "EB-V2") {
+        //     console.log("device is:", vacuum);
+        // }
         timeElem = document.getElementById(timeElemId);
         if (timeElem !== null) {
             timeElem.style.textAlign = "center";
@@ -1471,22 +1510,27 @@ function callResetOperTimer(devName) {
     }
 }
 
-async function readDeviceVariable(device, varName) {
-    await particle
-        .getVariable({
-            deviceId: device,
+async function readDeviceVariable(deviceId, varName) {
+    try {
+        const data = await particle.getVariable({
+            deviceId: deviceId,
             name: varName,
             auth: myToken,
-        })
-        .then(
-            function (data) {
-                return data.result;
-            },
-            function (err) {
-                console.log("An error occurred while getting attrs:", err);
-                return -1;
-            }
+        });
+        console.log(
+            `Successfully read variable '${varName}' from device '${deviceId}':`,
+            data.result
         );
+        return data.result; // Return the variable's value on success
+    } catch (err) {
+        console.error(
+            `Error reading variable '${varName}' from device '${deviceId}':`,
+            err
+        );
+        // Optionally, you could throw the error here to propagate it further up the call stack:
+        // throw err;
+        return undefined; // Return undefined to indicate failure
+    }
 }
 
 async function callFunction(devID, fname, fargument) {
