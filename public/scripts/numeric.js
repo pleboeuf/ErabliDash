@@ -1247,9 +1247,9 @@ function displayVacuumErabliere() {
             videValElem.innerHTML = vacValue.toFixed(1) || 0.0;
             videValElem.style.textAlign = "right";
         }
-        // if (vacuum.device === "EB-V2") {
-        //     console.log("device is:", vacuum);
-        // }
+        if (vacuum.device === "EB-V2") {
+            console.log("device is:", vacuum.device);
+        }
         timeElem = document.getElementById(timeElemId);
         if (timeElem !== null) {
             timeElem.style.textAlign = "center";
@@ -1594,6 +1594,13 @@ function updateData(source, destination, keySource) {
         } else {
             theLabel = matchingDest.label;
         }
+        if (["EB-V1", "EB-V2", "EB-V3"].includes(item.label)) {
+            thisRunTimeSinceMaint = item.RunTimeSinceMaint;
+            thisNeedMaintenance = item.NeedMaintenance;
+        } else {
+            thisRunTimeSinceMaint = undefined;
+            thisNeedMaintenance = false;
+        }
         vacData.push({
             code: normalizeLabel(item.label),
             label: theLabel,
@@ -1603,9 +1610,8 @@ function updateData(source, destination, keySource) {
             ref: parseFloat(item.referencialValue) || 0,
             percentCharge: parseFloat(item.percentCharge) || 0,
             offset: item.offset,
-            lightIntensity: 0,
-            rssi: 0,
-            signalQual: 0,
+            RunTimeSinceMaint: thisRunTimeSinceMaint,
+            NeedMaintenance: thisNeedMaintenance,
             lastUpdatedAt: item.lastUpdatedAt,
         });
         // Mise à jour des devices
