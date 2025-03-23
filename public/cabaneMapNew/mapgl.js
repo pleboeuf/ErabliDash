@@ -79,13 +79,12 @@ function go() {
 //        zoombound();
 
    //  AJOUT DATACER
-   if(DebugON) console.log("start readdatacer ");
-
-   //  AJOUT DATACER
     if(DebugON) console.log("start readdatacer ");
     
-        const datacerInterval = setInterval(readDatacer, 1000 * 60);  // 60 * 1000 ms = 2 min  original 1000
-        readDatacer();
+        const datacerInterval = setInterval(readDatacer, 2000 * 60);  // 60 * 2000 ms = 2 min  original 1000
+        // readDatacer();
+        const datacerTimeout = setTimeout(readDatacer, 4000);  // 60 * 500 ms = 1/2 min  original 1000
+     
 
     });
 
@@ -436,11 +435,29 @@ function nomT(str) {
 }
 
 ///// DATACER
+const loc = document.location;
 
-const dtcurl = "http://pl-net.ddns.net:3300"
+console.log(loc.href); // https://developer.mozilla.org:8080/en-US/search?q=URL#search-results-close-container
+console.log(loc.protocol); // https:
+console.log(loc.host); // developer.mozilla.org:8080
+console.log(loc.hostname); // developer.mozilla.org
+console.log(loc.port); // 8080
+console.log(loc.pathname); // /en-US/search
+console.log(loc.search); // ?q=URL
+console.log(loc.hash); // #search-results-close-container
+console.log(loc.origin); // https://developer.mozilla.org:8080
+var dtcurl;
+
+if (loc.hostname == 'localhost') dtcurl = "http://boilerhouse.ddns.net:3300" ;
+else    dtcurl = loc.origin ;
+//const dtcurl = "http://boilerhouse.ddns.net:3300"
 const datacerVac = dtcurl + "/api/vacuum";
+//if (DebugON) 
+    console.log ("datacer = "+ datacerVac) ;
+
 // Fonction pour mettre à jour les données des vacuum sensors
 function normalizeLabel(label) {
+    if (label == 'Vac3-POMPE PUMP HOUSE') return 'V3';
     return label.replace(/(\D)\S*\s?0?(\d)/, "$1$2");  // works for    V01';'V1' 'Vaccum-3 1';
  //return label.replace(/([A-Z])0*/, "$1"); // original
 }
@@ -485,7 +502,7 @@ async function readDatacer() {
  //           displayVacuumErabliere();
  //           displayVacuumLignes();
         } else {
-            console.log("Failed to fetch data from Datacer :(");
+            console.log("Failed to fetch data from Datacer :( rep null");
         }
     } catch (error) {
         console.error("Update from Datacer FAILED:", error);

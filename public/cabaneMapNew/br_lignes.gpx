@@ -802,7 +802,7 @@
     </rtept>
   </rte>
   <rte>
-    <name>C air Eau</name>
+    <name>C Air Eau</name>
     <rtept lat="45.286678355" lon="-72.697114991">
       <time>2014-05-22T23:48:41Z</time>
       <name>075</name>
@@ -1112,63 +1112,7 @@
       <name>E 011 HAUT</name>
     </rtept>
   </rte>
-  <rte>
-    <name>E AIR EAU</name>
-    <rtept lat="45.286159515" lon="-72.703439724">
-      <ele>152.013062</ele>
-      <name>403 Booster</name>
-      <cmt>12-MAI-13 10:47:20</cmt>
-    </rtept>
-    <rtept lat="45.286355233" lon="-72.7029985">
-      <time>2014-06-17T23:28:51Z</time>
-      <name>E 002 bas</name>
-      <cmt />
-    </rtept>
-    <rtept lat="45.286667962" lon="-72.702643778">
-      <time>2014-06-17T23:28:38Z</time>
-      <name>E 003 bas</name>
-    </rtept>
-    <rtept lat="45.286935763" lon="-72.702202806">
-      <time>2014-06-17T23:28:17Z</time>
-      <name>E 004 BAS</name>
-    </rtept>
-    <rtept lat="45.287209935" lon="-72.701767031">
-      <time>2014-06-17T23:28:09Z</time>
-      <name>E 005 BAS</name>
-    </rtept>
-    <rtept lat="45.28747296" lon="-72.7013015">
-      <time>2014-06-17T23:28:02Z</time>
-      <name>E 006 BAS</name>
-    </rtept>
-    <rtept lat="45.287741097" lon="-72.700962704">
-      <time>2014-06-17T23:22:52Z</time>
-      <name>001</name>
-    </rtept>
-    <rtept lat="45.288043348" lon="-72.7005105">
-      <time>2014-06-03T22:58:26Z</time>
-      <name>E 008 bas</name>
-    </rtept>
-    <rtept lat="45.288100177" lon="-72.700239765">
-      <time>2014-05-22T23:44:10Z</time>
-      <name>074</name>
-    </rtept>
-    <rtept lat="45.288176117" lon="-72.699751183">
-      <time>2014-06-14T15:25:41Z</time>
-      <name>E 009 BAS</name>
-    </rtept>
-    <rtept lat="45.288229091" lon="-72.69945086">
-      <time>2014-06-14T16:11:15Z</time>
-      <name>103</name>
-    </rtept>
-    <rtept lat="45.288180476" lon="-72.698732363">
-      <time>2014-06-14T15:27:29Z</time>
-      <name>E 010 BAS</name>
-    </rtept>
-    <rtept lat="45.288299834" lon="-72.697927114">
-      <time>2014-06-14T15:28:31Z</time>
-      <name>E 011 BAS</name>
-    </rtept>
-  </rte>
+  
   <rte>
     <name>E-F Ligne deau</name>
     <rtept lat="45.286073182" lon="-72.699393192">
@@ -1633,19 +1577,7 @@
       <name>G9 BAS</name>
     </rtept>
   </rte>
-  <rte>
-    <name>H AIR EAU</name>
-    <rtept lat="45.294814669" lon="-72.695574565">
-      <name>depart Air eau</name>
-      <cmt>ACTIVE LOG 002</cmt>
-    </rtept>
-    <rtept lat="45.295907082" lon="-72.692819098">
-      <name>Coin air eau</name>
-    </rtept>
-    <rtept lat="45.298142536" lon="-72.689385619">
-      <name>Fin Air eau  H</name>
-    </rtept>
-  </rte>
+
   <rte>
     <name>H1 Haut  H1 Bas</name>
     <rtept lat="45.29782922" lon="-72.689464493">
@@ -1964,26 +1896,6 @@
     </rtept>
   </rte>
   <rte>
-    <name>A Air eau</name>
-    <rtept lat="45.285985423" lon="-72.703830404">
-      <time>2014-11-27T00:34:36Z</time>
-      <name>Pompe</name>
-      <cmt>25-OCT-14 12:56:47</cmt>
-    </rtept>
-    <rtept lat="45.285280086" lon="-72.704170039">
-      <time>2014-11-27T00:35:27Z</time>
-      <name>025</name>
-    </rtept>
-    <rtept lat="45.284863757" lon="-72.704137936">
-      <time>2014-11-27T00:33:09Z</time>
-      <name>A 003 bas</name>
-    </rtept>
-    <rtept lat="45.284155151" lon="-72.704200717">
-      <time>2015-05-08T22:43:10Z</time>
-      <name>A 001Bas</name>
-    </rtept>
-  </rte>
-  <rte>
     <name>B1</name>
     <rtept lat="45.285752825" lon="-72.701778933">
       <time>2015-04-27T22:50:45Z</time>
@@ -1994,42 +1906,7 @@
       <name>B 001 haut</name>
     </rtept>
   </rte>
-  <rte>
-    <name>B Air Eau</name>
-    <rtept lat="45.285985423" lon="-72.703830404">
-      <time>2014-11-27T00:34:36Z</time>
-      <name>Pompe</name>
-      <cmt>25-OCT-14 12:56:47</cmt>
-    </rtept>
-    <rtept lat="45.285877297" lon="-72.703276947">
-      <time>2014-10-27T22:47:39Z</time>
-      <name>061</name>
-    </rtept>
-    <rtept lat="45.285683926" lon="-72.703035213">
-      <time>2014-12-19T23:12:13Z</time>
-      <name>062</name>
-    </rtept>
-    <rtept lat="45.285600694" lon="-72.702874783">
-      <time>2014-12-19T23:12:33Z</time>
-      <name>085</name>
-    </rtept>
-    <rtept lat="45.285662469" lon="-72.702718629">
-      <time>2014-12-19T23:12:22Z</time>
-      <name>063</name>
-    </rtept>
-    <rtept lat="45.285811331" lon="-72.702377066">
-      <time>2015-04-27T22:50:57Z</time>
-      <name>015</name>
-    </rtept>
-    <rtept lat="45.285752825" lon="-72.701778933">
-      <time>2015-04-27T22:50:45Z</time>
-      <name>B 001 bas</name>
-    </rtept>
-    <rtept lat="45.285752825" lon="-72.701778933">
-      <time>2014-10-26T19:17:03Z</time>
-      <name>B 002 Bas</name>
-    </rtept>
-  </rte>
+  
   <rte>
     <name>C1</name>
     <rtept lat="45.284690922" lon="-72.698899833">
@@ -2130,33 +2007,7 @@
       <name>C 008 Haut1</name>
     </rtept>
   </rte>
-  <rte>
-    <name>C air Eau</name>
-    <rtept lat="45.286678355" lon="-72.697114991">
-      <time>2014-05-22T23:48:41Z</time>
-      <name>075</name>
-    </rtept>
-    <rtept lat="45.286002103" lon="-72.697629724">
-      <time>2014-11-07T00:47:17Z</time>
-      <name>C 007 bas1</name>
-    </rtept>
-    <rtept lat="45.285596922" lon="-72.697768109">
-      <time>2014-10-27T23:08:36Z</time>
-      <name>C 006 bas1</name>
-    </rtept>
-    <rtept lat="45.285296431" lon="-72.698158789">
-      <time>2014-10-27T23:08:47Z</time>
-      <name>C 005 bas1</name>
-    </rtept>
-    <rtept lat="45.284955874" lon="-72.698450061">
-      <time>2014-10-27T23:08:59Z</time>
-      <name>C 004 bas1</name>
-    </rtept>
-    <rtept lat="45.284690922" lon="-72.698899833">
-      <time>2014-09-01T23:28:20Z</time>
-      <name>C 003 bas1</name>
-    </rtept>
-  </rte>
+
   <rte>
     <name>D1B</name>
     <rtept lat="45.284979679" lon="-72.69453085">
@@ -2447,33 +2298,8 @@
       <name>E 011 BAS</name>
     </rtept>
   </rte>
-  <rte>
-    <name>E-F Ligne deau</name>
-    <rtept lat="45.286073182" lon="-72.699393192">
-      <time>2013-11-15T00:45:39Z</time>
-      <name>027</name>
-    </rtept>
-    <rtept lat="45.288395304" lon="-72.697101329">
-      <time>2013-11-15T00:45:42Z</time>
-      <name>028</name>
-    </rtept>
-    <rtept lat="45.294716936" lon="-72.695488902">
-      <time>2013-11-15T00:46:04Z</time>
-      <name>029</name>
-    </rtept>
-  </rte>
-  <rte>
-    <name>E-LIGNE eau SECTEUR cd</name>
-    <rtept lat="45.286678355" lon="-72.697114991">
-      <ele>226.033936</ele>
-      <name>472 Booster</name>
-      <cmt>12-MAI-13 10:50:35</cmt>
-    </rtept>
-    <rtept lat="45.286173765" lon="-72.703415751">
-      <time>2014-06-17T23:29:18Z</time>
-      <name>E 001 bas</name>
-    </rtept>
-  </rte>
+  
+  
   <rte>
     <name>F1</name>
     <rtept lat="45.29478508" lon="-72.696204633">
@@ -2657,125 +2483,8 @@
       <name>F 016 haut</name>
     </rtept>
   </rte>
-  <rte>
-    <name>F ligne air eau</name>
-    <rtept lat="45.29478508" lon="-72.696204633">
-      <time>2014-05-18T23:59:31Z</time>
-      <name>F 001 bas</name>
-    </rtept>
-    <rtept lat="45.294536976" lon="-72.696376294">
-      <name>F 002 bas</name>
-    </rtept>
-    <rtept lat="45.294185439" lon="-72.696707714">
-      <name>F 003 bas</name>
-    </rtept>
-    <rtept lat="45.293729128" lon="-72.69696068">
-      <name>F 004 bas</name>
-    </rtept>
-    <rtept lat="45.293227388" lon="-72.697124295">
-      <time>2014-05-22T23:22:39Z</time>
-      <name>F 005 bas</name>
-      <cmt>11-MAI-14 19:09:31</cmt>
-    </rtept>
-    <rtept lat="45.292868223" lon="-72.697499637">
-      <time>2014-05-22T23:22:28Z</time>
-      <name>F 006 bas</name>
-    </rtept>
-    <rtept lat="45.292458432" lon="-72.697805325">
-      <time>2014-05-22T23:04:37Z</time>
-      <name>F 007 bas</name>
-    </rtept>
-    <rtept lat="45.291993907" lon="-72.698064661">
-      <time>2014-05-22T23:06:47Z</time>
-      <name>F 008 bas</name>
-    </rtept>
-    <rtept lat="45.291525191" lon="-72.698305473">
-      <time>2014-05-29T01:14:36Z</time>
-      <name>F 009 bas</name>
-    </rtept>
-    <rtept lat="45.291049853" lon="-72.698556846">
-      <time>2014-05-29T01:14:46Z</time>
-      <name>F 010 bas</name>
-    </rtept>
-    <rtept lat="45.290593961" lon="-72.69882163">
-      <time>2014-05-29T01:15:04Z</time>
-      <name>F 011 bas</name>
-    </rtept>
-    <rtept lat="45.290122982" lon="-72.699062275">
-      <time>2014-05-29T01:15:13Z</time>
-      <name>F 012 bas</name>
-    </rtept>
-    <rtept lat="45.289645465" lon="-72.699308284">
-      <time>2014-05-29T01:15:24Z</time>
-      <name>F 013 bas</name>
-    </rtept>
-    <rtept lat="45.28918949" lon="-72.69956762">
-      <time>2014-05-29T01:15:38Z</time>
-      <name>F 014 bas</name>
-    </rtept>
-    <rtept lat="45.288663777" lon="-72.699768199">
-      <time>2014-05-29T01:16:41Z</time>
-      <name>F 015 bas</name>
-    </rtept>
-  </rte>
-  <rte>
-    <name>G AIR EAU</name>
-    <rtept lat="45.294814669" lon="-72.695574565">
-      <name>depart Air eau</name>
-      <cmt>ACTIVE LOG 002</cmt>
-    </rtept>
-    <rtept lat="45.293597281" lon="-72.694527498">
-      <name>039</name>
-    </rtept>
-    <rtept lat="45.293015745" lon="-72.694550883">
-      <name>040</name>
-    </rtept>
-    <rtept lat="45.29241845" lon="-72.694849195">
-      <time>2013-07-15T23:28:48Z</time>
-      <name>G4 BAS</name>
-    </rtept>
-    <rtept lat="45.292417696" lon="-72.694849782">
-      <name>041</name>
-    </rtept>
-    <rtept lat="45.291855857" lon="-72.694135224">
-      <name>042</name>
-    </rtept>
-    <rtept lat="45.291586714" lon="-72.693858203">
-      <time>2013-07-15T23:29:36Z</time>
-      <name>G12 Bas</name>
-    </rtept>
-    <rtept lat="45.291476324" lon="-72.693493003">
-      <time>2015-12-20T20:02:08Z</time>
-      <name>G11 BAS</name>
-    </rtept>
-    <rtept lat="45.291360067" lon="-72.693114225">
-      <time>2013-07-09T22:44:08Z</time>
-      <name>G10 BAS</name>
-    </rtept>
-    <rtept lat="45.29105111" lon="-72.692521708">
-      <time>2013-07-09T22:44:46Z</time>
-      <name>G9 BAS</name>
-    </rtept>
-    <rtept lat="45.290718768" lon="-72.691966239">
-      <time>2013-07-09T22:45:04Z</time>
-      <name>G8 BAS</name>
-    </rtept>
-    <rtept lat="45.290382821" lon="-72.6914044">
-      <time>2013-07-09T22:45:20Z</time>
-      <name>G7 BAS</name>
-    </rtept>
-    <rtept lat="45.289699361" lon="-72.690262618">
-      <time>2013-07-09T22:46:10Z</time>
-      <name>G5 BAS</name>
-    </rtept>
-    <rtept lat="45.290037151" lon="-72.690826971">
-      <time>2013-07-09T22:45:52Z</time>
-      <name>G6 BAS</name>
-    </rtept>
-    <rtept lat="45.2894645" lon="-72.689869003">
-      <name>G AIR EAU HAUT</name>
-    </rtept>
-  </rte>
+ 
+  
   <rte>
     <name>G1</name>
     <rtept lat="45.293530142" lon="-72.694530515">
@@ -3117,17 +2826,7 @@
       <name>V3 c</name>
     </rtept>
   </rte>
-  <rte>
-    <name>B ligne air eau</name>
-    <rtept lat="45.286073182" lon="-72.699393192">
-      <time>2013-11-15T00:45:39Z</time>
-      <name>027</name>
-    </rtept>
-    <rtept lat="45.285844943" lon="-72.699983362">
-      <time>2015-11-29T14:37:46Z</time>
-      <name>087</name>
-    </rtept>
-  </rte>
+  
   <rte>
     <name>chemin neuf</name>
     <rtept lat="45.298142536" lon="-72.689385619">
@@ -3252,23 +2951,5 @@
       <name>D 002 haut A</name>
     </rtept>
   </rte>
-  <rte>
-    <name>D Air EAu</name>
-    <rtept lat="45.286690928" lon="-72.696990939">
-      <time>2014-11-06T01:16:23Z</time>
-      <name>D 001 bas</name>
-    </rtept>
-    <rtept lat="45.286999131" lon="-72.696615262">
-      <time>2014-11-07T00:52:18Z</time>
-      <name>D 002 bas</name>
-    </rtept>
-    <rtept lat="45.287241451" lon="-72.696168423">
-      <time>2014-10-27T23:00:58Z</time>
-      <name>D 003 bas</name>
-    </rtept>
-    <rtept lat="45.287349913" lon="-72.695974549">
-      <time>2014-10-27T23:01:47Z</time>
-      <name>D 004 bas</name>
-    </rtept>
-  </rte>
+  
 </gpx>
