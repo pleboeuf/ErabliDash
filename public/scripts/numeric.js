@@ -1247,14 +1247,15 @@ function displayVacuumErabliere() {
             videValElem.innerHTML = vacValue.toFixed(1) || 0.0;
             videValElem.style.textAlign = "right";
         }
-        if (vacuum.device === "EB-V2") {
-            console.log("device is:", vacuum.device);
-        }
+        // if (vacuum.device === "EB-V2") {
+        //     console.log("device is:", vacuum.label);
+        // }
         timeElem = document.getElementById(timeElemId);
         if (timeElem !== null) {
             timeElem.style.textAlign = "center";
             if (vacuum.RunTimeSinceMaint !== undefined) {
                 timeElem.innerHTML = secToHrMin(vacuum.RunTimeSinceMaint);
+                // console.log("RunTimeSinceMaint: ", vacuum.RunTimeSinceMaint);
                 if (vacuum.NeedMaintenance == true) {
                     if (vacuum.RunTimeSinceMaint < alarmLimit) {
                         timeElem.className = "warning";
@@ -1420,17 +1421,17 @@ function openSocket() {
             tankDef.drain = tank.drain;
             tankDef.ssrRelay = tank.ssrRelay;
             // console.log("Tank %s at %d: %s, raw= %s", tankDef.code, index, tankDef.contents, tankDef.rawValue);
-
             devices = data.devices;
             valves = data.valves;
-            if (firstLoop == true) {
-                vacuums = data.vacuums;
+            if (firstLoop) {
+                vacuums = data.vacuums; // First list of vacuum devices devices
                 firstLoop = false;
+            } else {
+                mergeVacuumData(data.vacuums, vacuums, false);
             }
             pumps = data.pumps;
             osmose = data.osmose;
             myToken = data.token;
-            // temperatures = data.temperatures;
         });
         displayDevices();
         displayValves();
@@ -1454,7 +1455,7 @@ function pad(val) {
 }
 
 function startCouleeCounter(date) {
-    console.log("Début de coulée: " + date);
+    console.log("Début de coulée: " + formatDate(date, false));
     if (date !== undefined) {
         couleTimer = setInterval(function () {
             sec = parseInt(
@@ -1576,77 +1577,85 @@ function normalizeLabel(label) {
 }
 
 // Fonction générique pour mettre à jour les données
-function updateData(source, destination, keySource) {
+function mergeVacuumData(source, destination, newEntryFlag) {
+    const now = new Date();
     const destinationIndex = destination.reduce((acc, destItem) => {
         acc[destItem.code] = destItem;
         return acc;
     }, {});
 
-    // Clear existing vacuum data
-    let vacData = [];
-    let indice = 0;
-    let theLabel = "";
-
     source.forEach((item) => {
-        const matchingDest = destinationIndex[normalizeLabel(item[keySource])];
-        if (item.label.includes("Vac3-")) {
-            theLabel = item.label.slice(5);
-        } else {
-            theLabel = matchingDest.label;
+        if (
+            item.label.includes([
+                "Vac3-POMPE 1",
+                "Vac3-POMPE 2",
+                "Vac3-POMPE PUMP HOUSE",
+            ])
+        ) {
+            item.label = substring(4, item.label);
         }
-        if (["EB-V1", "EB-V2", "EB-V3"].includes(item.label)) {
-            thisRunTimeSinceMaint = item.RunTimeSinceMaint;
-            thisNeedMaintenance = item.NeedMaintenance;
-        } else {
-            thisRunTimeSinceMaint = undefined;
-            thisNeedMaintenance = false;
-        }
-        vacData.push({
-            code: normalizeLabel(item.label),
-            label: theLabel,
-            device: item.device,
-            rawValue: parseFloat(item.rawValue) || 0, // Conversion en nombre
-            temp: parseFloat(item.temp) || 0,
-            ref: parseFloat(item.referencialValue) || 0,
-            percentCharge: parseFloat(item.percentCharge) || 0,
-            offset: item.offset,
-            RunTimeSinceMaint: thisRunTimeSinceMaint,
-            NeedMaintenance: thisNeedMaintenance,
-            lastUpdatedAt: item.lastUpdatedAt,
-        });
-        // Mise à jour des devices
-        indice = devices.findIndex((device) => device.name === item.device);
-        if (indice >= 0) {
-            devices[indice].lastUpdatedAt = item.lastUpdatedAt;
+        const normalizedLabel = normalizeLabel(item.label);
+        const matchingDest = destinationIndex[normalizedLabel];
+
+        if (matchingDest) {
+            // Update existing entry
+            matchingDest.rawValue = parseFloat(item.rawValue) || 0;
+            matchingDest.temp = parseFloat(item.temp) || 0;
+            matchingDest.ref = parseFloat(item.referencialValue) || 0;
+            matchingDest.percentCharge = parseFloat(item.percentCharge) || 0;
+            matchingDest.offset = item.offset;
+            // matchingDest.lastUpdatedAt = now.toISOString(); // Update timestamp
+            matchingDest.lastUpdatedAt = item.lastUpdatedAt;
+
+            if ("EB-V1, EB-V2, EB-V3".includes(item.device)) {
+                matchingDest.RunTimeSinceMaint = item.RunTimeSinceMaint;
+                matchingDest.NeedMaintenance = item.NeedMaintenance;
+                matchingDest.lastUpdatedAt = item.lastUpdatedAt;
+            }
+        } else if (newEntryFlag) {
+            // Add new entry if not found (optional)
+            console.log(`New vacuum entry found: ${normalizedLabel}`);
+            let newEntry = {
+                code: normalizedLabel,
+                label: item.label,
+                device: item.device,
+                rawValue: parseFloat(item.rawValue) || 0,
+                temp: parseFloat(item.temp) || 0,
+                ref: parseFloat(item.referencialValue) || 0,
+                percentCharge: parseFloat(item.percentCharge) || 0,
+                offset: item.offset,
+                lastUpdatedAt: now.toISOString(),
+            };
+            destination.push(newEntry);
         }
     });
-    return vacData;
 }
 
-// Fonction pour mettre à jour les données des tanks
-// function updateTankData(source, destination) {
-//     updateData(source, destination, "name"); // On passe 'name' comme clé pour la source
-// }
-
-// Fonction pour mettre à jour les données des vacuum sensors
-function updateVacuumData(source, destination) {
-    vacuums = updateData(source, destination, "label"); // On passe 'label' comme clé pour la source
+function formatDate(date, timeOnly = true) {
+    if (!timeOnly) {
+        let day = date.getDate().toString().padStart(2, "0");
+        let month = (date.getMonth() + 1).toString().padStart(2, "0");
+        let year = date.getFullYear();
+    }
+    let hours = date.getHours().toString().padStart(2, "0");
+    let minutes = date.getMinutes().toString().padStart(2, "0");
+    let seconds = date.getSeconds().toString().padStart(2, "0");
+    return `${hours}:${minutes}:${seconds}`;
 }
 
 // Fonction principale pour lire les données et les mettre à jour
 async function readDatacer() {
     try {
-        // const dtcTankData = await getDatacerData(datacerTank);
-        // updateTankData(dtcTankData.tank, tanks);
-
         const dtcVacuumData = await getDatacerData(datacerVac);
         if (dtcVacuumData !== null) {
-            updateVacuumData(dtcVacuumData.vacuum, vacuums);
+            mergeVacuumData(dtcVacuumData.vacuum, vacuums, true);
             console.log(
                 "Update from Datacer",
                 new Date(Date.now()).toLocaleString()
             );
-            displayDevices();
+            let now = new Date();
+            let vacDatacerName = document.getElementById("VacuumDatacerName");
+            vacDatacerName.innerHTML = "Vacuum Datacer " + formatDate(now);
             displayVacuumErabliere();
             displayVacuumLignes();
         } else {
