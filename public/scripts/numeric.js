@@ -1421,13 +1421,14 @@ function openSocket() {
             tankDef.drain = tank.drain;
             tankDef.ssrRelay = tank.ssrRelay;
             // console.log("Tank %s at %d: %s, raw= %s", tankDef.code, index, tankDef.contents, tankDef.rawValue);
-            devices = data.devices;
             valves = data.valves;
+            devices = data.devices;
             if (firstLoop) {
-                vacuums = data.vacuums; // First list of vacuum devices devices
+                vacuums = data.vacuums; // First list of vacuum devices
                 firstLoop = false;
             } else {
                 mergeVacuumData(data.vacuums, vacuums, false);
+                mergeDevicesData(data.vacuums, devices, false);
             }
             pumps = data.pumps;
             osmose = data.osmose;
@@ -1454,8 +1455,21 @@ function pad(val) {
     return val > 9 ? val : "0" + val;
 }
 
+function formatDate(date, timeOnly = true) {
+    if (!timeOnly) {
+        let day = date.getDate().toString().padStart(2, "0");
+        let month = (date.getMonth() + 1).toString().padStart(2, "0");
+        let year = date.getFullYear();
+    }
+    let hours = date.getHours().toString().padStart(2, "0");
+    let minutes = date.getMinutes().toString().padStart(2, "0");
+    let seconds = date.getSeconds().toString().padStart(2, "0");
+    return `${hours}:${minutes}:${seconds}`;
+}
+
 function startCouleeCounter(date) {
-    console.log("Début de coulée: " + formatDate(date, false));
+    // console.log("Début de coulée: " + formatDate(date, false));
+    console.log("Début de coulée: " + date.toLocaleString());
     if (date !== undefined) {
         couleTimer = setInterval(function () {
             sec = parseInt(
@@ -1576,7 +1590,7 @@ function normalizeLabel(label) {
     return label.replace(/([A-Z])0*/, "$1");
 }
 
-// Fonction générique pour mettre à jour les données
+// Fonction générique pour mettre à jour les données de vacuum
 function mergeVacuumData(source, destination, newEntryFlag) {
     const now = new Date();
     const destinationIndex = destination.reduce((acc, destItem) => {
@@ -1631,16 +1645,39 @@ function mergeVacuumData(source, destination, newEntryFlag) {
     });
 }
 
-function formatDate(date, timeOnly = true) {
-    if (!timeOnly) {
-        let day = date.getDate().toString().padStart(2, "0");
-        let month = (date.getMonth() + 1).toString().padStart(2, "0");
-        let year = date.getFullYear();
-    }
-    let hours = date.getHours().toString().padStart(2, "0");
-    let minutes = date.getMinutes().toString().padStart(2, "0");
-    let seconds = date.getSeconds().toString().padStart(2, "0");
-    return `${hours}:${minutes}:${seconds}`;
+// Fonction générique pour mettre à jour les devices
+// source Datacer vacuum data
+// destination devices array
+function mergeDevicesData(source, destination, newEntryFlag = false) {
+    const now = new Date();
+    const destinationIndex = destination.reduce((acc, destItem) => {
+        acc[destItem.name] = destItem;
+        return acc;
+    }, {});
+
+    source.forEach((item) => {
+        const devName = item.device;
+        const matchingDest = destinationIndex[devName];
+        if (!matchingDest.retired) {
+            if (matchingDest) {
+                // Update existing entry
+                if (item.lastUpdatedAt !== undefined) {
+                    matchingDest.lastUpdatedAt = item.lastUpdatedAt;
+                } else if (matchingDest.lastUpdatedAt === undefined) {
+                    matchingDest.lastUpdatedAt = now.toISOString();
+                }
+            } else if (newEntryFlag) {
+                // Add new entry if not found (optional)
+                console.log(`New devices entry found: ${devName}`);
+                let newEntry = {
+                    name: devName,
+                    label: item.label,
+                    lastUpdatedAt: now.toISOString(),
+                };
+                destination.push(newEntry);
+            }
+        }
+    });
 }
 
 // Fonction principale pour lire les données et les mettre à jour
@@ -1649,6 +1686,8 @@ async function readDatacer() {
         const dtcVacuumData = await getDatacerData(datacerVac);
         if (dtcVacuumData !== null) {
             mergeVacuumData(dtcVacuumData.vacuum, vacuums, true);
+            mergeDevicesData(dtcVacuumData.vacuum, devices, true);
+
             console.log(
                 "Update from Datacer",
                 new Date(Date.now()).toLocaleString()
