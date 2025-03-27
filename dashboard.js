@@ -988,6 +988,41 @@ exports.Dashboard = function (config, WebSocketClient) {
         });
     }
 
+    // Fonction générique pour mettre à jour les devices
+    // source Datacer vacuum data
+    // destination devices array
+    function mergeDevicesData(source, destination, newEntryFlag = false) {
+        const now = new Date();
+        const destinationIndex = destination.reduce((acc, destItem) => {
+            acc[destItem.name] = destItem;
+            return acc;
+        }, {});
+
+        source.forEach((item) => {
+            const devName = item.device;
+            const matchingDest = destinationIndex[devName];
+            if (!matchingDest.retired) {
+                if (matchingDest) {
+                    // Update existing entry
+                    if (item.lastUpdatedAt !== undefined) {
+                        matchingDest.lastUpdatedAt = item.lastUpdatedAt;
+                    } else if (matchingDest.lastUpdatedAt === undefined) {
+                        matchingDest.lastUpdatedAt = now.toISOString();
+                    }
+                } else if (newEntryFlag) {
+                    // Add new entry if not found (optional)
+                    console.log(`New devices entry found: ${devName}`);
+                    let newEntry = {
+                        name: devName,
+                        label: item.label,
+                        lastUpdatedAt: now.toISOString(),
+                    };
+                    destination.push(newEntry);
+                }
+            }
+        });
+    }
+
     async function readDatacer() {
         try {
             const dtcVacuumData = await getDatacerData(
@@ -995,6 +1030,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             );
             if (dtcVacuumData !== null) {
                 mergeVacuumData(dtcVacuumData.vacuum, vacuumSensors, true);
+                mergeDevicesData(dtcVacuumData.vacuum, devices, true);
                 console.log(
                     "Update from Datacer",
                     new Date(Date.now()).toLocaleString()
