@@ -483,8 +483,8 @@ console.log("datacer = " + datacerVac);
 // Fonction pour mettre à jour les données des vacuum sensors
 function normalizeLabel(label) {
     if (label == "Vac3-POMPE PUMP HOUSE") return "V3";
-    return label.replace(/(\D)\S*\s?0?(\d)/, "$1$2"); // works for    V01';'V1' 'Vaccum-3 1';
-    //return label.replace(/([A-Z])0*/, "$1"); // original
+    // return label.replace(/(\D)\S*\s?0?(\d)/, "$1$2"); // works for    V01';'V1' 'Vaccum-3 1';
+    return label.replace(/([A-Z])0*/, "$1"); // original
 }
 
 // Fonction générique pour mettre à jour les données
