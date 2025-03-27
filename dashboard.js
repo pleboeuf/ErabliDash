@@ -1,6 +1,8 @@
 "use strict";
 // require("dotenv").config();
 // const accessToken = process.env.PARTICLE_TOKEN;
+const fetch = (...args) =>
+    import("node-fetch").then(({ default: fetch }) => fetch(...args)); // Add this line
 const fs = require("fs");
 const path = require("path");
 const util = require("util");
@@ -8,9 +10,10 @@ const Promise = require("promise");
 const _ = require("underscore");
 
 // const datacerVac = process.env.ENDPOINT_VAC;
-// const datacerTank = process.env.ENDPOINT_TANK;
-// const datacerWater = process.env.ENDPOINT_WATER;
-// const datacerAll = process.env.Endpoint_all;
+const datacerVac = "/api/vacuum"; // Use the new proxy route
+const datacerTank = process.env.ENDPOINT_TANK;
+const datacerWater = process.env.ENDPOINT_WATER;
+const datacerAll = process.env.Endpoint_all;
 
 const readFile = Promise.denodeify(fs.readFile);
 const writeFile = Promise.denodeify(fs.writeFile);
@@ -184,19 +187,6 @@ var Pump = (exports.Pump = function (pumpConfig) {
         );
     };
 });
-
-// async function getDatacerData(url) {
-//     try {
-//         const response = await fetch(url);
-//         if (!response.ok) {
-//             throw new Error(`Response status: ${response.status}`);
-//         }
-//         const datacerData = await response.json();
-//         return datacerData;
-//     } catch (error) {
-//         console.error(error.message);
-//     }
-// }
 
 exports.Dashboard = function (config, WebSocketClient) {
     var Device = exports.Device;
@@ -926,6 +916,104 @@ exports.Dashboard = function (config, WebSocketClient) {
         });
     });
 
+    async function getDatacerData(url) {
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+            const datacerData = await response.json();
+            return datacerData;
+        } catch (error) {
+            console.warn(error.message);
+            return null;
+        }
+    }
+
+    function normalizeLabel(label) {
+        return label.replace(/([A-Z])0*/, "$1");
+    }
+
+    function mergeVacuumData(source, destination, newEntryFlag) {
+        const now = new Date();
+        const destinationIndex = destination.reduce((acc, destItem) => {
+            acc[destItem.code] = destItem;
+            return acc;
+        }, {});
+
+        source.forEach((item) => {
+            if (
+                item.label.includes([
+                    "Vac3-POMPE 1",
+                    "Vac3-POMPE 2",
+                    "Vac3-POMPE PUMP HOUSE",
+                ])
+            ) {
+                item.label = item.label.substring(4);
+            }
+            const normalizedLabel = normalizeLabel(item.label);
+            const matchingDest = destinationIndex[normalizedLabel];
+
+            if (matchingDest) {
+                // Update existing entry
+                matchingDest.rawValue = parseFloat(item.rawValue) || 0;
+                matchingDest.temp = parseFloat(item.temp) || 0;
+                matchingDest.ref = parseFloat(item.referencialValue) || 0;
+                matchingDest.percentCharge =
+                    parseFloat(item.percentCharge) || 0;
+                matchingDest.offset = item.offset;
+                matchingDest.lastUpdatedAt = item.lastUpdatedAt;
+
+                if (["EB-V1", "EB-V2", "EB-V3"].includes(item.device)) {
+                    matchingDest.RunTimeSinceMaint = item.RunTimeSinceMaint;
+                    matchingDest.NeedMaintenance = item.NeedMaintenance;
+                    matchingDest.lastUpdatedAt = item.lastUpdatedAt;
+                }
+            } else if (newEntryFlag) {
+                // Add new entry if not found (optional)
+                console.log(`New vacuum entry found: ${normalizedLabel}`);
+                let newEntry = {
+                    code: normalizedLabel,
+                    label: item.label,
+                    device: item.device,
+                    rawValue: parseFloat(item.rawValue) || 0,
+                    temp: parseFloat(item.temp) || 0,
+                    ref: parseFloat(item.referencialValue) || 0,
+                    percentCharge: parseFloat(item.percentCharge) || 0,
+                    offset: item.offset,
+                    lastUpdatedAt: now.toISOString(),
+                };
+                destination.push(newEntry);
+            }
+        });
+    }
+
+    async function readDatacer() {
+        try {
+            const dtcVacuumData = await getDatacerData(
+                process.env.ENDPOINT_VAC
+            );
+            if (dtcVacuumData !== null) {
+                mergeVacuumData(dtcVacuumData.vacuum, vacuumSensors, true);
+                console.log(
+                    "Update from Datacer",
+                    new Date(Date.now()).toLocaleString()
+                );
+            } else {
+                console.log(
+                    "Failed to fetch data from Datacer :(",
+                    new Date(Date.now()).toLocaleString()
+                );
+            }
+        } catch (error) {
+            console.error(
+                "Update from Datacer FAILED:",
+                error,
+                new Date(Date.now()).toLocaleString()
+            );
+        }
+    }
+
     function init() {
         console.log("Initializing...");
         var configData = {
@@ -1114,6 +1202,9 @@ exports.Dashboard = function (config, WebSocketClient) {
         return Promise.resolve();
     }
 
+    readDatacer();
+    setInterval(readDatacer, 1 * 60 * 1000); // Update every minute
+
     function store() {
         const dataString = JSON.stringify(getData(), null, 2);
         var events = eventsSinceStore;
@@ -1138,101 +1229,14 @@ exports.Dashboard = function (config, WebSocketClient) {
         }
     }
 
-    // Fonction générique pour mettre à jour les données
-    function updateData(source, destination, keySource) {
-        const destinationIndex = destination.reduce((acc, destItem) => {
-            acc[destItem.code] = destItem;
-            return acc;
-        }, {});
-
-        // Clear existing vacuum data
-        let vacData = [];
-        let indice = 0;
-        let theLabel = "";
-
-        source.forEach((item) => {
-            const matchingDest =
-                destinationIndex[normalizeLabel(item[keySource])];
-            if (item.label.includes("Vac3-")) {
-                theLabel = item.label.slice(5);
-            } else {
-                theLabel = matchingDest.label;
-            }
-            vacData.push({
-                code: normalizeLabel(item.label),
-                label: theLabel,
-                device: item.device,
-                rawValue: parseFloat(item.rawValue) || 0, // Conversion en nombre
-                temp: parseFloat(item.temp) || 0,
-                ref: parseFloat(item.referencialValue) || 0,
-                percentCharge: parseFloat(item.percentCharge) || 0,
-                offset: item.offset,
-                lightIntensity: 0,
-                rssi: 0,
-                signalQual: 0,
-                lastUpdatedAt: item.lastUpdatedAt,
-            });
-            // Mise à jour des devices
-            indice = devices.findIndex((device) => device.name === item.device);
-            if (indice >= 0) {
-                devices[indice].lastUpdatedAt = item.lastUpdatedAt;
-            }
-        });
-        return vacData;
-    }
-
-    // Fonction pour mettre à jour les données des tanks
-    // function updateTankData(source, destination) {
-    //     updateData(source, destination, "name"); // On passe 'name' comme clé pour la source
-    // }
-
-    // Fonction pour mettre à jour les données des vacuum sensors
-    function updateVacuumData(source, destination) {
-        vacuums = updateData(source, destination, "label"); // On passe 'label' comme clé pour la source
-    }
-
-    // Fonction principale pour lire les données et les mettre à jour
-    async function readDatacer() {
-        try {
-            // const dtcTankData = await getDatacerData(datacerTank);
-            // updateTankData(dtcTankData.tank, tanks);
-
-            const dtcVacuumData = await getDatacerData(datacerVac);
-            if (dtcVacuumData !== null) {
-                updateVacuumData(dtcVacuumData.vacuum, vacuums);
-                console.log(
-                    "Update from Datacer",
-                    new Date(Date.now()).toLocaleString()
-                );
-                displayDevices();
-                displayVacuumErabliere();
-                displayVacuumLignes();
-            } else {
-                console.log(
-                    "Failed to fetch data from Datacer :(",
-                    new Date(Date.now()).toLocaleString()
-                );
-            }
-        } catch (error) {
-            console.error(
-                "Update from Datacer FAILED:",
-                error,
-                new Date(Date.now()).toLocaleString()
-            );
-        }
-    }
-
     var storeInterval;
-    // var datacerInterval;
 
     function start() {
         storeInterval = setInterval(checkStore, 1000 * 5);
-        // datacerInterval = setInterval(readDatacer, 1000 * 120);
     }
 
     function stop() {
         clearInterval(storeInterval);
-        // clearInterval(datacerInterval);
         return store();
     }
 

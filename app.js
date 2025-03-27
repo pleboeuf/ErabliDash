@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 require("dotenv").config();
+const fetch = (...args) =>
+    import("node-fetch").then(({ default: fetch }) => fetch(...args)); // Add this line
 const WebSocketClient = require("websocket").client;
 const config = require("./config.json");
 const dashboard = require("./dashboard.js").Dashboard(config, WebSocketClient);
@@ -18,10 +20,6 @@ const wsServer = new WebSocketServer({
     autoAcceptConnections: false,
 });
 const connectedClients = [];
-const datacerVac = process.env.ENDPOINT_VAC;
-// const datacerTank = process.env.ENDPOINT_TANK;
-// const datacerWater = process.env.ENDPOINT_WATER;
-// const datacerAll = process.env.Endpoint_all;
 
 // Add this line to enable cors
 app.use(cors());
@@ -53,7 +51,7 @@ app.get("/data.json", (req, res) => {
 // Add the proxy route
 app.get("/api/vacuum", async (req, res) => {
     try {
-        const externalResponse = await fetch(datacerVac);
+        const externalResponse = await fetch(process.env.ENDPOINT_VAC); // Use process.env.ENDPOINT_VAC
         if (!externalResponse.ok) {
             throw new Error(`HTTP error! status: ${externalResponse.status}`);
         }
