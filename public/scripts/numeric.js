@@ -1469,7 +1469,7 @@ function formatDate(date, timeOnly = true) {
 
 function startCouleeCounter(date) {
     // console.log("Début de coulée: " + formatDate(date, false));
-    console.log("Début de coulée: " + date.toLocaleString());
+    console.log("Début de coulée: " + date);
     if (date !== undefined) {
         couleTimer = setInterval(function () {
             sec = parseInt(
