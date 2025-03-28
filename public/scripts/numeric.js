@@ -1228,6 +1228,10 @@ function displayVacuumErabliere() {
         const videValElemId = `val_${vacuum.device}`;
         const timeElemId = `tOper_${vacuum.device}`;
 
+        let now = new Date();
+        const TableElem = document.getElementById("VacuumDatacerName");
+        TableElem.innerHTML = "Datacer Vacuums: " + formatDate(now, false);
+
         videElem = document.getElementById(videElemId);
         if (videElem !== null) {
             videElem.innerHTML = vacuum.device;
@@ -1354,11 +1358,11 @@ function setBatteryColorLineVacuum(percentCharge) {
     }
 }
 function setVacuumDropColor(vacuumDrop) {
-    const yellowLimit = 2.0;
-    const redLimit = 3.0;
+    const yellowLimit = 3.0;
+    const redLimit = 6.0;
     try {
         if (vacuumDrop < yellowLimit) {
-            return "#e6e6e6"; //Gris
+            return "lime"; //Gris "#e6e6e6"
         } else if (vacuumDrop < redLimit) {
             return "yellow";
         } else {
