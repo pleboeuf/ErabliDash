@@ -1127,7 +1127,7 @@ function displayVacuumLignes() {
         const tempElem = document.getElementById(tempElemId);
         const chargeElem = document.getElementById(chargeElemId);
         const vacRefElem = document.getElementById(vacRefElemId);
-        const updatedElem = document.getElementById(updatedElemId);
+        let updatedElem = document.getElementById(updatedElemId);
 
         vacuumValue = vacuum.rawValue;
 
@@ -1189,11 +1189,19 @@ function displayVacuumLignes() {
             updatedElem.style.textAlign = "right";
         }
         vacuumElem = document.getElementById("vacuum_" + vacuum.device);
-        // if (vacuumElem !== null) {
-        //     setAgeColor(vacuumElem, vacuum.device);
-        // }
-        // updatedElem = document.getElementById(updatedElemId);
-        // setAgeLineVacuum(updatedElem, vacuum.device);
+
+        if (vacuumElem !== null) {
+            setAgeColor(vacuumElem, vacuum.device);
+        }
+        updatedElem = document.getElementById(updatedElemId);
+        setAgeLineVacuum(updatedElem, vacuum.device);
+
+        if (vacuum.device === "POMPE 1" && vacuum.lastUpdatedAt !== undefined) {
+            let updateTime = new Date(vacuum.lastUpdatedAt);
+            const TableElem = document.getElementById("VacuumDatacerName");
+            TableElem.innerHTML =
+                "Datacer Vacuums: " + updateTime.toLocaleTimeString();
+        }
     });
 }
 
@@ -1228,10 +1236,6 @@ function displayVacuumErabliere() {
         const videValElemId = `val_${vacuum.device}`;
         const timeElemId = `tOper_${vacuum.device}`;
 
-        let now = new Date();
-        const TableElem = document.getElementById("VacuumDatacerName");
-        TableElem.innerHTML = "Datacer Vacuums: " + formatDate(now, false);
-
         videElem = document.getElementById(videElemId);
         if (videElem !== null) {
             videElem.innerHTML = vacuum.device;
@@ -1247,9 +1251,6 @@ function displayVacuumErabliere() {
             videValElem.innerHTML = vacValue.toFixed(1) || 0.0;
             videValElem.style.textAlign = "right";
         }
-        // if (vacuum.device === "EB-V2") {
-        //     console.log("device is:", vacuum.label);
-        // }
         timeElem = document.getElementById(timeElemId);
         if (timeElem !== null) {
             timeElem.style.textAlign = "center";
@@ -1346,9 +1347,9 @@ function setAgeLineVacuum(displayElem, deviceDevice) {
 
 function setBatteryColorLineVacuum(percentCharge) {
     try {
-        if (percentCharge >= 50) {
+        if (percentCharge >= 36) {
             return "#e6e6e6"; // Light gray - Normal. 70% et plus
-        } else if (percentCharge >= 30) {
+        } else if (percentCharge >= 20) {
             return "Orange"; // Orange - Faible. Entre 50% et 69%
         } else {
             return "Red"; // Red - Critique. Moins de 50%
@@ -1423,12 +1424,7 @@ function openSocket() {
             // console.log("Tank %s at %d: %s, raw= %s", tankDef.code, index, tankDef.contents, tankDef.rawValue);
             devices = data.devices;
             valves = data.valves;
-            if (firstLoop) {
-                vacuums = data.vacuums; // First list of vacuum devices devices
-                firstLoop = false;
-            } else {
-                // mergeVacuumData(data.vacuums, vacuums, false);
-            }
+            vacuums = data.vacuums; // First list of vacuum devices devices
             pumps = data.pumps;
             osmose = data.osmose;
             myToken = data.token;
