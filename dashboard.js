@@ -43,22 +43,49 @@ exports.Device.prototype.updateFrom = function (dev) {
     return this;
 };
 
-var HorizontalCylindricTank = function (self) {
+/**
+ * @class HorizontalCylindricTank
+ * @description Represents a horizontal cylindric tank.
+ * @param {object} self - The tank object.
+ */
+const HorizontalCylindricTank = function (self) {
+    /**
+     * @function getCapacity
+     * @description Calculates the capacity of the tank.
+     * @returns {number} The capacity of the tank.
+     */
     self.getCapacity = function () {
         return Math.PI * Math.pow(self.diameter / 2000, 2) * self.length;
     };
+    /**
+     * @function getFill
+     * @description Calculates the fill of the tank.
+     * @returns {number} The fill of the tank.
+     */
     self.getFill = function () {
-        var h = self.sensorHeight - self.rawValue;
-        h = h <= 0 ? 0 : h;
+        let h = self.sensorHeight - self.rawValue;
+        h = Math.max(0, h); // Ensure h is not negative
         return HorizontalCylindricTank.getFill(h, self.diameter, self.length);
     };
 };
 
+/**
+ * @function getFill
+ * @description Calculates the fill of a horizontal cylindric tank.
+ * @param {number} level - The level of the liquid in the tank (in millimeters).
+ * @param {number} diameter - The diameter of the tank (in millimeters).
+ * @param {number} length - The length of the tank (in millimeters).
+ * @returns {number} The fill of the tank.
+ */
 HorizontalCylindricTank.getFill = function (level, diameter, length) {
     // All measures in millimeters
-    var h = level / 1000;
-    var d = diameter / 1000;
-    var r = d / 2;
+    if (isNaN(level)) {
+        return 9999;
+    }
+    level = Math.max(0, level); // Ensure level is not negative
+    let h = level / 1000;
+    let d = diameter / 1000;
+    let r = d / 2;
     return (
         (Math.pow(r, 2) * Math.acos((r - h) / r) -
             (r - h) * Math.sqrt(d * h - Math.pow(h, 2))) *
@@ -66,7 +93,7 @@ HorizontalCylindricTank.getFill = function (level, diameter, length) {
     );
 };
 
-var UShapedTank = function (self) {
+const UShapedTank = function (self) {
     self.getCapacity = function () {
         return getFill(self.totalHeight);
     };
@@ -76,10 +103,16 @@ var UShapedTank = function (self) {
 
     function getFill(level) {
         // All measures in millimeters
-        level = level <= 0 ? 0 : level;
+        level = Math.max(0, level); // Ensure level is not negative
         return getBottomFill(level) + getTopFill(level);
     }
 
+    /**
+     * @function getBottomFill
+     * @description Calculates the fill of the bottom (cylindrical) part of the U-shaped tank.
+     * @param {number} level - The level of the liquid in the tank (in millimeters).
+     * @returns {number} The fill of the bottom part of the tank.
+     */
     function getBottomFill(level) {
         const adjustedLevel = Math.min(level, self.diameter / 2);
         return HorizontalCylindricTank.getFill(
@@ -88,13 +121,15 @@ var UShapedTank = function (self) {
             self.length
         );
     }
-
+    /**
+     * @function getTopFill
+     * @description Calculates the fill of the top (rectangular) part of the U-shaped tank.
+     * @param {number} level - The level of the liquid in the tank (in millimeters).
+     * @returns {number} The fill of the top part of the tank.
+     */
     function getTopFill(level) {
         const adjustedLevel = Math.max(0, level - self.diameter / 2);
-        return (
-            ((((self.diameter / 100) * self.length) / 100) * adjustedLevel) /
-            100
-        );
+        return (((self.diameter / 1000) * self.length) / 1000) * adjustedLevel;
     }
 };
 
@@ -925,7 +960,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             const datacerData = await response.json();
             return datacerData;
         } catch (error) {
-            console.warn(error.message);
+            console.warn(error.message, url);
             return null;
         }
     }
