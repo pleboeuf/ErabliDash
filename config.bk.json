@@ -43,21 +43,21 @@
             "name": "POMPE 1",
             "label": "POMPE 1",
             "description": "Pompe a vide #1",
-            "id": "Vide1",
+            "id": "POMPE 1",
             "maxDelayMinutes": 5
         },
         {
             "name": "POMPE 2",
             "label": "POMPE 2",
             "description": "Pompe a vide #2",
-            "id": "Vide2",
+            "id": "POMPE 2",
             "maxDelayMinutes": 5
         },
         {
             "name": "POMPE PUMP HOUSE",
             "label": "POMPE PUMP HOUSE",
             "description": "Pompe a vide #3",
-            "id": "Vide3",
+            "id": "POMPE PUMP HOUSE",
             "maxDelayMinutes": 5
         },
         {
@@ -174,182 +174,182 @@
         {
             "name": "A1-A2",
             "description": "Vacuum lignes A1 à A2",
-            "id": "VA1-2",
+            "id": "A1-A2",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "A3-A4",
             "description": "Vacuum lignes A3, A4",
-            "id": "VA3-4",
+            "id": "A3-A4",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "A5-B1-B2",
             "description": "Vacuum lignes A5, B1, B2",
-            "id": "VA5B1-2",
+            "id": "A5-B1-B2",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "C1-C2-C3",
             "description": "Vacuum lignes C1 à C3",
-            "id": "VC1-3",
+            "id": "C1-C2-C3",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "C4-C5-C6",
             "description": "Vacuum lignes C4 à C6",
-            "id": "VC4-6",
+            "id": "C4-C5-C6",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "C7-C8",
             "description": "Vacuum lignes C7 à C8",
-            "id": "VC7-8",
+            "id": "C7-C8",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "D1A-D1B-D2A",
             "description": "Vacuum lignes D1A, D1B, D2A",
-            "id": "VD1ABVD2A",
+            "id": "D1A-D1B-D2A",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "D2B",
             "description": "Vacuum lignes D2B",
-            "id": "VD2B",
+            "id": "D2B",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "E1-E2-E3",
             "description": "Vacuum lignes E1 à E3",
-            "id": "VE1-3",
+            "id": "E1-E2-E3",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "E4-E5-E6",
             "description": "Vacuum lignes E4 à E6",
-            "id": "VE4-6",
+            "id": "E4-E5-E6",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "E7-E8-E9",
             "description": "Vacuum lignes E7 à E9",
-            "id": "VE7-9",
+            "id": "E7-E8-E9",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "E10-E11-E12",
             "description": "Vacuum lignes E10 à E12",
-            "id": "VE10-12",
+            "id": "E10-E11-E12",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "F1-F2-F3",
             "description": "Vacuum lignes F1 et F3",
-            "id": "VF1-3",
+            "id": "F1-F2-F3",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "F4-F5-F6",
             "description": "Vacuum lignes F4 à F6",
-            "id": "VF4-6",
+            "id": "F4-F5-F6",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "F7-F8-F9",
             "description": "Vacuum lignes F7 à F9",
-            "id": "VF7-9",
+            "id": "F7-F8-F9",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "F10-F11-F12",
             "description": "Vacuum lignes F10 à F12",
-            "id": "VF10-12",
+            "id": "F10-F11-F12",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "F13-F14-F15",
             "description": "Vacuum lignes F13 à F15",
-            "id": "VF13-15",
+            "id": "F13-F14-F15",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "H14-G1-G2",
             "description": "Vacuum lignes G1, G2 et H14",
-            "id": "VG1-2VH14",
+            "id": "H14-G1-G2",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "G3-G4-G5",
             "description": "Vacuum lignes G3 à G5",
-            "id": "VG3-5",
+            "id": "G3-G4-G5",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "G6-G7-G8",
             "description": "Vacuum lignes G6 à G8",
-            "id": "VG6-8",
+            "id": "G6-G7-G8",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "G9-G10",
             "description": "Vacuum lignes G9 à G10",
-            "id": "VG9-10",
+            "id": "G9-G10",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "G11-G12",
             "description": "Vacuum lignes G11 à G12",
-            "id": "VG11-12",
+            "id": "G11-G12",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "H2-H3-H4",
             "description": "Vacuum lignes H2 à H4",
-            "id": "VH2-4",
+            "id": "H2-H3-H4",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "H5-H6-H7",
             "description": "Vacuum lignes H5 à H7",
-            "id": "VH5-7",
+            "id": "H5-H6-H7",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
             "name": "H8-H9-H10",
             "description": "Vacuum lignes H8 à H10",
-            "id": "VH8-10",
+            "id": "H8-H9-H10",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
         {
-            "name": "H-11-12-13",
+            "name": "H11-H12-H13",
             "description": "Vacuum lignes H11 à H13",
-            "id": "VH11-13",
+            "id": "H11-H12-H13",
             "eventName": "Vacuum/Lignes",
             "maxDelayMinutes": 20
         },
@@ -769,7 +769,7 @@
             "label": "Vide2",
             "device": "POMPE 2",
             "offset": 0,
-            "ref": "PV3"
+            "ref": "PV2"
         },
         {
             "code": "PV3",
@@ -782,7 +782,6 @@
             "code": "A1",
             "label": "Ligne A1",
             "device": "A1-A2",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -791,7 +790,6 @@
             "code": "A2",
             "label": "Ligne A2",
             "device": "A1-A2",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -800,7 +798,6 @@
             "code": "A3",
             "label": "Ligne A3",
             "device": "A3-A4",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -809,7 +806,6 @@
             "code": "A4",
             "label": "Ligne A4",
             "device": "A3-A4",
-            "inputName": "vd",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -818,7 +814,6 @@
             "code": "A5",
             "label": "Ligne A5",
             "device": "A5-B1-B2",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -827,7 +822,6 @@
             "code": "B1",
             "label": "Ligne B1",
             "device": "A5-B1-B2",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -836,7 +830,6 @@
             "code": "B2",
             "label": "Ligne B2",
             "device": "A5-B1-B2",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -845,7 +838,6 @@
             "code": "C1",
             "label": "Ligne C1",
             "device": "C1-C2-C3",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -854,7 +846,6 @@
             "code": "C2",
             "label": "Ligne C2",
             "device": "C1-C2-C3",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -863,7 +854,6 @@
             "code": "C3",
             "label": "Ligne C3",
             "device": "C1-C2-C3",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -872,7 +862,6 @@
             "code": "C4",
             "label": "Ligne C4",
             "device": "C4-C5-C6",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -881,7 +870,6 @@
             "code": "C5",
             "label": "Ligne C5",
             "device": "C4-C5-C6",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -890,7 +878,6 @@
             "code": "C6",
             "label": "Ligne C6",
             "device": "C4-C5-C6",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -899,7 +886,6 @@
             "code": "C7",
             "label": "Ligne C7",
             "device": "C7-C8",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -908,7 +894,6 @@
             "code": "C8",
             "label": "Ligne C8",
             "device": "C7-C8",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -917,7 +902,6 @@
             "code": "D1A",
             "label": "Ligne D1A",
             "device": "D1A-D1B-D2A",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -926,7 +910,6 @@
             "code": "D1B",
             "label": "Ligne D1B",
             "device": "D1A-D1B-D2A",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -935,7 +918,6 @@
             "code": "D2A",
             "label": "Ligne D2A",
             "device": "D1A-D1B-D2A",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -944,7 +926,6 @@
             "code": "D2B",
             "label": "Ligne D2B",
             "device": "D2B",
-            "inputName": "vd",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -953,7 +934,6 @@
             "code": "E1",
             "label": "Ligne E1",
             "device": "E1-E2-E3",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -962,7 +942,6 @@
             "code": "E2",
             "label": "Ligne E2",
             "device": "E1-E2-E3",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -971,7 +950,6 @@
             "code": "E3",
             "label": "Ligne E3",
             "device": "E1-E2-E3",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -980,7 +958,6 @@
             "code": "E4",
             "label": "Ligne E4",
             "device": "E4-E5-E6",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -989,7 +966,6 @@
             "code": "E5",
             "label": "Ligne E5",
             "device": "E4-E5-E6",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -998,7 +974,6 @@
             "code": "E6",
             "label": "Ligne E6",
             "device": "E4-E5-E6",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -1007,7 +982,6 @@
             "code": "E7",
             "label": "Ligne E7",
             "device": "E7-E8-E9",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -1016,7 +990,6 @@
             "code": "E8",
             "label": "Ligne E8",
             "device": "E7-E8-E9",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -1025,7 +998,6 @@
             "code": "E9",
             "label": "Ligne E9",
             "device": "E7-E8-E9",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -1034,7 +1006,6 @@
             "code": "E10",
             "label": "Ligne E10",
             "device": "E10-E11-E12",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -1043,7 +1014,6 @@
             "code": "E11",
             "label": "Ligne E11",
             "device": "E10-E11-E12",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -1052,7 +1022,6 @@
             "code": "E12",
             "label": "Ligne E12",
             "device": "E10-E11-E12",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -1061,7 +1030,6 @@
             "code": "F1",
             "label": "Ligne F1",
             "device": "F1-F2-F3",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1070,7 +1038,6 @@
             "code": "F2",
             "label": "Ligne F2",
             "device": "F1-F2-F3",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1079,7 +1046,6 @@
             "code": "F3",
             "label": "Ligne F3",
             "device": "F1-F2-F3",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1088,7 +1054,6 @@
             "code": "F4",
             "label": "Ligne F4",
             "device": "F4-F5-F6",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1097,7 +1062,6 @@
             "code": "F5",
             "label": "Ligne F5",
             "device": "F4-F5-F6",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1106,7 +1070,6 @@
             "code": "F6",
             "label": "Ligne F6",
             "device": "F4-F5-F6",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1115,7 +1078,6 @@
             "code": "F7",
             "label": "Ligne F7",
             "device": "F7-F8-F9",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1124,7 +1086,6 @@
             "code": "F8",
             "label": "Ligne F8",
             "device": "F7-F8-F9",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1133,7 +1094,6 @@
             "code": "F9",
             "label": "Ligne F9",
             "device": "F7-F8-F9",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1142,7 +1102,6 @@
             "code": "F10",
             "label": "Ligne F10",
             "device": "F10-F11-F12",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1151,7 +1110,6 @@
             "code": "F11",
             "label": "Ligne F11",
             "device": "F10-F11-F12",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1160,7 +1118,6 @@
             "code": "F12",
             "label": "Ligne F12",
             "device": "F10-F11-F12",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1169,7 +1126,6 @@
             "code": "F13",
             "label": "Ligne F13",
             "device": "F13-F14-F15",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1178,7 +1134,6 @@
             "code": "F14",
             "label": "Ligne F14",
             "device": "F13-F14-F15",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1187,7 +1142,6 @@
             "code": "F15",
             "label": "Ligne F15",
             "device": "F13-F14-F15",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1196,7 +1150,6 @@
             "code": "G1",
             "label": "Ligne G1",
             "device": "H14-G1-G2",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1205,7 +1158,6 @@
             "code": "G2",
             "label": "Ligne G2",
             "device": "H14-G1-G2",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1214,7 +1166,6 @@
             "code": "G3",
             "label": "Ligne G3",
             "device": "G3-G4-G5",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1223,7 +1174,6 @@
             "code": "G4",
             "label": "Ligne G4",
             "device": "G3-G4-G5",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1232,7 +1182,6 @@
             "code": "G5",
             "label": "Ligne G5",
             "device": "G3-G4-G5",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1241,7 +1190,6 @@
             "code": "G6",
             "label": "Ligne G6",
             "device": "G6-G7-G8",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1250,7 +1198,6 @@
             "code": "G7",
             "label": "Ligne G7",
             "device": "G6-G7-G8",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1259,7 +1206,6 @@
             "code": "G8",
             "label": "Ligne G8",
             "device": "G6-G7-G8",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1268,7 +1214,6 @@
             "code": "G9",
             "label": "Ligne G9",
             "device": "G9-G10",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1277,7 +1222,6 @@
             "code": "G10",
             "label": "Ligne G10",
             "device": "G9-G10",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1286,7 +1230,6 @@
             "code": "G11",
             "label": "Ligne G11",
             "device": "G11-G12",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1304,7 +1247,6 @@
             "code": "H2",
             "label": "Ligne H2",
             "device": "H2-H3-H4",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1313,7 +1255,6 @@
             "code": "H3",
             "label": "Ligne H3",
             "device": "H2-H3-H4",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1322,7 +1263,6 @@
             "code": "H4",
             "label": "Ligne H4",
             "device": "H2-H3-H4",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1331,7 +1271,6 @@
             "code": "H5",
             "label": "Ligne H5",
             "device": "H5-H6-H7",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1340,7 +1279,6 @@
             "code": "H6",
             "label": "Ligne H6",
             "device": "H5-H6-H7",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1349,7 +1287,6 @@
             "code": "H7",
             "label": "Ligne H7",
             "device": "H5-H6-H7",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1358,7 +1295,6 @@
             "code": "H8",
             "label": "Ligne H8",
             "device": "H8-H9-H10",
-            "inputName": "va",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1367,7 +1303,6 @@
             "code": "H9",
             "label": "Ligne H9",
             "device": "H8-H9-H10",
-            "inputName": "vb",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1376,7 +1311,6 @@
             "code": "H10",
             "label": "Ligne H10",
             "device": "H8-H9-H10",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1384,8 +1318,7 @@
         {
             "code": "H11",
             "label": "Ligne H11",
-            "device": "H-11-12-13",
-            "inputName": "va",
+            "device": "H11-H12-H13",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1393,8 +1326,7 @@
         {
             "code": "H12",
             "label": "Ligne H12",
-            "device": "H-11-12-13",
-            "inputName": "vb",
+            "device": "H11-H12-H13",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1402,8 +1334,7 @@
         {
             "code": "H13",
             "label": "Ligne H13",
-            "device": "H-11-12-13",
-            "inputName": "vc",
+            "device": "H11-H12-H13",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1412,7 +1343,6 @@
             "code": "H14",
             "label": "Ligne H14",
             "device": "H14-G1-G2",
-            "inputName": "vc",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"

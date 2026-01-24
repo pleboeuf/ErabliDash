@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 require("dotenv").config();
 const fetch = (...args) =>
-    import("node-fetch").then(({ default: fetch }) => fetch(...args)); // Add this line
+    import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const WebSocketClient = require("websocket").client;
 const config = require("./config.json");
 const dashboard = require("./dashboard.js").Dashboard(config, WebSocketClient);

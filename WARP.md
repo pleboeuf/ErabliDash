@@ -64,8 +64,8 @@ node -e "var Tank = require('./dashboard.js').Tank; console.log(new Tank({shape:
 
 ### Data Flow Architecture
 
-1. **Data Collection**: IoT devices send telemetry via WebSocket to ErabliCollector
-2. **Data Processing**: Dashboard connects to collector, processes events by topic (sensor, pump, vacuum, output, device, osmose, optoIn)
+1. **Data Collection**: IoT devices send telemetry via WebSocket to ErabliCollector. In addition, Vaccum Line data is obtained through an api to the Datacer system.
+2. **Data Processing**: Dashboard connects to collector, processes events by topic (sensor, pump, vacuum, output, device, osmose, optoIn). It also merge Vacuum Line data from the Datacer system.
 3. **Data Storage**: Processed data stored in JSON format and periodically updated
 4. **Data API**: Express server exposes `/data.json` endpoint for frontend consumption
 5. **Real-time Updates**: WebSocket server pushes updates to connected web clients

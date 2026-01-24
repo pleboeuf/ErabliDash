@@ -9,12 +9,6 @@ const util = require("util");
 const Promise = require("promise");
 const _ = require("underscore");
 
-// const datacerVac = process.env.ENDPOINT_VAC;
-const datacerVac = "/api/vacuum"; // Use the new proxy route
-const datacerTank = process.env.ENDPOINT_TANK;
-const datacerWater = process.env.ENDPOINT_WATER;
-const datacerAll = process.env.Endpoint_all;
-
 const readFile = Promise.denodeify(fs.readFile);
 const writeFile = Promise.denodeify(fs.writeFile);
 
@@ -25,7 +19,7 @@ exports.Device = function (
     lastEventSerial,
     maxDelayMinutes,
     eventName,
-    retired
+    retired,
 ) {
     this.id = id;
     this.name = name;
@@ -118,7 +112,7 @@ const UShapedTank = function (self) {
         return HorizontalCylindricTank.getFill(
             adjustedLevel,
             self.diameter,
-            self.length
+            self.length,
         );
     }
     /**
@@ -186,7 +180,7 @@ var Pump = (exports.Pump = function (pumpConfig) {
         console.log(
             "Loading configured pump '%s' on device '%s'",
             self.code,
-            self.device
+            self.device,
         );
         return _.extend(self, _.omit(pumpData, "code", "device"));
     };
@@ -218,7 +212,7 @@ var Pump = (exports.Pump = function (pumpConfig) {
                 (t2Event.timer - t1Event.timer) +
                 " ms on (" +
                 (self.duty * 100).toFixed(0) +
-                "% duty)"
+                "% duty)",
         );
     };
 });
@@ -288,7 +282,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                 device.name,
                 device.id,
                 device.generationId,
-                device.lastEventSerial
+                device.lastEventSerial,
             );
             pendingRequests[device.id] = true;
             connection.sendUTF(
@@ -297,7 +291,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                     device: device.id,
                     generation: device.generationId,
                     after: device.lastEventSerial,
-                })
+                }),
             );
         }
     }
@@ -308,7 +302,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             connection.sendUTF(
                 JSON.stringify({
                     command: "subscribe",
-                })
+                }),
             );
         }
     }
@@ -339,7 +333,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                 device.name,
                 identifier,
                 device.generationId,
-                device.lastEventSerial
+                device.lastEventSerial,
             );
         }
         return valve;
@@ -495,7 +489,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                     "Unknown 'Pump' event topic from %s: %s %s",
                     device.name,
                     evTopic,
-                    event.data.eData
+                    event.data.eData,
                 );
         }
     }
@@ -555,7 +549,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                     "Unknown 'Sensor' event topic from %s: %s %s",
                     device.name,
                     evTopic,
-                    event.data.eData
+                    event.data.eData,
                 );
         }
     }
@@ -586,7 +580,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                     "Unknown 'Vacuum' event topic from %s: %s %s",
                     device.name,
                     evTopic,
-                    event
+                    event,
                 );
         }
     }
@@ -608,7 +602,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                     "Unknown 'Output' event topic from %s: %s %s",
                     device.name,
                     evTopic,
-                    event
+                    event,
                 );
         }
     }
@@ -626,7 +620,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                     "Unknown 'Device' event topic from %s: %s %s",
                     device.name,
                     evTopic,
-                    event
+                    event,
                 );
         }
     }
@@ -704,7 +698,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                     "Unknown 'Osmose' event topic from %s: %s %s",
                     device.name,
                     evTopic,
-                    event
+                    event,
                 );
         }
     }
@@ -727,7 +721,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                     "Unknown 'OptoIn' event topic from '%s': %s %s",
                     device.name,
                     evTopic,
-                    event
+                    event,
                 );
         }
     }
@@ -757,7 +751,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             "Event '%s' from device: '%s', value: %s",
             name,
             device.name,
-            value
+            value,
         );
 
         const [mainTopic, subTopic] = name.split("/");
@@ -788,7 +782,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                     "Unknown event '%s' from %s: %s",
                     device.name,
                     name,
-                    event
+                    event,
                 );
         }
         return publishData(event, device);
@@ -796,7 +790,7 @@ exports.Dashboard = function (config, WebSocketClient) {
 
     function publishData(event, device) {
         return Promise.all(
-            listeners.map((listener) => listener(getData(), event, device))
+            listeners.map((listener) => listener(getData(), event, device)),
         );
     }
 
@@ -823,7 +817,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                         "First event received for device %s (%s,%s)",
                         deviceId,
                         generationId,
-                        serialNo
+                        serialNo,
                     );
                     device.generationId = generationId;
                     device.lastEventSerial = serialNo;
@@ -836,7 +830,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                             generationId,
                             serialNo,
                             device.generationId,
-                            device.lastEventSerial
+                            device.lastEventSerial,
                         );
                         device.generationId = generationId;
                         device.lastEventSerial = serialNo;
@@ -847,7 +841,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                                 "Received event for old generation (%s) of device %s, which is now at generation %s. Ignored!",
                                 generationId,
                                 deviceId,
-                                device.generationId
+                                device.generationId,
                             ),
                             message: message,
                         });
@@ -863,7 +857,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                             "Received old event for device %s: %d, %s",
                             deviceId,
                             serialNo,
-                            generationId
+                            generationId,
                         ),
                         message: message,
                     });
@@ -882,16 +876,16 @@ exports.Dashboard = function (config, WebSocketClient) {
                         "Completed query for device %s with %d events; waiting for %d other devices.",
                         deviceId,
                         message.data.command.sent,
-                        Object.keys(pendingRequests).length
-                    )
+                        Object.keys(pendingRequests).length,
+                    ),
                 );
             } else {
                 console.log(
                     util.format(
                         "Completed query for device %s with %d events; All queries completed.",
                         deviceId,
-                        message.data.command.sent
-                    )
+                        message.data.command.sent,
+                    ),
                 );
                 store();
                 queryCompleteCallbacks.forEach(function (callback) {
@@ -937,12 +931,12 @@ exports.Dashboard = function (config, WebSocketClient) {
                     return handleMessage(JSON.parse(message.utf8Data)).catch(
                         function (err) {
                             console.error(err);
-                        }
+                        },
                     );
                 } catch (exception) {
                     console.error(
                         "Failed to handle message: " + message.utf8Data,
-                        exception.stack
+                        exception.stack,
                     );
                 }
             } else {
@@ -950,140 +944,6 @@ exports.Dashboard = function (config, WebSocketClient) {
             }
         });
     });
-
-    async function getDatacerData(url) {
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`Response status: ${response.status}`);
-            }
-            const datacerData = await response.json();
-            return datacerData;
-        } catch (error) {
-            console.warn(error.message, url);
-            return null;
-        }
-    }
-
-    function normalizeLabel(label) {
-        return label.replace(/([A-Z])0*/, "$1");
-    }
-
-    function mergeVacuumData(source, destination, newEntryFlag) {
-        const now = new Date();
-        const destinationIndex = destination.reduce((acc, destItem) => {
-            acc[destItem.code] = destItem;
-            return acc;
-        }, {});
-
-        source.forEach((item) => {
-            if (
-                item.label.includes([
-                    "Vac3-POMPE 1",
-                    "Vac3-POMPE 2",
-                    "Vac3-POMPE PUMP HOUSE",
-                ])
-            ) {
-                item.label = item.label.substring(4);
-            }
-            const normalizedLabel = normalizeLabel(item.label);
-            const matchingDest = destinationIndex[normalizedLabel];
-
-            if (matchingDest) {
-                // Update existing entry
-                matchingDest.rawValue = parseFloat(item.rawValue) || 0;
-                matchingDest.temp = parseFloat(item.temp) || 0;
-                matchingDest.ref = parseFloat(item.referencialValue) || 0;
-                matchingDest.percentCharge =
-                    parseFloat(item.percentCharge) || 0;
-                matchingDest.offset = item.offset;
-                matchingDest.lastUpdatedAt = item.lastUpdatedAt;
-
-                if (["EB-V1", "EB-V2", "EB-V3"].includes(item.device)) {
-                    matchingDest.RunTimeSinceMaint = item.RunTimeSinceMaint;
-                    matchingDest.NeedMaintenance = item.NeedMaintenance;
-                    matchingDest.lastUpdatedAt = item.lastUpdatedAt;
-                }
-            } else if (newEntryFlag) {
-                // Add new entry if not found (optional)
-                console.log(`New vacuum entry found: ${normalizedLabel}`);
-                let newEntry = {
-                    code: normalizedLabel,
-                    label: item.label,
-                    device: item.device,
-                    rawValue: parseFloat(item.rawValue) || 0,
-                    temp: parseFloat(item.temp) || 0,
-                    ref: parseFloat(item.referencialValue) || 0,
-                    percentCharge: parseFloat(item.percentCharge) || 0,
-                    offset: item.offset,
-                    lastUpdatedAt: now.toISOString(),
-                };
-                destination.push(newEntry);
-            }
-        });
-    }
-
-    // Fonction générique pour mettre à jour les devices
-    // source Datacer vacuum data
-    // destination devices array
-    function mergeDevicesData(source, destination, newEntryFlag = false) {
-        const now = new Date();
-        const destinationIndex = destination.reduce((acc, destItem) => {
-            acc[destItem.name] = destItem;
-            return acc;
-        }, {});
-
-        source.forEach((item) => {
-            const devName = item.device;
-            const matchingDest = destinationIndex[devName];
-            if (!matchingDest.retired) {
-                if (matchingDest) {
-                    // Update existing entry
-                    if (item.lastUpdatedAt !== undefined) {
-                        matchingDest.lastUpdatedAt = item.lastUpdatedAt;
-                    } else if (matchingDest.lastUpdatedAt === undefined) {
-                        matchingDest.lastUpdatedAt = now.toISOString();
-                    }
-                } else if (newEntryFlag) {
-                    // Add new entry if not found (optional)
-                    console.log(`New devices entry found: ${devName}`);
-                    let newEntry = {
-                        name: devName,
-                        label: item.label,
-                        lastUpdatedAt: now.toISOString(),
-                    };
-                    destination.push(newEntry);
-                }
-            }
-        });
-    }
-
-    async function readDatacer() {
-        try {
-            const dtcVacuumData = await getDatacerData(
-                process.env.ENDPOINT_VAC
-            );
-            if (dtcVacuumData !== null) {
-                mergeVacuumData(dtcVacuumData.vacuum, vacuumSensors, true);
-                mergeDevicesData(dtcVacuumData.vacuum, devices, true);
-                console.log(
-                    "Update from Datacer",
-                    new Date(Date.now()).toLocaleString()
-                );
-            } else {
-                console.log(
-                    "Failed to fetch data from Datacer :(",
-                    new Date(Date.now()).toLocaleString()
-                );
-            }
-        } catch (error) {
-            console.error(
-                "Update from Datacer FAILED:",
-                error,
-                new Date(Date.now()).toLocaleString()
-            );
-        }
-    }
 
     function init() {
         console.log("Initializing...");
@@ -1169,7 +1029,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                 dev.description,
                 dev.id,
                 deviceData.generationId,
-                deviceData.lastEventSerial
+                deviceData.lastEventSerial,
             );
             return new Device(
                 dev.id,
@@ -1178,7 +1038,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                 deviceData.lastEventSerial,
                 dev.maxDelayMinutes,
                 dev.eventName,
-                dev.retired
+                dev.retired,
             );
         });
 
@@ -1193,7 +1053,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                 tank.code,
                 tank.name,
                 tank.rawValue,
-                tank.lastUpdatedAt
+                tank.lastUpdatedAt,
             );
             var attrsFromConfig = [
                 "name",
@@ -1217,7 +1077,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             console.log(
                 "Loading configured valve '%s' on device '%s'",
                 valve.code,
-                valve.device
+                valve.device,
             );
             return _.extend(valve, _.omit(valveData, "code", "name", "device"));
         });
@@ -1234,7 +1094,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             console.log(
                 "Loading configured vacuum sensor '%s' on device '%s'",
                 sensor.code,
-                sensor.device
+                sensor.device,
             );
             return _.extend(sensor, _.omit(sensorData, "code", "device"));
         });
@@ -1265,16 +1125,13 @@ exports.Dashboard = function (config, WebSocketClient) {
             console.log(
                 "Loading configured osmose sensor '%s' on device '%s'",
                 sensor.code,
-                sensor.device
+                sensor.device,
             );
             return _.extend(sensor, _.omit(sensorData, "code", "device"));
         });
 
         return Promise.resolve();
     }
-
-    readDatacer();
-    setInterval(readDatacer, 1 * 60 * 1000); // Update every minute
 
     function store() {
         const dataString = JSON.stringify(getData(), null, 2);
@@ -1285,7 +1142,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                 // Counter may be incremented if a message was received while storing.
                 eventsSinceStore = eventsSinceStore - events;
                 console.log(
-                    "Wrote " + filename + " with " + events + " new events."
+                    "Wrote " + filename + " with " + events + " new events.",
                 );
             })
             .catch(function (err) {

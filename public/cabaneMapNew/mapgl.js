@@ -68,17 +68,7 @@ function go() {
         scanpoint(a2[2].responseText, pointsV, pointsT);
         loadMarqueurV(pointsV);
         loadMarqueurT(pointsT);
-        //
-        //  DATACER remplace
-        //         setTimeout(openSocket, 4000); // donne le temps a demarre openSocket();
-        //        zoombound();
-
-        //  AJOUT DATACER
-        if (DebugON) console.log("start readdatacer ");
-
-        const datacerInterval = setInterval(readDatacer, 2000 * 60); // 60 * 2000 ms = 2 min  original 1000
-        // readDatacer();
-        const datacerTimeout = setTimeout(readDatacer, 4000); // 60 * 500 ms = 1/2 min  original 1000
+        setTimeout(openSocket, 4000);
     });
 }
 function scanpoint(datagpx, pointsV, pointsT) {
@@ -459,94 +449,6 @@ function nomT(str) {
     return l + no;
 }
 
-///// DATACER
-const loc = document.location;
-
-console.log(loc.href); // https://developer.mozilla.org:8080/en-US/search?q=URL#search-results-close-container
-console.log(loc.protocol); // https:
-console.log(loc.host); // developer.mozilla.org:8080
-console.log(loc.hostname); // developer.mozilla.org
-console.log(loc.port); // 8080
-console.log(loc.pathname); // /en-US/search
-console.log(loc.search); // ?q=URL
-console.log(loc.hash); // #search-results-close-container
-console.log(loc.origin); // https://developer.mozilla.org:8080
-var dtcurl;
-
-if (loc.hostname == "localhost") dtcurl = "http://boilerhouse.ddns.net:3300";
-else dtcurl = loc.origin;
-//const dtcurl = "http://boilerhouse.ddns.net:3300"
-const datacerVac = dtcurl + "/api/vacuum";
-//if (DebugON)
-console.log("datacer = " + datacerVac);
-
-// Fonction pour mettre à jour les données des vacuum sensors
-function normalizeLabel(label) {
-    if (label == "Vac3-POMPE PUMP HOUSE") return "V3";
-    // return label.replace(/(\D)\S*\s?0?(\d)/, "$1$2"); // works for    V01';'V1' 'Vaccum-3 1';
-    return label.replace(/([A-Z])0*/, "$1"); // original
-}
-
-// Fonction générique pour mettre à jour les données
-function updateData(source, destination, keySource) {
-    // Clear existing vacuum data
-    let vacData = [];
-
-    source.forEach((item) => {
-        vacData.push({
-            code: normalizeLabel(item.label),
-            label: item.label,
-            device: item.device,
-            rawValue: parseFloat(item.rawValue) || 0, // Conversion en nombre
-            temp: parseFloat(item.temp) || 0,
-            ref: parseFloat(item.referencialValue) || 0,
-            percentCharge: parseFloat(item.percentCharge) || 0,
-            offset: item.offset,
-            lightIntensity: 0,
-            rssi: 0,
-            signalQual: 0,
-            lastUpdatedAt: item.lastUpdatedAt,
-        });
-    });
-    return vacData;
-}
-
-function updateVacuumData(source, destination) {
-    return updateData(source, destination, "label"); // On passe 'label' comme clé pour la source
-}
-
-async function readDatacer() {
-    var vacuums = [];
-    try {
-        const dtcVacuumData = await getDatacerData(datacerVac);
-        if (dtcVacuumData !== null) {
-            scanvacuum(updateVacuumData(dtcVacuumData.vacuum, vacuums));
-            console.log("Update from Datacer");
-            //           displayVacuumErabliere();
-            //           displayVacuumLignes();
-        } else {
-            console.log("Failed to fetch data from Datacer :( rep null");
-        }
-    } catch (error) {
-        console.error("Update from Datacer FAILED:", error);
-    }
-}
-
-async function getDatacerData(url) {
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-        }
-        const datacerData = await response.json();
-        return datacerData;
-    } catch (error) {
-        console.warn(error.message);
-        return null;
-    }
-}
-
-// fin DATACER
 
 //
 //mapbox related function
