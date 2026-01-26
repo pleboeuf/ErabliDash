@@ -543,6 +543,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                 const sensor = getVacuumSensorOfDevice(device);
                 sensor.rawValue = value;
                 sensor.lastUpdatedAt = event.published_at;
+                event.object = extendVacuum(sensor);
                 break;
             default:
                 console.warn(
@@ -557,22 +558,28 @@ exports.Dashboard = function (config, WebSocketClient) {
     function handleVacuumEvent(device, event, evTopic, data) {
         switch (evTopic) {
             case "Lignes":
-                for (let i = 0; i < 4; i++) {
-                    const sensor = getVacuumSensorOfLineVacuumDevice(device, i);
-                    if (sensor !== undefined) {
-                        Object.assign(sensor, {
-                            rawValue: data[sensor.inputName] * 100,
-                            lastUpdatedAt: event.published_at,
-                            temp: data["temp"],
-                            lightIntensity: data["li"],
-                            percentCharge: data["soc"],
-                            batteryVolt: data["volt"],
-                            rssi: data["rssi"],
-                            signalQual: data["qual"],
-                        });
-                    } else {
-                        break;
-                    }
+                // Get the sensor by matching both device name and label/code
+                // The label identifies which specific sensor on the device
+                const sensorCode = data.label || device.name;
+                const sensor = vacuumSensors.find(s => 
+                    s.device === device.name && s.code === sensorCode
+                );
+                
+                if (sensor !== undefined) {
+                    Object.assign(sensor, {
+                        rawValue: data.eData,
+                        lastUpdatedAt: event.published_at,
+                        temp: data.temp,
+                        percentCharge: data.soc,
+                        ref: data.ref,
+                    });
+                    event.object = extendVacuum(sensor);
+                } else {
+                    console.warn(
+                        "No vacuum sensor found for device '%s' with code/label '%s'",
+                        device.name,
+                        sensorCode
+                    );
                 }
                 break;
             default:
@@ -975,7 +982,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             devices: devices,
             tanks: tanks.map(extendTank),
             valves: valves.map(extendValve),
-            vacuums: vacuumSensors,
+            vacuums: vacuumSensors.map(extendVacuum),
             pumps: pumps.map(extendPump),
             osmose: theOsmose,
             token: process.env.PARTICLE_TOKEN,
