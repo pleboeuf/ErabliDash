@@ -121,3 +121,39 @@ dashboard.onChange(() => {
 server.listen(port, () => {
     console.log(`HTTP Server started: http://localhost:${port}`);
 });
+
+// Graceful shutdown on SIGINT (Ctrl-C)
+process.on("SIGINT", async () => {
+    console.log("\nReceived SIGINT, shutting down gracefully...");
+
+    // Close all WebSocket connections
+    console.log("Closing WebSocket connections...");
+    connectedClients.forEach((connection) => {
+        try {
+            connection.close();
+        } catch (err) {
+            console.error("Error closing connection:", err);
+        }
+    });
+
+    // Stop the dashboard (saves data)
+    console.log("Stopping dashboard...");
+    try {
+        await dashboard.stop();
+    } catch (err) {
+        console.error("Error stopping dashboard:", err);
+    }
+
+    // Close the HTTP server
+    console.log("Closing HTTP server...");
+    server.close(() => {
+        console.log("Server closed. Exiting.");
+        process.exit(0);
+    });
+
+    // Force exit after 10 seconds if graceful shutdown fails
+    setTimeout(() => {
+        console.error("Could not close connections in time, forcefully shutting down");
+        process.exit(1);
+    }, 10000);
+});

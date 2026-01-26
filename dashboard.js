@@ -561,16 +561,16 @@ exports.Dashboard = function (config, WebSocketClient) {
                 // Get the sensor by matching both device name and label/code
                 // The label identifies which specific sensor on the device
                 const sensorCode = data.label || device.name;
-                const sensor = vacuumSensors.find(s => 
-                    s.device === device.name && s.code === sensorCode
+                const sensor = vacuumSensors.find(
+                    (s) => s.device === device.name && s.code === sensorCode,
                 );
-                
+
                 if (sensor !== undefined) {
                     Object.assign(sensor, {
                         rawValue: data.eData,
-                        lastUpdatedAt: event.published_at,
+                        lastUpdatedAt: data.lastUpdatedAt,
                         temp: data.temp,
-                        percentCharge: data.soc,
+                        percentCharge: data.percentCharge,
                         ref: data.ref,
                     });
                     event.object = extendVacuum(sensor);
@@ -578,7 +578,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                     console.warn(
                         "No vacuum sensor found for device '%s' with code/label '%s'",
                         device.name,
-                        sensorCode
+                        sensorCode,
                     );
                 }
                 break;

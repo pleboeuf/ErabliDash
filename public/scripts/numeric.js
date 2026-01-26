@@ -268,7 +268,7 @@ function displayTanks() {
         }
         gaugeElement.setAttribute(
             "data-peity",
-            '{ "fill": ["black", "#eeeeee"], "innerRadius": 0, "radius": 8 }'
+            '{ "fill": ["black", "#eeeeee"], "innerRadius": 0, "radius": 8 }',
         );
         percentElement.appendChild(gaugeElement);
 
@@ -335,7 +335,7 @@ function displayTanks() {
                 ((RStotal / RStotalCap) * 100).toFixed(0) + "%";
             let seveBrix = document.getElementById("Osmose_BrixSeve").innerHTML;
             RStoSiropElement.innerHTML = ((RStotal * seveBrix) / 66.0).toFixed(
-                0
+                0,
             );
             RSdispElement.innerHTML = (RStotalCap - RStotal).toFixed(0);
             RSmaxElement.innerHTML = RStotalCap.toFixed(0);
@@ -363,7 +363,7 @@ function displayTanks() {
                 ((RCtotal / RCtotalCap) * 100).toFixed(0) + "%";
             let concBrix = document.getElementById("Osmose_BrixConc").innerHTML;
             RCtoSiropElement.innerHTML = ((RCtotal * concBrix) / 66.0).toFixed(
-                0
+                0,
             );
             RCdispElement.innerHTML = (RCtotalCap - RCtotal).toFixed(0);
             RCmaxElement.innerHTML = RCtotalCap.toFixed(0);
@@ -501,7 +501,7 @@ function inputValvesOnOff(buttonId, cmd) {
     let devId = getDeviceId(devName);
     let text = cmd == "ON" ? "Ouvrir: " : "Fermer: ";
     console.log(
-        text + buttonId + " avec device: " + devName + ", id: " + devId
+        text + buttonId + " avec device: " + devName + ", id: " + devId,
     );
     callFunction(devId, "relay", cmd);
 }
@@ -585,7 +585,7 @@ function displayDevices() {
         const serialElem = document.getElementById(serialElemId);
 
         const ageInMinutes = Math.floor(
-            getMinutesAgo(new Date(device.lastUpdatedAt))
+            getMinutesAgo(new Date(device.lastUpdatedAt)),
         );
 
         let ageDisplay = ageInMinutes === 0 ? "now" : `${ageInMinutes} min.`;
@@ -782,7 +782,7 @@ function displayOsmose() {
         var miseAJourElemId = "Osmose" + "_lastUpdatedAt";
         miseAJourElem = document.getElementById(miseAJourElemId);
         var ageInMinutes = Math.floor(
-            getMinutesAgo(new Date(osm.lastUpdatedAt))
+            getMinutesAgo(new Date(osm.lastUpdatedAt)),
         );
         miseAJourElem.innerHTML = ageInMinutes + " min.";
 
@@ -1116,7 +1116,7 @@ function displayVacuumLignes() {
             const updatedCell = createCell(
                 updatedElemId,
                 "vacuumtemp",
-                vacuumElem
+                vacuumElem,
             );
             updatedCell.style.visibility = "visible";
         }
@@ -1165,7 +1165,7 @@ function displayVacuumLignes() {
             chargeElem.innerHTML = vacuum.percentCharge.toFixed(0);
             chargeElem.style.textAlign = "right";
             chargeElem.style.backgroundColor = setBatteryColorLineVacuum(
-                vacuum.percentCharge
+                vacuum.percentCharge,
             );
         }
 
@@ -1180,7 +1180,7 @@ function displayVacuumLignes() {
             if (vacuum.device === undefined) return;
 
             const ageInMinutes = Math.floor(
-                getMinutesAgo(new Date(vacuum.lastUpdatedAt))
+                getMinutesAgo(new Date(vacuum.lastUpdatedAt)),
             );
             const ageDisplay =
                 ageInMinutes === 0 ? "now" : `${ageInMinutes} min.`;
@@ -1188,13 +1188,12 @@ function displayVacuumLignes() {
             updatedElem.innerHTML = ageDisplay;
             updatedElem.style.textAlign = "right";
         }
-        vacuumElem = document.getElementById("vacuum_" + vacuum.device);
+        vacuumElem = document.getElementById("vacuum_" + vacuum.code);
 
         if (vacuumElem !== null) {
             setAgeColor(vacuumElem, vacuum.device);
         }
         updatedElem = document.getElementById(updatedElemId);
-        setAgeLineVacuum(updatedElem, vacuum.device);
 
         if (vacuum.device === "POMPE 1" && vacuum.lastUpdatedAt !== undefined) {
             let updateTime = new Date(vacuum.lastUpdatedAt);
@@ -1456,7 +1455,7 @@ function startCouleeCounter(date) {
     if (date !== undefined) {
         couleTimer = setInterval(function () {
             sec = parseInt(
-                Math.abs(Date.now() / 1e3 - new Date(date).getTime())
+                Math.abs(Date.now() / 1e3 - new Date(date).getTime()),
             );
             var timeStr = "</br>" + parseInt(sec / 86400, 10);
             timeStr = timeStr + "j " + pad(parseInt(sec / 3600, 10) % 24);
@@ -1517,13 +1516,13 @@ async function readDeviceVariable(deviceId, varName) {
         });
         console.log(
             `Successfully read variable '${varName}' from device '${deviceId}':`,
-            data.result
+            data.result,
         );
         return data.result; // Return the variable's value on success
     } catch (err) {
         console.error(
             `Error reading variable '${varName}' from device '${deviceId}':`,
-            err
+            err,
         );
         // Optionally, you could throw the error here to propagate it further up the call stack:
         // throw err;
@@ -1546,7 +1545,7 @@ async function callFunction(devID, fname, fargument) {
             function (err) {
                 console.log("An error occurred:", err);
                 // return "Erreur!";
-            }
+            },
         );
     return status;
 }
