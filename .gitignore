@@ -1,16 +1,45 @@
-node_modules
-dashboard.sqlite3
-dashboard.sqlite3-journal
-data
-Datacer
+# Dependencies
+node_modules/
+bower_components/
+
+# Environment & Configuration
+.env
 config.json
 config.json.bk
 config20*.json
-log
-pid
-bower_components
-.eslintrc.js
-.DS_Store
+
+# Data & Logs
+data/
+Datacer/
+log/
+pid/
+*.log
+
+# Database
+dashboard.sqlite3
+dashboard.sqlite3-journal
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup & Temporary Files
 *.bk
-.env
-.tar
+*.tmp
+*.swp
+*~
+
+# Archives
+*.tar
+*.tar.gz
+*.zip
+
+# OS & IDE
+.DS_Store
+.vscode/
+.idea/
+*.iml
+
+# Build & Distribution
+dist/
+build/
+*.tgz
