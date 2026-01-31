@@ -782,6 +782,7 @@
             "code": "A1",
             "label": "Ligne A1",
             "device": "A1-A2",
+            "input": "A1",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -790,6 +791,7 @@
             "code": "A2",
             "label": "Ligne A2",
             "device": "A1-A2",
+            "input": "A2",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -798,6 +800,7 @@
             "code": "A3",
             "label": "Ligne A3",
             "device": "A3-A4",
+            "input": "A3",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -806,6 +809,7 @@
             "code": "A4",
             "label": "Ligne A4",
             "device": "A3-A4",
+            "input": "A4",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -814,6 +818,7 @@
             "code": "A5",
             "label": "Ligne A5",
             "device": "A5-B1-B2",
+            "input": "A5",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -822,6 +827,7 @@
             "code": "B1",
             "label": "Ligne B1",
             "device": "A5-B1-B2",
+            "input": "B1",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -830,6 +836,7 @@
             "code": "B2",
             "label": "Ligne B2",
             "device": "A5-B1-B2",
+            "input": "B2",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -838,6 +845,7 @@
             "code": "C1",
             "label": "Ligne C1",
             "device": "C1-C2-C3",
+            "input": "C1",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -846,6 +854,7 @@
             "code": "C2",
             "label": "Ligne C2",
             "device": "C1-C2-C3",
+            "input": "C2",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -854,6 +863,7 @@
             "code": "C3",
             "label": "Ligne C3",
             "device": "C1-C2-C3",
+            "input": "C3",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -862,6 +872,7 @@
             "code": "C4",
             "label": "Ligne C4",
             "device": "C4-C5-C6",
+            "input": "C4",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -870,6 +881,7 @@
             "code": "C5",
             "label": "Ligne C5",
             "device": "C4-C5-C6",
+            "input": "C5",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -878,6 +890,7 @@
             "code": "C6",
             "label": "Ligne C6",
             "device": "C4-C5-C6",
+            "input": "C6",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -886,6 +899,7 @@
             "code": "C7",
             "label": "Ligne C7",
             "device": "C7-C8",
+            "input": "C7",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -894,6 +908,7 @@
             "code": "C8",
             "label": "Ligne C8",
             "device": "C7-C8",
+            "input": "C8",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -902,6 +917,7 @@
             "code": "D1A",
             "label": "Ligne D1A",
             "device": "D1A-D1B-D2A",
+            "input": "D1A",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -910,6 +926,7 @@
             "code": "D1B",
             "label": "Ligne D1B",
             "device": "D1A-D1B-D2A",
+            "input": "D1B",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -918,6 +935,7 @@
             "code": "D2A",
             "label": "Ligne D2A",
             "device": "D1A-D1B-D2A",
+            "input": "D2A",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -926,6 +944,7 @@
             "code": "D2B",
             "label": "Ligne D2B",
             "device": "D2B",
+            "input": "D2B",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -934,6 +953,7 @@
             "code": "E1",
             "label": "Ligne E1",
             "device": "E1-E2-E3",
+            "input": "E1",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -942,6 +962,7 @@
             "code": "E2",
             "label": "Ligne E2",
             "device": "E1-E2-E3",
+            "input": "E2",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -950,6 +971,7 @@
             "code": "E3",
             "label": "Ligne E3",
             "device": "E1-E2-E3",
+            "input": "E3",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -958,6 +980,7 @@
             "code": "E4",
             "label": "Ligne E4",
             "device": "E4-E5-E6",
+            "input": "E4",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -966,6 +989,7 @@
             "code": "E5",
             "label": "Ligne E5",
             "device": "E4-E5-E6",
+            "input": "E5",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -974,6 +998,7 @@
             "code": "E6",
             "label": "Ligne E6",
             "device": "E4-E5-E6",
+            "input": "E6",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -982,6 +1007,7 @@
             "code": "E7",
             "label": "Ligne E7",
             "device": "E7-E8-E9",
+            "input": "E7",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -990,6 +1016,7 @@
             "code": "E8",
             "label": "Ligne E8",
             "device": "E7-E8-E9",
+            "input": "E8",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -998,6 +1025,7 @@
             "code": "E9",
             "label": "Ligne E9",
             "device": "E7-E8-E9",
+            "input": "E9",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -1006,6 +1034,7 @@
             "code": "E10",
             "label": "Ligne E10",
             "device": "E10-E11-E12",
+            "input": "E10",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -1014,6 +1043,7 @@
             "code": "E11",
             "label": "Ligne E11",
             "device": "E10-E11-E12",
+            "input": "E11",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -1022,6 +1052,7 @@
             "code": "E12",
             "label": "Ligne E12",
             "device": "E10-E11-E12",
+            "input": "E12",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -1030,6 +1061,7 @@
             "code": "F1",
             "label": "Ligne F1",
             "device": "F1-F2-F3",
+            "input": "F1",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1038,6 +1070,7 @@
             "code": "F2",
             "label": "Ligne F2",
             "device": "F1-F2-F3",
+            "input": "F2",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1046,6 +1079,7 @@
             "code": "F3",
             "label": "Ligne F3",
             "device": "F1-F2-F3",
+            "input": "F3",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1054,6 +1088,7 @@
             "code": "F4",
             "label": "Ligne F4",
             "device": "F4-F5-F6",
+            "input": "F4",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1062,6 +1097,7 @@
             "code": "F5",
             "label": "Ligne F5",
             "device": "F4-F5-F6",
+            "input": "F5",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1070,6 +1106,7 @@
             "code": "F6",
             "label": "Ligne F6",
             "device": "F4-F5-F6",
+            "input": "F6",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1078,6 +1115,7 @@
             "code": "F7",
             "label": "Ligne F7",
             "device": "F7-F8-F9",
+            "input": "F7",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1086,6 +1124,7 @@
             "code": "F8",
             "label": "Ligne F8",
             "device": "F7-F8-F9",
+            "input": "F8",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1094,6 +1133,7 @@
             "code": "F9",
             "label": "Ligne F9",
             "device": "F7-F8-F9",
+            "input": "F9",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1102,6 +1142,7 @@
             "code": "F10",
             "label": "Ligne F10",
             "device": "F10-F11-F12",
+            "input": "F10",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1110,6 +1151,7 @@
             "code": "F11",
             "label": "Ligne F11",
             "device": "F10-F11-F12",
+            "input": "F11",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1118,6 +1160,7 @@
             "code": "F12",
             "label": "Ligne F12",
             "device": "F10-F11-F12",
+            "input": "F12",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1126,6 +1169,7 @@
             "code": "F13",
             "label": "Ligne F13",
             "device": "F13-F14-F15",
+            "input": "F13",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1134,6 +1178,7 @@
             "code": "F14",
             "label": "Ligne F14",
             "device": "F13-F14-F15",
+            "input": "F14",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1142,6 +1187,7 @@
             "code": "F15",
             "label": "Ligne F15",
             "device": "F13-F14-F15",
+            "input": "F15",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1150,6 +1196,7 @@
             "code": "G1",
             "label": "Ligne G1",
             "device": "H14-G1-G2",
+            "input": "G1",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1158,6 +1205,7 @@
             "code": "G2",
             "label": "Ligne G2",
             "device": "H14-G1-G2",
+            "input": "G2",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1166,6 +1214,7 @@
             "code": "G3",
             "label": "Ligne G3",
             "device": "G3-G4-G5",
+            "input": "G3",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1174,6 +1223,7 @@
             "code": "G4",
             "label": "Ligne G4",
             "device": "G3-G4-G5",
+            "input": "G4",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1182,6 +1232,7 @@
             "code": "G5",
             "label": "Ligne G5",
             "device": "G3-G4-G5",
+            "input": "G5",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1190,6 +1241,7 @@
             "code": "G6",
             "label": "Ligne G6",
             "device": "G6-G7-G8",
+            "input": "G6",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1198,6 +1250,7 @@
             "code": "G7",
             "label": "Ligne G7",
             "device": "G6-G7-G8",
+            "input": "G7",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1206,6 +1259,7 @@
             "code": "G8",
             "label": "Ligne G8",
             "device": "G6-G7-G8",
+            "input": "G8",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1214,6 +1268,7 @@
             "code": "G9",
             "label": "Ligne G9",
             "device": "G9-G10",
+            "input": "G9",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1222,6 +1277,7 @@
             "code": "G10",
             "label": "Ligne G10",
             "device": "G9-G10",
+            "input": "G10",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1230,6 +1286,7 @@
             "code": "G11",
             "label": "Ligne G11",
             "device": "G11-G12",
+            "input": "G11",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1238,7 +1295,7 @@
             "code": "G12",
             "label": "Ligne G12",
             "device": "G11-G12",
-            "inputName": "vd",
+            "input": "G12",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1247,6 +1304,7 @@
             "code": "H2",
             "label": "Ligne H2",
             "device": "H2-H3-H4",
+            "input": "H2",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1255,6 +1313,7 @@
             "code": "H3",
             "label": "Ligne H3",
             "device": "H2-H3-H4",
+            "input": "H3",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1263,6 +1322,7 @@
             "code": "H4",
             "label": "Ligne H4",
             "device": "H2-H3-H4",
+            "input": "H4",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1271,6 +1331,7 @@
             "code": "H5",
             "label": "Ligne H5",
             "device": "H5-H6-H7",
+            "input": "H5",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1279,6 +1340,7 @@
             "code": "H6",
             "label": "Ligne H6",
             "device": "H5-H6-H7",
+            "input": "H6",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1287,6 +1349,7 @@
             "code": "H7",
             "label": "Ligne H7",
             "device": "H5-H6-H7",
+            "input": "H7",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1295,6 +1358,7 @@
             "code": "H8",
             "label": "Ligne H8",
             "device": "H8-H9-H10",
+            "input": "H8",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1303,6 +1367,7 @@
             "code": "H9",
             "label": "Ligne H9",
             "device": "H8-H9-H10",
+            "input": "H9",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1319,6 +1384,7 @@
             "code": "H11",
             "label": "Ligne H11",
             "device": "H11-H12-H13",
+            "input": "H11",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1327,6 +1393,7 @@
             "code": "H12",
             "label": "Ligne H12",
             "device": "H11-H12-H13",
+            "input": "H12",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1335,6 +1402,7 @@
             "code": "H13",
             "label": "Ligne H13",
             "device": "H11-H12-H13",
+            "input": "H13",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1343,6 +1411,7 @@
             "code": "H14",
             "label": "Ligne H14",
             "device": "H14-G1-G2",
+            "input": "H14",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
