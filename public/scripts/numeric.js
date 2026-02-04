@@ -71,18 +71,18 @@ function onLoad() {
     const domaineStart = myURL.indexOf("://") + 3;
     const domaineEnd = myURL.lastIndexOf(":");
     const thisDomain = myURL.substring(domaineStart, domaineEnd);
-    let thisSiteNameElement = document.getElementById("siteName");
-    let prefix = thisSiteNameElement.innerHTML;
+    // let thisSiteNameElement = document.getElementById("siteName");
+    // let prefix = thisSiteNameElement.innerHTML;
     // if (myURL.search("pl-net.ddns.net:3300") >= 0 || myURL.search("http://localhost:3300") >= 0) {
     //     prefix = "Serveur Dev. • 'α'";
     // } else if (myURL.search("http://pl-net.ddns.net:3300") >= 0) {
     // prefix = "Serveur Test • 'ß'";
     // } else {
-    prefix = "Érablière&nbsp;Brunelle";
+    // prefix = "Érablière&nbsp;Brunelle";
     // }
     // actualSiteName =  prefix + " • " + "(" + thisDomain + ")";
-    actualSiteName = prefix;
-    thisSiteNameElement.innerHTML = actualSiteName;
+    // actualSiteName = prefix;
+    // thisSiteNameElement.innerHTML = actualSiteName;
 }
 
 function displayTanks() {
@@ -689,7 +689,7 @@ function displaySiteNameOrError(errNo, err) {
         thisSiteNameElement.innerHTML = "Alarme Osmose: " + err;
         thisSiteNameElement.style.backgroundColor = "red";
     } else {
-        thisSiteNameElement.innerHTML = actualSiteName;
+        thisSiteNameElement.innerHTML = "";
         thisSiteNameElement.style = "display: inline-block;";
     }
 }
