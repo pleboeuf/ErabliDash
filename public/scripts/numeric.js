@@ -618,18 +618,6 @@ function displayDevices() {
             latestUpdateElement.style.color = "white";
         }
 
-        if (device.name.includes("RS1")) {
-            const tempExtElem = document.getElementById("tempExt");
-            if (tempExtElem) {
-                const isTempValid =
-                    device.ambientTemp !== undefined &&
-                    device.ambientTemp !== 99 &&
-                    device.ambientTemp !== -127;
-                tempExtElem.innerHTML = isTempValid
-                    ? `${device.ambientTemp}°C`
-                    : "---°C";
-            }
-        }
     });
 }
 

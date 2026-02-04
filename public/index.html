@@ -2,78 +2,155 @@
 <html lang="fr">
     <head>
         <meta charset="UTF-8" />
-        <link rel="stylesheet" href="/lib/w3.css" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Érablière Brunelle</title>
+        <meta name="description" content="Système d'Acquisition des Données - Erabli-DAS - Érablière Brunelle" />
+        <title>Erabli-DAS - Érablière Brunelle</title>
+        <link rel="icon" type="image/x-icon" href="/cabane2021/favicon.ico" />
+        <link rel="stylesheet" href="/lib/w3.css" />
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .header {
+                background-color: rgb(12, 1, 82);
+                color: white;
+                padding: 1rem;
+                position: relative;
+            }
+            .header-title {
+                font-size: 2vw;
+                text-align: center;
+                margin: 0;
+            }
+            .nav-menu {
+                position: absolute;
+                top: 1rem;
+                left: 1rem;
+                display: flex;
+                gap: 1rem;
+                align-items: center;
+            }
+            .nav-menu a {
+                color: white;
+                text-decoration: none;
+                padding: 0.5rem 1rem;
+                background-color: rgba(255, 255, 255, 0.1);
+                border-radius: 4px;
+                font-size: 0.9rem;
+                transition: background-color 0.3s;
+            }
+            .nav-menu a:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+            .nav-menu a.active {
+                background-color: rgba(255, 255, 255, 0.3);
+                font-weight: bold;
+            }
+            .dashboard-container {
+                width: 100%;
+                display: flex;
+                gap: 0.25%;
+                padding: 1rem;
+                box-sizing: border-box;
+            }
+            .dashboard-item {
+                flex: 1;
+                text-align: center;
+            }
+            .dashboard-item a {
+                display: block;
+                text-decoration: none;
+            }
+            .dashboard-item img {
+                max-width: 100%;
+                height: auto;
+                display: block;
+            }
+            .dashboard-item p {
+                font-size: 1.5vw;
+                text-align: center;
+                margin: 0.5rem 0 0 0;
+                color: #000;
+            }
+            @media (max-width: 768px) {
+                .dashboard-container {
+                    flex-direction: column;
+                }
+                .header {
+                    padding: 0.5rem;
+                }
+                .header-title {
+                    font-size: 4vw;
+                    margin-top: 2.5rem;
+                }
+                .nav-menu {
+                    position: static;
+                    justify-content: center;
+                    flex-wrap: wrap;
+                    margin-bottom: 0.5rem;
+                }
+                .nav-menu a {
+                    font-size: 0.8rem;
+                    padding: 0.4rem 0.8rem;
+                }
+                .dashboard-item p {
+                    font-size: 3vw;
+                }
+            }
+        </style>
     </head>
 
     <body>
-        <div
-            class="w3-container"
-            ,
-            style="background-color: rgb(12, 1, 82); color: white"
-        >
-            <p style="font-size: 2vw; text-align: center; height: auto">
-                Érablière Brunelle - Système d'Acquisition des Données
-            </p>
-        </div>
+        <header class="header w3-container">
+            <nav class="nav-menu">
+                <a href="/" class="active">Accueil</a>
+                <a href="/numeric.html">Tableaux</a>
+                <a href="/cabane2021">Schéma</a>
+                <a href="/cabaneMapNew">Carte Vide</a>
+            </nav>
+            <h1 class="header-title">
+                Erabli-DAS - Érablière Brunelle
+            </h1>
+        </header>
 
-        <div
-            class="w3-display-container w3-light-grey w3-row-padding"
-            ,
-            style="
-                width: 100%;
-                height: 100%;
-                display: inline-block;
-                margin-top: 5px;
-            "
-        >
-            <div class="w3-quarter" , style="width: 19.9%">
-                <a href="/numeric.html">
+        <main class="w3-light-grey dashboard-container">
+            <div class="dashboard-item">
+                <a href="/numeric.html" aria-label="Accéder aux tables numériques">
                     <img
                         src="/images/numericNew.png"
-                        alt="HTML5 Icon"
-                        style="max-width: 100%; height: auto"
-                /></a>
-                <p style="font-size: 1.5vw; text-align: center">
-                    <b>Table<br />numériques V2.0</b>
-                </p>
+                        alt="Tables numériques - Affichage des données en temps réel"
+                    />
+                </a>
+                <p><b>Table<br />numériques V2.0</b></p>
             </div>
-            <div class="w3-quarter" , style="width: 19.9%">
-                <!-- <a href="http://boilerhouse.ddns.net:3300/cabane2021"> -->
-                <a href="/cabane2021">
+            <div class="dashboard-item">
+                <a href="/cabane2021" aria-label="Voir le schéma de fonctionnement">
                     <img
                         src="/images/Graphique2021.png"
-                        alt="HTML5 Icon"
-                        style="max-width: 100%; height: auto"
-                /></a>
-                <p style="font-size: 1.5vw; text-align: center">
-                    <b>Schéma<br />de fonctionnement</b>
-                </p>
+                        alt="Schéma de fonctionnement du système"
+                    />
+                </a>
+                <p><b>Schéma<br />de fonctionnement</b></p>
             </div>
-            <div class="w3-quarter" , style="width: 19.9%">
-                <!-- <a href="http://boilerhouse.ddns.net:3300/cabaneMapNew"> -->
-                <a href="/cabaneMapNew">
+            <div class="dashboard-item">
+                <a href="/cabaneMapNew" aria-label="Consulter la carte du vide">
                     <img
                         src="/images/Vacuum Map.png"
-                        alt="HTML5 Icon"
-                        style="max-width: 100%; height: auto"
-                /></a>
-                <p style="font-size: 1.5vw; text-align: center">
-                    <b>Carte<br />du vide</b>
-                </p>
+                        alt="Carte du système de vide"
+                    />
+                </a>
+                <p><b>Carte<br />du vide</b></p>
             </div>
-            <div class="w3-quarter" , style="width: 19.9%">
-                <a href="http://boilerhouse.ddns.net:3000/">
+            <div class="dashboard-item">
+                <a href="http://boilerhouse.ddns.net:3000/" aria-label="Ouvrir le dashboard Grafana" target="_blank" rel="noopener noreferrer">
                     <img
                         src="/images/Grafana.png"
-                        alt="HTML5 Icon"
-                        style="max-width: 100%; height: auto"
-                /></a>
-                <p style="font-size: 1.5vw; text-align: center">
-                    <b>Dashboard<br />Grafana</b>
-                </p>
+                        alt="Dashboard Grafana - Visualisation avancée"
+                    />
+                </a>
+                <p><b>Dashboard<br />Grafana</b></p>
             </div>
-        </div>
+        </main>
     </body>
 </html>
