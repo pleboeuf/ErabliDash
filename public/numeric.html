@@ -61,9 +61,20 @@
         <script src="/scripts/numeric.js"></script>
         <script
             type="text/javascript"
-            src="https://cdn.jsdelivr.net/npm/particle-api-js@8/dist/particle.min.js"
+            src="https://cdn.jsdelivr.net/npm/particle-api-js@10/dist/particle.min.js"
         ></script>
         <script>
+            // Suppress Particle.js XMLHttpRequestResponseType warnings in console
+            const originalWarn = console.warn;
+            console.warn = function(...args) {
+                const message = args[0];
+                if (typeof message === 'string' && 
+                    message.includes('XMLHttpRequestResponseType')) {
+                    return; // Suppress this specific warning
+                }
+                originalWarn.apply(console, args);
+            };
+            
             const particle = new Particle();
         </script>
     </head>
