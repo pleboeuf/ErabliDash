@@ -98,11 +98,15 @@ tr.lighter {
 #vacuums,
 #temperatures,
 #tanks,
-#valveSelect,
 #valveOther,
 #valves {
     float: left;
     padding-right: 2em;
+}
+
+/* Valve selector modal positioning */
+#valveSelect .w3-modal-content {
+    margin-top: 80px !important;
 }
 
 /* The Close Button */
