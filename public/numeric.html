@@ -1,18 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="Tableau de bord numérique - Erabli-DAS - Érablière Brunelle" />
+        <meta
+            name="description"
+            content="Tableau de bord numérique - Erabli-DAS - Érablière Brunelle"
+        />
         <title>Tableaux Numériques - Erabli-DAS</title>
         <link rel="icon" type="image/x-icon" href="/cabane2021/favicon.ico" />
         <link rel="stylesheet" href="/lib/w3schools23.css" />
-        <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-grey.css" />
+        <link
+            rel="stylesheet"
+            href="https://www.w3schools.com/lib/w3-theme-grey.css"
+        />
         <link rel="stylesheet" href="/lib/numeric.css" />
         <style>
             .nav-menu {
                 position: fixed;
-                top: 100px;
+                top: 10px;
                 left: 10px;
                 display: flex;
                 gap: 0.5rem;
@@ -53,7 +59,10 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/peity/3.3.0/jquery.peity.js"></script>
         <script src="/scripts/numeric.js"></script>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/particle-api-js@8/dist/particle.min.js"></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/particle-api-js@8/dist/particle.min.js"
+        ></script>
         <script>
             const particle = new Particle();
         </script>
@@ -66,29 +75,85 @@
             <a href="/cabane2021">Schéma</a>
             <a href="/cabaneMapNew">Carte Vide</a>
         </nav>
-        <header class="w3-container w3-navbar" style="width: 100%; height: 50px; display: inline-block; position:fixed;" id="Tanks_Pumps_Osmose">
-            <div class="w3-container w3-display-bottommiddle" style="width: 75%; height: 50px; display: inline-block;" id="ZoneCentrale">
-               <div class="w3-container w3-display-bottomleft" style="width: 50%; height: 50px; display: inline-block; color:white">
--                    <h4 class="w3-display-topleft w3-mobile" id="siteName">Serveur de Tests</h4>
--                </div> 
-                <div class="w3-container w3-display-topright" style="width: 45%; height: 50px;" id="coulee">
-                    <span class="w3-display" style="display: inline; font-weight: bold;color: white;" id="c_text"> </span>
-                    <span class="w3-display" style="display: inline;" id="compteurDeTemps"></span>
+        <header
+            class="w3-container w3-navbar"
+            style="
+                width: 100%;
+                height: 50px;
+                display: inline-block;
+                position: fixed;
+            "
+            id="BandeauHaut"
+        >
+            <div
+                class="w3-container w3-display-bottommiddle"
+                style="width: 75%; height: 50px; display: inline-block"
+                id="ZoneCentrale"
+            >
+                <div
+                    class="w3-container w3-display-bottomleft"
+                    style="
+                        width: 50%;
+                        height: 50px;
+                        display: inline-block;
+                        color: white;
+                    "
+                    ,
+                    id="ZoneGauche"
+                >
+                    <h4 class="w3-display-topleft w3-mobile" id="siteName"></h4>
+                </div>
+                <div
+                    class="w3-container w3-display-topright"
+                    style="width: 45%; height: 50px"
+                    id="coulee"
+                >
+                    <span
+                        class="w3-display"
+                        style="display: inline; font-weight: bold; color: white"
+                        id="c_text"
+                    >
+                    </span>
+                    <span
+                        class="w3-display"
+                        style="display: inline"
+                        id="compteurDeTemps"
+                    ></span>
                 </div>
             </div>
-            <div class="w3-display-right" style="height: 74px; width: max-content;">
+            <div
+                class="w3-display-right"
+                style="height: 74px; width: max-content"
+            >
                 <h5 id="lastestUpdate"></h5>
             </div>
         </header>
 
         <section>
-            <div class="w3-container" style="margin-top: 60px; width:100%; height:max-content; display: inline-block;">
-
-                <div class="w3-third" style="width:max-content; margin-right:2%;" id="Reservoirs">
+            <div
+                class="w3-container"
+                style="
+                    margin-top: 60px;
+                    width: 100%;
+                    height: max-content;
+                    display: inline-block;
+                "
+            >
+                <div
+                    class="w3-third"
+                    style="width: max-content; margin-right: 2%"
+                    id="Reservoirs"
+                >
                     <table id="tanklist">
                         <thead>
                             <tr>
-                                <th class="tablename" colspan="7" ondblclick="showValveSelector('534');">Réservoirs</th>
+                                <th
+                                    class="tablename"
+                                    colspan="7"
+                                    ondblclick="showValveSelector('534')"
+                                >
+                                    Réservoirs
+                                </th>
                             </tr>
                             <tr>
                                 <th class="darker">Réservoirs</th>
@@ -100,94 +165,195 @@
                                 <th>Max <br />(gal)</th>
                             </tr>
                         </thead>
-                        <tbody>
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
 
                 <!-- Le selecteur de valves d'entrée -->
                 <div id="valveSelect" class="w3-container w3-modal">
                     <div class="w3-modal-content">
-                        <span class="close" onclick="hideValveSelector()">&times;</span>
-                            <table id="inValves" class="tablename">
-                                <tr>
-                                    <th class="tablename" colspan="4">Sélecteur de valves d'entrée</th>
-                                </tr>
-                                <tr>
-                                    <th class="darker" colspan="2">Mode d'opération</th>
-                                    <th class="lighter" style="text-align: left;" >
-                                        <input type="radio" id="Manuel" name="autoMan" onchange="tanksInputMode()" checked disabled>
-                                        <label for="Manuel">Manuel</label>
-                                    </th>
-                                    <th class="lighter" style="text-align: left;">
-                                        <input type="radio" id="Auto" name="autoMan" onchange="tanksInputMode()" disabled>
-                                        <label for="Auto">Auto</label>
-                                    </th>
-                                </tr>
-                                <tr></tr>
-                                <tr>
-                                    <th class="darker">Équipements</th>
-                                    <th class="darker">Valve d'entrée</th>
-                                    <th class="darker">Ouvrir</th>
-                                    <th class="darker">Fermer</th>                             
-                                </tr>
-                                <tr>
-                                    <th class="darker" style="text-align: left;">RS1</th>
-                                    <th class="lighter">VaES1</th>
-                                    <th class="lighter">
-                                        <input type="radio" id="VaES1_ON" name="VaES1" onclick="inputValvesOnOff('VaES1','ON')">
-                                    </th>
-                                    <th class="lighter">
-                                        <input type="radio" id="VaES1_OFF" name="VaES1" onclick="inputValvesOnOff('VaES1','OFF')">
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <th class="darker" style="text-align: left;">RS2</th>
-                                    <th class="lighter">VaES2</th>
-                                    <th class="lighter" >
-                                        <input type="radio" id="VaES2_ON" name="VaES2" onclick="inputValvesOnOff('VaES2','ON')">
-                                    </th>
-                                    <th class="lighter">
-                                        <input type="radio" id="VaES2_OFF" name="VaES2" onclick="inputValvesOnOff('VaES2','OFF')">
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <th class="darker" style="text-align: left;">RS3</th>
-                                    <th class="lighter">VaES3</th>
-                                    <th class="lighter">
-                                        <input type="radio" id="VaES3_ON" name="VaES3" onclick="inputValvesOnOff('VaES3','ON')">
-                                    </th>
-                                    <th class="lighter">
-                                        <input type="radio" id="VaES3_OFF" name="VaES3" onclick="inputValvesOnOff('VaES3','OFF')">
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <th class="darker" style="text-align: left;">PumpHouse</th>
-                                    <th class="lighter">VaAPH1</th>
-                                    <th class="lighter">
-                                        <input type="radio" id="VaAPH1_ON" name="VaAPH1" onclick="PHinputValvesOnOff('VaAPH1','ON')">
-                                    </th>
-                                    <th class="lighter">
-                                        <input type="radio" id="VaAPH1_OFF" name="VaAPH1" onclick="PHinputValvesOnOff('VaAPH1','OFF')">
-                                    </th>
-                                </tr>
-                                <tr>
-                                    <th class="darker" style="text-align: left;">Drain Ligne PumpHouse</th>
-                                    <th class="lighter">VaDPH1</th>
-                                    <th class="lighter">
-                                        <input type="radio" id="VaDPH1_ON" name="VaDPH1" onclick="PHinputValvesOnOff('VaDPH1','ON')">
-                                    </th>
-                                    <th class="lighter">
-                                        <input type="radio" id="VaDPH1_OFF" name="VaDPH1" onclick="PHinputValvesOnOff('VaDPH1','OFF')">
-                                    </th>
-                                </tr>
-                            </table>
+                        <span class="close" onclick="hideValveSelector()"
+                            >&times;</span
+                        >
+                        <table id="inValves" class="tablename">
+                            <tr>
+                                <th class="tablename" colspan="4">
+                                    Sélecteur de valves d'entrée
+                                </th>
+                            </tr>
+                            <tr>
+                                <th class="darker" colspan="2">
+                                    Mode d'opération
+                                </th>
+                                <th class="lighter" style="text-align: left">
+                                    <input
+                                        type="radio"
+                                        id="Manuel"
+                                        name="autoMan"
+                                        onchange="tanksInputMode()"
+                                        checked
+                                        disabled
+                                    />
+                                    <label for="Manuel">Manuel</label>
+                                </th>
+                                <th class="lighter" style="text-align: left">
+                                    <input
+                                        type="radio"
+                                        id="Auto"
+                                        name="autoMan"
+                                        onchange="tanksInputMode()"
+                                        disabled
+                                    />
+                                    <label for="Auto">Auto</label>
+                                </th>
+                            </tr>
+                            <tr></tr>
+                            <tr>
+                                <th class="darker">Équipements</th>
+                                <th class="darker">Valve d'entrée</th>
+                                <th class="darker">Ouvrir</th>
+                                <th class="darker">Fermer</th>
+                            </tr>
+                            <tr>
+                                <th class="darker" style="text-align: left">
+                                    RS1
+                                </th>
+                                <th class="lighter">VaES1</th>
+                                <th class="lighter">
+                                    <input
+                                        type="radio"
+                                        id="VaES1_ON"
+                                        name="VaES1"
+                                        onclick="
+                                            inputValvesOnOff('VaES1', 'ON')
+                                        "
+                                    />
+                                </th>
+                                <th class="lighter">
+                                    <input
+                                        type="radio"
+                                        id="VaES1_OFF"
+                                        name="VaES1"
+                                        onclick="
+                                            inputValvesOnOff('VaES1', 'OFF')
+                                        "
+                                    />
+                                </th>
+                            </tr>
+                            <tr>
+                                <th class="darker" style="text-align: left">
+                                    RS2
+                                </th>
+                                <th class="lighter">VaES2</th>
+                                <th class="lighter">
+                                    <input
+                                        type="radio"
+                                        id="VaES2_ON"
+                                        name="VaES2"
+                                        onclick="
+                                            inputValvesOnOff('VaES2', 'ON')
+                                        "
+                                    />
+                                </th>
+                                <th class="lighter">
+                                    <input
+                                        type="radio"
+                                        id="VaES2_OFF"
+                                        name="VaES2"
+                                        onclick="
+                                            inputValvesOnOff('VaES2', 'OFF')
+                                        "
+                                    />
+                                </th>
+                            </tr>
+                            <tr>
+                                <th class="darker" style="text-align: left">
+                                    RS3
+                                </th>
+                                <th class="lighter">VaES3</th>
+                                <th class="lighter">
+                                    <input
+                                        type="radio"
+                                        id="VaES3_ON"
+                                        name="VaES3"
+                                        onclick="
+                                            inputValvesOnOff('VaES3', 'ON')
+                                        "
+                                    />
+                                </th>
+                                <th class="lighter">
+                                    <input
+                                        type="radio"
+                                        id="VaES3_OFF"
+                                        name="VaES3"
+                                        onclick="
+                                            inputValvesOnOff('VaES3', 'OFF')
+                                        "
+                                    />
+                                </th>
+                            </tr>
+                            <tr>
+                                <th class="darker" style="text-align: left">
+                                    PumpHouse
+                                </th>
+                                <th class="lighter">VaAPH1</th>
+                                <th class="lighter">
+                                    <input
+                                        type="radio"
+                                        id="VaAPH1_ON"
+                                        name="VaAPH1"
+                                        onclick="
+                                            PHinputValvesOnOff('VaAPH1', 'ON')
+                                        "
+                                    />
+                                </th>
+                                <th class="lighter">
+                                    <input
+                                        type="radio"
+                                        id="VaAPH1_OFF"
+                                        name="VaAPH1"
+                                        onclick="
+                                            PHinputValvesOnOff('VaAPH1', 'OFF')
+                                        "
+                                    />
+                                </th>
+                            </tr>
+                            <tr>
+                                <th class="darker" style="text-align: left">
+                                    Drain Ligne PumpHouse
+                                </th>
+                                <th class="lighter">VaDPH1</th>
+                                <th class="lighter">
+                                    <input
+                                        type="radio"
+                                        id="VaDPH1_ON"
+                                        name="VaDPH1"
+                                        onclick="
+                                            PHinputValvesOnOff('VaDPH1', 'ON')
+                                        "
+                                    />
+                                </th>
+                                <th class="lighter">
+                                    <input
+                                        type="radio"
+                                        id="VaDPH1_OFF"
+                                        name="VaDPH1"
+                                        onclick="
+                                            PHinputValvesOnOff('VaDPH1', 'OFF')
+                                        "
+                                    />
+                                </th>
+                            </tr>
+                        </table>
                         <p>Note: Le changement prend environ 10 secondes.</p>
                     </div>
-                    
                 </div>
 
-                <div class="w3-third" style="width:max-content; margin-right:2%;" id="Pompes">
+                <div
+                    class="w3-third"
+                    style="width: max-content; margin-right: 2%"
+                    id="Pompes"
+                >
                     <table id="pumplist">
                         <thead>
                             <tr>
@@ -206,91 +372,171 @@
                                 <td class="darker">Total</td>
                                 <td></td>
                                 <td></td>
-                                <td id="pumptotalrate" class="pumprate" style="font-weight: bold"></td>
-                                <td id="volumetotal" class="pumpvolume" style="font-weight: bold"></td>
+                                <td
+                                    id="pumptotalrate"
+                                    class="pumprate"
+                                    style="font-weight: bold"
+                                ></td>
+                                <td
+                                    id="volumetotal"
+                                    class="pumpvolume"
+                                    style="font-weight: bold"
+                                ></td>
                             </tr>
                             <tr class="lighter">
                                 <td class="darker">Sirop Est.</td>
                                 <td></td>
                                 <td></td>
-                                <td id="debitEstimSirop" class="pumpvolume" style="font-style: italic; font-weight: bold"></td>
-                                <td id="estimSirop" class="pumpvolume" style="font-style: italic; font-weight: bold"></td>
+                                <td
+                                    id="debitEstimSirop"
+                                    class="pumpvolume"
+                                    style="
+                                        font-style: italic;
+                                        font-weight: bold;
+                                    "
+                                ></td>
+                                <td
+                                    id="estimSirop"
+                                    class="pumpvolume"
+                                    style="
+                                        font-style: italic;
+                                        font-weight: bold;
+                                    "
+                                ></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="w3-third" style="width:max-content;" id="Osmose">
+                <div class="w3-third" style="width: max-content" id="Osmose">
                     <table id="OsmoseSystem">
                         <thead>
                             <tr>
-                                <th class="tablename" colspan="4">Système d'Osmose</th>
+                                <th class="tablename" colspan="4">
+                                    Système d'Osmose
+                                </th>
                             </tr>
                             <tr>
                                 <th class="darker" colspan="2">Machine</th>
-                                <th class="darker" colspan="2">Concentration</th>
+                                <th class="darker" colspan="2">
+                                    Concentration
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td class="darker">État</td>
-                                <td class="lighter V_position" id="Osmose_state"></td>
+                                <td
+                                    class="lighter V_position"
+                                    id="Osmose_state"
+                                ></td>
                                 <td class="darker">Séquence</td>
-                                <td class="lighter rawvalue" id="Osmose_sequence"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_sequence"
+                                ></td>
                             </tr>
                             <tr>
                                 <td class="darker">Fonction</td>
-                                <td class="lighter rawvalue" id="Osmose_fonction"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_fonction"
+                                ></td>
                                 <td class="darker">Brix Sève</td>
-                                <td class="lighter rawvalue" id="Osmose_BrixSeve"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_BrixSeve"
+                                ></td>
                             </tr>
                             <tr>
                                 <td class="darker">Durée opér. en cours</td>
-                                <td class="lighter rawvalue" id="Osmose_tOperEC"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_tOperEC"
+                                ></td>
                                 <td class="darker">Brix Concentré</td>
-                                <td class="lighter rawvalue" id="Osmose_BrixConc"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_BrixConc"
+                                ></td>
                             </tr>
                             <tr>
                                 <td class="darker">Durée séq. 1234</td>
-                                <td class="lighter rawvalue" id="Osmose_TempsSeq1234"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_TempsSeq1234"
+                                ></td>
                                 <td class="darker">Débit Col1 (g/m)</td>
-                                <td class="lighter rawvalue" id="Osmose_Col1"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_Col1"
+                                ></td>
                             </tr>
                             <tr>
                                 <td class="darker">Durée séq. 4321</td>
-                                <td class="lighter rawvalue" id="Osmose_TempsSeq4321"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_TempsSeq4321"
+                                ></td>
                                 <td class="darker">Débit Col2 (g/m)</td>
-                                <td class="lighter rawvalue" id="Osmose_Col2"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_Col2"
+                                ></td>
                             </tr>
                             <tr>
                                 <td class="darker">T. Depuis lavage</td>
-                                <td class="lighter rawvalue" id="Osmose_TempsDepuisLavage"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_TempsDepuisLavage"
+                                ></td>
                                 <td class="darker">Débit Col3 (g/m)</td>
-                                <td class="lighter rawvalue" id="Osmose_Col3"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_Col3"
+                                ></td>
                             </tr>
                             <tr>
                                 <td class="darker">Mise à jour</td>
-                                <td class="lighter rawvalue" id="Osmose_lastUpdatedAt"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_lastUpdatedAt"
+                                ></td>
                                 <td class="darker">Débit Col4 (g/m)</td>
-                                <td class="lighter rawvalue" id="Osmose_Col4"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_Col4"
+                                ></td>
                             </tr>
                             <tr>
                                 <td class="darker">Code alarme</td>
-                                <td class="lighter rawvalue" id="Osmose_alarmNo"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_alarmNo"
+                                ></td>
                                 <td class="darker">Débit Conc. (g/m)</td>
-                                <td class="lighter rawvalue" id="Osmose_Conc"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_Conc"
+                                ></td>
                             </tr>
                             <tr>
                                 <td class="darker">Message d'alarme</td>
-                                <td class="lighter" id="Osmose_alarmMsg"> </td>
+                                <td class="lighter" id="Osmose_alarmMsg"></td>
                                 <td class="darker">Température (°C)</td>
-                                <td class="lighter rawvalue" id="Osmose_Temp"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_Temp"
+                                ></td>
                             </tr>
                             <tr>
-                                <td class="darker"> </td>
-                                <td class="lighter rawvalue"> </td>
+                                <td class="darker"></td>
+                                <td class="lighter rawvalue"></td>
                                 <td class="darker">Pression (PSI)</td>
-                                <td class="lighter rawvalue" id="Osmose_Pres"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_Pres"
+                                ></td>
                             </tr>
                         </tbody>
                         <thead>
@@ -301,33 +547,61 @@
                         <tbody>
                             <tr>
                                 <td class="darker">PC Conc. (%)</td>
-                                <td class="lighter rawvalue" id="Osmose_PC_Conc"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_PC_Conc"
+                                ></td>
                                 <td class="darker">Débit Total (g/h)</td>
-                                <td class="lighter rawvalue" id="Osmose_Total_GPH"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_Total_GPH"
+                                ></td>
                             </tr>
                             <tr>
                                 <td class="darker">Débit Conc. (g/h)</td>
-                                <td class="lighter rawvalue" id="Osmose_Conc_GPH"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_Conc_GPH"
+                                ></td>
                                 <td class="darker">Débit Filtrat (g/h)</td>
-                                <td class="lighter rawvalue" id="Osmose_Filtrat_GPH"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_Filtrat_GPH"
+                                ></td>
                             </tr>
                             <tr>
                                 <td class="darker">Durée d'Osmose</td>
-                                <td class="lighter rawvalue" id="Osmose_Durée_sec"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_Durée_sec"
+                                ></td>
                                 <td class="darker">Durée totale Estimé</td>
-                                <td class="lighter rawvalue" id="Osmose_temps_approx"> </td>
+                                <td
+                                    class="lighter rawvalue"
+                                    id="Osmose_temps_approx"
+                                ></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <div class="w3-container" style="margin-top: 10px; width: 100%; height: max-content;" id="Summary_Valves_Vacuum">
-                <div class="w3-third" style="width:max-content; margin-right:2%;" id="Sommaire Reservoirs">
+            <div
+                class="w3-container"
+                style="margin-top: 10px; width: 100%; height: max-content"
+                id="Summary_Valves_Vacuum"
+            >
+                <div
+                    class="w3-third"
+                    style="width: max-content; margin-right: 2%"
+                    id="Sommaire Reservoirs"
+                >
                     <table id="totalReservoirs">
                         <thead>
                             <tr>
-                                <th class="tablename" colspan="7">Sommaire des Réservoirs</th>
+                                <th class="tablename" colspan="7">
+                                    Sommaire des Réservoirs
+                                </th>
                             </tr>
                             <tr>
                                 <th class="darker">Sommaire</th>
@@ -351,16 +625,27 @@
                                 </td>
                                 <td class="lighter">Sève</td>
                                 <td class="lighter" id="RStot"></td>
-                                <td class="lighter V_position" id="RStotPC"></td>
-                                <td class="lighter V_position" id="RStoSirop"></td>
+                                <td
+                                    class="lighter V_position"
+                                    id="RStotPC"
+                                ></td>
+                                <td
+                                    class="lighter V_position"
+                                    id="RStoSirop"
+                                ></td>
                                 <td class="lighter V_position" id="RSdisp"></td>
                                 <td class="lighter V_position" id="RSmax"></td>
                             </tr>
                             <tr>
-                                <td class="darker" id="RFsummaryName">RF1 + RF2</td>
+                                <td class="darker" id="RFsummaryName">
+                                    RF1 + RF2
+                                </td>
                                 <td class="lighter">Filt.</td>
                                 <td class="lighter" id="RFtot"></td>
-                                <td class="lighter V_position" id="RFtotPC"></td>
+                                <td
+                                    class="lighter V_position"
+                                    id="RFtotPC"
+                                ></td>
                                 <td class="lighter V_position"></td>
                                 <td class="lighter V_position" id="RFdisp"></td>
                                 <td class="lighter V_position" id="RFmax"></td>
@@ -369,8 +654,14 @@
                                 <td class="darker">RC1 + RC2</td>
                                 <td class="lighter">Conc.</td>
                                 <td class="lighter" id="RCtot"></td>
-                                <td class="lighter V_position" id="RCtotPC"></td>
-                                <td class="lighter V_position" id="RCtoSirop"></td>
+                                <td
+                                    class="lighter V_position"
+                                    id="RCtotPC"
+                                ></td>
+                                <td
+                                    class="lighter V_position"
+                                    id="RCtoSirop"
+                                ></td>
                                 <td class="lighter V_position" id="RCdisp"></td>
                                 <td class="lighter V_position" id="RCmax"></td>
                             </tr>
@@ -378,20 +669,35 @@
                                 <td class="darker">Total</td>
                                 <td class="lighter">Sirop</td>
                                 <td class="lighter" id="SIRtot"></td>
-                                <td class="lighter V_position" id="SIRtotPC"></td>
-                                <td class="lighter V_position" id="SIRtotal"></td>
-                                <td class="lighter V_position" id="SIRdisp"></td>
+                                <td
+                                    class="lighter V_position"
+                                    id="SIRtotPC"
+                                ></td>
+                                <td
+                                    class="lighter V_position"
+                                    id="SIRtotal"
+                                ></td>
+                                <td
+                                    class="lighter V_position"
+                                    id="SIRdisp"
+                                ></td>
                                 <td class="lighter V_position" id="SIRmax"></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="w3-third" style="width:max-content; margin-right:2%;" id="Div autreValves">
+                <div
+                    class="w3-third"
+                    style="width: max-content; margin-right: 2%"
+                    id="Div autreValves"
+                >
                     <table id="autreValves">
                         <thead>
                             <tr>
-                                <th class="tablename" colspan="3">Valves Indépendantes</th>
+                                <th class="tablename" colspan="3">
+                                    Valves Indépendantes
+                                </th>
                             </tr>
                             <tr>
                                 <th class="darker">Valves</th>
@@ -403,22 +709,34 @@
                             <tr>
                                 <td class="darker">VaEC</td>
                                 <td class="lighter">Entrée Cabane</td>
-                                <td class="lighter V_position" id="VaEC_position"></td>
+                                <td
+                                    class="lighter V_position"
+                                    id="VaEC_position"
+                                ></td>
                             </tr>
                             <tr>
                                 <td class="darker">VaTk</td>
                                 <td class="lighter">Sortie Tankers</td>
-                                <td class="lighter V_position" id="VaTk_position"></td>
+                                <td
+                                    class="lighter V_position"
+                                    id="VaTk_position"
+                                ></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="w3-third" style="width:max-content;margin-left: 2%;" id="vacuumLocal">
+                <div
+                    class="w3-third"
+                    style="width: max-content; margin-left: 2%"
+                    id="vacuumLocal"
+                >
                     <table id="vacuumlist2">
                         <thead>
                             <tr>
-                                <th class="tablename" colspan="5">Vacuum à l'Érablière</th>
+                                <th class="tablename" colspan="5">
+                                    Vacuum à l'Érablière
+                                </th>
                             </tr>
                             <tr>
                                 <th class="darker">Nom</th>
@@ -430,17 +748,40 @@
                             <tr>
                                 <td class="darker" id="name_POMPE 1"></td>
                                 <td class="lighter" id="val_POMPE 1">0</td>
-                                <td class="lighter" id="tOper_EB-V1" onclick="callResetOperTimer('EB-V1')">0</td>
+                                <td
+                                    class="lighter"
+                                    id="tOper_EB-V1"
+                                    onclick="callResetOperTimer('EB-V1')"
+                                >
+                                    0
+                                </td>
                             </tr>
                             <tr>
                                 <td class="darker" id="name_POMPE 2"></td>
                                 <td class="lighter" id="val_POMPE 2">0</td>
-                                <td class="lighter" id="tOper_EB-V2" onclick="callResetOperTimer('EB-V2')">0</td>
+                                <td
+                                    class="lighter"
+                                    id="tOper_EB-V2"
+                                    onclick="callResetOperTimer('EB-V2')"
+                                >
+                                    0
+                                </td>
                             </tr>
                             <tr>
-                                <td class="darker" id="name_POMPE PUMP HOUSE"></td>
-                                <td class="lighter" id="val_POMPE PUMP HOUSE">0</td>
-                                <td class="lighter" id="tOper_EB-V3" onclick="callResetOperTimer('EB-V3')">0</td>
+                                <td
+                                    class="darker"
+                                    id="name_POMPE PUMP HOUSE"
+                                ></td>
+                                <td class="lighter" id="val_POMPE PUMP HOUSE">
+                                    0
+                                </td>
+                                <td
+                                    class="lighter"
+                                    id="tOper_EB-V3"
+                                    onclick="callResetOperTimer('EB-V3')"
+                                >
+                                    0
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -448,12 +789,26 @@
             </div>
         </section>
 
-        <div class="w3-container" style="margin-top: 10px; width: 100%;" id="Lignes_Devices">
-            <div class="w3-third" style="margin-right: 2%;width:auto" id="Vacuums">
+        <div
+            class="w3-container"
+            style="margin-top: 10px; width: 100%"
+            id="Lignes_Devices"
+        >
+            <div
+                class="w3-third"
+                style="margin-right: 2%; width: auto"
+                id="Vacuums"
+            >
                 <table id="vacuumlist">
                     <thead>
                         <tr>
-                            <th class="tablename" colspan="7" id="VacuumDatacerName">Vacuums Datacer</th>
+                            <th
+                                class="tablename"
+                                colspan="7"
+                                id="VacuumDatacerName"
+                            >
+                                Vacuums Datacer
+                            </th>
                         </tr>
                         <tr>
                             <th class="darker">Nom</th>
@@ -462,24 +817,38 @@
                             <th class="darker">Perte<br />(inHg)</th>
                             <th class="darker">Temp.<br />(°C)</th>
                             <th class="darker">Batt.<br />(%)</th>
-                            <th class="darker" style="visibility:visible;">Mise à<br />jour</th>
+                            <th class="darker" style="visibility: visible">
+                                Mise à<br />jour
+                            </th>
                         </tr>
                     </thead>
-                    <tbody>
-                    </tbody>
+                    <tbody></tbody>
                     <tfoot>
                         <tr>
-                            <th class="tablename" colspan="7">Perte de vide (inHg) - Vert: &lt; 3, Jaune: De 3 à 6, Rouge: &gt; 6</th>
+                            <th class="tablename" colspan="7">
+                                Perte de vide (inHg) - Vert: &lt; 3, Jaune: De 3
+                                à 6, Rouge: &gt; 6
+                            </th>
                         </tr>
                     </tfoot>
                 </table>
             </div>
 
-            <div class="w3-third" style="margin-right: 2%; width:max-content;" id="Devices">
+            <div
+                class="w3-third"
+                style="margin-right: 2%; width: max-content"
+                id="Devices"
+            >
                 <table id="devicelist">
                     <thead>
                         <tr>
-                            <th class="tablename" colspan="4" ondblclick="toggleTablesVisibility('allValves');">Tous les Équipements</th>
+                            <th
+                                class="tablename"
+                                colspan="4"
+                                ondblclick="toggleTablesVisibility('allValves')"
+                            >
+                                Tous les Équipements
+                            </th>
                         </tr>
                         <tr>
                             <th class="darker">Nom</th>
@@ -488,12 +857,15 @@
                             <th class="darker">No. Série</th>
                         </tr>
                     </thead>
-                    <tbody>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
-            
-            <div class="w3-third" style="width:max-content;margin-left: 2%;visibility: visible;" id="allValves">
+
+            <div
+                class="w3-third"
+                style="width: max-content; margin-left: 2%; visibility: visible"
+                id="allValves"
+            >
                 <table id="valvelist">
                     <thead>
                         <tr>
@@ -504,11 +876,10 @@
                             <th class="darker" id="valvesPos">Position</th>
                         </tr>
                     </thead>
-                    <tbody>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
-</body>
+    </body>
     <footer></footer>
 </html>
