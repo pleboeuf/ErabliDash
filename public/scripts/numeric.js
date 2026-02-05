@@ -1,5 +1,5 @@
 function wsUri(path) {
-    var l = window.location;
+    const l = window.location;
     return (
         (l.protocol === "https:" ? "wss://" : "ws://") +
         l.hostname +
@@ -8,9 +8,25 @@ function wsUri(path) {
         path
     );
 }
-// var jsonElement;
 let websocket;
-const Dos = "1222";
+
+// Constants
+const Dos = "1222"; // TODO: Remove hardcoded password - security issue
+const LITERS_PER_GALLON = 4.54609188;
+const DISPLAY_DEVICES_INTERVAL_MS = 10000;
+const MAXIMUM_AGE_MINUTES = 5;
+const WEBSOCKET_RECONNECT_DELAY_MS = 5000;
+const PAGE_RELOAD_INTERVAL_MS = 3600000; // 1 hour
+const ALARM_LIMIT_SECONDS = 216000; // 60 hours
+const SYRUP_BRIX = 66.0;
+const VACUUM_DROP_YELLOW_LIMIT = 3.0;
+const VACUUM_DROP_RED_LIMIT = 6.0;
+const BATTERY_NORMAL_THRESHOLD = 36;
+const BATTERY_LOW_THRESHOLD = 20;
+const TANK_PERCENT_HIGH = 90;
+const TANK_PERCENT_MEDIUM = 75;
+const FUEL_TANK_LOW_THRESHOLD = 30;
+const FUEL_TANK_CRITICAL_THRESHOLD = 15;
 
 // Note: Capacity in Liters
 let tankDefs = [
@@ -55,17 +71,16 @@ let vacuums = [];
 let osmose = [];
 let couleeActive = false;
 let tempAge = 0;
-const maximumAge = 5;
 let valueRef = {};
 let myToken;
 
 function liters2gallons(liters) {
-    return Math.ceil(liters / 4.54609188);
+    return Math.ceil(liters / LITERS_PER_GALLON);
 }
 
 function onLoad() {
     openSocket();
-    const displayDevicesInterval = setInterval(displayDevices, 10000);
+    const displayDevicesInterval = setInterval(displayDevices, DISPLAY_DEVICES_INTERVAL_MS);
     const myURL = document.URL;
     const domaineStart = myURL.indexOf("://") + 3;
     const domaineEnd = myURL.lastIndexOf(":");
@@ -264,7 +279,7 @@ function displayTanks() {
             let outValveElemId = "valve_" + tank.output + "_position";
             let outValvePosElem = document.getElementById(outValveElemId);
             let outValvePos = outValvePosElem.innerHTML;
-            if (typeof outValvePos !== null) {
+            if (outValvePos !== null && outValvePos !== undefined) {
                 outputElement.innerHTML = outValvePos;
                 setIndicatorColor(outputElement, outValvePos);
             }
@@ -273,7 +288,8 @@ function displayTanks() {
         if (tank.ssrRelay !== "none" && tank.ssrRelay !== undefined) {
             let inValveElemId = "valve_" + tank.ssrRelay + "_position";
             let inValvePosElem = document.getElementById(inValveElemId);
-            if (typeof inValvePos !== null) {
+            let inValvePos = inValvePosElem.innerHTML;
+            if (inValvePos !== null && inValvePos !== undefined) {
                 if (
                     inValvePosElem.innerHTML !== "undefined" &&
                     tankNameElement !== undefined
@@ -321,7 +337,7 @@ function displayTanks() {
             RStotPCElem.innerHTML =
                 ((RStotal / RStotalCap) * 100).toFixed(0) + "%";
             let seveBrix = document.getElementById("Osmose_BrixSeve").innerHTML;
-            RStoSiropElement.innerHTML = ((RStotal * seveBrix) / 66.0).toFixed(
+            RStoSiropElement.innerHTML = ((RStotal * seveBrix) / SYRUP_BRIX).toFixed(
                 0,
             );
             RSdispElement.innerHTML = (RStotalCap - RStotal).toFixed(0);
@@ -349,15 +365,15 @@ function displayTanks() {
             RCtotPCElement.innerHTML =
                 ((RCtotal / RCtotalCap) * 100).toFixed(0) + "%";
             let concBrix = document.getElementById("Osmose_BrixConc").innerHTML;
-            RCtoSiropElement.innerHTML = ((RCtotal * concBrix) / 66.0).toFixed(
+            RCtoSiropElement.innerHTML = ((RCtotal * concBrix) / SYRUP_BRIX).toFixed(
                 0,
             );
             RCdispElement.innerHTML = (RCtotalCap - RCtotal).toFixed(0);
             RCmaxElement.innerHTML = RCtotalCap.toFixed(0);
             let seveBrix = document.getElementById("Osmose_BrixSeve").innerHTML;
             let SiropTotal = (
-                (RStotal * seveBrix) / 66.0 +
-                (RCtotal * concBrix) / 66.0
+                (RStotal * seveBrix) / SYRUP_BRIX +
+                (RCtotal * concBrix) / SYRUP_BRIX
             ).toFixed(0);
             SiropElement.innerHTML = SiropTotal;
         }
@@ -368,10 +384,10 @@ function displayTanks() {
             if (index > 0) {
                 return "#eeeeee";
             }
-            if (values[0] > 90) {
+            if (values[0] > TANK_PERCENT_HIGH) {
                 return "red";
             }
-            if (values[0] > 75) {
+            if (values[0] > TANK_PERCENT_MEDIUM) {
                 return "orange";
             }
             return "green";
@@ -382,10 +398,10 @@ function displayTanks() {
             if (index > 0) {
                 return "#eeeeee";
             }
-            if (values[0] < 30) {
+            if (values[0] < FUEL_TANK_LOW_THRESHOLD) {
                 return "orange";
             }
-            if (values[0] < 15) {
+            if (values[0] < FUEL_TANK_CRITICAL_THRESHOLD) {
                 return "red";
             }
             return "green";
@@ -542,9 +558,15 @@ function createCell(id, className, parentElem) {
 }
 
 function displayDevices() {
-    let oldestAge = 0;
-    const devicelistElem = document.getElementById("devicelist");
-    const latestUpdateElement = document.getElementById("lastestUpdate");
+    try {
+        let oldestAge = 0;
+        const devicelistElem = document.getElementById("devicelist");
+        const latestUpdateElement = document.getElementById("lastestUpdate");
+        
+        if (!devicelistElem || !latestUpdateElement) {
+            console.error('Required DOM elements not found');
+            return;
+        }
     devices.forEach(function (device) {
         if (device.retired) return;
 
@@ -583,7 +605,7 @@ function displayDevices() {
         lastUpdatedAtElem.innerHTML = ageDisplay;
 
         lastUpdatedAtElem.style.color =
-            ageInMinutes > device.maxDelayMinutes ? "FireBrick" : "black";
+            ageInMinutes > (device.maxDelayMinutes || MAXIMUM_AGE_MINUTES) ? "FireBrick" : "black";
 
         if (device.generationId !== undefined) {
             generationElem.innerHTML = device.generationId;
@@ -597,7 +619,7 @@ function displayDevices() {
 
         oldestAge = Math.max(ageInMinutes, oldestAge);
         const ageDisplayTop = `${oldestAge} min.`;
-        if (oldestAge > device.maxDelayMinutes) {
+        if (oldestAge > (device.maxDelayMinutes || MAXIMUM_AGE_MINUTES)) {
             latestUpdateElement.innerHTML = "Délais:</br>anormal";
             latestUpdateElement.style.color = "FireBrick";
         } else {
@@ -606,6 +628,9 @@ function displayDevices() {
         }
 
     });
+    } catch (err) {
+        console.error('Error in displayDevices:', err);
+    }
 }
 
 function getMinutesAgo(date) {
@@ -648,23 +673,23 @@ function displayValves() {
         // Copy valve VaEC postion to Autres Valves table
         if (valve.code == "VaEC") {
             let VaECElemId = valve.code + "_position";
-            VaECElem = document.getElementById(VaECElemId);
+            let VaECElem = document.getElementById(VaECElemId);
             if (typeof VaECElem !== "undefined" && VaECElem !== null) {
                 VaECElem.innerHTML = valve.position;
                 setIndicatorColor(VaECElem, valve.position);
-                var VaECElem = document.getElementById("valve_" + valve.code);
-                setAgeColor(VaECElem, valve.device);
+                const VaECElemRow = document.getElementById("valve_" + valve.code);
+                setAgeColor(VaECElemRow, valve.device);
             }
         }
         // Copy valve VaTk postion to Autres Valves table
         if (valve.code == "VaTk") {
             let VaTkElemId = valve.code + "_position";
-            VaTkElem = document.getElementById(VaTkElemId);
+            let VaTkElem = document.getElementById(VaTkElemId);
             if (typeof VaTkElem !== "undefined" && VaTkElem !== null) {
                 VaTkElem.innerHTML = valve.position;
                 setIndicatorColor(VaTkElem, valve.position);
-                var VaTkElem = document.getElementById("valve_" + valve.code);
-                setAgeColor(VaTkElem, valve.device);
+                const VaTkElemRow = document.getElementById("valve_" + valve.code);
+                setAgeColor(VaTkElemRow, valve.device);
             }
         }
     });
@@ -683,9 +708,8 @@ function displaySiteNameOrError(errNo, err) {
 
 function displayOsmose() {
     osmose.forEach(function (osm) {
-        var stateElem;
-        let stateElemId = "Osmose" + "_state";
-        stateElem = document.getElementById(stateElemId);
+        const stateElemId = "Osmose" + "_state";
+        const stateElem = document.getElementById(stateElemId);
         if (osm.state == 1) {
             stateElem.innerHTML = "ON";
             stateElem.style.backgroundColor = "lime";
@@ -694,23 +718,20 @@ function displayOsmose() {
             stateElem.style.backgroundColor = "red";
         }
 
-        var fonctionElem;
-        let fonctionElemId = "Osmose" + "_fonction";
-        fonctionElem = document.getElementById(fonctionElemId);
+        const fonctionElemId = "Osmose" + "_fonction";
+        const fonctionElem = document.getElementById(fonctionElemId);
         fonctionElem.innerHTML =
             osm.fonction !== undefined ? osm.fonction : "   -indéfini-   ";
-        var alarmCodeElem;
-        let alarmCodeElemId = "Osmose" + "_alarmNo";
-        alarmCodeElem = document.getElementById(alarmCodeElemId);
+        const alarmCodeElemId = "Osmose" + "_alarmNo";
+        const alarmCodeElem = document.getElementById(alarmCodeElemId);
         if (osm.alarmNo !== undefined) {
             alarmCodeElem.innerHTML = osm.alarmNo;
         } else {
             alarmCodeElem.innerHTML = "";
         }
 
-        var alarmMsgElem;
-        let alarmMsgElemId = "Osmose_alarmMsg";
-        alarmMsgElem = document.getElementById(alarmMsgElemId);
+        const alarmMsgElemId = "Osmose_alarmMsg";
+        const alarmMsgElem = document.getElementById(alarmMsgElemId);
         if (osm.alarmMsg !== undefined) {
             alarmMsgElem.innerHTML = osm.alarmMsg;
         } else {
@@ -724,195 +745,186 @@ function displayOsmose() {
         }
         displaySiteNameOrError(osm.alarmNo, osm.alarmMsg);
 
-        // var seqElem;
-        let seqElemId = "Osmose" + "_sequence";
-        seqElem = document.getElementById(seqElemId);
+        const seqElemId = "Osmose" + "_sequence";
+        const seqElem = document.getElementById(seqElemId);
         if (osm.sequence !== undefined) {
             seqElem.innerHTML = osm.sequence;
         } else {
             seqElem.innerHTML = "?-?-?-?";
         }
 
-        var runTimeCodeElem;
-        var runTimeElemId = "Osmose" + "_tOperEC";
-        runTimeElem = document.getElementById(runTimeElemId);
+        const runTimeElemId = "Osmose" + "_tOperEC";
+        const runTimeElem = document.getElementById(runTimeElemId);
         runTimeElem.innerHTML = secToHrMin(osm.TempsOperEnCour);
 
-        var rtSeq1234CodeElem;
-        var rtSeq1234ElemId = "Osmose" + "_TempsSeq1234";
-        rtSeq1234Elem = document.getElementById(rtSeq1234ElemId);
+        const rtSeq1234ElemId = "Osmose" + "_TempsSeq1234";
+        const rtSeq1234Elem = document.getElementById(rtSeq1234ElemId);
         rtSeq1234Elem.innerHTML = secToHrMin(osm.TempsSeq1234);
 
-        var rtSeq4321CodeElem;
-        var rtSeq4321ElemId = "Osmose" + "_TempsSeq4321";
-        rtSeq4321Elem = document.getElementById(rtSeq4321ElemId);
+        const rtSeq4321ElemId = "Osmose" + "_TempsSeq4321";
+        const rtSeq4321Elem = document.getElementById(rtSeq4321ElemId);
         rtSeq4321Elem.innerHTML = secToHrMin(osm.TempsSeq4321);
 
-        var tdLavageCodeElem;
-        var tdLavageElemId = "Osmose" + "_TempsDepuisLavage";
-        tdLavageElem = document.getElementById(tdLavageElemId);
+        const tdLavageElemId = "Osmose" + "_TempsDepuisLavage";
+        const tdLavageElem = document.getElementById(tdLavageElemId);
         tdLavageElem.innerHTML = secToHrMin(osm.TempsDepuisLavage);
 
-        var miseAJourCodeElem;
-        var miseAJourElemId = "Osmose" + "_lastUpdatedAt";
-        miseAJourElem = document.getElementById(miseAJourElemId);
-        var ageInMinutes = Math.floor(
+        const miseAJourElemId = "Osmose" + "_lastUpdatedAt";
+        const miseAJourElem = document.getElementById(miseAJourElemId);
+        const ageInMinutes = Math.floor(
             getMinutesAgo(new Date(osm.lastUpdatedAt)),
         );
         miseAJourElem.innerHTML = ageInMinutes + " min.";
 
-        var col1Elem;
-        var col1ElemId = "Osmose" + "_Col1";
-        col1Elem = document.getElementById(col1ElemId);
+        const col1ElemId = "Osmose" + "_Col1";
+        const col1Elem = document.getElementById(col1ElemId);
         if (osm.Col1 !== undefined) {
             col1Elem.innerHTML = osm.Col1.toFixed(1);
         } else {
             col1Elem.innerHTML = 0.0;
         }
 
-        var col2Elem;
-        var col2ElemId = "Osmose" + "_Col2";
-        col2Elem = document.getElementById(col2ElemId);
+        const col2ElemId = "Osmose" + "_Col2";
+        const col2Elem = document.getElementById(col2ElemId);
         if (osm.Col2 !== undefined) {
             col2Elem.innerHTML = osm.Col2.toFixed(1);
         } else {
             col2Elem.innerHTML = 0.0;
         }
 
-        var col3Elem;
-        var col3ElemId = "Osmose" + "_Col3";
-        col3Elem = document.getElementById(col3ElemId);
+        const col3ElemId = "Osmose" + "_Col3";
+        const col3Elem = document.getElementById(col3ElemId);
         if (osm.Col3 !== undefined) {
             col3Elem.innerHTML = osm.Col3.toFixed(1);
         } else {
             col3Elem.innerHTML = 0.0;
         }
 
-        var col4Elem;
-        var col4ElemId = "Osmose" + "_Col4";
-        col4Elem = document.getElementById(col4ElemId);
+        const col4ElemId = "Osmose" + "_Col4";
+        const col4Elem = document.getElementById(col4ElemId);
         if (osm.Col4 !== undefined) {
             col4Elem.innerHTML = osm.Col4.toFixed(1);
         } else {
             col4Elem.innerHTML = 0.0;
         }
 
-        var concElem;
-        var concElemId = "Osmose" + "_Conc";
-        concElem = document.getElementById(concElemId);
+        const concElemId = "Osmose" + "_Conc";
+        const concElem = document.getElementById(concElemId);
         if (osm.Conc !== undefined) {
             concElem.innerHTML = osm.Conc.toFixed(1);
         } else {
             concElem.innerHTML = 0.0;
         }
 
-        var TempElem;
-        var TempElemId = "Osmose" + "_Temp";
-        TempElem = document.getElementById(TempElemId);
+        const TempElemId = "Osmose" + "_Temp";
+        const TempElem = document.getElementById(TempElemId);
         if (osm.Temp !== undefined) {
             TempElem.innerHTML = osm.Temp.toFixed(1);
         } else {
             TempElem.innerHTML = 0.0;
         }
 
-        var PresElem;
-        var PresElemId = "Osmose" + "_Pres";
-        PresElem = document.getElementById(PresElemId);
+        const PresElemId = "Osmose" + "_Pres";
+        const PresElem = document.getElementById(PresElemId);
         if (osm.Pres !== undefined) {
             PresElem.innerHTML = osm.Pres;
         } else {
             PresElem.innerHTML = 0;
         }
 
-        var brixSeveElem;
-        var brixSeveElemId = "Osmose" + "_BrixSeve";
-        brixSeveElem = document.getElementById(brixSeveElemId);
+        const brixSeveElemId = "Osmose" + "_BrixSeve";
+        const brixSeveElem = document.getElementById(brixSeveElemId);
         if (osm.Pres !== undefined) {
             brixSeveElem.innerHTML = osm.BrixSeve.toFixed(1);
         } else {
             brixSeveElem.innerHTML = 1.0;
         }
 
-        var brixConcElem;
-        var brixConcElemId = "Osmose" + "_BrixConc";
-        brixConcElem = document.getElementById(brixConcElemId);
+        const brixConcElemId = "Osmose" + "_BrixConc";
+        const brixConcElem = document.getElementById(brixConcElemId);
         if (osm.BrixConc !== undefined) {
             brixConcElem.innerHTML = osm.BrixConc.toFixed(1);
         } else {
             brixConcElem.innerHTML = 10.0;
         }
 
-        var pcConcElem;
-        var pcConcElemId = "Osmose" + "_PC_Conc";
-        pcConcElem = document.getElementById(pcConcElemId);
+        const pcConcElemId = "Osmose" + "_PC_Conc";
+        const pcConcElem = document.getElementById(pcConcElemId);
         if (osm.PC_Conc !== undefined) {
             pcConcElem.innerHTML = osm.PC_Conc;
         } else {
             pcConcElem.innerHTML = 0;
         }
 
-        var gphConcElem;
-        var gphConcElemId = "Osmose" + "_Conc_GPH";
-        gphConcElem = document.getElementById(gphConcElemId);
+        const gphConcElemId = "Osmose" + "_Conc_GPH";
+        const gphConcElem = document.getElementById(gphConcElemId);
         if (osm.Conc_GPH !== undefined) {
             gphConcElem.innerHTML = osm.Conc_GPH;
         } else {
             gphConcElem.innerHTML = 0;
         }
 
-        var gphFiltratElem;
-        var gphFiltratElemId = "Osmose" + "_Filtrat_GPH";
-        gphFiltratElem = document.getElementById(gphFiltratElemId);
+        const gphFiltratElemId = "Osmose" + "_Filtrat_GPH";
+        const gphFiltratElem = document.getElementById(gphFiltratElemId);
         if (osm.Filtrat_GPH !== undefined) {
             gphFiltratElem.innerHTML = osm.Filtrat_GPH;
         } else {
             gphFiltratElem.innerHTML = 0;
         }
 
-        var gphTotalElem;
-        var gphTotalElemId = "Osmose" + "_Total_GPH";
-        gphTotalElem = document.getElementById(gphTotalElemId);
+        const gphTotalElemId = "Osmose" + "_Total_GPH";
+        const gphTotalElem = document.getElementById(gphTotalElemId);
         if (osm.Total_GPH !== undefined) {
             gphTotalElem.innerHTML = osm.Total_GPH;
         } else {
             gphTotalElem.innerHTML = 3000;
         }
 
-        var dureeElem;
-        var dureeElemId = "Osmose" + "_Durée_sec";
-        dureeElem = document.getElementById(dureeElemId);
+        const dureeElemId = "Osmose" + "_Durée_sec";
+        const dureeElem = document.getElementById(dureeElemId);
         if (osm.runTimeSec !== undefined) {
             dureeElem.innerHTML = secToHrMin(osm.runTimeSec);
         } else {
             dureeElem.innerHTML = "";
         }
 
-        var tempApproxElem;
-        var tempApproxElemId = "Osmose" + "_temps_approx";
-        tempApproxElem = document.getElementById(tempApproxElemId);
-        var tempEstim = calcTempEst();
+        const tempApproxElemId = "Osmose" + "_temps_approx";
+        const tempApproxElem = document.getElementById(tempApproxElemId);
+        const tempEstim = calcTempEst();
         tempApproxElem.innerHTML = secToHrMin(tempEstim);
     });
 }
 
 function calcTempEst() {
-    var tempsEst;
-    const debitOsmose = document.getElementById("Osmose_Total_GPH").innerHTML;
-    const débitPompes = document.getElementById("pumptotalrate").innerHTML;
-    const volumeSeve = document.getElementById("RStot").innerHTML;
-    if (debitOsmose !== null && débitPompes !== null && volumeSeve !== null) {
-        var debitReel = debitOsmose - débitPompes;
-        if (debitReel > 0) {
-            tempsEst = (3600 * volumeSeve) / debitReel;
-        } else {
-            tempsEst = 24 * 3600;
+    try {
+        let tempsEst = 24 * 3600; // Default to 24 hours
+        const debitOsmoseElem = document.getElementById("Osmose_Total_GPH");
+        const débitPompesElem = document.getElementById("pumptotalrate");
+        const volumeSeveElem = document.getElementById("RStot");
+        
+        if (!debitOsmoseElem || !débitPompesElem || !volumeSeveElem) {
+            return tempsEst;
         }
+        
+        const debitOsmose = parseFloat(debitOsmoseElem.innerHTML);
+        const débitPompes = parseFloat(débitPompesElem.innerHTML);
+        const volumeSeve = parseFloat(volumeSeveElem.innerHTML);
+        
+        if (!isNaN(debitOsmose) && !isNaN(débitPompes) && !isNaN(volumeSeve)) {
+            const debitReel = debitOsmose - débitPompes;
+            if (debitReel > 0) {
+                tempsEst = (3600 * volumeSeve) / debitReel;
+            }
+        }
+        return tempsEst;
+    } catch (err) {
+        console.error('Error calculating time estimate:', err);
+        return 24 * 3600; // Return 24 hours as fallback
     }
-    return tempsEst;
 }
 
 function secToHrMin(totalSec) {
-    Math.max(0, totalSec);
+    totalSec = Math.max(0, totalSec);
     let hour = totalSec / 3600;
     let min = (hour - Math.floor(hour)) * 60;
     let sec = min - Math.floor(min);
@@ -1010,10 +1022,10 @@ function displayPumps() {
     totalVolumeElem.innerHTML = parseInt(totalVolume) || 0;
 
     const seveBrix = document.getElementById("Osmose_BrixSeve").innerHTML;
-    let debitSirop = (seveBrix * totalRate) / 66.0;
+    let debitSirop = (seveBrix * totalRate) / SYRUP_BRIX;
     debitSirop = isNaN(debitSirop) ? 0 : debitSirop;
 
-    let totalSirop = (seveBrix * totalVolume) / 66.0;
+    let totalSirop = (seveBrix * totalVolume) / SYRUP_BRIX;
 
     const SiropElem = document.getElementById("estimSirop");
     SiropElem.innerHTML = totalSirop.toFixed(0) || 0;
@@ -1024,9 +1036,9 @@ function displayPumps() {
 
 function checkCouleeEnCour(allWaterPumps, dateStart) {
     // console.log(JSON.stringify(allWaterPumps));
-    var couleeElem = document.getElementById("coulee");
-    var couleeTextElem = document.getElementById("c_text");
-    var allPumpsCouleeState =
+    const couleeElem = document.getElementById("coulee");
+    const couleeTextElem = document.getElementById("c_text");
+    const allPumpsCouleeState =
         allWaterPumps[0] || allWaterPumps[1] || allWaterPumps[2];
 
     if (allPumpsCouleeState !== undefined && couleeActive !== undefined) {
@@ -1065,17 +1077,12 @@ function displayVacuumLignes() {
         const updatedElemId = `${vacuumElemId}_lastUpdate`;
 
         let vacuumElem = document.getElementById(vacuumElemId);
-        let skipped = [
-            "V1",
-            "V2",
-            "V3",
-            "PV1",
-            "PV2",
-            "PV3",
-            "EB-V1",
-            "EB-V2",
-            "EB-V3",
-        ].includes(vacuum.code);
+        const skippedVacuumCodes = [
+            "V1", "V2", "V3",
+            "PV1", "PV2", "PV3",
+            "EB-V1", "EB-V2", "EB-V3",
+        ];
+        let skipped = skippedVacuumCodes.includes(vacuum.code);
         if (!vacuumElem && !skipped) {
             vacuumElem = document.createElement("tr");
             vacuumElem.setAttribute("id", vacuumElemId);
@@ -1107,19 +1114,7 @@ function displayVacuumLignes() {
         vacuumValue = vacuum.rawValue;
 
         // Calcul des pertes de vide
-        if (
-            [
-                "V1",
-                "V2",
-                "V3",
-                "PV1",
-                "PV2",
-                "PV3",
-                "EB-V1",
-                "EB-V2",
-                "EB-V3",
-            ].includes(vacuum.code)
-        ) {
+        if (skippedVacuumCodes.includes(vacuum.code)) {
             return;
         }
         if (vacuumValue == undefined) vacuumValue = 0.0;
@@ -1189,7 +1184,6 @@ function displayVacuumErabliere() {
     let timeElemId;
     let timeElem;
     let tOper = 0;
-    const alarmLimit = 216000;
 
     vacuums.forEach(function (vacuum) {
         // if (vacuum.label.indexOf("Ligne") !== 0) return;
@@ -1232,7 +1226,7 @@ function displayVacuumErabliere() {
                 timeElem.innerHTML = secToHrMin(vacuum.RunTimeSinceMaint);
                 // console.log("RunTimeSinceMaint: ", vacuum.RunTimeSinceMaint);
                 if (vacuum.NeedMaintenance == true) {
-                    if (vacuum.RunTimeSinceMaint < alarmLimit) {
+                    if (vacuum.RunTimeSinceMaint < ALARM_LIMIT_SECONDS) {
                         timeElem.className = "warning";
                     } else {
                         timeElem.className = "alarm";
@@ -1277,18 +1271,10 @@ function setAgeColor(displayElem, deviceDevice) {
     }
     try {
         let lastUpdatedAtElemId = "device_" + deviceDevice + "_lastUpdatedAt";
-        if (
-            typeof lastUpdatedAtElemId !== undefined ||
-            typeof lastUpdatedAtElemId !== null
-        ) {
-            var lastUpdatedAtElem =
-                document.getElementById(lastUpdatedAtElemId);
-            if (
-                typeof displayElem !== undefined ||
-                typeof displayElem !== null
-            ) {
-                displayElem.style.color = lastUpdatedAtElem.style.color;
-            }
+        let lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
+        if (lastUpdatedAtElem !== null && lastUpdatedAtElem !== undefined &&
+            displayElem !== null && displayElem !== undefined) {
+            displayElem.style.color = lastUpdatedAtElem.style.color;
         }
     } catch (err) {
         console.log("lastUpdatedAtElemId: " + deviceDevice + " " + err);
@@ -1300,19 +1286,11 @@ function setAgeLineVacuum(displayElem, deviceDevice) {
         return;
     }
     try {
-        var lastUpdatedAtElemId = "device_" + deviceDevice + "_lastUpdatedAt";
-        if (
-            typeof lastUpdatedAtElemId !== undefined ||
-            typeof lastUpdatedAtElemId !== null
-        ) {
-            var lastUpdatedAtElem =
-                document.getElementById(lastUpdatedAtElemId);
-            if (
-                typeof displayElem !== undefined ||
-                typeof displayElem !== null
-            ) {
-                displayElem.innerHTML = lastUpdatedAtElem.innerHTML;
-            }
+        let lastUpdatedAtElemId = "device_" + deviceDevice + "_lastUpdatedAt";
+        let lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
+        if (lastUpdatedAtElem !== null && lastUpdatedAtElem !== undefined &&
+            displayElem !== null && displayElem !== undefined) {
+            displayElem.innerHTML = lastUpdatedAtElem.innerHTML;
         }
     } catch (err) {
         console.log("lastUpdatedAtElemId: " + deviceDevice + " " + err);
@@ -1321,24 +1299,23 @@ function setAgeLineVacuum(displayElem, deviceDevice) {
 
 function setBatteryColorLineVacuum(percentCharge) {
     try {
-        if (percentCharge >= 36) {
-            return "#e6e6e6"; // Light gray - Normal. 70% et plus
-        } else if (percentCharge >= 20) {
-            return "Orange"; // Orange - Faible. Entre 50% et 69%
+        if (percentCharge >= BATTERY_NORMAL_THRESHOLD) {
+            return "#e6e6e6"; // Light gray - Normal
+        } else if (percentCharge >= BATTERY_LOW_THRESHOLD) {
+            return "Orange"; // Orange - Low
         } else {
-            return "Red"; // Red - Critique. Moins de 50%
+            return "Red"; // Red - Critical
         }
     } catch (err) {
         console.log("Erreur: " + err);
+        return "#e6e6e6"; // Default color
     }
 }
 function setVacuumDropColor(vacuumDrop) {
-    const yellowLimit = 3.0;
-    const redLimit = 6.0;
     try {
-        if (vacuumDrop < yellowLimit) {
-            return "lime"; //Gris "#e6e6e6"
-        } else if (vacuumDrop < redLimit) {
+        if (vacuumDrop < VACUUM_DROP_YELLOW_LIMIT) {
+            return "lime";
+        } else if (vacuumDrop < VACUUM_DROP_RED_LIMIT) {
             return "yellow";
         } else {
             return "red";
@@ -1349,7 +1326,7 @@ function setVacuumDropColor(vacuumDrop) {
 }
 
 function toggleTablesVisibility(thisTable) {
-    var TableElem = document.getElementById(thisTable);
+    const TableElem = document.getElementById(thisTable);
     if (TableElem.style.visibility == "hidden") {
         TableElem.style.visibility = "visible";
     } else if (TableElem.style.visibility == "visible") {
@@ -1359,7 +1336,7 @@ function toggleTablesVisibility(thisTable) {
 
 // Toggle status color
 function toggleStatusColor() {
-    var statusElem = document.getElementById("lastestUpdate");
+    const statusElem = document.getElementById("lastestUpdate");
     statusElem.style.backgroundColor =
         statusElem.style.backgroundColor == "" ? "#4CAF50" : "";
     setTimeout(function () {
@@ -1378,12 +1355,13 @@ function openSocket() {
         console.log("Socket closed.");
         setTimeout(function () {
             openSocket();
-        }, 5000);
+        }, WEBSOCKET_RECONNECT_DELAY_MS);
     };
     websocket.onmessage = function (msg) {
-        var data = JSON.parse(msg.data);
+        try {
+            const data = JSON.parse(msg.data);
         tankDefs.forEach(function (tankDef, index) {
-            var tank = data.tanks
+            const tank = data.tanks
                 .filter(function (tankData) {
                     return tankData.code == tankDef.code;
                 })
@@ -1411,14 +1389,17 @@ function openSocket() {
         displayVacuumErabliere();
         displayVacuumLignes();
         toggleStatusColor();
+        } catch (err) {
+            console.error("Error processing WebSocket message:", err);
+        }
     };
     websocket.onerror = function (evt) {
         console.error("Error:" + evt);
     };
 }
 
-var sec = 0;
-var couleTimer;
+let sec = 0;
+let couleTimer;
 
 function pad(val) {
     return val > 9 ? val : "0" + val;
@@ -1432,7 +1413,7 @@ function startCouleeCounter(date) {
             sec = parseInt(
                 Math.abs(Date.now() / 1e3 - new Date(date).getTime()),
             );
-            var timeStr = "</br>" + parseInt(sec / 86400, 10);
+            let timeStr = "</br>" + parseInt(sec / 86400, 10);
             timeStr = timeStr + "j " + pad(parseInt(sec / 3600, 10) % 24);
             timeStr = timeStr + "h " + pad(parseInt(sec / 60, 10) % 60);
             timeStr = timeStr + "m " + pad(sec % 60) + "s";
@@ -1450,27 +1431,37 @@ function stopCouleeCounter() {
 }
 
 function getDeviceId(devName) {
-    var deviceId = devices
-        .filter(function (device) {
-            return device.name === devName;
-        })
-        .shift();
-    return deviceId.id;
+    try {
+        const device = devices
+            .filter(function (d) {
+                return d.name === devName;
+            })
+            .shift();
+        return device ? device.id : null;
+    } catch (err) {
+        console.error(`Error getting device ID for ${devName}:`, err);
+        return null;
+    }
 }
 
 function getRelayState(devName) {
-    var deviceId = devices
-        .filter(function (device) {
-            return device.name === devName;
-        })
-        .shift();
-    return deviceId.ssrRelayState;
+    try {
+        const device = devices
+            .filter(function (d) {
+                return d.name === devName;
+            })
+            .shift();
+        return device ? device.ssrRelayState : undefined;
+    } catch (err) {
+        console.error(`Error getting relay state for ${devName}:`, err);
+        return undefined;
+    }
 }
 
 function callResetOperTimer(devName) {
     let text;
     if (confirm("Remettre à zéro le compteur?") == true) {
-        var res = callFunction(getDeviceId(devName), "reset", "operationTimer");
+        const res = callFunction(getDeviceId(devName), "reset", "operationTimer");
         if (res != -1) {
             text = "Remise à zéro CONFIRMÉ!";
         } else {
@@ -1484,6 +1475,9 @@ function callResetOperTimer(devName) {
 
 async function readDeviceVariable(deviceId, varName) {
     try {
+        if (!deviceId || !varName || !myToken) {
+            throw new Error('Missing required parameters');
+        }
         const data = await particle.getVariable({
             deviceId: deviceId,
             name: varName,
@@ -1493,55 +1487,65 @@ async function readDeviceVariable(deviceId, varName) {
             `Successfully read variable '${varName}' from device '${deviceId}':`,
             data.result,
         );
-        return data.result; // Return the variable's value on success
+        return data.result;
     } catch (err) {
         console.error(
             `Error reading variable '${varName}' from device '${deviceId}':`,
             err,
         );
-        // Optionally, you could throw the error here to propagate it further up the call stack:
-        // throw err;
-        return undefined; // Return undefined to indicate failure
+        return undefined;
     }
 }
 
 async function callFunction(devID, fname, fargument) {
-    var status = await particle
-        .callFunction({
-            deviceId: devID,
-            name: fname,
-            argument: fargument,
-            auth: myToken,
-        })
-        .then(
-            function (data) {
-                console.log("Function called succesfully:", data);
-            },
-            function (err) {
-                console.log("An error occurred:", err);
-                // return "Erreur!";
-            },
-        );
-    return status;
+    try {
+        if (!devID || !fname || !myToken) {
+            throw new Error('Missing required parameters');
+        }
+        const status = await particle
+            .callFunction({
+                deviceId: devID,
+                name: fname,
+                argument: fargument,
+                auth: myToken,
+            })
+            .then(
+                function (data) {
+                    console.log("Function called successfully:", data);
+                    return data;
+                },
+                function (err) {
+                    console.error("An error occurred:", err);
+                    throw err;
+                },
+            );
+        return status;
+    } catch (err) {
+        console.error(`Error calling function ${fname} on device ${devID}:`, err);
+        return null;
+    }
 }
 
 setTimeout(function () {
     window.location.reload(1);
-}, 3600000);
+}, PAGE_RELOAD_INTERVAL_MS);
 
 function normalizeLabel(label) {
     return label.replace(/([A-Z])0*/, "$1");
 }
 
 function formatDate(date, timeOnly = true) {
+    let hours = date.getHours().toString().padStart(2, "0");
+    let minutes = date.getMinutes().toString().padStart(2, "0");
+    let seconds = date.getSeconds().toString().padStart(2, "0");
+    
     if (!timeOnly) {
         let day = date.getDate().toString().padStart(2, "0");
         let month = (date.getMonth() + 1).toString().padStart(2, "0");
         let year = date.getFullYear();
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     }
-    let hours = date.getHours().toString().padStart(2, "0");
-    let minutes = date.getMinutes().toString().padStart(2, "0");
-    let seconds = date.getSeconds().toString().padStart(2, "0");
+    
     return `${hours}:${minutes}:${seconds}`;
 }
 
