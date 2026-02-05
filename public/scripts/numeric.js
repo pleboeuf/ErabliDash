@@ -9,9 +9,9 @@ function wsUri(path) {
     );
 }
 let websocket;
+let valveSelectorPassword = null; // Will be loaded from server
 
 // Constants
-const Dos = "1222"; // TODO: Remove hardcoded password - security issue
 const LITERS_PER_GALLON = 4.54609188;
 const DISPLAY_DEVICES_INTERVAL_MS = 10000;
 const MAXIMUM_AGE_MINUTES = 5;
@@ -423,9 +423,9 @@ function functionPlusRF2() {
 let span = document.getElementsByClassName("close")[0];
 
 // Open the modal (Sélecteur de valves d'entrée)
-function showValveSelector(Uno) {
-    // let secret = prompt("Entrer le code", "");
-    if (prompt("Entrer le code", "") == Uno + Dos) {
+function showValveSelector() {
+    const enteredPassword = prompt("Entrer le code", "");
+    if (enteredPassword && valveSelectorPassword && enteredPassword === valveSelectorPassword) {
         // read actual relay state
         const inValves = getAllTanksInputValves(0);
         inValves.forEach(function (thisValve) {
@@ -1380,6 +1380,7 @@ function openSocket() {
             pumps = data.pumps;
             osmose = data.osmose;
             myToken = data.token;
+            valveSelectorPassword = data.valveSelectorPassword;
         });
         displayDevices();
         displayValves();
