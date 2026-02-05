@@ -695,14 +695,20 @@ function displayValves() {
     });
 }
 
-function displaySiteNameOrError(errNo, err) {
-    let thisSiteNameElement = document.getElementById("siteName");
-    if (errNo < 0) {
-        thisSiteNameElement.innerHTML = "Alarme Osmose: " + err;
-        thisSiteNameElement.style.backgroundColor = "red";
+function displayOsmoseAlarm(alarmNo, alarmMsg) {
+    const osmoseAlarmElement = document.getElementById("osmoseAlarm");
+    if (!osmoseAlarmElement) return;
+    
+    if (alarmNo < 0) {
+        osmoseAlarmElement.innerHTML = "Alarme Osmose: " + alarmMsg;
+        osmoseAlarmElement.style.backgroundColor = "red";
+        osmoseAlarmElement.style.color = "white";
+        osmoseAlarmElement.style.padding = "0.5rem";
+        osmoseAlarmElement.style.borderRadius = "4px";
     } else {
-        thisSiteNameElement.innerHTML = "";
-        thisSiteNameElement.style = "display: inline-block;";
+        osmoseAlarmElement.innerHTML = "";
+        osmoseAlarmElement.style.backgroundColor = "";
+        osmoseAlarmElement.style.padding = "";
     }
 }
 
@@ -743,7 +749,7 @@ function displayOsmose() {
         } else {
             alarmMsgElem.style.backgroundColor = "#e0e0e0"; // gris
         }
-        displaySiteNameOrError(osm.alarmNo, osm.alarmMsg);
+        displayOsmoseAlarm(osm.alarmNo, osm.alarmMsg);
 
         const seqElemId = "Osmose" + "_sequence";
         const seqElem = document.getElementById(seqElemId);
