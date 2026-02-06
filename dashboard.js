@@ -278,19 +278,16 @@ exports.Dashboard = function (config, WebSocketClient) {
     function requestEvents(device) {
         if (connection.connected) {
             console.log(
-                "Requesting events from device %s (%s) at %s,%s",
+                "Requesting last event from device %s (%s)",
                 device.name,
                 device.id,
-                device.generationId,
-                device.lastEventSerial,
             );
             pendingRequests[device.id] = true;
             connection.sendUTF(
                 JSON.stringify({
                     command: "query",
                     device: device.id,
-                    generation: device.generationId,
-                    after: device.lastEventSerial,
+                    limit: 1,
                 }),
             );
         }
@@ -307,19 +304,20 @@ exports.Dashboard = function (config, WebSocketClient) {
         }
     }
 
+    var connectBackoff = 50;
+
     function connect() {
+        setupClient();
         client.connect(uri, "event-stream");
     }
 
-    var connectBackoff = 50;
-
     function reconnect() {
         connectBackoff = Math.min(connectBackoff * 1.5, 1000 * 60);
-        setTimeout(connect, connectBackoff);
         console.warn(
-                    "Reconnecting to event stream in %d seconds",
-                    connectBackoff / 1000,
-                );
+            "Reconnecting to event stream in %d seconds",
+            connectBackoff / 1000,
+        );
+        setTimeout(connect, connectBackoff);
     }
 
     function getValveOfDevice(device, identifier) {
@@ -909,52 +907,56 @@ exports.Dashboard = function (config, WebSocketClient) {
         return Promise.resolve(message);
     }
 
-    var client = new WebSocketClient();
+    var client;
     var connection;
     var onConnectSuccess;
     var connectPromise = new Promise(function (complete, reject) {
         onConnectSuccess = complete;
     });
-    client.on("connectFailed", function (error) {
-        console.log("Connect Error: " + error.toString());
-        reconnect();
-    });
-    client.on("connect", function (con) {
-        connection = con;
-        connectBackoff = 1;
-        console.log("WebSocket Client Connected to: " + uri);
-        onConnectSuccess(connection);
-        connectCallbacks.forEach(function (callback) {
-            callback();
-        });
-        connection.on("error", function (error) {
-            console.log("Connection Error: " + error.toString());
+
+    function setupClient() {
+        client = new WebSocketClient();
+        client.on("connectFailed", function (error) {
+            console.log("Connect Error: " + error.toString());
             reconnect();
         });
-        connection.on("close", function () {
-            console.log("event-stream Connection Closed");
-            reconnect();
-        });
-        connection.on("message", function (message) {
-            if (message.type === "utf8") {
-                //console.log("Received: '" + message.utf8Data + "'");
-                try {
-                    return handleMessage(JSON.parse(message.utf8Data)).catch(
-                        function (err) {
-                            console.error(err);
-                        },
-                    );
-                } catch (exception) {
-                    console.error(
-                        "Failed to handle message: " + message.utf8Data,
-                        exception.stack,
-                    );
+        client.on("connect", function (con) {
+            connection = con;
+            connectBackoff = 50;
+            console.log("WebSocket Client Connected to: " + uri);
+            onConnectSuccess(connection);
+            connectCallbacks.forEach(function (callback) {
+                callback();
+            });
+            connection.on("error", function (error) {
+                console.log("Connection Error: " + error.toString());
+                reconnect();
+            });
+            connection.on("close", function () {
+                console.log("event-stream Connection Closed");
+                reconnect();
+            });
+            connection.on("message", function (message) {
+                if (message.type === "utf8") {
+                    //console.log("Received: '" + message.utf8Data + "'");
+                    try {
+                        return handleMessage(JSON.parse(message.utf8Data)).catch(
+                            function (err) {
+                                console.error(err);
+                            },
+                        );
+                    } catch (exception) {
+                        console.error(
+                            "Failed to handle message: " + message.utf8Data,
+                            exception.stack,
+                        );
+                    }
+                } else {
+                    console.warn("Unknown message type: " + message.type);
                 }
-            } else {
-                console.warn("Unknown message type: " + message.type);
-            }
+            });
         });
-    });
+    }
 
     function init() {
         console.log("Initializing...");
