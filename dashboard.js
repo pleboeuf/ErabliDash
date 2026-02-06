@@ -316,6 +316,10 @@ exports.Dashboard = function (config, WebSocketClient) {
     function reconnect() {
         connectBackoff = Math.min(connectBackoff * 1.5, 1000 * 60);
         setTimeout(connect, connectBackoff);
+        console.warn(
+                    "Reconnecting to event stream in %d seconds",
+                    connectBackoff / 1000,
+                );
     }
 
     function getValveOfDevice(device, identifier) {
