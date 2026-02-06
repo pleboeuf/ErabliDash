@@ -27,24 +27,45 @@
                 position: absolute;
                 top: 1rem;
                 left: 1rem;
+            }
+            .nav-menu-label {
+                color: white;
+                cursor: pointer;
+                padding: 0.5rem 1rem;
+                background-color: rgba(255, 255, 255, 0.1);
+                border-radius: 4px;
+                font-size: 0.9rem;
+            }
+            .nav-menu-items {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                flex-direction: column;
+                gap: 0.25rem;
+                margin-top: 0.25rem;
+                min-width: 120px;
+            }
+            .nav-menu:hover .nav-menu-items {
                 display: flex;
-                gap: 1rem;
-                align-items: center;
+            }
+            .nav-menu:hover .nav-menu-label {
+                background-color: rgba(255, 255, 255, 0.2);
             }
             .nav-menu a {
                 color: white;
                 text-decoration: none;
                 padding: 0.5rem 1rem;
-                background-color: rgba(255, 255, 255, 0.1);
+                background-color: rgba(12, 1, 82, 0.95);
                 border-radius: 4px;
                 font-size: 0.9rem;
                 transition: background-color 0.3s;
             }
             .nav-menu a:hover {
-                background-color: rgba(255, 255, 255, 0.2);
+                background-color: rgba(30, 20, 120, 1);
             }
             .nav-menu a.active {
-                background-color: rgba(255, 255, 255, 0.3);
+                background-color: rgba(50, 40, 140, 1);
                 font-weight: bold;
             }
             .dashboard-container {
@@ -86,9 +107,11 @@
                 }
                 .nav-menu {
                     position: static;
-                    justify-content: center;
-                    flex-wrap: wrap;
                     margin-bottom: 0.5rem;
+                }
+                .nav-menu-items {
+                    position: static;
+                    min-width: auto;
                 }
                 .nav-menu a {
                     font-size: 0.8rem;
@@ -104,10 +127,14 @@
     <body>
         <header class="header w3-container">
             <nav class="nav-menu">
-                <a href="/" class="active">Accueil</a>
-                <a href="/numeric.html">Tableaux</a>
-                <a href="/cabane2021">Schéma</a>
-                <a href="/cabaneMapNew">Carte Vide</a>
+                <span class="nav-menu-label">Menu</span>
+                <div class="nav-menu-items">
+                    <a href="/" class="active">Accueil</a>
+                    <a href="/numeric.html">Tableaux</a>
+                    <a href="/cabane2021">Schéma</a>
+                    <a href="/cabaneMapNew">Carte Vide</a>
+                    <a href="/data.json">Data JSON</a>
+                </div>
             </nav>
             <h1 class="header-title">
                 Erabli-DAS - Érablière Brunelle

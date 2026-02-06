@@ -20,15 +20,39 @@
                 position: fixed;
                 top: 10px;
                 left: 10px;
-                display: flex;
-                gap: 0.5rem;
                 z-index: 1000;
+            }
+            .nav-menu-label {
+                color: white;
+                cursor: pointer;
+                padding: 0.4rem 0.8rem;
+                background-color: rgba(12, 1, 82, 0.9);
+                border-radius: 4px;
+                font-size: 0.85rem;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                display: inline-block;
+            }
+            .nav-menu-items {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                flex-direction: column;
+                gap: 0.25rem;
+                margin-top: 0.25rem;
+                min-width: 120px;
+            }
+            .nav-menu:hover .nav-menu-items {
+                display: flex;
+            }
+            .nav-menu:hover .nav-menu-label {
+                background-color: rgba(20, 10, 100, 0.95);
             }
             .nav-menu a {
                 color: white;
                 text-decoration: none;
                 padding: 0.4rem 0.8rem;
-                background-color: rgba(12, 1, 82, 0.9);
+                background-color: rgba(12, 1, 82, 0.95);
                 border-radius: 4px;
                 font-size: 0.85rem;
                 transition: background-color 0.3s;
@@ -45,10 +69,12 @@
             @media (max-width: 768px) {
                 .nav-menu {
                     position: static;
-                    justify-content: center;
-                    flex-wrap: wrap;
                     margin-bottom: 0.5rem;
                     padding: 0.5rem;
+                }
+                .nav-menu-items {
+                    position: static;
+                    min-width: auto;
                 }
                 .nav-menu a {
                     font-size: 0.75rem;
@@ -83,10 +109,14 @@
 
     <body>
         <nav class="nav-menu">
-            <a href="/">Accueil</a>
-            <a href="/numeric.html" class="active">Tableaux</a>
-            <a href="/cabane2021">Schéma</a>
-            <a href="/cabaneMapNew">Carte Vide</a>
+            <span class="nav-menu-label">Menu</span>
+            <div class="nav-menu-items">
+                <a href="/">Accueil</a>
+                <a href="/numeric.html" class="active">Tableaux</a>
+                <a href="/cabane2021">Schéma</a>
+                <a href="/cabaneMapNew">Carte Vide</a>
+                <a href="/data.json">Data JSON</a>
+            </div>
         </nav>
         <header
             class="w3-container"
