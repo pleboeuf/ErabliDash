@@ -570,12 +570,13 @@ function displayDevices() {
     try {
         let oldestAge = 0;
         const devicelistElem = document.getElementById("devicelist");
-        const latestUpdateElement = document.getElementById("lastestUpdate");
+        const activityIndicator = document.getElementById("activityIndicator");
 
-        if (!devicelistElem || !latestUpdateElement) {
+        if (!devicelistElem) {
             console.error("Required DOM elements not found");
             return;
         }
+
         devices.forEach(function (device) {
             if (device.retired) return;
 
@@ -631,15 +632,14 @@ function displayDevices() {
             }
 
             oldestAge = Math.max(ageInMinutes, oldestAge);
-            const ageDisplayTop = `${oldestAge} min.`;
-            if (oldestAge > (device.maxDelayMinutes || MAXIMUM_AGE_MINUTES)) {
-                latestUpdateElement.innerHTML = "Délais:</br>anormal";
-                latestUpdateElement.style.color = "FireBrick";
-            } else {
-                latestUpdateElement.innerHTML = "Délais:</br>normal";
-                latestUpdateElement.style.color = "white";
-            }
         });
+
+        // Update activity indicator based on oldest device age
+        if (activityIndicator) {
+            if (oldestAge > MAXIMUM_AGE_MINUTES) {
+                activityIndicator.style.backgroundColor = "FireBrick";
+            }
+        }
     } catch (err) {
         console.error("Error in displayDevices:", err);
     }
@@ -1370,14 +1370,21 @@ function toggleTablesVisibility(thisTable) {
     }
 }
 
-// Toggle status color
+// Toggle activity indicator color on event received
 function toggleStatusColor() {
-    const statusElem = document.getElementById("lastestUpdate");
-    statusElem.style.backgroundColor =
-        statusElem.style.backgroundColor == "" ? "#4CAF50" : "";
+    const activityIndicator = document.getElementById("activityIndicator");
+    if (!activityIndicator) return;
+
+    // Only flash if not in FireBrick (error) state
+    if (activityIndicator.style.backgroundColor === "FireBrick") return;
+
+    // Flash to green
+    activityIndicator.style.backgroundColor = "lime";
     setTimeout(function () {
-        statusElem.style.backgroundColor =
-            statusElem.style.backgroundColor == "" ? "#4CAF50" : "";
+        // Return to gray (unless it became FireBrick during the timeout)
+        if (activityIndicator.style.backgroundColor !== "FireBrick") {
+            activityIndicator.style.backgroundColor = "gray";
+        }
     }, 500);
 }
 
