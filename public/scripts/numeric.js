@@ -80,7 +80,10 @@ function liters2gallons(liters) {
 
 function onLoad() {
     openSocket();
-    const displayDevicesInterval = setInterval(displayDevices, DISPLAY_DEVICES_INTERVAL_MS);
+    const displayDevicesInterval = setInterval(
+        displayDevices,
+        DISPLAY_DEVICES_INTERVAL_MS,
+    );
     const myURL = document.URL;
     const domaineStart = myURL.indexOf("://") + 3;
     const domaineEnd = myURL.lastIndexOf(":");
@@ -337,9 +340,10 @@ function displayTanks() {
             RStotPCElem.innerHTML =
                 ((RStotal / RStotalCap) * 100).toFixed(0) + "%";
             let seveBrix = document.getElementById("Osmose_BrixSeve").innerHTML;
-            RStoSiropElement.innerHTML = ((RStotal * seveBrix) / SYRUP_BRIX).toFixed(
-                0,
-            );
+            RStoSiropElement.innerHTML = (
+                (RStotal * seveBrix) /
+                SYRUP_BRIX
+            ).toFixed(0);
             RSdispElement.innerHTML = (RStotalCap - RStotal).toFixed(0);
             RSmaxElement.innerHTML = RStotalCap.toFixed(0);
         }
@@ -365,9 +369,10 @@ function displayTanks() {
             RCtotPCElement.innerHTML =
                 ((RCtotal / RCtotalCap) * 100).toFixed(0) + "%";
             let concBrix = document.getElementById("Osmose_BrixConc").innerHTML;
-            RCtoSiropElement.innerHTML = ((RCtotal * concBrix) / SYRUP_BRIX).toFixed(
-                0,
-            );
+            RCtoSiropElement.innerHTML = (
+                (RCtotal * concBrix) /
+                SYRUP_BRIX
+            ).toFixed(0);
             RCdispElement.innerHTML = (RCtotalCap - RCtotal).toFixed(0);
             RCmaxElement.innerHTML = RCtotalCap.toFixed(0);
             let seveBrix = document.getElementById("Osmose_BrixSeve").innerHTML;
@@ -425,7 +430,11 @@ let span = document.getElementsByClassName("close")[0];
 // Open the modal (Sélecteur de valves d'entrée)
 function showValveSelector() {
     const enteredPassword = prompt("Entrer le code", "");
-    if (enteredPassword && valveSelectorPassword && enteredPassword === valveSelectorPassword) {
+    if (
+        enteredPassword &&
+        valveSelectorPassword &&
+        enteredPassword === valveSelectorPassword
+    ) {
         // read actual relay state
         const inValves = getAllTanksInputValves(0);
         inValves.forEach(function (thisValve) {
@@ -562,74 +571,77 @@ function displayDevices() {
         let oldestAge = 0;
         const devicelistElem = document.getElementById("devicelist");
         const latestUpdateElement = document.getElementById("lastestUpdate");
-        
+
         if (!devicelistElem || !latestUpdateElement) {
-            console.error('Required DOM elements not found');
+            console.error("Required DOM elements not found");
             return;
         }
-    devices.forEach(function (device) {
-        if (device.retired) return;
+        devices.forEach(function (device) {
+            if (device.retired) return;
 
-        const deviceElemId = `device_${device.name}`;
-        const lastUpdatedAtElemId = `${deviceElemId}_lastUpdatedAt`;
-        const generationElemId = `${deviceElemId}_generationId`;
-        const serialElemId = `${deviceElemId}_serial`;
+            const deviceElemId = `device_${device.name}`;
+            const lastUpdatedAtElemId = `${deviceElemId}_lastUpdatedAt`;
+            const generationElemId = `${deviceElemId}_generationId`;
+            const serialElemId = `${deviceElemId}_serial`;
 
-        let deviceElem = document.getElementById(deviceElemId);
-        if (!deviceElem) {
-            deviceElem = document.createElement("tr");
-            deviceElem.setAttribute("id", deviceElemId);
-            devicelistElem.appendChild(deviceElem);
+            let deviceElem = document.getElementById(deviceElemId);
+            if (!deviceElem) {
+                deviceElem = document.createElement("tr");
+                deviceElem.setAttribute("id", deviceElemId);
+                devicelistElem.appendChild(deviceElem);
 
-            // Create table cells
-            const nameElement = createCell(null, "darker", deviceElem);
-            nameElement.innerHTML = device.name;
-            createCell(lastUpdatedAtElemId, "lighter", deviceElem);
-            createCell(generationElemId, "lighter", deviceElem);
-            createCell(serialElemId, "lighter rawvalue", deviceElem);
-        }
+                // Create table cells
+                const nameElement = createCell(null, "darker", deviceElem);
+                nameElement.innerHTML = device.name;
+                createCell(lastUpdatedAtElemId, "lighter", deviceElem);
+                createCell(generationElemId, "lighter", deviceElem);
+                createCell(serialElemId, "lighter rawvalue", deviceElem);
+            }
 
-        const lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
-        const generationElem = document.getElementById(generationElemId);
-        const serialElem = document.getElementById(serialElemId);
+            const lastUpdatedAtElem =
+                document.getElementById(lastUpdatedAtElemId);
+            const generationElem = document.getElementById(generationElemId);
+            const serialElem = document.getElementById(serialElemId);
 
-        const ageInMinutes = Math.floor(
-            getMinutesAgo(new Date(device.lastUpdatedAt)),
-        );
+            const ageInMinutes = Math.floor(
+                getMinutesAgo(new Date(device.lastUpdatedAt)),
+            );
 
-        let ageDisplay = ageInMinutes === 0 ? "now" : `${ageInMinutes} min.`;
-        if (isNaN(ageInMinutes) || ageInMinutes === NaN) {
-            ageDisplay = "---";
-        }
+            let ageDisplay =
+                ageInMinutes === 0 ? "now" : `${ageInMinutes} min.`;
+            if (isNaN(ageInMinutes) || ageInMinutes === NaN) {
+                ageDisplay = "---";
+            }
 
-        lastUpdatedAtElem.innerHTML = ageDisplay;
+            lastUpdatedAtElem.innerHTML = ageDisplay;
 
-        lastUpdatedAtElem.style.color =
-            ageInMinutes > (device.maxDelayMinutes || MAXIMUM_AGE_MINUTES) ? "FireBrick" : "black";
+            lastUpdatedAtElem.style.color =
+                ageInMinutes > (device.maxDelayMinutes || MAXIMUM_AGE_MINUTES)
+                    ? "FireBrick"
+                    : "black";
 
-        if (device.generationId !== undefined) {
-            generationElem.innerHTML = device.generationId;
-            serialElem.innerHTML = device.lastEventSerial;
-        } else {
-            generationElem.innerHTML = "---";
-            generationElem.style.textAlign = "center";
-            serialElem.innerHTML = "---";
-            serialElem.style.textAlign = "center";
-        }
+            if (device.generationId !== undefined) {
+                generationElem.innerHTML = device.generationId;
+                serialElem.innerHTML = device.lastEventSerial;
+            } else {
+                generationElem.innerHTML = "---";
+                generationElem.style.textAlign = "center";
+                serialElem.innerHTML = "---";
+                serialElem.style.textAlign = "center";
+            }
 
-        oldestAge = Math.max(ageInMinutes, oldestAge);
-        const ageDisplayTop = `${oldestAge} min.`;
-        if (oldestAge > (device.maxDelayMinutes || MAXIMUM_AGE_MINUTES)) {
-            latestUpdateElement.innerHTML = "Délais:</br>anormal";
-            latestUpdateElement.style.color = "FireBrick";
-        } else {
-            latestUpdateElement.innerHTML = "Délais:</br>normal";
-            latestUpdateElement.style.color = "white";
-        }
-
-    });
+            oldestAge = Math.max(ageInMinutes, oldestAge);
+            const ageDisplayTop = `${oldestAge} min.`;
+            if (oldestAge > (device.maxDelayMinutes || MAXIMUM_AGE_MINUTES)) {
+                latestUpdateElement.innerHTML = "Délais:</br>anormal";
+                latestUpdateElement.style.color = "FireBrick";
+            } else {
+                latestUpdateElement.innerHTML = "Délais:</br>normal";
+                latestUpdateElement.style.color = "white";
+            }
+        });
     } catch (err) {
-        console.error('Error in displayDevices:', err);
+        console.error("Error in displayDevices:", err);
     }
 }
 
@@ -677,7 +689,9 @@ function displayValves() {
             if (typeof VaECElem !== "undefined" && VaECElem !== null) {
                 VaECElem.innerHTML = valve.position;
                 setIndicatorColor(VaECElem, valve.position);
-                const VaECElemRow = document.getElementById("valve_" + valve.code);
+                const VaECElemRow = document.getElementById(
+                    "valve_" + valve.code,
+                );
                 setAgeColor(VaECElemRow, valve.device);
             }
         }
@@ -688,7 +702,9 @@ function displayValves() {
             if (typeof VaTkElem !== "undefined" && VaTkElem !== null) {
                 VaTkElem.innerHTML = valve.position;
                 setIndicatorColor(VaTkElem, valve.position);
-                const VaTkElemRow = document.getElementById("valve_" + valve.code);
+                const VaTkElemRow = document.getElementById(
+                    "valve_" + valve.code,
+                );
                 setAgeColor(VaTkElemRow, valve.device);
             }
         }
@@ -698,7 +714,7 @@ function displayValves() {
 function displayOsmoseAlarm(alarmNo, alarmMsg) {
     const osmoseAlarmElement = document.getElementById("osmoseAlarm");
     if (!osmoseAlarmElement) return;
-    
+
     if (alarmNo < 0) {
         osmoseAlarmElement.innerHTML = "Alarme Osmose: " + alarmMsg;
         osmoseAlarmElement.style.backgroundColor = "red";
@@ -907,15 +923,15 @@ function calcTempEst() {
         const debitOsmoseElem = document.getElementById("Osmose_Total_GPH");
         const débitPompesElem = document.getElementById("pumptotalrate");
         const volumeSeveElem = document.getElementById("RStot");
-        
+
         if (!debitOsmoseElem || !débitPompesElem || !volumeSeveElem) {
             return tempsEst;
         }
-        
+
         const debitOsmose = parseFloat(debitOsmoseElem.innerHTML);
         const débitPompes = parseFloat(débitPompesElem.innerHTML);
         const volumeSeve = parseFloat(volumeSeveElem.innerHTML);
-        
+
         if (!isNaN(debitOsmose) && !isNaN(débitPompes) && !isNaN(volumeSeve)) {
             const debitReel = debitOsmose - débitPompes;
             if (debitReel > 0) {
@@ -924,7 +940,7 @@ function calcTempEst() {
         }
         return tempsEst;
     } catch (err) {
-        console.error('Error calculating time estimate:', err);
+        console.error("Error calculating time estimate:", err);
         return 24 * 3600; // Return 24 hours as fallback
     }
 }
@@ -1084,9 +1100,15 @@ function displayVacuumLignes() {
 
         let vacuumElem = document.getElementById(vacuumElemId);
         const skippedVacuumCodes = [
-            "V1", "V2", "V3",
-            "PV1", "PV2", "PV3",
-            "EB-V1", "EB-V2", "EB-V3",
+            "V1",
+            "V2",
+            "V3",
+            "PV1",
+            "PV2",
+            "PV3",
+            "EB-V1",
+            "EB-V2",
+            "EB-V3",
         ];
         let skipped = skippedVacuumCodes.includes(vacuum.code);
         if (!vacuumElem && !skipped) {
@@ -1278,8 +1300,12 @@ function setAgeColor(displayElem, deviceDevice) {
     try {
         let lastUpdatedAtElemId = "device_" + deviceDevice + "_lastUpdatedAt";
         let lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
-        if (lastUpdatedAtElem !== null && lastUpdatedAtElem !== undefined &&
-            displayElem !== null && displayElem !== undefined) {
+        if (
+            lastUpdatedAtElem !== null &&
+            lastUpdatedAtElem !== undefined &&
+            displayElem !== null &&
+            displayElem !== undefined
+        ) {
             displayElem.style.color = lastUpdatedAtElem.style.color;
         }
     } catch (err) {
@@ -1294,8 +1320,12 @@ function setAgeLineVacuum(displayElem, deviceDevice) {
     try {
         let lastUpdatedAtElemId = "device_" + deviceDevice + "_lastUpdatedAt";
         let lastUpdatedAtElem = document.getElementById(lastUpdatedAtElemId);
-        if (lastUpdatedAtElem !== null && lastUpdatedAtElem !== undefined &&
-            displayElem !== null && displayElem !== undefined) {
+        if (
+            lastUpdatedAtElem !== null &&
+            lastUpdatedAtElem !== undefined &&
+            displayElem !== null &&
+            displayElem !== undefined
+        ) {
             displayElem.innerHTML = lastUpdatedAtElem.innerHTML;
         }
     } catch (err) {
@@ -1366,36 +1396,36 @@ function openSocket() {
     websocket.onmessage = function (msg) {
         try {
             const data = JSON.parse(msg.data);
-        tankDefs.forEach(function (tankDef, index) {
-            const tank = data.tanks
-                .filter(function (tankData) {
-                    return tankData.code == tankDef.code;
-                })
-                .shift();
-            tankDef.device = tank.device;
-            tankDef.rawValue = tank.rawValue;
-            tankDef.contents = tank.fill == null ? 0 : tank.fill;
-            tankDef.capacity = tank.capacity;
-            tankDef.output = tank.output;
-            tankDef.drain = tank.drain;
-            tankDef.ssrRelay = tank.ssrRelay;
-            // console.log("Tank %s at %d: %s, raw= %s", tankDef.code, index, tankDef.contents, tankDef.rawValue);
-            devices = data.devices;
-            valves = data.valves;
-            vacuums = data.vacuums; // First list of vacuum devices devices
-            pumps = data.pumps;
-            osmose = data.osmose;
-            myToken = data.token;
-            valveSelectorPassword = data.valveSelectorPassword;
-        });
-        displayDevices();
-        displayValves();
-        displayTanks();
-        displayPumps();
-        displayOsmose();
-        displayVacuumErabliere();
-        displayVacuumLignes();
-        toggleStatusColor();
+            tankDefs.forEach(function (tankDef, index) {
+                const tank = data.tanks
+                    .filter(function (tankData) {
+                        return tankData.code == tankDef.code;
+                    })
+                    .shift();
+                tankDef.device = tank.device;
+                tankDef.rawValue = tank.rawValue;
+                tankDef.contents = tank.fill == null ? 0 : tank.fill;
+                tankDef.capacity = tank.capacity;
+                tankDef.output = tank.output;
+                tankDef.drain = tank.drain;
+                tankDef.ssrRelay = tank.ssrRelay;
+                // console.log("Tank %s at %d: %s, raw= %s", tankDef.code, index, tankDef.contents, tankDef.rawValue);
+                devices = data.devices;
+                valves = data.valves;
+                vacuums = data.vacuums; // First list of vacuum devices devices
+                pumps = data.pumps;
+                osmose = data.osmose;
+                myToken = data.token;
+                valveSelectorPassword = data.valveSelectorPassword;
+            });
+            displayDevices();
+            displayValves();
+            displayTanks();
+            displayPumps();
+            displayOsmose();
+            displayVacuumErabliere();
+            displayVacuumLignes();
+            toggleStatusColor();
         } catch (err) {
             console.error("Error processing WebSocket message:", err);
         }
@@ -1468,7 +1498,11 @@ function getRelayState(devName) {
 function callResetOperTimer(devName) {
     let text;
     if (confirm("Remettre à zéro le compteur?") == true) {
-        const res = callFunction(getDeviceId(devName), "reset", "operationTimer");
+        const res = callFunction(
+            getDeviceId(devName),
+            "reset",
+            "operationTimer",
+        );
         if (res != -1) {
             text = "Remise à zéro CONFIRMÉ!";
         } else {
@@ -1483,7 +1517,7 @@ function callResetOperTimer(devName) {
 async function readDeviceVariable(deviceId, varName) {
     try {
         if (!deviceId || !varName || !myToken) {
-            throw new Error('Missing required parameters');
+            throw new Error("Missing required parameters");
         }
         const data = await particle.getVariable({
             deviceId: deviceId,
@@ -1507,7 +1541,7 @@ async function readDeviceVariable(deviceId, varName) {
 async function callFunction(devID, fname, fargument) {
     try {
         if (!devID || !fname || !myToken) {
-            throw new Error('Missing required parameters');
+            throw new Error("Missing required parameters");
         }
         const status = await particle
             .callFunction({
@@ -1528,7 +1562,10 @@ async function callFunction(devID, fname, fargument) {
             );
         return status;
     } catch (err) {
-        console.error(`Error calling function ${fname} on device ${devID}:`, err);
+        console.error(
+            `Error calling function ${fname} on device ${devID}:`,
+            err,
+        );
         return null;
     }
 }
@@ -1545,14 +1582,14 @@ function formatDate(date, timeOnly = true) {
     let hours = date.getHours().toString().padStart(2, "0");
     let minutes = date.getMinutes().toString().padStart(2, "0");
     let seconds = date.getSeconds().toString().padStart(2, "0");
-    
+
     if (!timeOnly) {
         let day = date.getDate().toString().padStart(2, "0");
         let month = (date.getMonth() + 1).toString().padStart(2, "0");
         let year = date.getFullYear();
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     }
-    
+
     return `${hours}:${minutes}:${seconds}`;
 }
 
