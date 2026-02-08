@@ -452,6 +452,8 @@ function showValveSelector() {
         // now show the panel
         const modal = document.getElementById("valveSelect");
         modal.style.display = "block";
+    } else {
+        alert("Mauvais mot de passe");
     }
 }
 
@@ -1600,4 +1602,210 @@ function formatDate(date, timeOnly = true) {
     return `${hours}:${minutes}:${seconds}`;
 }
 
+// Season Info Management
+let saisonInfoCache = null;
+
+async function loadSaisonInfo() {
+    try {
+        const response = await fetch('/api/saison-info');
+        const result = await response.json();
+        saisonInfoCache = result;
+        return result;
+    } catch (error) {
+        console.error('Error loading SaisonInfo:', error);
+        return { exists: false, data: {} };
+    }
+}
+
+function updateSeasonDialogUI(saisonInfo) {
+    const pumps = ['P1', 'P2', 'P3'];
+    const year = new Date().getFullYear();
+    
+    // Update menu item labels with current year
+    const menuDebut = document.getElementById('menuDebutSaison');
+    const menuFin = document.getElementById('menuFinSaison');
+    if (menuDebut) menuDebut.textContent = `Début de saison ${year}`;
+    if (menuFin) menuFin.textContent = `Fin de saison ${year}`;
+    
+    // Update dialog titles
+    const titleDebut = document.getElementById('debutSaisonTitle');
+    const titleFin = document.getElementById('finSaisonTitle');
+    if (titleDebut) titleDebut.textContent = `Début de saison ${year}`;
+    if (titleFin) titleFin.textContent = `Fin de saison ${year}`;
+    
+    pumps.forEach(pump => {
+        const pumpData = saisonInfo.data[pump] || {};
+        
+        // Start time elements
+        const startBtn = document.getElementById(`start${pump}Btn`);
+        const startTime = document.getElementById(`start${pump}Time`);
+        
+        if (pumpData.startTime) {
+            if (startBtn) startBtn.disabled = true;
+            if (startTime) {
+                startTime.textContent = formatDateTimeDisplay(pumpData.startTime);
+                startTime.classList.add('recorded');
+            }
+        } else {
+            if (startBtn) startBtn.disabled = false;
+            if (startTime) {
+                startTime.textContent = '--';
+                startTime.classList.remove('recorded');
+            }
+        }
+        
+        // End time elements
+        const endBtn = document.getElementById(`end${pump}Btn`);
+        const endTime = document.getElementById(`end${pump}Time`);
+        
+        if (pumpData.endTime) {
+            if (endBtn) endBtn.disabled = true;
+            if (endTime) {
+                endTime.textContent = formatDateTimeDisplay(pumpData.endTime);
+                endTime.classList.add('recorded');
+            }
+        } else {
+            if (endBtn) endBtn.disabled = false;
+            if (endTime) {
+                endTime.textContent = '--';
+                endTime.classList.remove('recorded');
+            }
+        }
+    });
+}
+
+function formatDateTimeDisplay(isoString) {
+    try {
+        const date = new Date(isoString);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const seconds = date.getSeconds().toString().padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    } catch (e) {
+        return isoString;
+    }
+}
+
+function formatDateTimeForInflux(date) {
+    // Format: "2024-04-04T01:30:00-05:00"
+    const offset = -date.getTimezoneOffset();
+    const sign = offset >= 0 ? '+' : '-';
+    const absOffset = Math.abs(offset);
+    const offsetHours = Math.floor(absOffset / 60).toString().padStart(2, '0');
+    const offsetMinutes = (absOffset % 60).toString().padStart(2, '0');
+    
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${sign}${offsetHours}:${offsetMinutes}`;
+}
+
+async function showSeasonDialog(type) {
+    // Check password
+    const enteredPassword = prompt("Entrer le code", "");
+    if (!enteredPassword || !valveSelectorPassword || enteredPassword !== valveSelectorPassword) {
+        alert("Mauvais mot de passe");
+        return;
+    }
+    
+    // Load fresh data from server
+    const saisonInfo = await loadSaisonInfo();
+    updateSeasonDialogUI(saisonInfo);
+    
+    const dialogId = type === 'start' ? 'debutSaisonDialog' : 'finSaisonDialog';
+    const dialog = document.getElementById(dialogId);
+    if (dialog) {
+        dialog.style.display = 'block';
+    }
+}
+
+function hideSeasonDialog(type) {
+    const dialogId = type === 'start' ? 'debutSaisonDialog' : 'finSaisonDialog';
+    const dialog = document.getElementById(dialogId);
+    if (dialog) {
+        dialog.style.display = 'none';
+    }
+}
+
+async function recordSeasonTime(type, pump) {
+    const now = new Date();
+    const formattedTime = formatDateTimeForInflux(now);
+    const field = type === 'start' ? 'startTime' : 'endTime';
+    
+    try {
+        const response = await fetch('/api/saison-info', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                pompe: pump,
+                field: field,
+                value: formattedTime,
+            }),
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Update the UI immediately
+            const timeElem = document.getElementById(`${type}${pump}Time`);
+            const btnElem = document.getElementById(`${type}${pump}Btn`);
+            
+            if (timeElem) {
+                timeElem.textContent = formatDateTimeDisplay(formattedTime);
+                timeElem.classList.add('recorded');
+            }
+            if (btnElem) {
+                btnElem.disabled = true;
+            }
+            
+            // Update cache
+            if (saisonInfoCache && saisonInfoCache.data) {
+                if (!saisonInfoCache.data[pump]) {
+                    saisonInfoCache.data[pump] = {};
+                }
+                saisonInfoCache.data[pump][field] = formattedTime;
+            }
+            
+            console.log(`${field} recorded for ${pump}: ${formattedTime}`);
+        } else {
+            alert(`Erreur: ${result.error || 'Impossible d\'enregistrer le temps'}`);
+        }
+    } catch (error) {
+        console.error('Error recording season time:', error);
+        alert('Erreur de connexion au serveur');
+    }
+}
+
+// Close season dialogs when clicking outside
+window.addEventListener('click', function(event) {
+    const debutDialog = document.getElementById('debutSaisonDialog');
+    const finDialog = document.getElementById('finSaisonDialog');
+    
+    if (event.target === debutDialog) {
+        hideSeasonDialog('start');
+    }
+    if (event.target === finDialog) {
+        hideSeasonDialog('end');
+    }
+});
+
+// Initialize season menu labels on load
+function initSeasonMenuLabels() {
+    const year = new Date().getFullYear();
+    const menuDebut = document.getElementById('menuDebutSaison');
+    const menuFin = document.getElementById('menuFinSaison');
+    if (menuDebut) menuDebut.textContent = `Début de saison ${year}`;
+    if (menuFin) menuFin.textContent = `Fin de saison ${year}`;
+}
+
 window.addEventListener("load", onLoad, false);
+window.addEventListener("load", initSeasonMenuLabels, false);

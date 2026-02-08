@@ -81,6 +81,99 @@
                     padding: 0.3rem 0.6rem;
                 }
             }
+            /* Season dialog styles */
+            .season-dialog {
+                display: none;
+                position: fixed;
+                z-index: 1001;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+            }
+            .season-dialog-content {
+                background-color: #fefefe;
+                margin: 10% auto;
+                padding: 20px;
+                border: 1px solid #888;
+                width: fit-content;
+                min-width: 350px;
+                border-radius: 8px;
+            }
+            .season-dialog-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 10px;
+            }
+            .season-dialog-header h3 {
+                margin: 0;
+                color: #333;
+            }
+            .season-dialog-close {
+                color: #aaa;
+                font-size: 28px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+            .season-dialog-close:hover {
+                color: #000;
+            }
+            .season-pump-row {
+                display: flex;
+                align-items: center;
+                margin: 10px 0;
+                padding: 10px;
+                background-color: #f5f5f5;
+                border-radius: 4px;
+            }
+            .season-pump-btn {
+                padding: 8px 16px;
+                margin-right: 15px;
+                font-size: 14px;
+                font-weight: bold;
+                cursor: pointer;
+                border: none;
+                border-radius: 4px;
+                background-color: #4CAF50;
+                color: white;
+                min-width: 50px;
+            }
+            .season-pump-btn:disabled {
+                background-color: #cccccc;
+                cursor: not-allowed;
+            }
+            .season-pump-btn:not(:disabled):hover {
+                background-color: #45a049;
+            }
+            .season-datetime {
+                font-family: monospace;
+                font-size: 14px;
+                color: #333;
+                min-width: 180px;
+            }
+            .season-datetime.recorded {
+                color: #2196F3;
+                font-weight: bold;
+            }
+            .nav-menu-item-clickable {
+                color: white;
+                text-decoration: none;
+                padding: 0.4rem 0.8rem;
+                background-color: rgba(12, 1, 82, 0.95);
+                border-radius: 4px;
+                font-size: 0.85rem;
+                transition: background-color 0.3s;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                cursor: pointer;
+                display: block;
+            }
+            .nav-menu-item-clickable:hover {
+                background-color: rgba(20, 10, 100, 0.95);
+            }
         </style>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/peity/3.3.0/jquery.peity.js"></script>
@@ -116,8 +209,54 @@
                 <a href="/cabane2021">Schéma</a>
                 <a href="/cabaneMapNew">Carte Vide</a>
                 <a href="/data.json">Data JSON</a>
+                <span class="nav-menu-item-clickable" onclick="showSeasonDialog('start')" id="menuDebutSaison">Début de saison</span>
+                <span class="nav-menu-item-clickable" onclick="showSeasonDialog('end')" id="menuFinSaison">Fin de saison</span>
             </div>
         </nav>
+
+        <!-- Début de saison dialog -->
+        <div id="debutSaisonDialog" class="season-dialog">
+            <div class="season-dialog-content">
+                <div class="season-dialog-header">
+                    <h3 id="debutSaisonTitle">Début de saison</h3>
+                    <span class="season-dialog-close" onclick="hideSeasonDialog('start')">&times;</span>
+                </div>
+                <div class="season-pump-row">
+                    <button class="season-pump-btn" id="startP1Btn" onclick="recordSeasonTime('start', 'P1')">P1</button>
+                    <span class="season-datetime" id="startP1Time">--</span>
+                </div>
+                <div class="season-pump-row">
+                    <button class="season-pump-btn" id="startP2Btn" onclick="recordSeasonTime('start', 'P2')">P2</button>
+                    <span class="season-datetime" id="startP2Time">--</span>
+                </div>
+                <div class="season-pump-row">
+                    <button class="season-pump-btn" id="startP3Btn" onclick="recordSeasonTime('start', 'P3')">P3</button>
+                    <span class="season-datetime" id="startP3Time">--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fin de saison dialog -->
+        <div id="finSaisonDialog" class="season-dialog">
+            <div class="season-dialog-content">
+                <div class="season-dialog-header">
+                    <h3 id="finSaisonTitle">Fin de saison</h3>
+                    <span class="season-dialog-close" onclick="hideSeasonDialog('end')">&times;</span>
+                </div>
+                <div class="season-pump-row">
+                    <button class="season-pump-btn" id="endP1Btn" onclick="recordSeasonTime('end', 'P1')">P1</button>
+                    <span class="season-datetime" id="endP1Time">--</span>
+                </div>
+                <div class="season-pump-row">
+                    <button class="season-pump-btn" id="endP2Btn" onclick="recordSeasonTime('end', 'P2')">P2</button>
+                    <span class="season-datetime" id="endP2Time">--</span>
+                </div>
+                <div class="season-pump-row">
+                    <button class="season-pump-btn" id="endP3Btn" onclick="recordSeasonTime('end', 'P3')">P3</button>
+                    <span class="season-datetime" id="endP3Time">--</span>
+                </div>
+            </div>
+        </div>
         <header
             class="w3-container"
             style="
@@ -239,7 +378,7 @@
 
                 <!-- Le selecteur de valves d'entrée -->
                 <div id="valveSelect" class="w3-container w3-modal">
-                    <div class="w3-modal-content">
+                    <div class="w3-modal-content" style="width: fit-content;">
                         <span class="close" onclick="hideValveSelector()"
                             >&times;</span
                         >

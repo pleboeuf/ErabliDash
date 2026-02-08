@@ -4,6 +4,7 @@ const fetch = (...args) =>
     import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const WebSocketClient = require("websocket").client;
 const config = require("./config.json");
+const exportConfig = require("../ErabliExport/config.json");
 const dashboard = require("./dashboard.js").Dashboard(config, WebSocketClient);
 const express = require("express");
 const path = require("path");
@@ -11,6 +12,7 @@ const http = require("http");
 const WebSocketServer = require("websocket").server;
 // const fetch = require("node-fetch"); // Import node-fetch
 const cors = require("cors"); // Import cors
+const Influx = require("influx");
 
 const app = express();
 const port = config.port || "3300";
@@ -60,6 +62,96 @@ app.get("/api/vacuum", async (req, res) => {
     } catch (error) {
         console.error("Error fetching from external API:", error);
         res.status(500).send("Error fetching data");
+    }
+});
+
+// InfluxDB client for SaisonInfo
+function getInfluxClient(database) {
+    return new Influx.InfluxDB({
+        host: exportConfig.influxdb.host,
+        port: exportConfig.influxdb.port,
+        database: database,
+    });
+}
+
+// Parse JSON body
+app.use(express.json());
+
+// Get SaisonInfo data
+app.get("/api/saison-info", async (req, res) => {
+    try {
+        const year = new Date().getFullYear();
+        const database = `Saison_${year}`;
+        const influx = getInfluxClient(database);
+        
+        // Check if database exists
+        const databases = await influx.getDatabaseNames();
+        if (!databases.includes(database)) {
+            return res.json({ exists: false, data: {} });
+        }
+        
+        // Query SaisonInfo measurement
+        const query = `SELECT * FROM SaisonInfo GROUP BY pompe ORDER BY time DESC LIMIT 1`;
+        const results = await influx.query(query);
+        
+        const data = {};
+        results.forEach((row) => {
+            const pompe = row.pompe;
+            if (pompe) {
+                data[pompe] = {
+                    startTime: row.startTime || null,
+                    endTime: row.endTime || null,
+                };
+            }
+        });
+        
+        res.json({ exists: true, data });
+    } catch (error) {
+        console.error("Error reading SaisonInfo:", error);
+        // If measurement doesn't exist, return empty
+        if (error.message && error.message.includes("measurement not found")) {
+            return res.json({ exists: false, data: {} });
+        }
+        res.status(500).json({ error: "Error reading SaisonInfo" });
+    }
+});
+
+// Write SaisonInfo data
+app.post("/api/saison-info", async (req, res) => {
+    try {
+        const { pompe, field, value } = req.body;
+        
+        if (!pompe || !field || !value) {
+            return res.status(400).json({ error: "Missing required fields: pompe, field, value" });
+        }
+        
+        if (!['startTime', 'endTime'].includes(field)) {
+            return res.status(400).json({ error: "Field must be 'startTime' or 'endTime'" });
+        }
+        
+        const year = new Date().getFullYear();
+        const database = `Saison_${year}`;
+        const influx = getInfluxClient(database);
+        
+        // Create database if it doesn't exist
+        const databases = await influx.getDatabaseNames();
+        if (!databases.includes(database)) {
+            await influx.createDatabase(database);
+        }
+        
+        // Write the point
+        await influx.writePoints([
+            {
+                measurement: 'SaisonInfo',
+                tags: { pompe: pompe },
+                fields: { [field]: value },
+            }
+        ]);
+        
+        res.json({ success: true, message: `${field} saved for ${pompe}` });
+    } catch (error) {
+        console.error("Error writing SaisonInfo:", error);
+        res.status(500).json({ error: "Error writing SaisonInfo" });
     }
 });
 
