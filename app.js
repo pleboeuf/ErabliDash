@@ -80,8 +80,7 @@ app.use(express.json());
 // Get SaisonInfo data
 app.get("/api/saison-info", async (req, res) => {
     try {
-        const year = new Date().getFullYear();
-        const database = `Saison_${year}`;
+        const database = exportConfig.influxdb.database;
         const influx = getInfluxClient(database);
         
         // Check if database exists
@@ -90,18 +89,21 @@ app.get("/api/saison-info", async (req, res) => {
             return res.json({ exists: false, data: {} });
         }
         
-        // Query SaisonInfo measurement
-        const query = `SELECT * FROM SaisonInfo GROUP BY pompe ORDER BY time DESC LIMIT 1`;
+        // Query SaisonInfo measurement - get all entries to merge startTime and endTime
+        // Since they are written as separate points, we need to get all and merge
+        const query = `SELECT * FROM SaisonInfo`;
         const results = await influx.query(query);
         
         const data = {};
         results.forEach((row) => {
             const pompe = row.pompe;
             if (pompe) {
-                data[pompe] = {
-                    startTime: row.startTime || null,
-                    endTime: row.endTime || null,
-                };
+                if (!data[pompe]) {
+                    data[pompe] = { startTime: null, endTime: null };
+                }
+                // Merge values - keep the latest non-null value for each field
+                if (row.startTime) data[pompe].startTime = row.startTime;
+                if (row.endTime) data[pompe].endTime = row.endTime;
             }
         });
         
@@ -129,25 +131,25 @@ app.post("/api/saison-info", async (req, res) => {
             return res.status(400).json({ error: "Field must be 'startTime' or 'endTime'" });
         }
         
-        const year = new Date().getFullYear();
-        const database = `Saison_${year}`;
+        const database = exportConfig.influxdb.database;
         const influx = getInfluxClient(database);
         
-        // Create database if it doesn't exist
+        // Check if database exists
         const databases = await influx.getDatabaseNames();
         if (!databases.includes(database)) {
-            await influx.createDatabase(database);
+            return res.status(500).json({ error: `Database '${database}' does not exist` });
         }
         
-        // Write the point
+        // Write the point with precision 'ms' for better timestamp handling
         await influx.writePoints([
             {
                 measurement: 'SaisonInfo',
                 tags: { pompe: pompe },
                 fields: { [field]: value },
             }
-        ]);
+        ], { precision: 'ms' });
         
+        console.log(`SaisonInfo: ${field} saved for ${pompe} = ${value}`);
         res.json({ success: true, message: `${field} saved for ${pompe}` });
     } catch (error) {
         console.error("Error writing SaisonInfo:", error);
