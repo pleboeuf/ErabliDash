@@ -349,3 +349,229 @@ describe('Pump with one cycle', function() {
     assert.equal(1 / 5, pump.dutyCycle);
   });
 });
+
+describe('Dashboard with Datacer Tank', function() {
+  var ws = makeWsClient();
+  var config = {
+    "collectors": [{
+      "uri": 'ws://localhost/'
+    }],
+    "store": {
+      "filename": "/tmp/dashboard.json"
+    },
+    "devices": [{
+      "id": "DATACER-TANK-001",
+      "name": "Datacer Tank Device"
+    }],
+    "tanks": [{
+      "code": "T1",
+      "name": "Tank T1",
+      "device": "Datacer Tank Device",
+      "shape": "cylinder",
+      "orientation": "horizontal",
+    }],
+    "valves": [],
+    "vacuums": [],
+    "pumps": [],
+    "osmose": []
+  };
+
+  function makeDatacerTankMessage(deviceId, generationId, serialNo, tankData) {
+    var data = {
+      "generation": generationId,
+      "noSerie": serialNo,
+      "eName": "Tank/Level",
+      "name": tankData.name,
+      "rawValue": tankData.rawValue,
+      "depth": tankData.depth,
+      "capacity": tankData.capacity,
+      "fill": tankData.fill,
+      "lastUpdatedAt": tankData.lastUpdatedAt
+    };
+    var message = {
+      "coreid": deviceId,
+      "published_at": "2026-02-10T18:00:00.000Z",
+      "data": JSON.stringify(data)
+    };
+    return {
+      "type": 'utf8',
+      "utf8Data": JSON.stringify(message)
+    };
+  }
+
+  it('should update tank level when receiving Tank/Level event', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    var msg = makeDatacerTankMessage("DATACER-TANK-001", 1, 1, {
+      "name": "T1",
+      "rawValue": 550,
+      "depth": 450,
+      "capacity": 1000,
+      "fill": 450,
+      "lastUpdatedAt": "2026-02-10T18:00:00.000Z"
+    });
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(msg).then(function() {
+          var tank = dashboard.getTank("Tank T1");
+          assert.equal(550, tank.rawValue);
+          assert.equal(450, tank.depth);
+          assert.equal(1000, tank.capacity);
+          assert.equal(450, tank.fill);
+          assert.equal("2026-02-10T18:00:00.000Z", tank.lastUpdatedAt);
+        });
+      });
+    });
+  });
+
+  it('should handle Tank/Level event for tank not in config without error', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    var msg = makeDatacerTankMessage("DATACER-TANK-001", 1, 2, {
+      "name": "UNKNOWN_TANK",
+      "rawValue": 100,
+      "depth": 200,
+      "capacity": 500,
+      "fill": 200,
+      "lastUpdatedAt": "2026-02-10T18:05:00.000Z"
+    });
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        // Should not throw an error
+        return connection.fakeReceive(msg).then(function() {
+          // Tank T1 should remain unchanged
+          var tank = dashboard.getTank("Tank T1");
+          assert.ok(tank, "Original tank should still exist");
+        });
+      });
+    });
+  });
+});
+
+describe('Dashboard with Datacer Water meter', function() {
+  var ws = makeWsClient();
+  var config = {
+    "collectors": [{
+      "uri": 'ws://localhost/'
+    }],
+    "store": {
+      "filename": "/tmp/dashboard.json"
+    },
+    "devices": [{
+      "id": "DATACER-WATER-001",
+      "name": "Datacer Water Device"
+    }],
+    "tanks": [],
+    "valves": [],
+    "vacuums": [],
+    "pumps": [],
+    "osmose": []
+  };
+
+  function makeDatacerWaterMessage(deviceId, generationId, serialNo, waterData) {
+    var data = {
+      "generation": generationId,
+      "noSerie": serialNo,
+      "eName": "Water/Volume",
+      "name": waterData.name,
+      "volume_since_reset": waterData.volume_since_reset
+    };
+    var message = {
+      "coreid": deviceId,
+      "published_at": "2026-02-10T18:00:00.000Z",
+      "data": JSON.stringify(data)
+    };
+    return {
+      "type": 'utf8',
+      "utf8Data": JSON.stringify(message)
+    };
+  }
+
+  it('should handle Water/Volume event without error', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    var msg = makeDatacerWaterMessage("DATACER-WATER-001", 1, 1, {
+      "name": "WaterMeter1",
+      "volume_since_reset": 12345.67
+    });
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        // Should process without throwing an error
+        return connection.fakeReceive(msg).then(function() {
+          // Water events are logged but not stored in dashboard state
+          assert.ok(true, "Water/Volume event processed successfully");
+        });
+      });
+    });
+  });
+});
+
+describe('Dashboard with Datacer events from new device', function() {
+  var ws = makeWsClient();
+  var config = {
+    "collectors": [{
+      "uri": 'ws://localhost/'
+    }],
+    "store": {
+      "filename": "/tmp/dashboard.json"
+    },
+    "devices": [],  // No devices configured
+    "tanks": [],
+    "valves": [],
+    "vacuums": [],
+    "pumps": [],
+    "osmose": []
+  };
+
+  function makeDatacerMessage(deviceId, eventName, eventData) {
+    var data = Object.assign({
+      "generation": 1,
+      "noSerie": 1,
+      "eName": eventName
+    }, eventData);
+    var message = {
+      "coreid": deviceId,
+      "published_at": "2026-02-10T18:00:00.000Z",
+      "data": JSON.stringify(data)
+    };
+    return {
+      "type": 'utf8',
+      "utf8Data": JSON.stringify(message)
+    };
+  }
+
+  it('should process Tank/Level event from unknown device', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    var msg = makeDatacerMessage("NEW-DATACER-DEVICE", "Tank/Level", {
+      "name": "T1",
+      "device": "New Datacer",
+      "rawValue": 100,
+      "depth": 200,
+      "capacity": 500,
+      "fill": 200,
+      "lastUpdatedAt": "2026-02-10T18:00:00.000Z"
+    });
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        // Should not throw - creates temp device for Datacer events
+        return connection.fakeReceive(msg).then(function() {
+          assert.ok(true, "Tank/Level from new device processed successfully");
+        });
+      });
+    });
+  });
+
+  it('should process Water/Volume event from unknown device', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    var msg = makeDatacerMessage("NEW-DATACER-WATER", "Water/Volume", {
+      "name": "WaterMeter",
+      "device": "New Datacer Water",
+      "volume_since_reset": 9999.99
+    });
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        // Should not throw - creates temp device for Datacer events
+        return connection.fakeReceive(msg).then(function() {
+          assert.ok(true, "Water/Volume from new device processed successfully");
+        });
+      });
+    });
+  });
+});
