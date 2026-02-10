@@ -735,6 +735,63 @@ exports.Dashboard = function (config, WebSocketClient) {
         }
     }
 
+    function handleTankEvent(device, event, evTopic, data) {
+        switch (evTopic) {
+            case "Level":
+                // Find or create tank entry in tanks array
+                let tank = tanks.find(
+                    (t) => t.device === device.name && t.code === data.name,
+                );
+                if (tank) {
+                    Object.assign(tank, {
+                        rawValue: data.rawValue,
+                        depth: data.depth,
+                        capacity: data.capacity,
+                        fill: data.fill,
+                        lastUpdatedAt: data.lastUpdatedAt,
+                    });
+                    event.object = extendTank(tank);
+                } else {
+                    console.log(
+                        "Datacer tank '%s' from device '%s' not in config, data received but not stored in dashboard state",
+                        data.name,
+                        device.name,
+                    );
+                }
+                break;
+            default:
+                console.warn(
+                    "Unknown 'Tank' event topic from '%s': %s %s",
+                    device.name,
+                    evTopic,
+                    event,
+                );
+        }
+    }
+
+    function handleWaterEvent(device, event, evTopic, data) {
+        switch (evTopic) {
+            case "Volume":
+                // Log water volume data - no dashboard state storage needed for now
+                console.log(
+                    "Water volume event from '%s': meter='%s', vol_since_reset=%s",
+                    device.name,
+                    data.name,
+                    data.volume_since_reset,
+                );
+                // Water events are passed through for storage in ErabliExport
+                // No dashboard state update needed at this time
+                break;
+            default:
+                console.warn(
+                    "Unknown 'Water' event topic from '%s': %s %s",
+                    device.name,
+                    evTopic,
+                    event,
+                );
+        }
+    }
+
     function handleEvent(device, event) {
         const data = event.data;
         if (!data) {
@@ -786,6 +843,12 @@ exports.Dashboard = function (config, WebSocketClient) {
             case "optoIn":
                 handleOptoInEvent(device, event, subTopic, value);
                 break;
+            case "Tank":
+                handleTankEvent(device, event, subTopic, data);
+                break;
+            case "Water":
+                handleWaterEvent(device, event, subTopic, data);
+                break;
             default:
                 console.warn(
                     "Unknown event '%s' from %s: %s",
@@ -815,9 +878,24 @@ exports.Dashboard = function (config, WebSocketClient) {
         return getDevice(deviceId).then((device) => {
             eventsSinceStore++;
             if (!device) {
-                console.log("Device " + deviceId + " is new!");
-                // TODO This adds duplicate devices to dashboard.json!
-                // return addDevice(new Device(deviceId, "New" + deviceId, generationId, serialNo)).then(handleEvent);
+                // For Datacer synthetic events (Tank/Level, Water/Volume, Vacuum/Lignes), 
+                // create a temporary device object to allow processing
+                const eventName = message.data.eName || '';
+                if (eventName === 'Tank/Level' || eventName === 'Water/Volume' || eventName === 'Vacuum/Lignes') {
+                    console.log("Processing Datacer event from new device: " + deviceId);
+                    // Create a temporary device object for Datacer events
+                    const tempDevice = {
+                        id: deviceId,
+                        name: message.data.name || message.data.device || deviceId,
+                        generationId: generationId,
+                        lastEventSerial: serialNo,
+                    };
+                    return handleEvent(tempDevice, message);
+                } else {
+                    console.log("Device " + deviceId + " is new!");
+                    // TODO This adds duplicate devices to dashboard.json!
+                    // return addDevice(new Device(deviceId, "New" + deviceId, generationId, serialNo)).then(handleEvent);
+                }
             } else {
                 const handleEventFunc = () => handleEvent(device, message);
 
