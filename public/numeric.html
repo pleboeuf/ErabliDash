@@ -90,7 +90,7 @@
                 top: 0;
                 width: 100%;
                 height: 100%;
-                background-color: rgba(0,0,0,0.5);
+                background-color: rgba(0, 0, 0, 0.5);
             }
             .season-dialog-content {
                 background-color: #fefefe;
@@ -138,7 +138,7 @@
                 cursor: pointer;
                 border: none;
                 border-radius: 4px;
-                background-color: #4CAF50;
+                background-color: #4caf50;
                 color: white;
                 min-width: 50px;
             }
@@ -156,7 +156,7 @@
                 min-width: 180px;
             }
             .season-datetime.recorded {
-                color: #2196F3;
+                color: #2196f3;
                 font-weight: bold;
             }
             .season-datetime-input {
@@ -175,7 +175,7 @@
                 padding: 6px 12px;
                 border: none;
                 border-radius: 4px;
-                background-color: #2196F3;
+                background-color: #2196f3;
                 color: white;
                 cursor: pointer;
                 margin-left: 8px;
@@ -185,13 +185,13 @@
                 cursor: not-allowed;
             }
             .season-validate-btn:not(:disabled):hover {
-                background-color: #1976D2;
+                background-color: #1976d2;
             }
             .season-now-btn {
                 padding: 6px 10px;
                 border: none;
                 border-radius: 4px;
-                background-color: #FF9800;
+                background-color: #ff9800;
                 color: white;
                 cursor: pointer;
                 margin-left: 4px;
@@ -202,7 +202,7 @@
                 cursor: not-allowed;
             }
             .season-now-btn:not(:disabled):hover {
-                background-color: #F57C00;
+                background-color: #f57c00;
             }
             .season-error {
                 color: red;
@@ -233,7 +233,7 @@
                 top: 0;
                 width: 100%;
                 height: 100%;
-                background-color: rgba(0,0,0,0.5);
+                background-color: rgba(0, 0, 0, 0.5);
             }
             .analyse-saison-dialog-content {
                 background-color: #fefefe;
@@ -290,7 +290,7 @@
             }
             .analyse-saison-year-input:focus {
                 outline: none;
-                border-color: #2196F3;
+                border-color: #2196f3;
                 box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
             }
             .analyse-saison-year-input.invalid {
@@ -301,7 +301,7 @@
                 padding: 10px 24px;
                 border: none;
                 border-radius: 4px;
-                background-color: #4CAF50;
+                background-color: #4caf50;
                 color: white;
                 cursor: pointer;
                 font-size: 14px;
@@ -354,9 +354,24 @@
                 <a href="/cabane2021">Schéma</a>
                 <a href="/cabaneMapNew">Carte Vide</a>
                 <a href="/data.json">Data JSON</a>
-                <span class="nav-menu-item-clickable" onclick="showSeasonDialog('start')" id="menuDebutSaison">Début de saison</span>
-                <span class="nav-menu-item-clickable" onclick="showSeasonDialog('end')" id="menuFinSaison">Fin de saison</span>
-                <span class="nav-menu-item-clickable" onclick="showAnalyseSaisonDialog()" id="menuAnalyseSaison">Analyse de saison</span>
+                <span
+                    class="nav-menu-item-clickable"
+                    onclick="showSeasonDialog('start')"
+                    id="menuDebutSaison"
+                    >Début de saison</span
+                >
+                <span
+                    class="nav-menu-item-clickable"
+                    onclick="showSeasonDialog('end')"
+                    id="menuFinSaison"
+                    >Fin de saison</span
+                >
+                <span
+                    class="nav-menu-item-clickable"
+                    onclick="showAnalyseSaisonDialog()"
+                    id="menuAnalyseSaison"
+                    >Analyse de saison</span
+                >
             </div>
         </nav>
 
@@ -365,21 +380,36 @@
             <div class="analyse-saison-dialog-content">
                 <div class="analyse-saison-dialog-header">
                     <h3>Analyse de saison</h3>
-                    <span class="analyse-saison-dialog-close" onclick="hideAnalyseSaisonDialog()">&times;</span>
+                    <span
+                        class="analyse-saison-dialog-close"
+                        onclick="hideAnalyseSaisonDialog()"
+                        >&times;</span
+                    >
                 </div>
                 <div class="analyse-saison-form">
                     <label for="analyseSaisonYearInput">Année:</label>
                     <div class="analyse-saison-year-row">
-                        <input type="number" 
-                               class="analyse-saison-year-input" 
-                               id="analyseSaisonYearInput" 
-                               min="2022" 
-                               max="2099" 
-                               step="1"
-                               oninput="validateAnalyseSaisonYear()">
-                        <button class="analyse-saison-ok-btn" id="analyseSaisonOkBtn" onclick="confirmAnalyseSaison()">Ok</button>
+                        <input
+                            type="number"
+                            class="analyse-saison-year-input"
+                            id="analyseSaisonYearInput"
+                            min="2022"
+                            max="2099"
+                            step="1"
+                            oninput="validateAnalyseSaisonYear()"
+                        />
+                        <button
+                            class="analyse-saison-ok-btn"
+                            id="analyseSaisonOkBtn"
+                            onclick="confirmAnalyseSaison()"
+                        >
+                            Ok
+                        </button>
                     </div>
-                    <span class="analyse-saison-error" id="analyseSaisonError"></span>
+                    <span
+                        class="analyse-saison-error"
+                        id="analyseSaisonError"
+                    ></span>
                 </div>
             </div>
         </div>
@@ -389,31 +419,113 @@
             <div class="season-dialog-content">
                 <div class="season-dialog-header">
                     <h3 id="debutSaisonTitle">Début de saison</h3>
-                    <span class="season-dialog-close" onclick="hideSeasonDialog('start')">&times;</span>
+                    <span
+                        class="season-dialog-close"
+                        onclick="hideSeasonDialog('start')"
+                        >&times;</span
+                    >
                 </div>
                 <div class="season-pump-row">
-                    <span class="season-pump-btn" style="background-color: #666; cursor: default;">P1</span>
-                    <input type="datetime-local" class="season-datetime-input" id="startP1Input" step="1">
-                    <button class="season-now-btn" id="startP1NowBtn" onclick="setNowDateTime('start', 'P1')" title="Maintenant">Now</button>
-                    <button class="season-validate-btn" id="startP1ValidateBtn" onclick="validateAndRecordSeasonTime('start', 'P1')">Valider</button>
+                    <span
+                        class="season-pump-btn"
+                        style="background-color: #666; cursor: default"
+                        >P1</span
+                    >
+                    <input
+                        type="datetime-local"
+                        class="season-datetime-input"
+                        id="startP1Input"
+                        step="1"
+                    />
+                    <button
+                        class="season-now-btn"
+                        id="startP1NowBtn"
+                        onclick="setNowDateTime('start', 'P1')"
+                        title="Maintenant"
+                    >
+                        Now
+                    </button>
+                    <button
+                        class="season-validate-btn"
+                        id="startP1ValidateBtn"
+                        onclick="validateAndRecordSeasonTime('start', 'P1')"
+                    >
+                        Valider
+                    </button>
                     <span class="season-error" id="startP1Error"></span>
-                    <span class="season-datetime" id="startP1Time" style="display: none;"></span>
+                    <span
+                        class="season-datetime"
+                        id="startP1Time"
+                        style="display: none"
+                    ></span>
                 </div>
                 <div class="season-pump-row">
-                    <span class="season-pump-btn" style="background-color: #666; cursor: default;">P2</span>
-                    <input type="datetime-local" class="season-datetime-input" id="startP2Input" step="1">
-                    <button class="season-now-btn" id="startP2NowBtn" onclick="setNowDateTime('start', 'P2')" title="Maintenant">Now</button>
-                    <button class="season-validate-btn" id="startP2ValidateBtn" onclick="validateAndRecordSeasonTime('start', 'P2')">Valider</button>
+                    <span
+                        class="season-pump-btn"
+                        style="background-color: #666; cursor: default"
+                        >P2</span
+                    >
+                    <input
+                        type="datetime-local"
+                        class="season-datetime-input"
+                        id="startP2Input"
+                        step="1"
+                    />
+                    <button
+                        class="season-now-btn"
+                        id="startP2NowBtn"
+                        onclick="setNowDateTime('start', 'P2')"
+                        title="Maintenant"
+                    >
+                        Now
+                    </button>
+                    <button
+                        class="season-validate-btn"
+                        id="startP2ValidateBtn"
+                        onclick="validateAndRecordSeasonTime('start', 'P2')"
+                    >
+                        Valider
+                    </button>
                     <span class="season-error" id="startP2Error"></span>
-                    <span class="season-datetime" id="startP2Time" style="display: none;"></span>
+                    <span
+                        class="season-datetime"
+                        id="startP2Time"
+                        style="display: none"
+                    ></span>
                 </div>
                 <div class="season-pump-row">
-                    <span class="season-pump-btn" style="background-color: #666; cursor: default;">P3</span>
-                    <input type="datetime-local" class="season-datetime-input" id="startP3Input" step="1">
-                    <button class="season-now-btn" id="startP3NowBtn" onclick="setNowDateTime('start', 'P3')" title="Maintenant">Now</button>
-                    <button class="season-validate-btn" id="startP3ValidateBtn" onclick="validateAndRecordSeasonTime('start', 'P3')">Valider</button>
+                    <span
+                        class="season-pump-btn"
+                        style="background-color: #666; cursor: default"
+                        >P3</span
+                    >
+                    <input
+                        type="datetime-local"
+                        class="season-datetime-input"
+                        id="startP3Input"
+                        step="1"
+                    />
+                    <button
+                        class="season-now-btn"
+                        id="startP3NowBtn"
+                        onclick="setNowDateTime('start', 'P3')"
+                        title="Maintenant"
+                    >
+                        Now
+                    </button>
+                    <button
+                        class="season-validate-btn"
+                        id="startP3ValidateBtn"
+                        onclick="validateAndRecordSeasonTime('start', 'P3')"
+                    >
+                        Valider
+                    </button>
                     <span class="season-error" id="startP3Error"></span>
-                    <span class="season-datetime" id="startP3Time" style="display: none;"></span>
+                    <span
+                        class="season-datetime"
+                        id="startP3Time"
+                        style="display: none"
+                    ></span>
                 </div>
             </div>
         </div>
@@ -423,31 +535,113 @@
             <div class="season-dialog-content">
                 <div class="season-dialog-header">
                     <h3 id="finSaisonTitle">Fin de saison</h3>
-                    <span class="season-dialog-close" onclick="hideSeasonDialog('end')">&times;</span>
+                    <span
+                        class="season-dialog-close"
+                        onclick="hideSeasonDialog('end')"
+                        >&times;</span
+                    >
                 </div>
                 <div class="season-pump-row">
-                    <span class="season-pump-btn" style="background-color: #666; cursor: default;">P1</span>
-                    <input type="datetime-local" class="season-datetime-input" id="endP1Input" step="1">
-                    <button class="season-now-btn" id="endP1NowBtn" onclick="setNowDateTime('end', 'P1')" title="Maintenant">Now</button>
-                    <button class="season-validate-btn" id="endP1ValidateBtn" onclick="validateAndRecordSeasonTime('end', 'P1')">Valider</button>
+                    <span
+                        class="season-pump-btn"
+                        style="background-color: #666; cursor: default"
+                        >P1</span
+                    >
+                    <input
+                        type="datetime-local"
+                        class="season-datetime-input"
+                        id="endP1Input"
+                        step="1"
+                    />
+                    <button
+                        class="season-now-btn"
+                        id="endP1NowBtn"
+                        onclick="setNowDateTime('end', 'P1')"
+                        title="Maintenant"
+                    >
+                        Now
+                    </button>
+                    <button
+                        class="season-validate-btn"
+                        id="endP1ValidateBtn"
+                        onclick="validateAndRecordSeasonTime('end', 'P1')"
+                    >
+                        Valider
+                    </button>
                     <span class="season-error" id="endP1Error"></span>
-                    <span class="season-datetime" id="endP1Time" style="display: none;"></span>
+                    <span
+                        class="season-datetime"
+                        id="endP1Time"
+                        style="display: none"
+                    ></span>
                 </div>
                 <div class="season-pump-row">
-                    <span class="season-pump-btn" style="background-color: #666; cursor: default;">P2</span>
-                    <input type="datetime-local" class="season-datetime-input" id="endP2Input" step="1">
-                    <button class="season-now-btn" id="endP2NowBtn" onclick="setNowDateTime('end', 'P2')" title="Maintenant">Now</button>
-                    <button class="season-validate-btn" id="endP2ValidateBtn" onclick="validateAndRecordSeasonTime('end', 'P2')">Valider</button>
+                    <span
+                        class="season-pump-btn"
+                        style="background-color: #666; cursor: default"
+                        >P2</span
+                    >
+                    <input
+                        type="datetime-local"
+                        class="season-datetime-input"
+                        id="endP2Input"
+                        step="1"
+                    />
+                    <button
+                        class="season-now-btn"
+                        id="endP2NowBtn"
+                        onclick="setNowDateTime('end', 'P2')"
+                        title="Maintenant"
+                    >
+                        Now
+                    </button>
+                    <button
+                        class="season-validate-btn"
+                        id="endP2ValidateBtn"
+                        onclick="validateAndRecordSeasonTime('end', 'P2')"
+                    >
+                        Valider
+                    </button>
                     <span class="season-error" id="endP2Error"></span>
-                    <span class="season-datetime" id="endP2Time" style="display: none;"></span>
+                    <span
+                        class="season-datetime"
+                        id="endP2Time"
+                        style="display: none"
+                    ></span>
                 </div>
                 <div class="season-pump-row">
-                    <span class="season-pump-btn" style="background-color: #666; cursor: default;">P3</span>
-                    <input type="datetime-local" class="season-datetime-input" id="endP3Input" step="1">
-                    <button class="season-now-btn" id="endP3NowBtn" onclick="setNowDateTime('end', 'P3')" title="Maintenant">Now</button>
-                    <button class="season-validate-btn" id="endP3ValidateBtn" onclick="validateAndRecordSeasonTime('end', 'P3')">Valider</button>
+                    <span
+                        class="season-pump-btn"
+                        style="background-color: #666; cursor: default"
+                        >P3</span
+                    >
+                    <input
+                        type="datetime-local"
+                        class="season-datetime-input"
+                        id="endP3Input"
+                        step="1"
+                    />
+                    <button
+                        class="season-now-btn"
+                        id="endP3NowBtn"
+                        onclick="setNowDateTime('end', 'P3')"
+                        title="Maintenant"
+                    >
+                        Now
+                    </button>
+                    <button
+                        class="season-validate-btn"
+                        id="endP3ValidateBtn"
+                        onclick="validateAndRecordSeasonTime('end', 'P3')"
+                    >
+                        Valider
+                    </button>
                     <span class="season-error" id="endP3Error"></span>
-                    <span class="season-datetime" id="endP3Time" style="display: none;"></span>
+                    <span
+                        class="season-datetime"
+                        id="endP3Time"
+                        style="display: none"
+                    ></span>
                 </div>
             </div>
         </div>
@@ -466,7 +660,7 @@
             id="BandeauHaut"
         >
             <!-- Left zone: Alarms -->
-            <div style="flex: 2; color: white;" id="ZoneGauche">
+            <div style="flex: 2; color: white" id="ZoneGauche">
                 <h4
                     style="margin: 0; padding: 0.2rem; font-weight: bold"
                     id="osmoseAlarm"
@@ -474,12 +668,8 @@
             </div>
 
             <!-- Right zone: Coulée info -->
-            <div
-                style="flex: 1; text-align: right; color: white"
-                id="coulee"
-            >
-                <span style="font-weight: bold" id="c_text"></span>
-                <span id="compteurDeTemps"></span>
+            <div style="flex: 1; text-align: left; color: white; white-space: nowrap" id="coulee">
+                <span style="font-weight: bold" id="c_text"></span> <span id="compteurDeTemps"></span>
             </div>
 
             <!-- Activity indicator -->
@@ -552,7 +742,7 @@
 
                 <!-- Le selecteur de valves d'entrée -->
                 <div id="valveSelect" class="w3-container w3-modal">
-                    <div class="w3-modal-content" style="width: fit-content;">
+                    <div class="w3-modal-content" style="width: fit-content">
                         <span class="close" onclick="hideValveSelector()"
                             >&times;</span
                         >
