@@ -224,6 +224,101 @@
             .nav-menu-item-clickable:hover {
                 background-color: rgba(20, 10, 100, 0.95);
             }
+            /* Analyse de saison dialog styles */
+            .analyse-saison-dialog {
+                display: none;
+                position: fixed;
+                z-index: 1001;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+            }
+            .analyse-saison-dialog-content {
+                background-color: #fefefe;
+                margin: 15% auto;
+                padding: 20px;
+                border: 1px solid #888;
+                width: fit-content;
+                min-width: 300px;
+                border-radius: 8px;
+            }
+            .analyse-saison-dialog-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 10px;
+            }
+            .analyse-saison-dialog-header h3 {
+                margin: 0;
+                color: #333;
+            }
+            .analyse-saison-dialog-close {
+                color: #aaa;
+                font-size: 28px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+            .analyse-saison-dialog-close:hover {
+                color: #000;
+            }
+            .analyse-saison-form {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            }
+            .analyse-saison-form label {
+                font-weight: bold;
+                color: #333;
+            }
+            .analyse-saison-year-row {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .analyse-saison-year-input {
+                font-family: monospace;
+                font-size: 16px;
+                padding: 8px 12px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                width: 100px;
+                text-align: center;
+            }
+            .analyse-saison-year-input:focus {
+                outline: none;
+                border-color: #2196F3;
+                box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+            }
+            .analyse-saison-year-input.invalid {
+                border-color: red;
+                background-color: #fff0f0;
+            }
+            .analyse-saison-ok-btn {
+                padding: 10px 24px;
+                border: none;
+                border-radius: 4px;
+                background-color: #4CAF50;
+                color: white;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: bold;
+            }
+            .analyse-saison-ok-btn:disabled {
+                background-color: #cccccc;
+                cursor: not-allowed;
+            }
+            .analyse-saison-ok-btn:not(:disabled):hover {
+                background-color: #45a049;
+            }
+            .analyse-saison-error {
+                color: red;
+                font-size: 12px;
+                min-height: 16px;
+            }
         </style>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/peity/3.3.0/jquery.peity.js"></script>
@@ -261,8 +356,33 @@
                 <a href="/data.json">Data JSON</a>
                 <span class="nav-menu-item-clickable" onclick="showSeasonDialog('start')" id="menuDebutSaison">Début de saison</span>
                 <span class="nav-menu-item-clickable" onclick="showSeasonDialog('end')" id="menuFinSaison">Fin de saison</span>
+                <span class="nav-menu-item-clickable" onclick="showAnalyseSaisonDialog()" id="menuAnalyseSaison">Analyse de saison</span>
             </div>
         </nav>
+
+        <!-- Analyse de saison dialog -->
+        <div id="analyseSaisonDialog" class="analyse-saison-dialog">
+            <div class="analyse-saison-dialog-content">
+                <div class="analyse-saison-dialog-header">
+                    <h3>Analyse de saison</h3>
+                    <span class="analyse-saison-dialog-close" onclick="hideAnalyseSaisonDialog()">&times;</span>
+                </div>
+                <div class="analyse-saison-form">
+                    <label for="analyseSaisonYearInput">Année:</label>
+                    <div class="analyse-saison-year-row">
+                        <input type="number" 
+                               class="analyse-saison-year-input" 
+                               id="analyseSaisonYearInput" 
+                               min="2022" 
+                               max="2099" 
+                               step="1"
+                               oninput="validateAnalyseSaisonYear()">
+                        <button class="analyse-saison-ok-btn" id="analyseSaisonOkBtn" onclick="confirmAnalyseSaison()">Ok</button>
+                    </div>
+                    <span class="analyse-saison-error" id="analyseSaisonError"></span>
+                </div>
+            </div>
+        </div>
 
         <!-- Début de saison dialog -->
         <div id="debutSaisonDialog" class="season-dialog">

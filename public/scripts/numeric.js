@@ -1925,5 +1925,163 @@ function initSeasonMenuLabels() {
     if (menuFin) menuFin.textContent = `Fin de saison ${year}`;
 }
 
+// Season Analysis Dialog
+let analyseSaisonPasswordVerified = false;
+
+async function showAnalyseSaisonDialog() {
+    // Check password first
+    const enteredPassword = prompt("Entrer le code pour accéder à l'analyse de saison", "");
+    if (!enteredPassword || !valveSelectorPassword || enteredPassword !== valveSelectorPassword) {
+        alert("Mauvais mot de passe");
+        return;
+    }
+    
+    analyseSaisonPasswordVerified = true;
+    
+    // Set default year to current year
+    const yearInput = document.getElementById('analyseSaisonYearInput');
+    const currentYear = new Date().getFullYear();
+    if (yearInput) {
+        yearInput.value = currentYear;
+    }
+    
+    // Clear any previous error
+    const errorSpan = document.getElementById('analyseSaisonError');
+    if (errorSpan) {
+        errorSpan.textContent = '';
+    }
+    
+    // Enable the Ok button
+    const okBtn = document.getElementById('analyseSaisonOkBtn');
+    if (okBtn) {
+        okBtn.disabled = false;
+    }
+    
+    // Remove invalid class
+    if (yearInput) {
+        yearInput.classList.remove('invalid');
+    }
+    
+    // Show the dialog
+    const dialog = document.getElementById('analyseSaisonDialog');
+    if (dialog) {
+        dialog.style.display = 'block';
+    }
+}
+
+function hideAnalyseSaisonDialog() {
+    const dialog = document.getElementById('analyseSaisonDialog');
+    if (dialog) {
+        dialog.style.display = 'none';
+    }
+    analyseSaisonPasswordVerified = false;
+}
+
+function validateAnalyseSaisonYear() {
+    const yearInput = document.getElementById('analyseSaisonYearInput');
+    const errorSpan = document.getElementById('analyseSaisonError');
+    const okBtn = document.getElementById('analyseSaisonOkBtn');
+    
+    if (!yearInput || !errorSpan || !okBtn) return false;
+    
+    const yearValue = yearInput.value.trim();
+    const year = parseInt(yearValue, 10);
+    const currentYear = new Date().getFullYear();
+    
+    // Validation rules
+    if (yearValue === '') {
+        errorSpan.textContent = 'L\'année est requise';
+        yearInput.classList.add('invalid');
+        okBtn.disabled = true;
+        return false;
+    }
+    
+    if (isNaN(year)) {
+        errorSpan.textContent = 'Veuillez entrer une année valide';
+        yearInput.classList.add('invalid');
+        okBtn.disabled = true;
+        return false;
+    }
+    
+    if (year < 2022) {
+        errorSpan.textContent = 'L\'année doit être 2022 ou plus récente';
+        yearInput.classList.add('invalid');
+        okBtn.disabled = true;
+        return false;
+    }
+    
+    if (year > currentYear) {
+        errorSpan.textContent = `L'année ne peut pas dépasser ${currentYear}`;
+        yearInput.classList.add('invalid');
+        okBtn.disabled = true;
+        return false;
+    }
+    
+    // Valid year
+    errorSpan.textContent = '';
+    yearInput.classList.remove('invalid');
+    okBtn.disabled = false;
+    return true;
+}
+
+async function confirmAnalyseSaison() {
+    if (!analyseSaisonPasswordVerified) {
+        alert("Session expirée. Veuillez réouvrir le dialogue.");
+        hideAnalyseSaisonDialog();
+        return;
+    }
+    
+    if (!validateAnalyseSaisonYear()) {
+        return;
+    }
+    
+    const yearInput = document.getElementById('analyseSaisonYearInput');
+    const year = parseInt(yearInput.value, 10);
+    
+    // Generate the analysis for the selected year
+    await showAnalyseSaison(year);
+}
+
+// Season Analysis
+async function showAnalyseSaison(year) {
+    // Use provided year or default to current year
+    const selectedYear = year || new Date().getFullYear();
+    
+    // First check if SaisonInfo is ready
+    try {
+        const checkResponse = await fetch(`/api/saison-info/check-ready?year=${selectedYear}`);
+        const checkResult = await checkResponse.json();
+        
+        if (!checkResult.ready) {
+            alert(checkResult.error || "Les informations de saison ne sont pas prêtes pour l'analyse.");
+            return;
+        }
+        
+        // Confirm generation
+        const confirmed = confirm(`Générer le sommaire de la saison ${selectedYear}?\n\nLe fichier TSV sera téléchargé automatiquement.`);
+        if (!confirmed) {
+            return;
+        }
+        
+        // Hide the dialog after confirmation
+        hideAnalyseSaisonDialog();
+        
+        // Trigger the download
+        window.location.href = `/api/generate-saison-analysis?year=${selectedYear}`;
+        
+    } catch (error) {
+        console.error('Error generating season analysis:', error);
+        alert('Erreur lors de la génération de l\'analyse: ' + error.message);
+    }
+}
+
+// Close analyse saison dialog when clicking outside
+window.addEventListener('click', function(event) {
+    const analyseDialog = document.getElementById('analyseSaisonDialog');
+    if (event.target === analyseDialog) {
+        hideAnalyseSaisonDialog();
+    }
+});
+
 window.addEventListener("load", onLoad, false);
 window.addEventListener("load", initSeasonMenuLabels, false);

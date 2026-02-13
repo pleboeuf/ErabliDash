@@ -157,6 +157,86 @@ app.post("/api/saison-info", async (req, res) => {
     }
 });
 
+// Check SaisonInfo readiness for analysis
+app.get("/api/saison-info/check-ready", async (req, res) => {
+    try {
+        const database = exportConfig.influxdb.database;
+        const influx = getInfluxClient(database);
+        
+        // Check if database exists
+        const databases = await influx.getDatabaseNames();
+        if (!databases.includes(database)) {
+            return res.json({ ready: false, error: `Base de données '${database}' inexistante` });
+        }
+        
+        // Query SaisonInfo to check for startTime entries
+        const query = `SELECT * FROM SaisonInfo`;
+        const results = await influx.query(query);
+        
+        if (results.length === 0) {
+            return res.json({ 
+                ready: false, 
+                error: "Aucune information de saison enregistrée. Veuillez d'abord enregistrer les dates de début de saison."
+            });
+        }
+        
+        // Check if at least one pump has startTime
+        const hasStartTime = results.some(row => row.startTime);
+        if (!hasStartTime) {
+            return res.json({ 
+                ready: false, 
+                error: "Aucune date de début de saison enregistrée. Veuillez enregistrer au moins une date de début."
+            });
+        }
+        
+        res.json({ ready: true, database: database });
+    } catch (error) {
+        console.error("Error checking SaisonInfo readiness:", error);
+        if (error.message && error.message.includes("measurement not found")) {
+            return res.json({ 
+                ready: false, 
+                error: "Aucune information de saison enregistrée. Veuillez d'abord enregistrer les dates de début de saison."
+            });
+        }
+        res.status(500).json({ ready: false, error: "Erreur lors de la vérification" });
+    }
+});
+
+// Generate season analysis TSV file
+app.get("/api/generate-saison-analysis", async (req, res) => {
+    try {
+        const { exec } = require('child_process');
+        const year = req.query.year || new Date().getFullYear();
+        const scriptPath = path.join(__dirname, 'analyse_de_saison.sh');
+        
+        // Validate year
+        const currentYear = new Date().getFullYear();
+        if (year < 2021 || year > currentYear) {
+            return res.status(400).json({ error: `Année invalide: ${year}` });
+        }
+        
+        // Execute the analysis script
+        exec(`bash "${scriptPath}" ${year}`, { encoding: 'utf8', maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
+            if (error) {
+                console.error('Error executing analysis script:', error);
+                return res.status(500).json({ error: `Erreur lors de l'exécution du script: ${stderr || error.message}` });
+            }
+            
+            // Set headers for TSV file download with UTF-8 BOM for Excel compatibility
+            const filename = `Sommaire_de_Saison_${year}.tsv`;
+            res.setHeader('Content-Type', 'text/tab-separated-values; charset=utf-8');
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            
+            // Add UTF-8 BOM for Excel compatibility
+            const bom = '\uFEFF';
+            res.send(bom + stdout);
+        });
+    } catch (error) {
+        console.error("Error generating season analysis:", error);
+        res.status(500).json({ error: "Erreur lors de la génération de l'analyse" });
+    }
+});
+
 function originIsAllowed(origin) {
     // put logic here to detect whether the specified origin is allowed.
     return true;
