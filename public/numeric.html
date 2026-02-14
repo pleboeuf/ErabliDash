@@ -17,9 +17,7 @@
         <link rel="stylesheet" href="/lib/numeric.css" />
         <style>
             .nav-menu {
-                position: fixed;
-                top: 10px;
-                left: 10px;
+                position: relative;
                 z-index: 1000;
             }
             .nav-menu-label {
@@ -67,13 +65,7 @@
                 border-color: rgba(255, 255, 255, 0.6);
             }
             @media (max-width: 768px) {
-                .nav-menu {
-                    position: static;
-                    margin-bottom: 0.5rem;
-                    padding: 0.5rem;
-                }
                 .nav-menu-items {
-                    position: static;
                     min-width: auto;
                 }
                 .nav-menu a {
@@ -346,35 +338,6 @@
     </head>
 
     <body>
-        <nav class="nav-menu">
-            <span class="nav-menu-label">Menu</span>
-            <div class="nav-menu-items">
-                <a href="/">Accueil</a>
-                <a href="/numeric.html" class="active">Tableaux</a>
-                <a href="/cabane2021">Schéma</a>
-                <a href="/cabaneMapNew">Carte Vide</a>
-                <a href="/data.json">Data JSON</a>
-                <span
-                    class="nav-menu-item-clickable"
-                    onclick="showSeasonDialog('start')"
-                    id="menuDebutSaison"
-                    >Début de saison</span
-                >
-                <span
-                    class="nav-menu-item-clickable"
-                    onclick="showSeasonDialog('end')"
-                    id="menuFinSaison"
-                    >Fin de saison</span
-                >
-                <span
-                    class="nav-menu-item-clickable"
-                    onclick="showAnalyseSaisonDialog()"
-                    id="menuAnalyseSaison"
-                    >Analyse de saison</span
-                >
-            </div>
-        </nav>
-
         <!-- Analyse de saison dialog -->
         <div id="analyseSaisonDialog" class="analyse-saison-dialog">
             <div class="analyse-saison-dialog-content">
@@ -654,13 +617,43 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 0 70px 0 80px;
+                padding: 0 70px 0 10px;
                 box-sizing: border-box;
             "
             id="BandeauHaut"
         >
+            <!-- Menu -->
+            <nav class="nav-menu">
+                <span class="nav-menu-label">Menu</span>
+                <div class="nav-menu-items">
+                    <a href="/">Accueil</a>
+                    <a href="/numeric.html" class="active">Tableaux</a>
+                    <a href="/cabane2021">Schéma</a>
+                    <a href="/cabaneMapNew">Carte Vide</a>
+                    <a href="/data.json">Data JSON</a>
+                    <span
+                        class="nav-menu-item-clickable"
+                        onclick="showSeasonDialog('start')"
+                        id="menuDebutSaison"
+                        >Début de saison</span
+                    >
+                    <span
+                        class="nav-menu-item-clickable"
+                        onclick="showSeasonDialog('end')"
+                        id="menuFinSaison"
+                        >Fin de saison</span
+                    >
+                    <span
+                        class="nav-menu-item-clickable"
+                        onclick="showAnalyseSaisonDialog()"
+                        id="menuAnalyseSaison"
+                        >Analyse de saison</span
+                    >
+                </div>
+            </nav>
+
             <!-- Left zone: Alarms -->
-            <div style="flex: 2; color: white" id="ZoneGauche">
+            <div style="flex: 3; color: white" id="ZoneGauche">
                 <h4
                     style="margin: 0; padding: 0.2rem; font-weight: bold"
                     id="osmoseAlarm"
@@ -668,8 +661,10 @@
             </div>
 
             <!-- Right zone: Coulée info -->
-            <div style="flex: 1; text-align: left; color: white; white-space: nowrap" id="coulee">
-                <span style="font-weight: bold" id="c_text"></span> <span id="compteurDeTemps"></span>
+            <div style="flex: 1; text-align: right; color: white; white-space: nowrap" id="coulee">
+                <h4 style="margin: 0; padding: 0.2rem; font-weight: bold">
+                    <span id="c_text"></span> <span id="compteurDeTemps"></span>
+                </h4>
             </div>
 
             <!-- Activity indicator -->
