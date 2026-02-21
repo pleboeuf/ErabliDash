@@ -1237,7 +1237,7 @@ function displayVacuumErabliere() {
         videElem = document.getElementById(videElemId);
         if (videElem !== null) {
             videElem.innerHTML = vacuum.device;
-            // setAgeColor(videElem, vacuum.device);
+            setAgeColor(videElem, vacuum.device);
         }
         videValElem = document.getElementById(videValElemId);
         vacValue = vacuum.rawValue;

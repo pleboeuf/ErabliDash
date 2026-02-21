@@ -294,6 +294,10 @@ dashboard.onChange(() => {
 
 server.listen(port, () => {
     console.log(`HTTP Server started: http://localhost:${port}`);
+    // Signal PM2 that the app is ready (only when running under PM2)
+    if (process.send) {
+        process.send('ready');
+    }
 });
 
 // Graceful shutdown on SIGINT (Ctrl-C)
