@@ -1595,6 +1595,7 @@ function displayDatacerTanks() {
         const tankElemId = `datacerTank_${tank.code}`;
         const depthElemId = `${tankElemId}_depth`;
         const fillElemId = `${tankElemId}_fill`;
+        const rawValueElemId = `${tankElemId}_rawValue`;
         const capacityElemId = `${tankElemId}_capacity`;
         const updatedElemId = `${tankElemId}_lastUpdate`;
 
@@ -1607,12 +1608,14 @@ function displayDatacerTanks() {
             createCell(null, "darker", tankElem).innerHTML = tank.code;
             createCell(depthElemId, "lighter rawvalue", tankElem);
             createCell(fillElemId, "lighter rawvalue", tankElem);
+            createCell(rawValueElemId, "lighter rawvalue", tankElem);
             createCell(capacityElemId, "lighter rawvalue", tankElem);
             createCell(updatedElemId, "lighter", tankElem);
         }
 
         const depthElem = document.getElementById(depthElemId);
         const fillElem = document.getElementById(fillElemId);
+        const rawValueElem = document.getElementById(rawValueElemId);
         const capacityElem = document.getElementById(capacityElemId);
         const updatedElem = document.getElementById(updatedElemId);
 
@@ -1621,6 +1624,9 @@ function displayDatacerTanks() {
         }
         if (tank.fill !== undefined && tank.fill !== null) {
             fillElem.innerHTML = Math.round(tank.fill);
+        }
+        if (tank.rawValue !== undefined) {
+            rawValueElem.innerHTML = Math.round(tank.rawValue);
         }
         if (tank.capacity !== undefined) {
             capacityElem.innerHTML = Math.round(tank.capacity);
