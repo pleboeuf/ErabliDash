@@ -230,6 +230,34 @@
             "maxDelayMinutes": 20
         },
         {
+            "name": "BASSIN RF2-RS1-RS2",
+            "description": "Datacer RF2-RS1-RS2",
+            "id": "BASSIN RF2-RS1-RS2",
+            "eventName": "Tank/Level",
+            "maxDelayMinutes": 5
+        },
+        {
+            "name": "BASSIN RS3-RS4",
+            "description": "Datacer RS3-RS4",
+            "id": "BASSIN RS3-RS4",
+            "eventName": "Tank/Level",
+            "maxDelayMinutes": 5
+        },
+        {
+            "name": "BASSIN RS5-RS6",
+            "description": "Datacer RS5-RS6",
+            "id": "BASSIN RS5-RS6",
+            "eventName": "Tank/Level",
+            "maxDelayMinutes": 5
+        },
+        {
+            "name": "BASSIN RC1-RC2-RF1",
+            "description": "Datacer RC1-RC2-RF1",
+            "id": "BASSIN RC1-RC2-RF1",
+            "eventName": "Tank/Level",
+            "maxDelayMinutes": 5
+        },
+        {
             "name": "E1-E2-E3",
             "description": "Vacuum lignes E1 à E3",
             "id": "E1-E2-E3",
@@ -499,6 +527,114 @@
             "output": "none",
             "drain": "none",
             "ssrRelay": "none"
+        },
+        {
+            "code": "RS1",
+            "name": "Réservoir de sève #1",
+            "device": "BASSIN RF2-RS1-RS2",
+            "shape": "cylinder",
+            "orientation": "horizontal",
+            "length": 10718,
+            "diameter": 1651,
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "code": "RS2",
+            "name": "Réservoir de sève #2",
+            "device": "BASSIN RF2-RS1-RS2",
+            "shape": "cylinder",
+            "orientation": "horizontal",
+            "length": 7010,
+            "diameter": 1842,
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "code": "RS3",
+            "name": "Réservoir de sève #3",
+            "device": "BASSIN RS3-RS4",
+            "shape": "cylinder",
+            "orientation": "horizontal",
+            "length": 4128,
+            "diameter": 2438,
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "code": "RS4",
+            "name": "Réservoir de sève #4",
+            "device": "BASSIN RS3-RS4",
+            "shape": "cylinder",
+            "orientation": "horizontal",
+            "length": 3353,
+            "diameter": 2438,
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "code": "RS5",
+            "name": "Réservoir de sève pump house #1",
+            "device": "BASSIN RS5-RS6",
+            "shape": "u",
+            "length": 3657,
+            "diameter": 1219,
+            "totalHeight": 1067
+        },
+        {
+            "code": "RS6",
+            "name": "Réservoir de sève pump house #2",
+            "device": "BASSIN RS5-RS6",
+            "shape": "u",
+            "length": 3657,
+            "diameter": 1219,
+            "totalHeight": 1067,
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "code": "RF2",
+            "name": "Réservoir de filtrat #2",
+            "device": "BASSIN RF2-RS1-RS2",
+            "shape": "cylinder",
+            "orientation": "horizontal",
+            "length": 4267,
+            "diameter": 1842,
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "code": "RF1",
+            "name": "Réservoir de filtrat #1",
+            "device": "BASSIN RC1-RC2-RF1",
+            "shape": "u",
+            "length": 4877,
+            "diameter": 1524,
+            "totalHeight": 1676,
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "code": "RC1",
+            "name": "Réservoir de concentré #1",
+            "device": "BASSIN RC1-RC2-RF1",
+            "shape": "u",
+            "length": 3658,
+            "diameter": 1219,
+            "totalHeight": 914,
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "code": "RC2",
+            "name": "Réservoir de concentré #2",
+            "device": "BASSIN RC1-RC2-RF1",
+            "shape": "u",
+            "length": 3658,
+            "diameter": 1219,
+            "totalHeight": 914,
+            "scaleFactor": 1.0,
+            "offset": 0
         }
     ],
     "valves": [
@@ -1381,6 +1517,26 @@
         {
             "code": "Osm1",
             "device": "EB-Osm1"
+        }
+    ],
+    "watercounter": [
+        {
+            "code": "210",
+            "device": "Flow1",
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "code": "212",
+            "device": "Flow2",
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "code": "213",
+            "device": "Flow2",
+            "scaleFactor": 1.0,
+            "offset": 0
         }
     ]
 }
