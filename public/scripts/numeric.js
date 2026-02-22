@@ -1426,9 +1426,7 @@ function openSocket() {
                 vacuums = data.vacuums; // First list of vacuum devices devices
                 pumps = data.pumps;
                 osmose = data.osmose;
-                datacerTanks = data.tanks.filter(
-                    (t) => t.isDatacer === true,
-                );
+                datacerTanks = data.tanks.filter((t) => t.isDatacer === true);
                 waterMeters = data.waterMeters || [];
                 myToken = data.token;
                 valveSelectorPassword = data.valveSelectorPassword;
@@ -1626,7 +1624,7 @@ function displayDatacerTanks() {
             fillElem.innerHTML = Math.round(tank.fill);
         }
         if (tank.rawValue !== undefined) {
-            rawValueElem.innerHTML = Math.round(tank.rawValue);
+            rawValueElem.innerHTML = tank.rawValue.toFixed(2);
         }
         if (tank.capacity !== undefined) {
             capacityElem.innerHTML = Math.round(tank.capacity);
@@ -1651,9 +1649,7 @@ function displayWaterMeters() {
         if (!meterElem) {
             meterElem = document.createElement("tr");
             meterElem.setAttribute("id", meterElemId);
-            document
-                .getElementById("waterMeterlist")
-                .appendChild(meterElem);
+            document.getElementById("waterMeterlist").appendChild(meterElem);
 
             createCell(null, "darker", meterElem).innerHTML = meter.name;
             createCell(volumeElemId, "lighter rawvalue", meterElem);
@@ -1664,8 +1660,9 @@ function displayWaterMeters() {
         const updatedElem = document.getElementById(updatedElemId);
 
         if (meter.volume_since_reset !== undefined) {
-            volumeElem.innerHTML =
-                parseFloat(meter.volume_since_reset).toFixed(1);
+            volumeElem.innerHTML = parseFloat(meter.volume_since_reset).toFixed(
+                1,
+            );
         }
         if (meter.lastUpdatedAt) {
             const ageInMinutes = Math.floor(
@@ -1701,42 +1698,44 @@ let saisonInfoCache = null;
 
 async function loadSaisonInfo() {
     try {
-        const response = await fetch('/api/saison-info');
+        const response = await fetch("/api/saison-info");
         const result = await response.json();
         saisonInfoCache = result;
         return result;
     } catch (error) {
-        console.error('Error loading SaisonInfo:', error);
+        console.error("Error loading SaisonInfo:", error);
         return { exists: false, data: {} };
     }
 }
 
 function updateSeasonDialogUI(saisonInfo) {
-    const pumps = ['P1', 'P2', 'P3'];
+    const pumps = ["P1", "P2", "P3"];
     const year = new Date().getFullYear();
-    
+
     // Update menu item labels with current year
-    const menuDebut = document.getElementById('menuDebutSaison');
-    const menuFin = document.getElementById('menuFinSaison');
+    const menuDebut = document.getElementById("menuDebutSaison");
+    const menuFin = document.getElementById("menuFinSaison");
     if (menuDebut) menuDebut.textContent = `Début de saison ${year}`;
     if (menuFin) menuFin.textContent = `Fin de saison ${year}`;
-    
+
     // Update dialog titles
-    const titleDebut = document.getElementById('debutSaisonTitle');
-    const titleFin = document.getElementById('finSaisonTitle');
+    const titleDebut = document.getElementById("debutSaisonTitle");
+    const titleFin = document.getElementById("finSaisonTitle");
     if (titleDebut) titleDebut.textContent = `Début de saison ${year}`;
     if (titleFin) titleFin.textContent = `Fin de saison ${year}`;
-    
-    pumps.forEach(pump => {
+
+    pumps.forEach((pump) => {
         const pumpData = saisonInfo.data[pump] || {};
-        
+
         // Start time elements
         const startInput = document.getElementById(`start${pump}Input`);
-        const startValidateBtn = document.getElementById(`start${pump}ValidateBtn`);
+        const startValidateBtn = document.getElementById(
+            `start${pump}ValidateBtn`,
+        );
         const startNowBtn = document.getElementById(`start${pump}NowBtn`);
         const startError = document.getElementById(`start${pump}Error`);
         const startTime = document.getElementById(`start${pump}Time`);
-        
+
         if (pumpData.startTime) {
             // Already recorded - disable input and show recorded value
             if (startInput) {
@@ -1745,33 +1744,35 @@ function updateSeasonDialogUI(saisonInfo) {
             }
             if (startValidateBtn) startValidateBtn.disabled = true;
             if (startNowBtn) startNowBtn.disabled = true;
-            if (startError) startError.textContent = '';
+            if (startError) startError.textContent = "";
             if (startTime) {
-                startTime.textContent = formatDateTimeDisplay(pumpData.startTime);
-                startTime.classList.add('recorded');
+                startTime.textContent = formatDateTimeDisplay(
+                    pumpData.startTime,
+                );
+                startTime.classList.add("recorded");
             }
         } else {
             // Not yet recorded - enable input
             if (startInput) {
-                startInput.value = '';
+                startInput.value = "";
                 startInput.disabled = false;
             }
             if (startValidateBtn) startValidateBtn.disabled = false;
             if (startNowBtn) startNowBtn.disabled = false;
-            if (startError) startError.textContent = '';
+            if (startError) startError.textContent = "";
             if (startTime) {
-                startTime.textContent = '--';
-                startTime.classList.remove('recorded');
+                startTime.textContent = "--";
+                startTime.classList.remove("recorded");
             }
         }
-        
+
         // End time elements
         const endInput = document.getElementById(`end${pump}Input`);
         const endValidateBtn = document.getElementById(`end${pump}ValidateBtn`);
         const endNowBtn = document.getElementById(`end${pump}NowBtn`);
         const endError = document.getElementById(`end${pump}Error`);
         const endTime = document.getElementById(`end${pump}Time`);
-        
+
         if (pumpData.endTime) {
             // Already recorded - disable input and show recorded value
             if (endInput) {
@@ -1780,23 +1781,23 @@ function updateSeasonDialogUI(saisonInfo) {
             }
             if (endValidateBtn) endValidateBtn.disabled = true;
             if (endNowBtn) endNowBtn.disabled = true;
-            if (endError) endError.textContent = '';
+            if (endError) endError.textContent = "";
             if (endTime) {
                 endTime.textContent = formatDateTimeDisplay(pumpData.endTime);
-                endTime.classList.add('recorded');
+                endTime.classList.add("recorded");
             }
         } else {
             // Not yet recorded - enable input
             if (endInput) {
-                endInput.value = '';
+                endInput.value = "";
                 endInput.disabled = false;
             }
             if (endValidateBtn) endValidateBtn.disabled = false;
             if (endNowBtn) endNowBtn.disabled = false;
-            if (endError) endError.textContent = '';
+            if (endError) endError.textContent = "";
             if (endTime) {
-                endTime.textContent = '--';
-                endTime.classList.remove('recorded');
+                endTime.textContent = "--";
+                endTime.classList.remove("recorded");
             }
         }
     });
@@ -1807,14 +1808,14 @@ function formatDateTimeForInput(isoString) {
     try {
         const date = new Date(isoString);
         const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        const seconds = date.getSeconds().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, "0");
+        const day = date.getDate().toString().padStart(2, "0");
+        const hours = date.getHours().toString().padStart(2, "0");
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+        const seconds = date.getSeconds().toString().padStart(2, "0");
         return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
     } catch (e) {
-        return '';
+        return "";
     }
 }
 
@@ -1822,11 +1823,11 @@ function setNowDateTime(type, pump) {
     const inputId = `${type}${pump}Input`;
     const inputElem = document.getElementById(inputId);
     const errorElem = document.getElementById(`${type}${pump}Error`);
-    
+
     if (inputElem && !inputElem.disabled) {
         const now = new Date();
         inputElem.value = formatDateTimeForInput(now.toISOString());
-        if (errorElem) errorElem.textContent = '';
+        if (errorElem) errorElem.textContent = "";
     }
 }
 
@@ -1835,58 +1836,61 @@ function validateSeasonDateTime(type, pump) {
     const errorId = `${type}${pump}Error`;
     const inputElem = document.getElementById(inputId);
     const errorElem = document.getElementById(errorId);
-    
+
     if (!inputElem) {
-        return { valid: false, error: 'Élément non trouvé' };
+        return { valid: false, error: "Élément non trouvé" };
     }
-    
+
     const inputValue = inputElem.value;
-    
+
     // Check if empty
-    if (!inputValue || inputValue.trim() === '') {
-        return { valid: false, error: 'Veuillez entrer une date et heure' };
+    if (!inputValue || inputValue.trim() === "") {
+        return { valid: false, error: "Veuillez entrer une date et heure" };
     }
-    
+
     // Parse the datetime-local value
     const enteredDate = new Date(inputValue);
-    
+
     // Check if valid date
     if (isNaN(enteredDate.getTime())) {
-        return { valid: false, error: 'Date/heure invalide' };
+        return { valid: false, error: "Date/heure invalide" };
     }
-    
+
     // Check if not in the future
     const now = new Date();
     if (enteredDate > now) {
-        return { valid: false, error: 'La date ne peut pas être dans le futur' };
+        return {
+            valid: false,
+            error: "La date ne peut pas être dans le futur",
+        };
     }
-    
+
     return { valid: true, date: enteredDate };
 }
 
 async function validateAndRecordSeasonTime(type, pump) {
     const errorElem = document.getElementById(`${type}${pump}Error`);
-    
+
     // Validate the input
     const validation = validateSeasonDateTime(type, pump);
-    
+
     if (!validation.valid) {
         if (errorElem) errorElem.textContent = validation.error;
         return;
     }
-    
+
     // Clear any previous error
-    if (errorElem) errorElem.textContent = '';
-    
+    if (errorElem) errorElem.textContent = "";
+
     // Format for InfluxDB
     const formattedTime = formatDateTimeForInflux(validation.date);
-    const field = type === 'start' ? 'startTime' : 'endTime';
-    
+    const field = type === "start" ? "startTime" : "endTime";
+
     try {
-        const response = await fetch('/api/saison-info', {
-            method: 'POST',
+        const response = await fetch("/api/saison-info", {
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
             body: JSON.stringify({
                 pompe: pump,
@@ -1894,24 +1898,26 @@ async function validateAndRecordSeasonTime(type, pump) {
                 value: formattedTime,
             }),
         });
-        
+
         const result = await response.json();
-        
+
         if (result.success) {
             // Disable inputs and buttons after successful recording
             const inputElem = document.getElementById(`${type}${pump}Input`);
-            const validateBtn = document.getElementById(`${type}${pump}ValidateBtn`);
+            const validateBtn = document.getElementById(
+                `${type}${pump}ValidateBtn`,
+            );
             const nowBtn = document.getElementById(`${type}${pump}NowBtn`);
             const timeElem = document.getElementById(`${type}${pump}Time`);
-            
+
             if (inputElem) inputElem.disabled = true;
             if (validateBtn) validateBtn.disabled = true;
             if (nowBtn) nowBtn.disabled = true;
             if (timeElem) {
                 timeElem.textContent = formatDateTimeDisplay(formattedTime);
-                timeElem.classList.add('recorded');
+                timeElem.classList.add("recorded");
             }
-            
+
             // Update cache
             if (saisonInfoCache && saisonInfoCache.data) {
                 if (!saisonInfoCache.data[pump]) {
@@ -1919,26 +1925,28 @@ async function validateAndRecordSeasonTime(type, pump) {
                 }
                 saisonInfoCache.data[pump][field] = formattedTime;
             }
-            
+
             console.log(`${field} recorded for ${pump}: ${formattedTime}`);
         } else {
-            if (errorElem) errorElem.textContent = result.error || 'Erreur lors de l\'enregistrement';
+            if (errorElem)
+                errorElem.textContent =
+                    result.error || "Erreur lors de l'enregistrement";
         }
     } catch (error) {
-        console.error('Error recording season time:', error);
-        if (errorElem) errorElem.textContent = 'Erreur de connexion au serveur';
+        console.error("Error recording season time:", error);
+        if (errorElem) errorElem.textContent = "Erreur de connexion au serveur";
     }
 }
 
 function formatDateTimeDisplay(isoString) {
     try {
         const date = new Date(isoString);
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, "0");
+        const month = (date.getMonth() + 1).toString().padStart(2, "0");
         const year = date.getFullYear();
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        const seconds = date.getSeconds().toString().padStart(2, '0');
+        const hours = date.getHours().toString().padStart(2, "0");
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+        const seconds = date.getSeconds().toString().padStart(2, "0");
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     } catch (e) {
         return isoString;
@@ -1948,45 +1956,51 @@ function formatDateTimeDisplay(isoString) {
 function formatDateTimeForInflux(date) {
     // Format: "2024-04-04T01:30:00-05:00"
     const offset = -date.getTimezoneOffset();
-    const sign = offset >= 0 ? '+' : '-';
+    const sign = offset >= 0 ? "+" : "-";
     const absOffset = Math.abs(offset);
-    const offsetHours = Math.floor(absOffset / 60).toString().padStart(2, '0');
-    const offsetMinutes = (absOffset % 60).toString().padStart(2, '0');
-    
+    const offsetHours = Math.floor(absOffset / 60)
+        .toString()
+        .padStart(2, "0");
+    const offsetMinutes = (absOffset % 60).toString().padStart(2, "0");
+
     const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
-    
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const seconds = date.getSeconds().toString().padStart(2, "0");
+
     return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${sign}${offsetHours}:${offsetMinutes}`;
 }
 
 async function showSeasonDialog(type) {
     // Check password
     const enteredPassword = prompt("Entrer le code", "");
-    if (!enteredPassword || !valveSelectorPassword || enteredPassword !== valveSelectorPassword) {
+    if (
+        !enteredPassword ||
+        !valveSelectorPassword ||
+        enteredPassword !== valveSelectorPassword
+    ) {
         alert("Mauvais mot de passe");
         return;
     }
-    
+
     // Load fresh data from server
     const saisonInfo = await loadSaisonInfo();
     updateSeasonDialogUI(saisonInfo);
-    
-    const dialogId = type === 'start' ? 'debutSaisonDialog' : 'finSaisonDialog';
+
+    const dialogId = type === "start" ? "debutSaisonDialog" : "finSaisonDialog";
     const dialog = document.getElementById(dialogId);
     if (dialog) {
-        dialog.style.display = 'block';
+        dialog.style.display = "block";
     }
 }
 
 function hideSeasonDialog(type) {
-    const dialogId = type === 'start' ? 'debutSaisonDialog' : 'finSaisonDialog';
+    const dialogId = type === "start" ? "debutSaisonDialog" : "finSaisonDialog";
     const dialog = document.getElementById(dialogId);
     if (dialog) {
-        dialog.style.display = 'none';
+        dialog.style.display = "none";
     }
 }
 
@@ -1998,23 +2012,23 @@ async function recordSeasonTime(type, pump) {
 }
 
 // Close season dialogs when clicking outside
-window.addEventListener('click', function(event) {
-    const debutDialog = document.getElementById('debutSaisonDialog');
-    const finDialog = document.getElementById('finSaisonDialog');
-    
+window.addEventListener("click", function (event) {
+    const debutDialog = document.getElementById("debutSaisonDialog");
+    const finDialog = document.getElementById("finSaisonDialog");
+
     if (event.target === debutDialog) {
-        hideSeasonDialog('start');
+        hideSeasonDialog("start");
     }
     if (event.target === finDialog) {
-        hideSeasonDialog('end');
+        hideSeasonDialog("end");
     }
 });
 
 // Initialize season menu labels on load
 function initSeasonMenuLabels() {
     const year = new Date().getFullYear();
-    const menuDebut = document.getElementById('menuDebutSaison');
-    const menuFin = document.getElementById('menuFinSaison');
+    const menuDebut = document.getElementById("menuDebutSaison");
+    const menuFin = document.getElementById("menuFinSaison");
     if (menuDebut) menuDebut.textContent = `Début de saison ${year}`;
     if (menuFin) menuFin.textContent = `Fin de saison ${year}`;
 }
@@ -2024,96 +2038,103 @@ let analyseSaisonPasswordVerified = false;
 
 async function showAnalyseSaisonDialog() {
     // Check password first
-    const enteredPassword = prompt("Entrer le code pour accéder à l'analyse de saison", "");
-    if (!enteredPassword || !valveSelectorPassword || enteredPassword !== valveSelectorPassword) {
+    const enteredPassword = prompt(
+        "Entrer le code pour accéder à l'analyse de saison",
+        "",
+    );
+    if (
+        !enteredPassword ||
+        !valveSelectorPassword ||
+        enteredPassword !== valveSelectorPassword
+    ) {
         alert("Mauvais mot de passe");
         return;
     }
-    
+
     analyseSaisonPasswordVerified = true;
-    
+
     // Set default year to current year
-    const yearInput = document.getElementById('analyseSaisonYearInput');
+    const yearInput = document.getElementById("analyseSaisonYearInput");
     const currentYear = new Date().getFullYear();
     if (yearInput) {
         yearInput.value = currentYear;
     }
-    
+
     // Clear any previous error
-    const errorSpan = document.getElementById('analyseSaisonError');
+    const errorSpan = document.getElementById("analyseSaisonError");
     if (errorSpan) {
-        errorSpan.textContent = '';
+        errorSpan.textContent = "";
     }
-    
+
     // Enable the Ok button
-    const okBtn = document.getElementById('analyseSaisonOkBtn');
+    const okBtn = document.getElementById("analyseSaisonOkBtn");
     if (okBtn) {
         okBtn.disabled = false;
     }
-    
+
     // Remove invalid class
     if (yearInput) {
-        yearInput.classList.remove('invalid');
+        yearInput.classList.remove("invalid");
     }
-    
+
     // Show the dialog
-    const dialog = document.getElementById('analyseSaisonDialog');
+    const dialog = document.getElementById("analyseSaisonDialog");
     if (dialog) {
-        dialog.style.display = 'block';
+        dialog.style.display = "block";
     }
 }
 
 function hideAnalyseSaisonDialog() {
-    const dialog = document.getElementById('analyseSaisonDialog');
+    const dialog = document.getElementById("analyseSaisonDialog");
     if (dialog) {
-        dialog.style.display = 'none';
+        dialog.style.display = "none";
     }
     analyseSaisonPasswordVerified = false;
 }
 
 function validateAnalyseSaisonYear() {
-    const yearInput = document.getElementById('analyseSaisonYearInput');
-    const errorSpan = document.getElementById('analyseSaisonError');
-    const okBtn = document.getElementById('analyseSaisonOkBtn');
-    
+    const yearInput = document.getElementById("analyseSaisonYearInput");
+    const errorSpan = document.getElementById("analyseSaisonError");
+    const okBtn = document.getElementById("analyseSaisonOkBtn");
+
     if (!yearInput || !errorSpan || !okBtn) return false;
-    
+
     const yearValue = yearInput.value.trim();
     const year = parseInt(yearValue, 10);
     const currentYear = new Date().getFullYear();
-    
+
     // Validation rules
-    if (yearValue === '') {
-        errorSpan.textContent = 'L\'année est requise';
-        yearInput.classList.add('invalid');
+    if (yearValue === "") {
+        errorSpan.textContent = "L'année est requise";
+        yearInput.classList.add("invalid");
         okBtn.disabled = true;
         return false;
     }
-    
+
     if (isNaN(year)) {
-        errorSpan.textContent = 'Veuillez entrer une année valide';
-        yearInput.classList.add('invalid');
+        errorSpan.textContent = "Veuillez entrer une année valide";
+        yearInput.classList.add("invalid");
         okBtn.disabled = true;
         return false;
     }
-    
+
     if (year < 2022) {
-        errorSpan.textContent = 'L\'année doit être 2022 ou plus récente';
-        yearInput.classList.add('invalid');
+        errorSpan.textContent = "L'année doit être 2022 ou plus récente";
+        yearInput.classList.add("invalid");
         okBtn.disabled = true;
         return false;
     }
-    
+
     if (year > currentYear) {
         errorSpan.textContent = `L'année ne peut pas dépasser ${currentYear}`;
-        yearInput.classList.add('invalid');
+        yearInput.classList.add("invalid");
         okBtn.disabled = true;
         return false;
     }
-    
+
     // Valid year
-    errorSpan.textContent = '';
-    yearInput.classList.remove('invalid');
+    errorSpan.textContent = "";
+    yearInput.classList.remove("invalid");
     okBtn.disabled = false;
     return true;
 }
@@ -2124,14 +2145,14 @@ async function confirmAnalyseSaison() {
         hideAnalyseSaisonDialog();
         return;
     }
-    
+
     if (!validateAnalyseSaisonYear()) {
         return;
     }
-    
-    const yearInput = document.getElementById('analyseSaisonYearInput');
+
+    const yearInput = document.getElementById("analyseSaisonYearInput");
     const year = parseInt(yearInput.value, 10);
-    
+
     // Generate the analysis for the selected year
     await showAnalyseSaison(year);
 }
@@ -2140,38 +2161,44 @@ async function confirmAnalyseSaison() {
 async function showAnalyseSaison(year) {
     // Use provided year or default to current year
     const selectedYear = year || new Date().getFullYear();
-    
+
     // First check if SaisonInfo is ready
     try {
-        const checkResponse = await fetch(`/api/saison-info/check-ready?year=${selectedYear}`);
+        const checkResponse = await fetch(
+            `/api/saison-info/check-ready?year=${selectedYear}`,
+        );
         const checkResult = await checkResponse.json();
-        
+
         if (!checkResult.ready) {
-            alert(checkResult.error || "Les informations de saison ne sont pas prêtes pour l'analyse.");
+            alert(
+                checkResult.error ||
+                    "Les informations de saison ne sont pas prêtes pour l'analyse.",
+            );
             return;
         }
-        
+
         // Confirm generation
-        const confirmed = confirm(`Générer le sommaire de la saison ${selectedYear}?\n\nLe fichier TSV sera téléchargé automatiquement.`);
+        const confirmed = confirm(
+            `Générer le sommaire de la saison ${selectedYear}?\n\nLe fichier TSV sera téléchargé automatiquement.`,
+        );
         if (!confirmed) {
             return;
         }
-        
+
         // Hide the dialog after confirmation
         hideAnalyseSaisonDialog();
-        
+
         // Trigger the download
         window.location.href = `/api/generate-saison-analysis?year=${selectedYear}`;
-        
     } catch (error) {
-        console.error('Error generating season analysis:', error);
-        alert('Erreur lors de la génération de l\'analyse: ' + error.message);
+        console.error("Error generating season analysis:", error);
+        alert("Erreur lors de la génération de l'analyse: " + error.message);
     }
 }
 
 // Close analyse saison dialog when clicking outside
-window.addEventListener('click', function(event) {
-    const analyseDialog = document.getElementById('analyseSaisonDialog');
+window.addEventListener("click", function (event) {
+    const analyseDialog = document.getElementById("analyseSaisonDialog");
     if (event.target === analyseDialog) {
         hideAnalyseSaisonDialog();
     }
