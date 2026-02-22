@@ -235,6 +235,7 @@ exports.Dashboard = function (config, WebSocketClient) {
     var vacuumSensors = [];
     var pumps = [];
     var theOsmose = [];
+    var waterMeters = [];
     const pendingRequests = {};
 
     var dir = path.dirname(filename);
@@ -744,6 +745,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                 );
                 if (tank) {
                     Object.assign(tank, {
+                        isDatacer: true,
                         rawValue: data.rawValue,
                         depth: data.depth,
                         capacity: data.capacity,
@@ -772,15 +774,29 @@ exports.Dashboard = function (config, WebSocketClient) {
     function handleWaterEvent(device, event, evTopic, data) {
         switch (evTopic) {
             case "Volume":
-                // Log water volume data - no dashboard state storage needed for now
                 console.log(
                     "Water volume event from '%s': meter='%s', vol_since_reset=%s",
                     device.name,
                     data.name,
                     data.volume_since_reset,
                 );
-                // Water events are passed through for storage in ErabliExport
-                // No dashboard state update needed at this time
+                // Store water meter data for dashboard display
+                let meter = waterMeters.find(
+                    (m) => m.device === device.name && m.name === data.name,
+                );
+                if (meter) {
+                    Object.assign(meter, {
+                        volume_since_reset: data.volume_since_reset,
+                        lastUpdatedAt: event.published_at,
+                    });
+                } else {
+                    waterMeters.push({
+                        device: device.name,
+                        name: data.name,
+                        volume_since_reset: data.volume_since_reset,
+                        lastUpdatedAt: event.published_at,
+                    });
+                }
                 break;
             default:
                 console.warn(
@@ -1069,6 +1085,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             vacuums: vacuumSensors.map(extendVacuum),
             pumps: pumps.map(extendPump),
             osmose: theOsmose,
+            waterMeters: waterMeters,
             token: process.env.PARTICLE_TOKEN,
             valveSelectorPassword: process.env.VALVE_SELECTOR_PASSWORD,
         };
@@ -1076,8 +1093,10 @@ exports.Dashboard = function (config, WebSocketClient) {
 
     function extendTank(tank) {
         tank = _.extend({}, tank);
-        tank.capacity = tank.getCapacity();
-        tank.fill = tank.getFill();
+        if (!tank.isDatacer) {
+            tank.capacity = tank.getCapacity();
+            tank.fill = tank.getFill();
+        }
         return tank;
     }
 

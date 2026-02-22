@@ -69,6 +69,8 @@ let valves = [];
 let pumps = [];
 let vacuums = [];
 let osmose = [];
+let datacerTanks = [];
+let waterMeters = [];
 let couleeActive = false;
 let tempAge = 0;
 let valueRef = {};
@@ -1424,6 +1426,10 @@ function openSocket() {
                 vacuums = data.vacuums; // First list of vacuum devices devices
                 pumps = data.pumps;
                 osmose = data.osmose;
+                datacerTanks = data.tanks.filter(
+                    (t) => t.isDatacer === true,
+                );
+                waterMeters = data.waterMeters || [];
                 myToken = data.token;
                 valveSelectorPassword = data.valveSelectorPassword;
             });
@@ -1434,6 +1440,8 @@ function openSocket() {
             displayOsmose();
             displayVacuumErabliere();
             displayVacuumLignes();
+            displayDatacerTanks();
+            displayWaterMeters();
             toggleStatusColor();
         } catch (err) {
             console.error("Error processing WebSocket message:", err);
@@ -1581,6 +1589,87 @@ async function callFunction(devID, fname, fargument) {
 setTimeout(function () {
     window.location.reload(1);
 }, PAGE_RELOAD_INTERVAL_MS);
+
+function displayDatacerTanks() {
+    datacerTanks.forEach(function (tank) {
+        const tankElemId = `datacerTank_${tank.code}`;
+        const depthElemId = `${tankElemId}_depth`;
+        const fillElemId = `${tankElemId}_fill`;
+        const capacityElemId = `${tankElemId}_capacity`;
+        const updatedElemId = `${tankElemId}_lastUpdate`;
+
+        let tankElem = document.getElementById(tankElemId);
+        if (!tankElem) {
+            tankElem = document.createElement("tr");
+            tankElem.setAttribute("id", tankElemId);
+            document.getElementById("datacerTanklist").appendChild(tankElem);
+
+            createCell(null, "darker", tankElem).innerHTML = tank.code;
+            createCell(depthElemId, "lighter rawvalue", tankElem);
+            createCell(fillElemId, "lighter rawvalue", tankElem);
+            createCell(capacityElemId, "lighter rawvalue", tankElem);
+            createCell(updatedElemId, "lighter", tankElem);
+        }
+
+        const depthElem = document.getElementById(depthElemId);
+        const fillElem = document.getElementById(fillElemId);
+        const capacityElem = document.getElementById(capacityElemId);
+        const updatedElem = document.getElementById(updatedElemId);
+
+        if (tank.depth !== undefined) {
+            depthElem.innerHTML = Math.round(tank.depth);
+        }
+        if (tank.fill !== undefined && tank.fill !== null) {
+            fillElem.innerHTML = Math.round(tank.fill);
+        }
+        if (tank.capacity !== undefined) {
+            capacityElem.innerHTML = Math.round(tank.capacity);
+        }
+        if (tank.lastUpdatedAt) {
+            const ageInMinutes = Math.floor(
+                getMinutesAgo(new Date(tank.lastUpdatedAt)),
+            );
+            updatedElem.innerHTML =
+                ageInMinutes === 0 ? "now" : `${ageInMinutes} min.`;
+        }
+    });
+}
+
+function displayWaterMeters() {
+    waterMeters.forEach(function (meter) {
+        const meterElemId = `waterMeter_${meter.name}`;
+        const volumeElemId = `${meterElemId}_volume`;
+        const updatedElemId = `${meterElemId}_lastUpdate`;
+
+        let meterElem = document.getElementById(meterElemId);
+        if (!meterElem) {
+            meterElem = document.createElement("tr");
+            meterElem.setAttribute("id", meterElemId);
+            document
+                .getElementById("waterMeterlist")
+                .appendChild(meterElem);
+
+            createCell(null, "darker", meterElem).innerHTML = meter.name;
+            createCell(volumeElemId, "lighter rawvalue", meterElem);
+            createCell(updatedElemId, "lighter", meterElem);
+        }
+
+        const volumeElem = document.getElementById(volumeElemId);
+        const updatedElem = document.getElementById(updatedElemId);
+
+        if (meter.volume_since_reset !== undefined) {
+            volumeElem.innerHTML =
+                parseFloat(meter.volume_since_reset).toFixed(1);
+        }
+        if (meter.lastUpdatedAt) {
+            const ageInMinutes = Math.floor(
+                getMinutesAgo(new Date(meter.lastUpdatedAt)),
+            );
+            updatedElem.innerHTML =
+                ageInMinutes === 0 ? "now" : `${ageInMinutes} min.`;
+        }
+    });
+}
 
 function normalizeLabel(label) {
     return label.replace(/([A-Z])0*/, "$1");
