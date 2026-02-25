@@ -1245,7 +1245,9 @@ exports.Dashboard = function (config, WebSocketClient) {
     }
 
     function store() {
-        const dataString = JSON.stringify(getData(), null, 2);
+        const data = getData();
+        const { token, valveSelectorPassword, ...safeData } = data;
+        const dataString = JSON.stringify(safeData, null, 2);
         var events = eventsSinceStore;
         // console.log("Writing to %s after %d events.", filename, events);
         return writeFile(filename, dataString, "utf8")

@@ -1640,6 +1640,9 @@ function displayDatacerTanks() {
 }
 
 function displayWaterMeters() {
+    waterMeters.sort(function (a, b) {
+        return a.name.localeCompare(b.name, undefined, { numeric: true });
+    });
     waterMeters.forEach(function (meter) {
         const meterElemId = `waterMeter_${meter.name}`;
         const volumeElemId = `${meterElemId}_volume`;
