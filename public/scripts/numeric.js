@@ -72,6 +72,7 @@ let osmose = [];
 let datacerTanks = [];
 let waterMeters = [];
 let couleeActive = false;
+let couleeStartWaterVolumes = null;
 let tempAge = 0;
 let valueRef = {};
 let myToken;
@@ -1428,6 +1429,7 @@ function openSocket() {
                 osmose = data.osmose;
                 datacerTanks = data.tanks.filter((t) => t.isDatacer === true);
                 waterMeters = data.waterMeters || [];
+                couleeStartWaterVolumes = data.couleeStartWaterVolumes || null;
                 myToken = data.token;
                 valveSelectorPassword = data.valveSelectorPassword;
             });
@@ -1646,6 +1648,7 @@ function displayWaterMeters() {
     waterMeters.forEach(function (meter) {
         const meterElemId = `waterMeter_${meter.name}`;
         const volumeElemId = `${meterElemId}_volume`;
+        const couleeElemId = `${meterElemId}_coulee`;
         const updatedElemId = `${meterElemId}_lastUpdate`;
 
         let meterElem = document.getElementById(meterElemId);
@@ -1656,10 +1659,12 @@ function displayWaterMeters() {
 
             createCell(null, "darker", meterElem).innerHTML = meter.name;
             createCell(volumeElemId, "lighter rawvalue", meterElem);
+            createCell(couleeElemId, "lighter rawvalue", meterElem);
             createCell(updatedElemId, "lighter", meterElem);
         }
 
         const volumeElem = document.getElementById(volumeElemId);
+        const couleeElem = document.getElementById(couleeElemId);
         const updatedElem = document.getElementById(updatedElemId);
 
         if (meter.volume_since_reset !== undefined) {
@@ -1667,6 +1672,19 @@ function displayWaterMeters() {
                 1,
             );
         }
+
+        // Display volume accumulated during current coulée
+        if (couleeElem) {
+            if (couleeStartWaterVolumes && couleeStartWaterVolumes[meter.name] !== undefined) {
+                const startVol = couleeStartWaterVolumes[meter.name];
+                const currentVol = parseFloat(meter.volume_since_reset) || 0;
+                const delta = currentVol - startVol;
+                couleeElem.innerHTML = delta.toFixed(1);
+            } else {
+                couleeElem.innerHTML = "";
+            }
+        }
+
         if (meter.lastUpdatedAt) {
             const ageInMinutes = Math.floor(
                 getMinutesAgo(new Date(meter.lastUpdatedAt)),

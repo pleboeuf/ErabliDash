@@ -236,6 +236,7 @@ exports.Dashboard = function (config, WebSocketClient) {
     var pumps = [];
     var theOsmose = [];
     var waterMeters = [];
+    var couleeStartWaterVolumes = null;
     const pendingRequests = {};
 
     var dir = path.dirname(filename);
@@ -457,10 +458,19 @@ exports.Dashboard = function (config, WebSocketClient) {
             case "debutDeCoulee":
                 pump.couleeEnCour = true;
                 pump.debutDeCouleeTS = data.timestamp;
+                // Snapshot water meter readings at coulée start (first pump to start)
+                if (!couleeStartWaterVolumes) {
+                    couleeStartWaterVolumes = {};
+                    waterMeters.forEach(m => {
+                        couleeStartWaterVolumes[m.name] = parseFloat(m.volume_since_reset) || 0;
+                    });
+                }
                 if (pump.device === device.name) {
                     pump.duty = value / 1000;
                     pump.lastUpdatedAt = event.published_at;
                     event.object = extendPump(pump);
+                    // Attach current water meter readings for ErabliExport
+                    event.object.waterMeters = waterMeters.map(m => ({ ...m }));
                 }
                 break;
             case "finDeCoulee":
@@ -469,9 +479,15 @@ exports.Dashboard = function (config, WebSocketClient) {
                     pump.duty = value / 1000;
                     pump.lastUpdatedAt = event.published_at;
                     event.object = extendPump(pump);
+                    // Attach current water meter readings for ErabliExport
+                    event.object.waterMeters = waterMeters.map(m => ({ ...m }));
                 }
                 pump.duty = 0;
                 pump.volume = 0;
+                // Clear snapshot when no pump is still in coulée
+                if (!pumps.some(p => p.couleeEnCour)) {
+                    couleeStartWaterVolumes = null;
+                }
                 break;
             case "RunTimeSinceMaint": // Vacuum pump event
                 var sensor = getVacuumSensorOfDevice(device);
@@ -1086,6 +1102,7 @@ exports.Dashboard = function (config, WebSocketClient) {
             pumps: pumps.map(extendPump),
             osmose: theOsmose,
             waterMeters: waterMeters,
+            couleeStartWaterVolumes: couleeStartWaterVolumes,
             token: process.env.PARTICLE_TOKEN,
             valveSelectorPassword: process.env.VALVE_SELECTOR_PASSWORD,
         };
