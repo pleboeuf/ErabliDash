@@ -11,7 +11,7 @@
     "influxdb": {
         "host": "localhost",
         "port": 8086,
-        "database": "Test_2026",
+        "database": "Saison_2026",
         "schema": "influxDbSchema.json"
     },
     "devices": [
@@ -61,6 +61,24 @@
             "description": "Pompe a vide #3",
             "id": "POMPE PUMP HOUSE",
             "maxDelayMinutes": 5
+        },
+        {
+            "name": "COMPTEUR-EAU #1",
+            "id": "210",
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "name": "COMPTEUR-EAU #2",
+            "id": "226",
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "name": "COMPTEUR-EAU #3",
+            "id": "212",
+            "scaleFactor": 1.0,
+            "offset": 0
         },
         {
             "name": "EB-V1",
@@ -1522,19 +1540,19 @@
     "watercounter": [
         {
             "code": "210",
-            "device": "Flow1",
+            "device": "COMPTEUR-EAU #1",
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "code": "226",
+            "device": "COMPTEUR-EAU #2",
             "scaleFactor": 1.0,
             "offset": 0
         },
         {
             "code": "212",
-            "device": "Flow2",
-            "scaleFactor": 1.0,
-            "offset": 0
-        },
-        {
-            "code": "213",
-            "device": "Flow2",
+            "device": "COMPTEUR-EAU #3",
             "scaleFactor": 1.0,
             "offset": 0
         }
