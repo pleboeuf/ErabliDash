@@ -1683,19 +1683,22 @@ function displayWaterMeters() {
             const currentTime = new Date(meter.lastUpdatedAt).getTime();
             const prev = previousWaterMeterReadings[meter.name];
 
-            if (prev && currentTime > prev.time) {
+            if (prev && currentTime > prev.time && currentVol > prev.volume) {
                 const deltaVol = currentVol - prev.volume;
                 const deltaMinutes = (currentTime - prev.time) / 60000;
                 const flowRate = (deltaVol / deltaMinutes) * 60;
                 flowRateElem.innerHTML = flowRate.toFixed(1);
-            } else {
+                previousWaterMeterReadings[meter.name] = {
+                    volume: currentVol,
+                    time: currentTime,
+                };
+            } else if (!prev) {
                 flowRateElem.innerHTML = "";
+                previousWaterMeterReadings[meter.name] = {
+                    volume: currentVol,
+                    time: currentTime,
+                };
             }
-
-            previousWaterMeterReadings[meter.name] = {
-                volume: currentVol,
-                time: currentTime,
-            };
         }
 
         // Display volume accumulated during current coulée
