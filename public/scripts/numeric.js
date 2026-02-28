@@ -1707,6 +1707,44 @@ function displayWaterMeters() {
                 ageInMinutes === 0 ? "now" : `${ageInMinutes} min.`;
         }
     });
+
+    // Compute and display totals row
+    let totalVolume = 0;
+    let totalCoulee = 0;
+    let totalFlowRate = 0;
+    waterMeters.forEach(function (meter) {
+        totalVolume += parseFloat(meter.volume_since_reset) || 0;
+        if (meter.couleeStartVolume !== undefined) {
+            totalCoulee += (parseFloat(meter.volume_since_reset) || 0) - meter.couleeStartVolume;
+        }
+        if (meter.prevVolume !== undefined && meter.prevTime) {
+            const currentVol = parseFloat(meter.volume_since_reset);
+            const currentTime = new Date(meter.lastUpdatedAt).getTime();
+            const prevTime = new Date(meter.prevTime).getTime();
+            if (currentTime > prevTime && currentVol > meter.prevVolume) {
+                const deltaMinutes = (currentTime - prevTime) / 60000;
+                totalFlowRate += ((currentVol - meter.prevVolume) / deltaMinutes) * 60;
+            }
+        }
+    });
+
+    const totalsId = "waterMeter_totals";
+    let totalsElem = document.getElementById(totalsId);
+    if (!totalsElem) {
+        totalsElem = document.createElement("tr");
+        totalsElem.setAttribute("id", totalsId);
+        totalsElem.style.fontWeight = "bold";
+        document.getElementById("waterMeterlist").appendChild(totalsElem);
+        createCell(null, "darker", totalsElem).innerHTML = "Total";
+        createCell(`${totalsId}_volume`, "lighter rawvalue", totalsElem);
+        createCell(`${totalsId}_coulee`, "lighter rawvalue", totalsElem);
+        createCell(`${totalsId}_flowRate`, "lighter rawvalue", totalsElem);
+        createCell(`${totalsId}_spacer`, "lighter", totalsElem);
+    }
+    document.getElementById(`${totalsId}_volume`).innerHTML = totalVolume.toFixed(0);
+    const couleeCell = document.getElementById(`${totalsId}_coulee`);
+    couleeCell.innerHTML = waterMeters.some(m => m.couleeStartVolume !== undefined) ? totalCoulee.toFixed(1) : "";
+    document.getElementById(`${totalsId}_flowRate`).innerHTML = totalFlowRate > 0 ? totalFlowRate.toFixed(1) : "";
 }
 
 function normalizeLabel(label) {
