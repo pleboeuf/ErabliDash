@@ -464,6 +464,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                     waterMeters.forEach(m => {
                         couleeStartWaterVolumes[m.name] = parseFloat(m.volume_since_reset) || 0;
                     });
+                    store();
                 }
                 if (pump.device === device.name) {
                     pump.duty = value / 1000;
@@ -487,6 +488,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                 // Clear snapshot when no pump is still in coulée
                 if (!pumps.some(p => p.couleeEnCour)) {
                     couleeStartWaterVolumes = null;
+                    store();
                 }
                 break;
             case "RunTimeSinceMaint": // Vacuum pump event
@@ -1257,6 +1259,16 @@ exports.Dashboard = function (config, WebSocketClient) {
             );
             return _.extend(sensor, _.omit(sensorData, "code", "device"));
         });
+
+        if (data.waterMeters && Array.isArray(data.waterMeters)) {
+            waterMeters = data.waterMeters;
+            console.log("Loaded %d water meter(s) from stored data", waterMeters.length);
+        }
+
+        if (data.couleeStartWaterVolumes) {
+            couleeStartWaterVolumes = data.couleeStartWaterVolumes;
+            console.log("Loaded coulée start water volumes from stored data");
+        }
 
         return Promise.resolve();
     }
