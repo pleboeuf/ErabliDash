@@ -71,6 +71,7 @@ let vacuums = [];
 let osmose = [];
 let datacerTanks = [];
 let waterMeters = [];
+let previousWaterMeterReadings = {};
 let couleeActive = false;
 let couleeStartWaterVolumes = null;
 let tempAge = 0;
@@ -1648,6 +1649,7 @@ function displayWaterMeters() {
     waterMeters.forEach(function (meter) {
         const meterElemId = `waterMeter_${meter.name}`;
         const volumeElemId = `${meterElemId}_volume`;
+        const flowRateElemId = `${meterElemId}_flowRate`;
         const couleeElemId = `${meterElemId}_coulee`;
         const updatedElemId = `${meterElemId}_lastUpdate`;
 
@@ -1660,10 +1662,12 @@ function displayWaterMeters() {
             createCell(null, "darker", meterElem).innerHTML = meter.name;
             createCell(volumeElemId, "lighter rawvalue", meterElem);
             createCell(couleeElemId, "lighter rawvalue", meterElem);
+            createCell(flowRateElemId, "lighter rawvalue", meterElem);
             createCell(updatedElemId, "lighter", meterElem);
         }
 
         const volumeElem = document.getElementById(volumeElemId);
+        const flowRateElem = document.getElementById(flowRateElemId);
         const couleeElem = document.getElementById(couleeElemId);
         const updatedElem = document.getElementById(updatedElemId);
 
@@ -1671,6 +1675,27 @@ function displayWaterMeters() {
             volumeElem.innerHTML = parseFloat(meter.volume_since_reset).toFixed(
                 1,
             );
+        }
+
+        // Calculate and display flow rate (gal/hr)
+        if (flowRateElem && meter.volume_since_reset !== undefined && meter.lastUpdatedAt) {
+            const currentVol = parseFloat(meter.volume_since_reset);
+            const currentTime = new Date(meter.lastUpdatedAt).getTime();
+            const prev = previousWaterMeterReadings[meter.name];
+
+            if (prev && currentTime > prev.time) {
+                const deltaVol = currentVol - prev.volume;
+                const deltaMinutes = (currentTime - prev.time) / 60000;
+                const flowRate = (deltaVol / deltaMinutes) * 60;
+                flowRateElem.innerHTML = flowRate.toFixed(1);
+            } else {
+                flowRateElem.innerHTML = "";
+            }
+
+            previousWaterMeterReadings[meter.name] = {
+                volume: currentVol,
+                time: currentTime,
+            };
         }
 
         // Display volume accumulated during current coulée
