@@ -72,6 +72,8 @@ let vacuums = [];
 let osmose = [];
 let datacerTanks = [];
 let waterMeters = [];
+let waterMeterPrev = {}; // Local tracking for flow rate: { meterName: { volume, time } }
+let waterMeterFlowRates = {}; // Last computed flow rate per meter (gal/hr)
 let couleeActive = false;
 let tempAge = 0;
 let valueRef = {};
@@ -1684,16 +1686,24 @@ function displayWaterMeters() {
         }
 
         // Calculate and display flow rate (gal/hr)
-        if (flowRateElem && meter.prevVolume !== undefined && meter.prevTime) {
+        if (flowRateElem && meter.volume_since_reset !== undefined && meter.lastUpdatedAt) {
             const currentVol = parseFloat(meter.volume_since_reset);
             const currentTime = new Date(meter.lastUpdatedAt).getTime();
-            const prevTime = new Date(meter.prevTime).getTime();
+            const prev = waterMeterPrev[meter.name];
 
-            if (currentTime > prevTime && currentVol > meter.prevVolume) {
-                const deltaVol = currentVol - meter.prevVolume;
-                const deltaMinutes = (currentTime - prevTime) / 60000;
-                const flowRate = (deltaVol / deltaMinutes) * 60;
-                flowRateElem.innerHTML = flowRate.toFixed(1);
+            if (prev && currentVol > prev.volume) {
+                const deltaVol = currentVol - prev.volume;
+                const deltaMinutes = (currentTime - prev.time) / 60000;
+                if (deltaMinutes > 0) {
+                    const flowRate = (deltaVol / deltaMinutes) * 60;
+                    flowRateElem.innerHTML = flowRate.toFixed(1);
+                    waterMeterFlowRates[meter.name] = flowRate;
+                }
+                // Update only when volume has increased
+                waterMeterPrev[meter.name] = { volume: currentVol, time: currentTime };
+            } else if (!prev) {
+                // Initialize tracking on first reading
+                waterMeterPrev[meter.name] = { volume: currentVol, time: currentTime };
             }
         }
 
@@ -1728,16 +1738,7 @@ function displayWaterMeters() {
                 (parseFloat(meter.volume_since_reset) || 0) -
                 meter.couleeStartVolume;
         }
-        if (meter.prevVolume !== undefined && meter.prevTime) {
-            const currentVol = parseFloat(meter.volume_since_reset);
-            const currentTime = new Date(meter.lastUpdatedAt).getTime();
-            const prevTime = new Date(meter.prevTime).getTime();
-            if (currentTime > prevTime && currentVol > meter.prevVolume) {
-                const deltaMinutes = (currentTime - prevTime) / 60000;
-                totalFlowRate +=
-                    ((currentVol - meter.prevVolume) / deltaMinutes) * 60;
-            }
-        }
+        totalFlowRate += waterMeterFlowRates[meter.name] || 0;
     });
 
     const totalsId = "waterMeter_totals";
