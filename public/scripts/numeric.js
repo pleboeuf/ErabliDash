@@ -71,9 +71,7 @@ let vacuums = [];
 let osmose = [];
 let datacerTanks = [];
 let waterMeters = [];
-let previousWaterMeterReadings = {};
 let couleeActive = false;
-let couleeStartWaterVolumes = null;
 let tempAge = 0;
 let valueRef = {};
 let myToken;
@@ -1430,7 +1428,6 @@ function openSocket() {
                 osmose = data.osmose;
                 datacerTanks = data.tanks.filter((t) => t.isDatacer === true);
                 waterMeters = data.waterMeters || [];
-                couleeStartWaterVolumes = data.couleeStartWaterVolumes || null;
                 myToken = data.token;
                 valveSelectorPassword = data.valveSelectorPassword;
             });
@@ -1678,35 +1675,24 @@ function displayWaterMeters() {
         }
 
         // Calculate and display flow rate (gal/hr)
-        if (flowRateElem && meter.volume_since_reset !== undefined && meter.lastUpdatedAt) {
+        if (flowRateElem && meter.prevVolume !== undefined && meter.prevTime) {
             const currentVol = parseFloat(meter.volume_since_reset);
             const currentTime = new Date(meter.lastUpdatedAt).getTime();
-            const prev = previousWaterMeterReadings[meter.name];
+            const prevTime = new Date(meter.prevTime).getTime();
 
-            if (prev && currentTime > prev.time && currentVol > prev.volume) {
-                const deltaVol = currentVol - prev.volume;
-                const deltaMinutes = (currentTime - prev.time) / 60000;
+            if (currentTime > prevTime && currentVol > meter.prevVolume) {
+                const deltaVol = currentVol - meter.prevVolume;
+                const deltaMinutes = (currentTime - prevTime) / 60000;
                 const flowRate = (deltaVol / deltaMinutes) * 60;
                 flowRateElem.innerHTML = flowRate.toFixed(1);
-                previousWaterMeterReadings[meter.name] = {
-                    volume: currentVol,
-                    time: currentTime,
-                };
-            } else if (!prev) {
-                flowRateElem.innerHTML = "";
-                previousWaterMeterReadings[meter.name] = {
-                    volume: currentVol,
-                    time: currentTime,
-                };
             }
         }
 
         // Display volume accumulated during current coulée
         if (couleeElem) {
-            if (couleeStartWaterVolumes && couleeStartWaterVolumes[meter.name] !== undefined) {
-                const startVol = couleeStartWaterVolumes[meter.name];
+            if (meter.couleeStartVolume !== undefined) {
                 const currentVol = parseFloat(meter.volume_since_reset) || 0;
-                const delta = currentVol - startVol;
+                const delta = currentVol - meter.couleeStartVolume;
                 couleeElem.innerHTML = delta.toFixed(1);
             } else {
                 couleeElem.innerHTML = "";

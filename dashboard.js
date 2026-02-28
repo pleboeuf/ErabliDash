@@ -236,7 +236,6 @@ exports.Dashboard = function (config, WebSocketClient) {
     var pumps = [];
     var theOsmose = [];
     var waterMeters = [];
-    var couleeStartWaterVolumes = null;
     const pendingRequests = {};
 
     var dir = path.dirname(filename);
@@ -459,10 +458,9 @@ exports.Dashboard = function (config, WebSocketClient) {
                 pump.couleeEnCour = true;
                 pump.debutDeCouleeTS = data.timestamp;
                 // Snapshot water meter readings at coulée start (first pump to start)
-                if (!couleeStartWaterVolumes) {
-                    couleeStartWaterVolumes = {};
+                if (!waterMeters.some(m => m.couleeStartVolume !== undefined)) {
                     waterMeters.forEach(m => {
-                        couleeStartWaterVolumes[m.name] = parseFloat(m.volume_since_reset) || 0;
+                        m.couleeStartVolume = parseFloat(m.volume_since_reset) || 0;
                     });
                     store();
                 }
@@ -487,7 +485,9 @@ exports.Dashboard = function (config, WebSocketClient) {
                 pump.volume = 0;
                 // Clear snapshot when no pump is still in coulée
                 if (!pumps.some(p => p.couleeEnCour)) {
-                    couleeStartWaterVolumes = null;
+                    waterMeters.forEach(m => {
+                        delete m.couleeStartVolume;
+                    });
                     store();
                 }
                 break;
@@ -803,6 +803,9 @@ exports.Dashboard = function (config, WebSocketClient) {
                     (m) => m.device === device.name && m.name === data.name,
                 );
                 if (meter) {
+                    // Save previous reading for flow rate calculation
+                    meter.prevVolume = parseFloat(meter.volume_since_reset) || 0;
+                    meter.prevTime = meter.lastUpdatedAt;
                     Object.assign(meter, {
                         volume_since_reset: data.volume_since_reset,
                         lastUpdatedAt: event.published_at,
@@ -1104,7 +1107,6 @@ exports.Dashboard = function (config, WebSocketClient) {
             pumps: pumps.map(extendPump),
             osmose: theOsmose,
             waterMeters: waterMeters,
-            couleeStartWaterVolumes: couleeStartWaterVolumes,
             token: process.env.PARTICLE_TOKEN,
             valveSelectorPassword: process.env.VALVE_SELECTOR_PASSWORD,
         };
@@ -1263,11 +1265,6 @@ exports.Dashboard = function (config, WebSocketClient) {
         if (data.waterMeters && Array.isArray(data.waterMeters)) {
             waterMeters = data.waterMeters;
             console.log("Loaded %d water meter(s) from stored data", waterMeters.length);
-        }
-
-        if (data.couleeStartWaterVolumes) {
-            couleeStartWaterVolumes = data.couleeStartWaterVolumes;
-            console.log("Loaded coulée start water volumes from stored data");
         }
 
         return Promise.resolve();

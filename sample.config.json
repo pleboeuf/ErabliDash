@@ -64,19 +64,19 @@
         },
         {
             "name": "COMPTEUR-EAU #1",
-            "id": "210",
+            "id": "DATACER-WATER-210",
             "scaleFactor": 1.0,
             "offset": 0
         },
         {
             "name": "COMPTEUR-EAU #2",
-            "id": "226",
+            "id": "DATACER-WATER-226",
             "scaleFactor": 1.0,
             "offset": 0
         },
         {
             "name": "COMPTEUR-EAU #3",
-            "id": "212",
+            "id": "DATACER-WATER-212",
             "scaleFactor": 1.0,
             "offset": 0
         },
