@@ -14,6 +14,7 @@ let valveSelectorPassword = null; // Will be loaded from server
 // Constants
 const LITERS_PER_GALLON = 4.54609188;
 const DISPLAY_DEVICES_INTERVAL_MS = 10000;
+const WEATHER_FETCH_INTERVAL_MS = 600000; // 10 minutes
 const MAXIMUM_AGE_MINUTES = 5;
 const WEBSOCKET_RECONNECT_DELAY_MS = 5000;
 const PAGE_RELOAD_INTERVAL_MS = 3600000; // 1 hour
@@ -2295,5 +2296,26 @@ window.addEventListener("click", function (event) {
     }
 });
 
+// Fetch temperature from Environment Canada via server proxy
+async function fetchWeatherTemperature() {
+    try {
+        const response = await fetch("/api/weather");
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        const tempEl = document.getElementById("ecTemperature");
+        if (tempEl && data.temperature != null) {
+            const temp = parseFloat(data.temperature);
+            tempEl.textContent = `${temp.toFixed(1)} °C`;
+            tempEl.title = `Env. Canada (${data.station}) – ${data.timestamp}`;
+        }
+    } catch (err) {
+        console.error("Error fetching EC weather:", err);
+    }
+}
+
 window.addEventListener("load", onLoad, false);
 window.addEventListener("load", initSeasonMenuLabels, false);
+window.addEventListener("load", function () {
+    fetchWeatherTemperature();
+    setInterval(fetchWeatherTemperature, WEATHER_FETCH_INTERVAL_MS);
+}, false);

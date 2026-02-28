@@ -65,6 +65,32 @@ app.get("/api/vacuum", async (req, res) => {
     }
 });
 
+// Weather proxy - Environment Canada
+app.get("/api/weather", async (req, res) => {
+    try {
+        const externalResponse = await fetch(
+            "https://weather.gc.ca/api/app/fr/Location/45.29561,-72.69564"
+        );
+        if (!externalResponse.ok) {
+            throw new Error(`HTTP error! status: ${externalResponse.status}`);
+        }
+        const data = await externalResponse.json();
+        const observation = data[0] && data[0].observation;
+        if (observation && observation.temperature) {
+            res.json({
+                temperature: observation.temperature.metricUnrounded,
+                station: observation.observedAt,
+                timestamp: observation.timeStampText,
+            });
+        } else {
+            res.status(502).json({ error: "No observation data available" });
+        }
+    } catch (error) {
+        console.error("Error fetching weather from Environment Canada:", error);
+        res.status(500).json({ error: "Error fetching weather data" });
+    }
+});
+
 // InfluxDB client for SaisonInfo
 function getInfluxClient(database) {
     return new Influx.InfluxDB({
