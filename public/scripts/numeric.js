@@ -1673,6 +1673,14 @@ function displayWaterMeters() {
                 1,
             );
         }
+        if (
+            meter.couleeStartVolume !== undefined &&
+            meter.couleeStartVolume !== null
+        ) {
+            couleeElem.innerHTML = (
+                parseFloat(meter.volume_since_reset) - meter.couleeStartVolume
+            ).toFixed(1);
+        }
 
         // Calculate and display flow rate (gal/hr)
         if (flowRateElem && meter.prevVolume !== undefined && meter.prevTime) {
@@ -1715,7 +1723,9 @@ function displayWaterMeters() {
     waterMeters.forEach(function (meter) {
         totalVolume += parseFloat(meter.volume_since_reset) || 0;
         if (meter.couleeStartVolume !== undefined) {
-            totalCoulee += (parseFloat(meter.volume_since_reset) || 0) - meter.couleeStartVolume;
+            totalCoulee +=
+                (parseFloat(meter.volume_since_reset) || 0) -
+                meter.couleeStartVolume;
         }
         if (meter.prevVolume !== undefined && meter.prevTime) {
             const currentVol = parseFloat(meter.volume_since_reset);
@@ -1723,7 +1733,8 @@ function displayWaterMeters() {
             const prevTime = new Date(meter.prevTime).getTime();
             if (currentTime > prevTime && currentVol > meter.prevVolume) {
                 const deltaMinutes = (currentTime - prevTime) / 60000;
-                totalFlowRate += ((currentVol - meter.prevVolume) / deltaMinutes) * 60;
+                totalFlowRate +=
+                    ((currentVol - meter.prevVolume) / deltaMinutes) * 60;
             }
         }
     });
@@ -1741,10 +1752,17 @@ function displayWaterMeters() {
         createCell(`${totalsId}_flowRate`, "lighter rawvalue", totalsElem);
         createCell(`${totalsId}_spacer`, "lighter", totalsElem);
     }
-    document.getElementById(`${totalsId}_volume`).innerHTML = totalVolume.toFixed(0);
+    document.getElementById(`${totalsId}_volume`).innerHTML =
+        totalVolume.toFixed(0);
     const couleeCell = document.getElementById(`${totalsId}_coulee`);
-    couleeCell.innerHTML = waterMeters.some(m => m.couleeStartVolume !== undefined) ? totalCoulee.toFixed(1) : "";
-    document.getElementById(`${totalsId}_flowRate`).innerHTML = totalFlowRate > 0 ? totalFlowRate.toFixed(1) : "";
+    couleeCell.innerHTML = waterMeters.some(
+        (m) => m.couleeStartVolume !== undefined,
+    )
+        ? totalCoulee.toFixed(0)
+        : "";
+    document.getElementById(`${totalsId}_flowRate`).innerHTML =
+        // totalFlowRate > 0 ? totalFlowRate.toFixed(1) : "";
+        totalFlowRate.toFixed(0);
 }
 
 function normalizeLabel(label) {
