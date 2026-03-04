@@ -56,6 +56,13 @@
             "maxDelayMinutes": 5
         },
         {
+            "name": "CABANE A CLAUDE 2",
+            "label": "CABANE A CLAUDE 2",
+            "description": "Vacuum relâcheur #2",
+            "id": "CABANE A CLAUDE 2",
+            "maxDelayMinutes": 5
+        },
+        {
             "name": "POMPE PUMP HOUSE",
             "label": "POMPE PUMP HOUSE",
             "description": "Pompe a vide #3",
@@ -825,6 +832,13 @@
             "device": "POMPE PUMP HOUSE",
             "offset": 0,
             "ref": "PV3"
+        },
+        {
+            "code": "Vac3-controle station cabane a claude",
+            "label": "C à Claude",
+            "device": "CABANE A CLAUDE 2",
+            "offset": 0,
+            "ref": "PV2"
         },
         {
             "code": "A1",

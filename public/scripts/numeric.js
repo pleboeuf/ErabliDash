@@ -1624,7 +1624,9 @@ function displayDatacerTanks() {
             depthElem.innerHTML = Math.round(tank.depth);
         }
         if (tank.fill !== undefined && tank.fill !== null) {
-            fillElem.innerHTML = Math.round(tank.fill);
+            // fillElem.innerHTML = Math.round(tank.fill);
+            const fillValue = (tank.capacity * tank.rawValue) / tank.depth;
+            fillElem.innerHTML = fillValue.toFixed(0);
         }
         if (tank.rawValue !== undefined) {
             rawValueElem.innerHTML = tank.rawValue.toFixed(2);
@@ -1686,7 +1688,11 @@ function displayWaterMeters() {
         }
 
         // Calculate and display flow rate (gal/hr)
-        if (flowRateElem && meter.volume_since_reset !== undefined && meter.lastUpdatedAt) {
+        if (
+            flowRateElem &&
+            meter.volume_since_reset !== undefined &&
+            meter.lastUpdatedAt
+        ) {
             const currentVol = parseFloat(meter.volume_since_reset);
             const currentTime = new Date(meter.lastUpdatedAt).getTime();
             const prev = waterMeterPrev[meter.name];
@@ -1700,10 +1706,16 @@ function displayWaterMeters() {
                     waterMeterFlowRates[meter.name] = flowRate;
                 }
                 // Update only when volume has increased
-                waterMeterPrev[meter.name] = { volume: currentVol, time: currentTime };
+                waterMeterPrev[meter.name] = {
+                    volume: currentVol,
+                    time: currentTime,
+                };
             } else if (!prev) {
                 // Initialize tracking on first reading
-                waterMeterPrev[meter.name] = { volume: currentVol, time: currentTime };
+                waterMeterPrev[meter.name] = {
+                    volume: currentVol,
+                    time: currentTime,
+                };
             }
         }
 
@@ -2316,7 +2328,11 @@ async function fetchWeatherTemperature() {
 
 window.addEventListener("load", onLoad, false);
 window.addEventListener("load", initSeasonMenuLabels, false);
-window.addEventListener("load", function () {
-    fetchWeatherTemperature();
-    setInterval(fetchWeatherTemperature, WEATHER_FETCH_INTERVAL_MS);
-}, false);
+window.addEventListener(
+    "load",
+    function () {
+        fetchWeatherTemperature();
+        setInterval(fetchWeatherTemperature, WEATHER_FETCH_INTERVAL_MS);
+    },
+    false,
+);
