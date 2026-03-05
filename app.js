@@ -42,6 +42,10 @@ app.get("/cabaneMap2026/mapbox-config.js", (req, res) => {
     res.type("application/javascript");
     res.send(`var MAPBOX_TOKEN = "${process.env.MAPBOX_TOKEN}";`);
 });
+app.get("/cabaneMapNew/mapbox-config.js", (req, res) => {
+    res.type("application/javascript");
+    res.send(`var MAPBOX_TOKEN = "${process.env.MAPBOX_TOKEN}";`);
+});
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use(

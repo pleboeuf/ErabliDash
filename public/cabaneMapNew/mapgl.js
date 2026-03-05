@@ -4,8 +4,7 @@
  * and open the template in the editor.
  */
 
-var TOKEN =
-    "pk.eyJ1IjoiZ2Fnbm9uYW5kcmUiLCJhIjoiY2p0OHBkcnV0MDd3aTQzcXpwbnFwc2FubyJ9.gGJ8Sk-9g0jIG8BjX2YLbQ";
+var TOKEN = MAPBOX_TOKEN;
 var DebugON = false;
 
 var MAXDELAI = 60 * 25 * 1000; // 25 min en millisecdelai avant de déclarer un device en panne
@@ -150,8 +149,8 @@ function openSocket() {
 function wsUri(path) {
     var l = window.location;
 
-    //   return "ws://boilerhouse.ddns.net:3300/" + l.pathname + path;
-    return "ws://pl-net.ddns.net:3300/" + l.pathname + path;
+    // return "ws://boilerhouse.ddns.net:3300/" + l.pathname + path;
+    return "ws://localhost:3300/" + l.pathname + path;
     return (
         (l.protocol === "https:" ? "wss://" : "ws://") +
         l.hostname +
@@ -256,7 +255,7 @@ function LV(nom) {
                             " lect " +
                             dateToHour(datelecture) +
                             " " +
-                            datelecture
+                            datelecture,
                     );
                 this.online = true;
                 this.vacuum = vacuum;
@@ -311,7 +310,7 @@ function LV(nom) {
             this.lines,
             this.color,
             0,
-            this.datelecture
+            this.datelecture,
         );
         plotgeoJson(this.nom, geoline, true);
     };
@@ -322,7 +321,7 @@ function LV(nom) {
         plotgeoJson(this.nomVacuum, geoline, false);
         if (DebugON)
             console.log(
-                "traceVac " + [this.nomVacuum, 0, this.ptVac].join(" ")
+                "traceVac " + [this.nomVacuum, 0, this.ptVac].join(" "),
             );
     };
     this.traceTemp = function (nomT, pt) {
@@ -335,7 +334,7 @@ function LV(nom) {
             this.nomTemperature,
             99,
             d,
-            this.ptTemp
+            this.ptTemp,
         );
         plotgeoJson(this.nomTemperature, geoline, false);
         if (DebugON)
@@ -346,7 +345,7 @@ function LV(nom) {
                         this.temperature,
                         Date.now(),
                         this.pTemp,
-                    ].join(" ")
+                    ].join(" "),
             );
     };
 
@@ -383,7 +382,7 @@ function LV(nom) {
             this.vacuum,
             this.datelecture,
             this.lines,
-            this.color
+            this.color,
         );
     };
     this.changeMarqueur = function () {
@@ -398,7 +397,7 @@ function LV(nom) {
                 this.nomTemperature,
                 this.temperature,
                 this.datelecture,
-                this.ptTemp
+                this.ptTemp,
             );
         }
         //        createMarqueurVacuum(this.nom, this.ptVac, this.vacuum);
@@ -448,7 +447,6 @@ function nomT(str) {
     var no = myFixed(b + (h - b) / 2, 0);
     return l + no;
 }
-
 
 //
 //mapbox related function
@@ -590,7 +588,7 @@ function myFixed(val, prec) {
                 console.log(
                     arguments.callee.caller.toString(),
                     " a passé une mauvaise val de temp ou vac ",
-                    val
+                    val,
                 );
             return val;
         }
@@ -698,7 +696,10 @@ function plotgeoJson(nom, geoline, click) {
         map.addLayer(geoline);
         if (DebugON)
             console.log(
-                "plotgeo " + nom + " " + map.getSource(nom)._data.properties.nom
+                "plotgeo " +
+                    nom +
+                    " " +
+                    map.getSource(nom)._data.properties.nom,
             );
         if (click) addClick(nom);
     });
@@ -735,15 +736,14 @@ function initMap() {
     var latitude = mingeo[0] + (maxgeo[0] - mingeo[0]) / 2.0;
     var longitude = mingeo[1] + (maxgeo[1] - mingeo[1]) / 2.0;
     //   map.setView(new L.LatLng(51.3, 0.7),9);
-    var TOKEN =
-        "pk.eyJ1IjoiZ2Fnbm9uYW5kcmUiLCJhIjoiY2p0OHBkcnV0MDd3aTQzcXpwbnFwc2FubyJ9.gGJ8Sk-9g0jIG8BjX2YLbQ";
+    var TOKEN = MAPBOX_TOKEN;
 
     var clon = -72.69542;
     var clat = 45.28986;
     mapboxgl.accessToken = TOKEN;
     // hack pour avoir Rich Text ???
     mapboxgl.setRTLTextPlugin(
-        "https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.0/mapbox-gl-rtl-text.js"
+        "https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-rtl-text/v0.2.0/mapbox-gl-rtl-text.js",
     );
 
     map = new mapboxgl.Map({
@@ -766,7 +766,7 @@ function initMap() {
                     enableHighAccuracy: false,
                 },
                 trackUserLocation: true,
-            })
+            }),
         );
     }
     // disable map rotation using right click + drag
