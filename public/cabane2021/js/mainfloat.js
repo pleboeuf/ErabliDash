@@ -76,7 +76,7 @@ function spin() {
             change_brix();
             if (DebugON)
                 console.log(
-                    "Triggered after a spin." + $(this).spinner("value")
+                    "Triggered after a spin." + $(this).spinner("value"),
                 );
         },
     });
@@ -95,7 +95,7 @@ function spin2() {
             total_reservoir($(this).spinner("value"));
             if (DebugON)
                 console.log(
-                    "Triggered after a spin." + $(this).spinner("value")
+                    "Triggered after a spin." + $(this).spinner("value"),
                 );
         },
     });
@@ -120,7 +120,7 @@ function total_reservoir(brix) {
     var txt = creerTitreDiv(
         volume_total + "g seve",
         sirop_total + "g sirop",
-        false
+        false,
     );
     $("#texteSeve").html(txt);
 }
@@ -188,7 +188,7 @@ function demarre(draw) {
                 myNumber(value.gsx$dimy.$t),
                 value.gsx$couleur.$t,
                 value.gsx$etat.$t,
-                value.gsx$animation.$t
+                value.gsx$animation.$t,
             );
         });
         dessine(draw, myComposantes);
@@ -277,7 +277,7 @@ function updatedash(data) {
     if (data.devices.length > 0) scandevices(data.devices);
     if (data.pumps.length > 0) scanpumps(data.pumps);
     if (data.tanks.length > 0) scantanks(data.tanks);
-    if (data.vacuum.length > 0) scanvacuum(data.vacuum);
+    if (data.vacuums.length > 0) scanvacuum(data.vacuums);
     if (data.valves.length > 0) scanvalve(data.valves);
     if (data.osmose.length > 0) scanosmose(data.osmose);
     updateOsmoseDernMAJ(data.osmose); /// patch pour mettre a jour dern  maj
@@ -408,7 +408,7 @@ function coulee() {
             "</a>  lect " +
             heure_lecture +
             "<br>" +
-            coulee
+            coulee,
     ); // met a jour le boutton Pression_temperature dans html
     if (DebugON) console.log("hr " + n + " lect " + heure_lecture);
 } // fin coulee
@@ -423,7 +423,7 @@ function scanvacuum(arr) {
     arr.forEach(function (no, i) {
         var nom = no["code"];
         var val = ((no["rawValue"] - no["offset"]) * facteurCorrection).toFixed(
-            1
+            1,
         );
         if (DebugON) console.log("vacuum " + nom + " " + val);
         if (u[nom]) u[nom].changeValeur(val);
@@ -439,7 +439,7 @@ function scandevices(arr) {
                 "devices " +
                     no["name"] +
                     " lastupdatedat " +
-                    Date.parse(no["lastUpdatedAt"])
+                    Date.parse(no["lastUpdatedAt"]),
             );
     });
 }
@@ -481,7 +481,7 @@ function scanpumps(arr) {
                 no["state"],
                 no["capacity_gph"],
                 no["duty"],
-                no["volume"]
+                no["volume"],
             );
             if (no["couleeEnCour"] === true) p[nom].coulee = true;
             p[nom].gph = no["capacity_gph"] * no["duty"];
@@ -497,7 +497,7 @@ function gdc() {
     var debittotal = p["P1"].gph + p["P2"].gph + p["P3"].gph;
 
     $("#Total_gallons").html(
-        gallonstotal.toFixed(0) + " g<br>" + debittotal.toFixed(0) + " gph"
+        gallonstotal.toFixed(0) + " g<br>" + debittotal.toFixed(0) + " gph",
     ); // met a jour le boutton Pression_temperature dans html
 
     if (p["P1"].coulee || p["P2"].coulee || p["P3"].coulee) {
@@ -517,7 +517,7 @@ function gdc() {
             "</a>  lect " +
             heure_lecture +
             "<br>" +
-            coulee
+            coulee,
     ); // met a jour le boutton Pression_temperature dans html
     //    $('#Heure_coulee').html("hr " + n + " lect " + heure_lecture + "<br>" + coulee);   // met a jour le boutton Pression_temperature dans html
     if (DebugON) console.log("hr " + n + " lect " + heure_lecture);
@@ -657,7 +657,7 @@ function scanosmose(arr) {
     osmose.TempsSeq1234 = secToLocalTimeString(osmose.TempsSeq1234);
     osmose.TempsSeq4321 = secToLocalTimeString(osmose.TempsSeq4321);
     osmose.TempsDepuisLavageHHMM = secToLocalTimeString(
-        osmose.TempsDepuisLavage
+        osmose.TempsDepuisLavage,
     );
     //  osmose.startStopTime = secToLocalTimeString(osmose.startStopTime);
     //osmose.runTimeSec=  secToLocalTimeString( osmose.runTimeSec);
@@ -859,7 +859,7 @@ function scantanks(arr) {
             r[nom].changepourcent(
                 (no["fill"] / no["capacity"]) * 100,
                 no["fill"] * litreToGalImp,
-                date_lecture
+                date_lecture,
             );
     });
     //    return(heure_lecture);
@@ -883,7 +883,7 @@ function outputPression(station) {
                 " > " +
                 MyDelayMeteo +
                 " " +
-                (Date.now() - mytime > MyDelayMeteo)
+                (Date.now() - mytime > MyDelayMeteo),
         );
 }
 //
@@ -920,7 +920,7 @@ function calcule(station) {
                     +ebuSiropF.toFixed(1) +
                     " oF ";
                 $("#Pression_temperature").html(resultat2); // met a jour le boutton Pression_temperature dans html
-            })
+            }),
         );
     } catch (err) {
         console.log(" erreur meteostation");
@@ -946,7 +946,7 @@ function oldcalcule(station) {
                 var pressure_trend =
                     parsed_json["current_observation"]["pressure_trend"];
                 var pressure_mb = Number(
-                    parsed_json["current_observation"]["pressure_mb"]
+                    parsed_json["current_observation"]["pressure_mb"],
                 );
                 if (pressure_trend === "+") tendance = UPWARDS_ARROW;
                 if (pressure_trend === "-") tendance = DOWNWARDS_ARROW;
@@ -1001,7 +1001,7 @@ function gros_calcule(station) {
                 var pressure_trend =
                     parsed_json["current_observation"]["pressure_trend"];
                 var pressure_mb = Number(
-                    parsed_json["current_observation"]["pressure_mb"]
+                    parsed_json["current_observation"]["pressure_mb"],
                 );
                 if (pressure_trend === "+") tendance = UPWARDS_ARROW;
                 if (pressure_trend === "-") tendance = DOWNWARDS_ARROW;
@@ -1153,7 +1153,7 @@ function dessine(draw, myComposantes) {
                     myComposantes[key].dimx,
                     myComposantes[key].x,
                     myComposantes[key].y,
-                    myComposantes[key].couleur
+                    myComposantes[key].couleur,
                 );
                 break;
             case "V":
@@ -1166,7 +1166,7 @@ function dessine(draw, myComposantes) {
                     myComposantes[key].etat,
                     myComposantes[key].dimx,
                     myComposantes[key].dimy,
-                    myComposantes[key].anim
+                    myComposantes[key].anim,
                 );
                 break;
 
@@ -1177,7 +1177,7 @@ function dessine(draw, myComposantes) {
                     myComposantes[key].dimx,
                     myComposantes[key].x,
                     myComposantes[key].y,
-                    myComposantes[key].couleur
+                    myComposantes[key].couleur,
                 );
                 break;
             case "U":
@@ -1185,7 +1185,7 @@ function dessine(draw, myComposantes) {
                     draw,
                     key,
                     myComposantes[key].x,
-                    myComposantes[key].y
+                    myComposantes[key].y,
                 );
                 break;
         }
@@ -1397,7 +1397,7 @@ function Pompe(draw, nom, diam, x, y, couleur) {
                         (capacity * duty).toFixed(0) +
                         " g/h\n" +
                         volume.toFixed(0) +
-                        " g"
+                        " g",
                 )
                 .font(MarioLaPolice)
                 .cx(this.x)
@@ -1672,7 +1672,7 @@ function Reservoir(draw, nom, diam, x, y, couleur) {
             this.y,
             (this.diam - strokeWidth) / 2,
             180 - arc / 2.0,
-            180 + arc / 2.0
+            180 + arc / 2.0,
         );
         //  var offset = parseFloat(desc.split(' ')[10])/2;
         //   if (DebugON) console.log( offset + " " +pourcent+ " pourcent " + describeArc(this.diam/2, this.diam/2, this.diam/2, 180-arc/2.0, 180+arc/2.0));
