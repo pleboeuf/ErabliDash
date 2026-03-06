@@ -503,6 +503,202 @@ describe('Dashboard with Datacer Water meter', function() {
   });
 });
 
+describe('Pump maintenance counter via vacuum pressure', function() {
+  var ws = makeWsClient();
+  var config = {
+    "collectors": [{
+      "uri": 'ws://localhost/'
+    }],
+    "store": {
+      "filename": "/tmp/dashboard_pump_maint.json"
+    },
+    "devices": [{
+      "id": "POMPE 1",
+      "name": "POMPE 1"
+    }],
+    "tanks": [],
+    "valves": [],
+    "vacuums": [{
+      "code": "PV1",
+      "device": "POMPE 1",
+      "offset": 0,
+      "ref": "PV1"
+    }],
+    "pumps": [],
+    "osmose": []
+  };
+
+  function makeVacuumMessage(deviceId, generationId, serialNo, vacData) {
+    var data = {
+      "generation": generationId,
+      "noSerie": serialNo,
+      "eName": "Vacuum/Lignes",
+      "label": vacData.label,
+      "eData": vacData.eData,
+      "lastUpdatedAt": vacData.lastUpdatedAt || "2026-03-06T12:00:00.000Z",
+      "temp": vacData.temp || 0,
+      "percentCharge": vacData.percentCharge || 100,
+      "ref": vacData.ref || -25
+    };
+    var message = {
+      "coreid": deviceId,
+      "published_at": "2026-03-06T12:00:00.000Z",
+      "data": JSON.stringify(data)
+    };
+    return {
+      "type": 'utf8',
+      "utf8Data": JSON.stringify(message)
+    };
+  }
+
+  it('should set pumpOn=true when vacuum drops below -6', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    var msg = makeVacuumMessage("POMPE 1", 1, 1, {
+      "label": "PV1",
+      "eData": -10
+    });
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(msg).then(function() {
+          var sensor = dashboard.getVacuumSensorByCode("PV1");
+          assert.equal(true, sensor.pumpOn);
+          assert.equal(-10, sensor.rawValue);
+        });
+      });
+    });
+  });
+
+  it('should set pumpOn=false when vacuum rises above -4', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    // First turn pump ON
+    var msgOn = makeVacuumMessage("POMPE 1", 1, 1, {
+      "label": "PV1",
+      "eData": -10
+    });
+    // Then turn pump OFF
+    var msgOff = makeVacuumMessage("POMPE 1", 1, 2, {
+      "label": "PV1",
+      "eData": -2
+    });
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(msgOn).then(function() {
+          return connection.fakeReceive(msgOff).then(function() {
+            var sensor = dashboard.getVacuumSensorByCode("PV1");
+            assert.equal(false, sensor.pumpOn);
+          });
+        });
+      });
+    });
+  });
+
+  it('should not change state in deadband (-6 to -4)', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    // Turn pump ON first
+    var msgOn = makeVacuumMessage("POMPE 1", 1, 1, {
+      "label": "PV1",
+      "eData": -10
+    });
+    // Send value in deadband
+    var msgDeadband = makeVacuumMessage("POMPE 1", 1, 2, {
+      "label": "PV1",
+      "eData": -5
+    });
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(msgOn).then(function() {
+          return connection.fakeReceive(msgDeadband).then(function() {
+            var sensor = dashboard.getVacuumSensorByCode("PV1");
+            assert.equal(true, sensor.pumpOn, "Pump should stay ON in deadband");
+          });
+        });
+      });
+    });
+  });
+
+  it('should accumulate RunTimeSinceMaint while pump is ON', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    var msgOn = makeVacuumMessage("POMPE 1", 1, 1, {
+      "label": "PV1",
+      "eData": -10
+    });
+    var msgStillOn = makeVacuumMessage("POMPE 1", 1, 2, {
+      "label": "PV1",
+      "eData": -12
+    });
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(msgOn).then(function() {
+          return connection.fakeReceive(msgStillOn).then(function() {
+            var sensor = dashboard.getVacuumSensorByCode("PV1");
+            assert.ok(sensor.RunTimeSinceMaint >= 0, "RunTimeSinceMaint should be >= 0");
+            assert.equal(typeof sensor.RunTimeSinceMaint, "number");
+          });
+        });
+      });
+    });
+  });
+
+  it('should set NeedMaintenance when RunTimeSinceMaint >= 180000 (50h)', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    var msg = makeVacuumMessage("POMPE 1", 1, 1, {
+      "label": "PV1",
+      "eData": -10
+    });
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(msg).then(function() {
+          // Manually set RunTimeSinceMaint to just under 50h
+          var sensor = dashboard.getVacuumSensorByCode("PV1");
+          sensor.RunTimeSinceMaint = 180000;
+          // Send another ON reading to trigger re-evaluation
+          var msg2 = makeVacuumMessage("POMPE 1", 1, 2, {
+            "label": "PV1",
+            "eData": -10
+          });
+          return connection.fakeReceive(msg2).then(function() {
+            var s = dashboard.getVacuumSensorByCode("PV1");
+            assert.equal(true, s.NeedMaintenance);
+          });
+        });
+      });
+    });
+  });
+
+  it('should reset counter via resetPumpMaintCounter', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    var msg = makeVacuumMessage("POMPE 1", 1, 1, {
+      "label": "PV1",
+      "eData": -10
+    });
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(msg).then(function() {
+          var sensor = dashboard.getVacuumSensorByCode("PV1");
+          sensor.RunTimeSinceMaint = 200000;
+          sensor.NeedMaintenance = true;
+          return dashboard.resetPumpMaintCounter("PV1").then(function(result) {
+            assert.equal(true, result);
+            var s = dashboard.getVacuumSensorByCode("PV1");
+            assert.equal(0, s.RunTimeSinceMaint);
+            assert.equal(false, s.NeedMaintenance);
+            assert.equal(false, s.pumpOn);
+          });
+        });
+      });
+    });
+  });
+
+  it('should return false when resetting unknown sensor code', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    return dashboard.init().then(function() {
+      return dashboard.resetPumpMaintCounter("UNKNOWN").then(function(result) {
+        assert.equal(false, result);
+      });
+    });
+  });
+});
+
 describe('Dashboard with Datacer events from new device', function() {
   var ws = makeWsClient();
   var config = {

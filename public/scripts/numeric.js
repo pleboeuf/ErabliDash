@@ -1227,9 +1227,6 @@ function displayVacuumErabliere() {
                 "POMPE 1",
                 "POMPE 2",
                 "POMPE PUMP HOUSE",
-                "EB-V1",
-                "EB-V2",
-                "EB-V3",
             ].includes(vacuum.device)
         ) {
             return;
@@ -1528,6 +1525,29 @@ function callResetOperTimer(devName) {
         alert(text);
     } else {
         alert("Remise à zéro ANNULÉ!");
+    }
+}
+
+async function callResetPumpMaint(sensorCode) {
+    if (confirm("Remettre à zéro le compteur de maintenance?") !== true) {
+        alert("Remise à zéro ANNULÉ!");
+        return;
+    }
+    try {
+        const response = await fetch("/api/resetPumpMaint", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: sensorCode }),
+        });
+        const result = await response.json();
+        if (response.ok && result.success) {
+            alert("Remise à zéro CONFIRMÉ!");
+        } else {
+            alert("Erreur: " + (result.error || "Erreur inconnue"));
+        }
+    } catch (err) {
+        console.error("Error resetting pump maintenance counter:", err);
+        alert("Erreur de communication avec le serveur");
     }
 }
 

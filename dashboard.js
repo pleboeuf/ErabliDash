@@ -217,6 +217,12 @@ var Pump = (exports.Pump = function (pumpConfig) {
     };
 });
 
+// Vacuum pump maintenance tracking constants
+const PUMP_ON_THRESHOLD = -6; // inHg
+const PUMP_OFF_THRESHOLD = -4; // inHg
+const MAINT_SECONDS = 50 * 3600; // 50 hours
+const TRACKED_PUMP_SENSORS = ["PV1", "PV2", "PV3"];
+
 exports.Dashboard = function (config, WebSocketClient) {
     var Device = exports.Device;
     var Tank = exports.Tank;
@@ -577,6 +583,47 @@ exports.Dashboard = function (config, WebSocketClient) {
     }
 
     function handleVacuumEvent(device, event, evTopic, data) {
+        function updatePumpOperationCounter(sensor) {
+            const now = Date.now();
+            const rawValue = parseFloat(sensor.rawValue);
+            if (isNaN(rawValue)) {
+                return;
+            }
+
+            if (typeof sensor.RunTimeSinceMaint !== "number") {
+                sensor.RunTimeSinceMaint =
+                    parseFloat(sensor.RunTimeSinceMaint) || 0;
+            }
+
+            if (rawValue < PUMP_ON_THRESHOLD) {
+                // Pump is ON
+                if (sensor.pumpOn && sensor.lastPumpCheckAt) {
+                    // Already ON — accumulate elapsed time
+                    const elapsed = (now - sensor.lastPumpCheckAt) / 1000;
+                    sensor.RunTimeSinceMaint += elapsed;
+                }
+                sensor.pumpOn = true;
+                sensor.lastPumpCheckAt = now;
+            } else if (rawValue > PUMP_OFF_THRESHOLD) {
+                // Pump is OFF
+                if (sensor.pumpOn && sensor.lastPumpCheckAt) {
+                    // Was ON — accumulate remaining time
+                    const elapsed = (now - sensor.lastPumpCheckAt) / 1000;
+                    sensor.RunTimeSinceMaint += elapsed;
+                }
+                sensor.pumpOn = false;
+                sensor.lastPumpCheckAt = undefined;
+            } else {
+                // Deadband: keep current state; accumulate only if ON
+                if (sensor.pumpOn && sensor.lastPumpCheckAt) {
+                    const elapsed = (now - sensor.lastPumpCheckAt) / 1000;
+                    sensor.RunTimeSinceMaint += elapsed;
+                    sensor.lastPumpCheckAt = now;
+                }
+            }
+
+            sensor.NeedMaintenance = sensor.RunTimeSinceMaint >= MAINT_SECONDS;
+        }
         switch (evTopic) {
             case "Lignes":
                 // Get the sensor by matching both device name and label/code
@@ -594,6 +641,9 @@ exports.Dashboard = function (config, WebSocketClient) {
                         percentCharge: data.percentCharge,
                         ref: data.ref,
                     });
+                    if (TRACKED_PUMP_SENSORS.includes(sensor.code)) {
+                        updatePumpOperationCounter(sensor);
+                    }
                     event.object = extendVacuum(sensor);
                 } else {
                     console.warn(
@@ -1289,6 +1339,25 @@ exports.Dashboard = function (config, WebSocketClient) {
             });
     }
 
+    function resetPumpMaintCounter(sensorCode) {
+        const sensor = vacuumSensors.find(
+            (s) => s.code === sensorCode && TRACKED_PUMP_SENSORS.includes(s.code),
+        );
+        if (!sensor) {
+            return Promise.resolve(false);
+        }
+
+        sensor.RunTimeSinceMaint = 0;
+        sensor.NeedMaintenance = false;
+        sensor.pumpOn = false;
+        sensor.lastPumpCheckAt = undefined;
+        console.log("Pump maintenance counter reset for sensor '%s'", sensorCode);
+
+        return store().then(function () {
+            return true;
+        });
+    }
+
     function checkStore() {
         if (eventsSinceStore > 100) {
             stop();
@@ -1348,6 +1417,7 @@ exports.Dashboard = function (config, WebSocketClient) {
         getVacuumSensorByCode: getVacuumSensorByCode,
         getVacuumSensorOfLineVacuumDevice: getVacuumSensorOfLineVacuumDevice,
         getData: getData,
+        resetPumpMaintCounter: resetPumpMaintCounter,
         getEventsSinceStore: function () {
             return eventsSinceStore;
         },

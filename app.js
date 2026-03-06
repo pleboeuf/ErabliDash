@@ -75,6 +75,25 @@ app.get("/api/vacuum", async (req, res) => {
     }
 });
 
+// Reset vacuum pump maintenance counter
+app.post("/api/resetPumpMaint", async (req, res) => {
+    try {
+        const { code } = req.body;
+        if (!code) {
+            return res.status(400).json({ error: "Missing required field: code" });
+        }
+        const result = await dashboard.resetPumpMaintCounter(code);
+        if (result) {
+            res.json({ success: true, message: `Maintenance counter reset for ${code}` });
+        } else {
+            res.status(404).json({ error: `Vacuum sensor '${code}' not found` });
+        }
+    } catch (error) {
+        console.error("Error resetting pump maintenance counter:", error);
+        res.status(500).json({ error: "Error resetting maintenance counter" });
+    }
+});
+
 // Weather proxy - Environment Canada
 app.get("/api/weather", async (req, res) => {
     try {
