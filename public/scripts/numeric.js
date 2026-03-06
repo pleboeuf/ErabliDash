@@ -9,7 +9,7 @@ function wsUri(path) {
     );
 }
 let websocket;
-let valveSelectorPassword = null; // Will be loaded from server
+let controlSessionToken = null;
 
 // Constants
 const LITERS_PER_GALLON = 4.54609188;
@@ -77,10 +77,39 @@ let waterMeterFlowRates = {}; // Last computed flow rate per meter (gal/hr)
 let couleeActive = false;
 let tempAge = 0;
 let valueRef = {};
-let myToken;
 
 function liters2gallons(liters) {
     return Math.ceil(liters / LITERS_PER_GALLON);
+}
+
+async function requestControlSession(promptMessage, forcePrompt = false) {
+    if (!forcePrompt && controlSessionToken) {
+        return controlSessionToken;
+    }
+    const enteredCode = prompt(promptMessage, "");
+    if (!enteredCode) {
+        return null;
+    }
+    try {
+        const response = await fetch("/api/auth/verify-control-code", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: enteredCode }),
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success || !result.sessionToken) {
+            controlSessionToken = null;
+            alert(result.error || "Mauvais mot de passe");
+            return null;
+        }
+        controlSessionToken = result.sessionToken;
+        return controlSessionToken;
+    } catch (error) {
+        console.error("Error verifying control code:", error);
+        controlSessionToken = null;
+        alert("Erreur de validation du code");
+        return null;
+    }
 }
 
 function onLoad() {
@@ -433,33 +462,28 @@ function functionPlusRF2() {
 let span = document.getElementsByClassName("close")[0];
 
 // Open the modal (Sélecteur de valves d'entrée)
-function showValveSelector() {
-    const enteredPassword = prompt("Entrer le code", "");
-    if (
-        enteredPassword &&
-        valveSelectorPassword &&
-        enteredPassword === valveSelectorPassword
-    ) {
-        // read actual relay state
-        const inValves = getAllTanksInputValves(0);
-        inValves.forEach(function (thisValve) {
-            button = document.getElementsByName(thisValve.code);
-            let devName = thisValve.device;
-            // ssrRealy is active low
-            let state = getRelayState(devName);
-            if (state === undefined) {
-                state = true;
-            }
-            button[0].checked = !state;
-            button[1].checked = state;
-            console.log(devName + " relay state: " + state);
-        });
-        // now show the panel
-        const modal = document.getElementById("valveSelect");
-        modal.style.display = "block";
-    } else {
-        alert("Mauvais mot de passe");
+async function showValveSelector() {
+    const sessionToken = await requestControlSession("Entrer le code", true);
+    if (!sessionToken) {
+        return;
     }
+    // read actual relay state
+    const inValves = getAllTanksInputValves(0);
+    inValves.forEach(function (thisValve) {
+        button = document.getElementsByName(thisValve.code);
+        let devName = thisValve.device;
+        // ssrRealy is active low
+        let state = getRelayState(devName);
+        if (state === undefined) {
+            state = true;
+        }
+        button[0].checked = !state;
+        button[1].checked = state;
+        console.log(devName + " relay state: " + state);
+    });
+    // now show the panel
+    const modal = document.getElementById("valveSelect");
+    modal.style.display = "block";
 }
 
 // Close the modal (Sélecteur de valves d'entrée)
@@ -1428,8 +1452,6 @@ function openSocket() {
                 osmose = data.osmose;
                 datacerTanks = data.tanks.filter((t) => t.isDatacer === true);
                 waterMeters = data.waterMeters || [];
-                myToken = data.token;
-                valveSelectorPassword = data.valveSelectorPassword;
             });
             displayDevices();
             displayValves();
@@ -1552,52 +1574,39 @@ async function callResetPumpMaint(sensorCode) {
 }
 
 async function readDeviceVariable(deviceId, varName) {
-    try {
-        if (!deviceId || !varName || !myToken) {
-            throw new Error("Missing required parameters");
-        }
-        const data = await particle.getVariable({
-            deviceId: deviceId,
-            name: varName,
-            auth: myToken,
-        });
-        console.log(
-            `Successfully read variable '${varName}' from device '${deviceId}':`,
-            data.result,
-        );
-        return data.result;
-    } catch (err) {
-        console.error(
-            `Error reading variable '${varName}' from device '${deviceId}':`,
-            err,
-        );
-        return undefined;
-    }
+    void deviceId;
+    void varName;
+    return undefined;
 }
 
 async function callFunction(devID, fname, fargument) {
     try {
-        if (!devID || !fname || !myToken) {
+        if (!devID || !fname) {
             throw new Error("Missing required parameters");
         }
-        const status = await particle
-            .callFunction({
+        const sessionToken = await requestControlSession("Entrer le code");
+        if (!sessionToken) {
+            return null;
+        }
+        const response = await fetch("/api/particle/function", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                sessionToken: sessionToken,
                 deviceId: devID,
-                name: fname,
+                functionName: fname,
                 argument: fargument,
-                auth: myToken,
-            })
-            .then(
-                function (data) {
-                    console.log("Function called successfully:", data);
-                    return data;
-                },
-                function (err) {
-                    console.error("An error occurred:", err);
-                    throw err;
-                },
-            );
-        return status;
+            }),
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            if (response.status === 401) {
+                controlSessionToken = null;
+            }
+            throw new Error(result.error || "Function call failed");
+        }
+        console.log("Function called successfully:", result.data);
+        return result.data;
     } catch (err) {
         console.error(
             `Error calling function ${fname} on device ${devID}:`,
@@ -2099,14 +2108,8 @@ function formatDateTimeForInflux(date) {
 }
 
 async function showSeasonDialog(type) {
-    // Check password
-    const enteredPassword = prompt("Entrer le code", "");
-    if (
-        !enteredPassword ||
-        !valveSelectorPassword ||
-        enteredPassword !== valveSelectorPassword
-    ) {
-        alert("Mauvais mot de passe");
+    const sessionToken = await requestControlSession("Entrer le code", true);
+    if (!sessionToken) {
         return;
     }
 
@@ -2162,17 +2165,11 @@ function initSeasonMenuLabels() {
 let analyseSaisonPasswordVerified = false;
 
 async function showAnalyseSaisonDialog() {
-    // Check password first
-    const enteredPassword = prompt(
+    const sessionToken = await requestControlSession(
         "Entrer le code pour accéder à l'analyse de saison",
-        "",
+        true,
     );
-    if (
-        !enteredPassword ||
-        !valveSelectorPassword ||
-        enteredPassword !== valveSelectorPassword
-    ) {
-        alert("Mauvais mot de passe");
+    if (!sessionToken) {
         return;
     }
 

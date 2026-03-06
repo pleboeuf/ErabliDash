@@ -13,6 +13,7 @@ const WebSocketServer = require("websocket").server;
 // const fetch = require("node-fetch"); // Import node-fetch
 const cors = require("cors"); // Import cors
 const Influx = require("influx");
+const crypto = require("crypto");
 
 const app = express();
 const port = config.port || "3300";
@@ -28,6 +29,42 @@ app.use(cors());
 
 // Parse JSON body
 app.use(express.json());
+const CONTROL_SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const controlSessions = new Map();
+
+function cleanupExpiredControlSessions() {
+    const now = Date.now();
+    for (const [sessionToken, expiresAt] of controlSessions.entries()) {
+        if (expiresAt <= now) {
+            controlSessions.delete(sessionToken);
+        }
+    }
+}
+
+function createControlSessionToken() {
+    cleanupExpiredControlSessions();
+    const sessionToken = crypto.randomBytes(24).toString("hex");
+    controlSessions.set(sessionToken, Date.now() + CONTROL_SESSION_TTL_MS);
+    return sessionToken;
+}
+
+function isControlSessionTokenValid(sessionToken) {
+    cleanupExpiredControlSessions();
+    if (typeof sessionToken !== "string" || sessionToken.length === 0) {
+        return false;
+    }
+    const expiresAt = controlSessions.get(sessionToken);
+    if (!expiresAt) {
+        return false;
+    }
+    if (expiresAt <= Date.now()) {
+        controlSessions.delete(sessionToken);
+        return false;
+    }
+    // Sliding expiration window.
+    controlSessions.set(sessionToken, Date.now() + CONTROL_SESSION_TTL_MS);
+    return true;
+}
 
 dashboard
     .init()
@@ -78,6 +115,84 @@ app.get("/api/vacuum", async (req, res) => {
     }
 });
 
+app.post("/api/auth/verify-control-code", (req, res) => {
+    try {
+        const { code } = req.body;
+        const configuredCode = process.env.VALVE_SELECTOR_PASSWORD;
+
+        if (!configuredCode) {
+            return res
+                .status(500)
+                .json({ error: "Control code is not configured on server" });
+        }
+        if (typeof code !== "string" || code.length === 0) {
+            return res.status(400).json({ error: "Missing required field: code" });
+        }
+        if (code !== configuredCode) {
+            return res.status(401).json({ error: "Invalid control code" });
+        }
+
+        const sessionToken = createControlSessionToken();
+        res.json({ success: true, sessionToken: sessionToken });
+    } catch (error) {
+        console.error("Error verifying control code:", error);
+        res.status(500).json({ error: "Error verifying control code" });
+    }
+});
+
+app.post("/api/particle/function", async (req, res) => {
+    try {
+        const { sessionToken, deviceId, functionName, argument } = req.body;
+
+        if (!isControlSessionTokenValid(sessionToken)) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        if (!deviceId || !functionName) {
+            return res
+                .status(400)
+                .json({ error: "Missing required fields: deviceId, functionName" });
+        }
+        if (!process.env.PARTICLE_TOKEN) {
+            return res
+                .status(500)
+                .json({ error: "Particle token is not configured on server" });
+        }
+
+        const encodedDeviceId = encodeURIComponent(String(deviceId));
+        const encodedFunctionName = encodeURIComponent(String(functionName));
+        const endpoint = `https://api.particle.io/v1/devices/${encodedDeviceId}/${encodedFunctionName}`;
+        const params = new URLSearchParams();
+        if (argument !== undefined && argument !== null) {
+            params.append("arg", String(argument));
+        }
+
+        const particleResponse = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${process.env.PARTICLE_TOKEN}`,
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: params.toString(),
+        });
+        const particleData = await particleResponse
+            .json()
+            .catch(() => ({ error: "Invalid JSON response from Particle API" }));
+
+        if (!particleResponse.ok) {
+            return res.status(particleResponse.status).json({
+                error:
+                    particleData.error_description ||
+                    particleData.error ||
+                    "Particle API request failed",
+            });
+        }
+
+        res.json({ success: true, data: particleData });
+    } catch (error) {
+        console.error("Error calling Particle function:", error);
+        res.status(500).json({ error: "Error calling Particle function" });
+    }
+});
 // Reset vacuum pump maintenance counter
 app.post("/api/resetPumpMaint", async (req, res) => {
     try {

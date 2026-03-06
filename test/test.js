@@ -139,6 +139,33 @@ describe('Dashboard', function() {
   });
 });
 
+describe('Dashboard security', function() {
+  var ws = makeWsClient();
+  var config = {
+    "collectors": [{
+      "uri": 'ws://localhost/'
+    }],
+    "store": {
+      "filename": "/tmp/dashboard_security.json"
+    },
+    "devices": [],
+    "tanks": [],
+    "valves": [],
+    "vacuums": [],
+    "pumps": [],
+    "osmose": []
+  };
+
+  it('should not expose control secrets in getData payload', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    return dashboard.init().then(function() {
+      var data = dashboard.getData();
+      assert.equal(false, Object.prototype.hasOwnProperty.call(data, 'token'));
+      assert.equal(false, Object.prototype.hasOwnProperty.call(data, 'valveSelectorPassword'));
+    });
+  });
+});
+
 describe('Dashboard with tank A', function() {
   var ws = makeWsClient();
   var config = {

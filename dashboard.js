@@ -1161,8 +1161,6 @@ exports.Dashboard = function (config, WebSocketClient) {
             pumps: pumps.map(extendPump),
             osmose: theOsmose,
             waterMeters: waterMeters,
-            token: process.env.PARTICLE_TOKEN,
-            valveSelectorPassword: process.env.VALVE_SELECTOR_PASSWORD,
         };
     }
 
