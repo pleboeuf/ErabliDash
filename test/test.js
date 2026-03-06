@@ -504,6 +504,11 @@ describe('Dashboard with Datacer Water meter', function() {
 });
 
 describe('Pump maintenance counter via vacuum pressure', function() {
+  var fs = require('fs');
+  beforeEach(function() {
+    try { fs.unlinkSync('/tmp/dashboard_pump_maint.json'); } catch(e) { /* ignore */ }
+  });
+
   var ws = makeWsClient();
   var config = {
     "collectors": [{
@@ -532,13 +537,8 @@ describe('Pump maintenance counter via vacuum pressure', function() {
     var data = {
       "generation": generationId,
       "noSerie": serialNo,
-      "eName": "Vacuum/Lignes",
-      "label": vacData.label,
-      "eData": vacData.eData,
-      "lastUpdatedAt": vacData.lastUpdatedAt || "2026-03-06T12:00:00.000Z",
-      "temp": vacData.temp || 0,
-      "percentCharge": vacData.percentCharge || 100,
-      "ref": vacData.ref || -25
+      "eName": "sensor/vacuum",
+      "eData": vacData.eData
     };
     var message = {
       "coreid": deviceId,
@@ -554,7 +554,7 @@ describe('Pump maintenance counter via vacuum pressure', function() {
   it('should set pumpOn=true when vacuum drops below -6', function() {
     var dashboard = require('../dashboard.js').Dashboard(config, ws);
     var msg = makeVacuumMessage("POMPE 1", 1, 1, {
-      "label": "PV1",
+      
       "eData": -10
     });
     return dashboard.init().then(function() {
@@ -572,12 +572,12 @@ describe('Pump maintenance counter via vacuum pressure', function() {
     var dashboard = require('../dashboard.js').Dashboard(config, ws);
     // First turn pump ON
     var msgOn = makeVacuumMessage("POMPE 1", 1, 1, {
-      "label": "PV1",
+      
       "eData": -10
     });
     // Then turn pump OFF
     var msgOff = makeVacuumMessage("POMPE 1", 1, 2, {
-      "label": "PV1",
+      
       "eData": -2
     });
     return dashboard.init().then(function() {
@@ -596,12 +596,12 @@ describe('Pump maintenance counter via vacuum pressure', function() {
     var dashboard = require('../dashboard.js').Dashboard(config, ws);
     // Turn pump ON first
     var msgOn = makeVacuumMessage("POMPE 1", 1, 1, {
-      "label": "PV1",
+      
       "eData": -10
     });
     // Send value in deadband
     var msgDeadband = makeVacuumMessage("POMPE 1", 1, 2, {
-      "label": "PV1",
+      
       "eData": -5
     });
     return dashboard.init().then(function() {
@@ -619,11 +619,11 @@ describe('Pump maintenance counter via vacuum pressure', function() {
   it('should accumulate RunTimeSinceMaint while pump is ON', function() {
     var dashboard = require('../dashboard.js').Dashboard(config, ws);
     var msgOn = makeVacuumMessage("POMPE 1", 1, 1, {
-      "label": "PV1",
+      
       "eData": -10
     });
     var msgStillOn = makeVacuumMessage("POMPE 1", 1, 2, {
-      "label": "PV1",
+      
       "eData": -12
     });
     return dashboard.init().then(function() {
@@ -642,7 +642,7 @@ describe('Pump maintenance counter via vacuum pressure', function() {
   it('should set NeedMaintenance when RunTimeSinceMaint >= 180000 (50h)', function() {
     var dashboard = require('../dashboard.js').Dashboard(config, ws);
     var msg = makeVacuumMessage("POMPE 1", 1, 1, {
-      "label": "PV1",
+      
       "eData": -10
     });
     return dashboard.init().then(function() {
@@ -653,7 +653,7 @@ describe('Pump maintenance counter via vacuum pressure', function() {
           sensor.RunTimeSinceMaint = 180000;
           // Send another ON reading to trigger re-evaluation
           var msg2 = makeVacuumMessage("POMPE 1", 1, 2, {
-            "label": "PV1",
+            
             "eData": -10
           });
           return connection.fakeReceive(msg2).then(function() {
@@ -668,7 +668,7 @@ describe('Pump maintenance counter via vacuum pressure', function() {
   it('should reset counter via resetPumpMaintCounter', function() {
     var dashboard = require('../dashboard.js').Dashboard(config, ws);
     var msg = makeVacuumMessage("POMPE 1", 1, 1, {
-      "label": "PV1",
+      
       "eData": -10
     });
     return dashboard.init().then(function() {

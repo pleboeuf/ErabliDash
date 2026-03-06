@@ -26,6 +26,9 @@ const connectedClients = [];
 // Add this line to enable cors
 app.use(cors());
 
+// Parse JSON body
+app.use(express.json());
+
 dashboard
     .init()
     .then(() => dashboard.connect(() => dashboard.update()))
@@ -128,9 +131,6 @@ function getInfluxClient(database) {
         database: database,
     });
 }
-
-// Parse JSON body
-app.use(express.json());
 
 // Get SaisonInfo data
 app.get("/api/saison-info", async (req, res) => {

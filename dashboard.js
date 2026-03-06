@@ -521,6 +521,48 @@ exports.Dashboard = function (config, WebSocketClient) {
         }
     }
 
+    function updatePumpOperationCounter(sensor) {
+        const now = Date.now();
+        const rawValue = parseFloat(sensor.rawValue);
+        if (isNaN(rawValue)) {
+            return;
+        }
+
+        if (typeof sensor.RunTimeSinceMaint !== "number") {
+            sensor.RunTimeSinceMaint =
+                parseFloat(sensor.RunTimeSinceMaint) || 0;
+        }
+
+        if (rawValue < PUMP_ON_THRESHOLD) {
+            // Pump is ON
+            if (sensor.pumpOn && sensor.lastPumpCheckAt) {
+                // Already ON — accumulate elapsed time
+                const elapsed = (now - sensor.lastPumpCheckAt) / 1000;
+                sensor.RunTimeSinceMaint += elapsed;
+            }
+            sensor.pumpOn = true;
+            sensor.lastPumpCheckAt = now;
+        } else if (rawValue > PUMP_OFF_THRESHOLD) {
+            // Pump is OFF
+            if (sensor.pumpOn && sensor.lastPumpCheckAt) {
+                // Was ON — accumulate remaining time
+                const elapsed = (now - sensor.lastPumpCheckAt) / 1000;
+                sensor.RunTimeSinceMaint += elapsed;
+            }
+            sensor.pumpOn = false;
+            sensor.lastPumpCheckAt = undefined;
+        } else {
+            // Deadband: keep current state; accumulate only if ON
+            if (sensor.pumpOn && sensor.lastPumpCheckAt) {
+                const elapsed = (now - sensor.lastPumpCheckAt) / 1000;
+                sensor.RunTimeSinceMaint += elapsed;
+                sensor.lastPumpCheckAt = now;
+            }
+        }
+
+        sensor.NeedMaintenance = sensor.RunTimeSinceMaint >= MAINT_SECONDS;
+    }
+
     function handleSensorEvent(device, event, evTopic, value) {
         const updateDevice = (property, value) => {
             device[property] = value;
@@ -570,6 +612,9 @@ exports.Dashboard = function (config, WebSocketClient) {
                 const sensor = getVacuumSensorOfDevice(device);
                 sensor.rawValue = value;
                 sensor.lastUpdatedAt = event.published_at;
+                if (TRACKED_PUMP_SENSORS.includes(sensor.code)) {
+                    updatePumpOperationCounter(sensor);
+                }
                 event.object = extendVacuum(sensor);
                 break;
             default:
@@ -583,47 +628,6 @@ exports.Dashboard = function (config, WebSocketClient) {
     }
 
     function handleVacuumEvent(device, event, evTopic, data) {
-        function updatePumpOperationCounter(sensor) {
-            const now = Date.now();
-            const rawValue = parseFloat(sensor.rawValue);
-            if (isNaN(rawValue)) {
-                return;
-            }
-
-            if (typeof sensor.RunTimeSinceMaint !== "number") {
-                sensor.RunTimeSinceMaint =
-                    parseFloat(sensor.RunTimeSinceMaint) || 0;
-            }
-
-            if (rawValue < PUMP_ON_THRESHOLD) {
-                // Pump is ON
-                if (sensor.pumpOn && sensor.lastPumpCheckAt) {
-                    // Already ON — accumulate elapsed time
-                    const elapsed = (now - sensor.lastPumpCheckAt) / 1000;
-                    sensor.RunTimeSinceMaint += elapsed;
-                }
-                sensor.pumpOn = true;
-                sensor.lastPumpCheckAt = now;
-            } else if (rawValue > PUMP_OFF_THRESHOLD) {
-                // Pump is OFF
-                if (sensor.pumpOn && sensor.lastPumpCheckAt) {
-                    // Was ON — accumulate remaining time
-                    const elapsed = (now - sensor.lastPumpCheckAt) / 1000;
-                    sensor.RunTimeSinceMaint += elapsed;
-                }
-                sensor.pumpOn = false;
-                sensor.lastPumpCheckAt = undefined;
-            } else {
-                // Deadband: keep current state; accumulate only if ON
-                if (sensor.pumpOn && sensor.lastPumpCheckAt) {
-                    const elapsed = (now - sensor.lastPumpCheckAt) / 1000;
-                    sensor.RunTimeSinceMaint += elapsed;
-                    sensor.lastPumpCheckAt = now;
-                }
-            }
-
-            sensor.NeedMaintenance = sensor.RunTimeSinceMaint >= MAINT_SECONDS;
-        }
         switch (evTopic) {
             case "Lignes":
                 // Get the sensor by matching both device name and label/code
