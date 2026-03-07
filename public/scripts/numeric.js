@@ -1724,10 +1724,10 @@ function displayDatacerTanks() {
             document.getElementById("datacerTanklist").appendChild(tankElem);
 
             createCell(null, "darker", tankElem).innerHTML = tank.code;
-            createCell(depthElemId, "lighter rawvalue", tankElem);
             createCell(fillElemId, "lighter rawvalue", tankElem);
             createCell(rawValueElemId, "lighter rawvalue", tankElem);
             createCell(capacityElemId, "lighter rawvalue", tankElem);
+            createCell(depthElemId, "lighter rawvalue", tankElem);
             createCell(updatedElemId, "lighter", tankElem);
         }
 
