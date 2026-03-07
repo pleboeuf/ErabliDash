@@ -1680,7 +1680,9 @@ function getDatacerTankFillGallons(tank) {
     if (!Number.isFinite(rawValueInches)) {
         return null;
     }
-    const levelMm = Math.max(0, rawValueInches * MM_PER_INCH);
+    const offsetMmRaw = parseFloat(tank.offset);
+    const offsetMm = Number.isFinite(offsetMmRaw) ? offsetMmRaw : 0;
+    const levelMm = Math.max(0, rawValueInches * MM_PER_INCH - offsetMm);
     const diameterMm = parseFloat(tank.diameter);
     const lengthMm = parseFloat(tank.length);
     const totalHeightMm = parseFloat(tank.totalHeight);
