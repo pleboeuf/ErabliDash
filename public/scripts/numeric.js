@@ -1432,27 +1432,45 @@ function openSocket() {
     websocket.onmessage = function (msg) {
         try {
             const data = JSON.parse(msg.data);
+            const incomingTanks = data.tanks || [];
+            const incomingDevices = data.devices || [];
+            const datacerDeviceNames = new Set(
+                incomingDevices
+                    .filter(function (device) {
+                        return device.eventName === "Tank/Level";
+                    })
+                    .map(function (device) {
+                        return device.name;
+                    }),
+            );
             tankDefs.forEach(function (tankDef, index) {
-                const tank = data.tanks
+                const tank = incomingTanks
                     .filter(function (tankData) {
                         return tankData.code == tankDef.code;
                     })
                     .shift();
-                tankDef.device = tank.device;
-                tankDef.rawValue = tank.rawValue;
-                tankDef.contents = tank.fill == null ? 0 : tank.fill;
-                tankDef.capacity = tank.capacity;
-                tankDef.output = tank.output;
-                tankDef.drain = tank.drain;
-                tankDef.ssrRelay = tank.ssrRelay;
+                if (tank) {
+                    tankDef.device = tank.device;
+                    tankDef.rawValue = tank.rawValue;
+                    tankDef.contents = tank.fill == null ? 0 : tank.fill;
+                    tankDef.capacity = tank.capacity;
+                    tankDef.output = tank.output;
+                    tankDef.drain = tank.drain;
+                    tankDef.ssrRelay = tank.ssrRelay;
+                }
                 // console.log("Tank %s at %d: %s, raw= %s", tankDef.code, index, tankDef.contents, tankDef.rawValue);
-                devices = data.devices;
-                valves = data.valves;
-                vacuums = data.vacuums; // First list of vacuum devices devices
-                pumps = data.pumps;
-                osmose = data.osmose;
-                datacerTanks = data.tanks.filter((t) => t.isDatacer === true);
-                waterMeters = data.waterMeters || [];
+            });
+            devices = incomingDevices;
+            valves = data.valves || [];
+            vacuums = data.vacuums || []; // First list of vacuum devices devices
+            pumps = data.pumps || [];
+            osmose = data.osmose || [];
+            waterMeters = data.waterMeters || [];
+            datacerTanks = incomingTanks.filter(function (tank) {
+                return (
+                    tank.isDatacer === true ||
+                    datacerDeviceNames.has(tank.device)
+                );
             });
             displayDevices();
             displayValves();
@@ -1709,7 +1727,21 @@ function getDatacerTankFillGallons(tank) {
 }
 
 function displayDatacerTanks() {
-    datacerTanks.forEach(function (tank) {
+    const reservoirOrder = tankDefs.map(function (tankDef) {
+        return tankDef.code;
+    });
+    const datacerTanklistBody = document.getElementById("datacerTanklistBody");
+    const orderedDatacerTanks = [...datacerTanks].sort(function (a, b) {
+        const aIndex = reservoirOrder.indexOf(a.code);
+        const bIndex = reservoirOrder.indexOf(b.code);
+        const safeAIndex = aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex;
+        const safeBIndex = bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex;
+        if (safeAIndex !== safeBIndex) {
+            return safeAIndex - safeBIndex;
+        }
+        return a.code.localeCompare(b.code, undefined, { numeric: true });
+    });
+    orderedDatacerTanks.forEach(function (tank) {
         const tankElemId = `datacerTank_${tank.code}`;
         const fillElemId = `${tankElemId}_fill`;
         const percentElemId = `${tankElemId}_percent`;
@@ -1721,7 +1753,11 @@ function displayDatacerTanks() {
         if (!tankElem) {
             tankElem = document.createElement("tr");
             tankElem.setAttribute("id", tankElemId);
-            document.getElementById("datacerTanklist").appendChild(tankElem);
+            if (datacerTanklistBody) {
+                datacerTanklistBody.appendChild(tankElem);
+            } else {
+                document.getElementById("datacerTanklist").appendChild(tankElem);
+            }
 
             createCell(null, "darker", tankElem).innerHTML = tank.code;
             createCell(fillElemId, "lighter rawvalue", tankElem);
@@ -1729,6 +1765,8 @@ function displayDatacerTanks() {
             createCell(rawValueElemId, "lighter rawvalue", tankElem);
             createCell(capacityElemId, "lighter rawvalue", tankElem);
             createCell(updatedElemId, "lighter", tankElem);
+        } else if (datacerTanklistBody) {
+            datacerTanklistBody.appendChild(tankElem);
         }
 
         const fillElem = document.getElementById(fillElemId);
