@@ -1711,8 +1711,8 @@ function getDatacerTankFillGallons(tank) {
 function displayDatacerTanks() {
     datacerTanks.forEach(function (tank) {
         const tankElemId = `datacerTank_${tank.code}`;
-        const depthElemId = `${tankElemId}_depth`;
         const fillElemId = `${tankElemId}_fill`;
+        const percentElemId = `${tankElemId}_percent`;
         const rawValueElemId = `${tankElemId}_rawValue`;
         const capacityElemId = `${tankElemId}_capacity`;
         const updatedElemId = `${tankElemId}_lastUpdate`;
@@ -1725,32 +1725,48 @@ function displayDatacerTanks() {
 
             createCell(null, "darker", tankElem).innerHTML = tank.code;
             createCell(fillElemId, "lighter rawvalue", tankElem);
+            createCell(percentElemId, "lighter tankpercent", tankElem);
             createCell(rawValueElemId, "lighter rawvalue", tankElem);
             createCell(capacityElemId, "lighter rawvalue", tankElem);
-            createCell(depthElemId, "lighter rawvalue", tankElem);
             createCell(updatedElemId, "lighter", tankElem);
         }
 
-        const depthElem = document.getElementById(depthElemId);
         const fillElem = document.getElementById(fillElemId);
+        const percentElem = document.getElementById(percentElemId);
         const rawValueElem = document.getElementById(rawValueElemId);
         const capacityElem = document.getElementById(capacityElemId);
         const updatedElem = document.getElementById(updatedElemId);
 
-        if (tank.depth !== undefined) {
-            depthElem.innerHTML = Math.round(tank.depth);
-        }
         const datacerFillGallons = getDatacerTankFillGallons(tank);
+        let fillGallons = null;
         if (datacerFillGallons !== null) {
+            fillGallons = datacerFillGallons;
             fillElem.innerHTML = datacerFillGallons.toFixed(0);
         } else if (tank.fill !== undefined && tank.fill !== null) {
+            fillGallons = parseFloat(tank.fill);
             fillElem.innerHTML = Math.round(tank.fill);
+        } else {
+            fillElem.innerHTML = "---";
         }
         if (tank.rawValue !== undefined) {
             rawValueElem.innerHTML = tank.rawValue.toFixed(2);
         }
-        if (tank.capacity !== undefined) {
+        let capacityGallons = null;
+        if (tank.capacity !== undefined && tank.capacity !== null) {
+            capacityGallons = parseFloat(tank.capacity);
             capacityElem.innerHTML = Math.round(tank.capacity);
+        } else {
+            capacityElem.innerHTML = "---";
+        }
+        if (
+            Number.isFinite(fillGallons) &&
+            Number.isFinite(capacityGallons) &&
+            capacityGallons > 0
+        ) {
+            percentElem.innerHTML =
+                ((fillGallons / capacityGallons) * 100).toFixed(0) + " %";
+        } else {
+            percentElem.innerHTML = "---";
         }
         if (tank.lastUpdatedAt) {
             const ageInMinutes = Math.floor(
