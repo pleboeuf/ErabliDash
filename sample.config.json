@@ -562,7 +562,7 @@
             "length": 10718,
             "diameter": 1651,
             "scaleFactor": 1.0,
-            "offset": 280
+            "offset": 502
         },
         {
             "code": "RS2",
@@ -573,7 +573,7 @@
             "length": 7010,
             "diameter": 1842,
             "scaleFactor": 1.0,
-            "offset": 260
+            "offset": 127
         },
         {
             "code": "RS3",
@@ -650,7 +650,7 @@
             "diameter": 1219,
             "totalHeight": 914,
             "scaleFactor": 1.0,
-            "offset": 385
+            "offset": 390
         },
         {
             "code": "RC2",
@@ -661,7 +661,7 @@
             "diameter": 1219,
             "totalHeight": 914,
             "scaleFactor": 1.0,
-            "offset": 385
+            "offset": 390
         }
     ],
     "valves": [
