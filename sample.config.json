@@ -535,7 +535,7 @@
             "length": 3658,
             "diameter": 1219,
             "totalHeight": 914,
-            "sensorHeight": 968,
+            "sensorHeight": 982,
             "output": "none",
             "drain": "none",
             "ssrRelay": "none"
@@ -562,7 +562,7 @@
             "length": 10718,
             "diameter": 1651,
             "scaleFactor": 1.0,
-            "offset": 502
+            "offset": 280
         },
         {
             "code": "RS2",
@@ -573,7 +573,7 @@
             "length": 7010,
             "diameter": 1842,
             "scaleFactor": 1.0,
-            "offset": 127
+            "offset": 240
         },
         {
             "code": "RS3",
@@ -584,7 +584,7 @@
             "length": 4128,
             "diameter": 2438,
             "scaleFactor": 1.0,
-            "offset": 0
+            "offset": 16
         },
         {
             "code": "RS4",
@@ -628,7 +628,7 @@
             "length": 4267,
             "diameter": 1842,
             "scaleFactor": 1.0,
-            "offset": 265
+            "offset": 325
         },
         {
             "code": "RF1",
@@ -639,7 +639,7 @@
             "diameter": 1524,
             "totalHeight": 1676,
             "scaleFactor": 1.0,
-            "offset": 427
+            "offset": 420
         },
         {
             "code": "RC1",
