@@ -1775,9 +1775,13 @@ function displayDatacerTanks() {
         const capacityElem = document.getElementById(capacityElemId);
         const updatedElem = document.getElementById(updatedElemId);
 
+        const backendFillLiters = parseFloat(tank.fill);
         const datacerFillGallons = getDatacerTankFillGallons(tank);
         let fillGallons = null;
-        if (datacerFillGallons !== null) {
+        if (Number.isFinite(backendFillLiters)) {
+            fillGallons = backendFillLiters / LITERS_PER_GALLON;
+            fillElem.innerHTML = fillGallons.toFixed(0);
+        } else if (datacerFillGallons !== null) {
             fillGallons = datacerFillGallons;
             fillElem.innerHTML = datacerFillGallons.toFixed(0);
         } else if (tank.fill !== undefined && tank.fill !== null) {
@@ -1786,13 +1790,17 @@ function displayDatacerTanks() {
         } else {
             fillElem.innerHTML = "---";
         }
-        if (tank.rawValue !== undefined) {
-            rawValueElem.innerHTML = tank.rawValue.toFixed(2);
+        const rawValueNumeric = parseFloat(tank.rawValue);
+        if (Number.isFinite(rawValueNumeric)) {
+            rawValueElem.innerHTML = rawValueNumeric.toFixed(2);
+        } else {
+            rawValueElem.innerHTML = "---";
         }
         let capacityGallons = null;
-        if (tank.capacity !== undefined && tank.capacity !== null) {
-            capacityGallons = parseFloat(tank.capacity);
-            capacityElem.innerHTML = Math.round(tank.capacity);
+        const capacityLiters = parseFloat(tank.capacity);
+        if (Number.isFinite(capacityLiters)) {
+            capacityGallons = capacityLiters / LITERS_PER_GALLON;
+            capacityElem.innerHTML = capacityGallons.toFixed(0);
         } else {
             capacityElem.innerHTML = "---";
         }

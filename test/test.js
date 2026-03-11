@@ -227,6 +227,25 @@ describe('Cylinder tank', function() {
     assert.equal(500, tank.getFill());
   });
 });
+describe('Pressure tank', function() {
+  var Tank = require('../dashboard.js').Tank;
+  var tank = new Tank({
+    "code": "TP1",
+    "name": "Pressure Tank",
+    "device": "Device P",
+    "shape": "cylinder",
+    "orientation": "horizontal",
+    "length": 1000 / Math.PI,
+    "diameter": 2000,
+    "sensorType": "pressure",
+    "rawUnit": "in",
+    "offset": 254, // 10 in
+    "rawValue": 49.37007874015748 // 1254 mm => 1000 mm net level
+  });
+  it('should use raw inches minus offset to compute fill', function() {
+    assert.ok(Math.abs(500 - tank.getFill()) < 0.0001);
+  });
+});
 
 describe('U-shaped tank', function() {
   var Tank = require('../dashboard.js').Tank;
@@ -379,6 +398,7 @@ describe('Pump with one cycle', function() {
 
 describe('Dashboard with Datacer Tank', function() {
   var ws = makeWsClient();
+  var Tank = require('../dashboard.js').Tank;
   var config = {
     "collectors": [{
       "uri": 'ws://localhost/'
@@ -396,6 +416,11 @@ describe('Dashboard with Datacer Tank', function() {
       "device": "Datacer Tank Device",
       "shape": "cylinder",
       "orientation": "horizontal",
+      "length": 1000 / Math.PI,
+      "diameter": 2000,
+      "offset": 0,
+      "sensorType": "pressure",
+      "rawUnit": "in"
     }],
     "valves": [],
     "vacuums": [],
@@ -428,9 +453,13 @@ describe('Dashboard with Datacer Tank', function() {
 
   it('should update tank level when receiving Tank/Level event', function() {
     var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    var rawValueInches = 39.37007874015748; // 1000 mm
+    var expectedTank = new Tank(Object.assign({}, config.tanks[0], {
+      "rawValue": rawValueInches
+    }));
     var msg = makeDatacerTankMessage("DATACER-TANK-001", 1, 1, {
       "name": "T1",
-      "rawValue": 550,
+      "rawValue": rawValueInches,
       "depth": 450,
       "capacity": 1000,
       "fill": 450,
@@ -440,10 +469,14 @@ describe('Dashboard with Datacer Tank', function() {
       return dashboard.connect().then(function(connection) {
         return connection.fakeReceive(msg).then(function() {
           var tank = dashboard.getTank("Tank T1");
-          assert.equal(550, tank.rawValue);
+          var tankData = dashboard.getData().tanks.filter(function(t) {
+            return t.code === "T1";
+          })[0];
+          assert.equal(rawValueInches, tank.rawValue);
           assert.equal(450, tank.depth);
-          assert.equal(1000, tank.capacity);
-          assert.equal(450, tank.fill);
+          assert.ok(Math.abs(expectedTank.getCapacity() - tankData.capacity) < 0.0001);
+          assert.ok(Math.abs(expectedTank.getFill() - tankData.fill) < 0.0001);
+          assert.notEqual(450, tankData.fill);
           assert.equal("2026-02-10T18:00:00.000Z", tank.lastUpdatedAt);
         });
       });
@@ -469,6 +502,88 @@ describe('Dashboard with Datacer Tank', function() {
           assert.ok(tank, "Original tank should still exist");
         });
       });
+    });
+  });
+});
+
+describe('Dashboard Datacer tank persisted-data migration', function() {
+  var fs = require('fs');
+  var ws = makeWsClient();
+  var storeFilename = '/tmp/dashboard_datacer_tank_migration.json';
+  var config = {
+    "collectors": [{
+      "uri": 'ws://localhost/'
+    }],
+    "store": {
+      "filename": storeFilename
+    },
+    "devices": [{
+      "id": "DATACER-TANK-001",
+      "name": "Datacer Tank Device"
+    }],
+    "tanks": [{
+      "code": "T1",
+      "name": "Tank T1",
+      "device": "Datacer Tank Device",
+      "shape": "cylinder",
+      "orientation": "horizontal",
+      "length": 1000 / Math.PI,
+      "diameter": 2000,
+      "offset": 0,
+      "sensorType": "pressure",
+      "rawUnit": "in"
+    }],
+    "valves": [],
+    "vacuums": [],
+    "pumps": [],
+    "osmose": []
+  };
+
+  beforeEach(function() {
+    try { fs.unlinkSync(storeFilename); } catch(e) { /* ignore */ }
+  });
+  afterEach(function() {
+    try { fs.unlinkSync(storeFilename); } catch(e) { /* ignore */ }
+  });
+
+  it('should migrate legacy persisted fill into rawValue for pressure tanks', function() {
+    var legacyFillInches = 39.37007874015748; // 1000 mm
+    var persistedDashboardData = {
+      "devices": [{
+        "id": "DATACER-TANK-001",
+        "name": "Datacer Tank Device"
+      }],
+      "tanks": [{
+        "code": "T1",
+        "name": "Tank T1",
+        "device": "Datacer Tank Device",
+        "shape": "cylinder",
+        "orientation": "horizontal",
+        "length": 1000 / Math.PI,
+        "diameter": 2000,
+        "offset": 0,
+        "sensorType": "pressure",
+        "rawUnit": "in",
+        "isDatacer": true,
+        "fill": legacyFillInches,
+        "lastUpdatedAt": "2026-02-10T18:00:00.000Z"
+      }],
+      "valves": [],
+      "vacuums": [],
+      "pumps": [],
+      "osmose": [],
+      "waterMeters": []
+    };
+    fs.writeFileSync(storeFilename, JSON.stringify(persistedDashboardData), 'utf8');
+
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    return dashboard.init().then(function() {
+      var tank = dashboard.getTank("Tank T1");
+      var tankData = dashboard.getData().tanks.filter(function(t) {
+        return t.code === "T1";
+      })[0];
+      assert.equal(legacyFillInches, tank.rawValue);
+      assert.ok(Math.abs(500 - tankData.fill) < 0.0001);
     });
   });
 });

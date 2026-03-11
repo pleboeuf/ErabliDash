@@ -11,6 +11,102 @@ const _ = require("underscore");
 
 const readFile = Promise.denodeify(fs.readFile);
 const writeFile = Promise.denodeify(fs.writeFile);
+const MM_PER_INCH = 25.4;
+
+function parseNumericValue(value) {
+    const parsed = parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : NaN;
+}
+
+function getTankRawUnit(tank) {
+    const rawUnit = tank.rawUnit || tank.units;
+    if (typeof rawUnit !== "string") {
+        return "";
+    }
+    return rawUnit.toLowerCase();
+}
+
+function convertRawToMillimeters(rawValue, rawUnit) {
+    const numericRawValue = parseNumericValue(rawValue);
+    if (!Number.isFinite(numericRawValue)) {
+        return NaN;
+    }
+
+    switch (rawUnit) {
+        case "in":
+        case "inch":
+        case "inches":
+        case "po":
+        case "pouce":
+        case "pouces":
+            return numericRawValue * MM_PER_INCH;
+        case "mm":
+        case "millimeter":
+        case "millimeters":
+        case "millimetre":
+        case "millimetres":
+        default:
+            return numericRawValue;
+    }
+}
+
+function getTankLevelMm(tank) {
+    const sensorType =
+        typeof tank.sensorType === "string"
+            ? tank.sensorType.toLowerCase()
+            : "ultrasonic";
+    const rawUnit =
+        getTankRawUnit(tank) || (sensorType === "pressure" ? "in" : "mm");
+    const scaleFactor = parseNumericValue(tank.scaleFactor);
+    let rawValueMm = convertRawToMillimeters(tank.rawValue, rawUnit);
+
+    if (!Number.isFinite(rawValueMm)) {
+        return NaN;
+    }
+    if (Number.isFinite(scaleFactor)) {
+        rawValueMm *= scaleFactor;
+    }
+
+    if (sensorType === "pressure") {
+        const offsetMm = parseNumericValue(tank.offset);
+        const calibratedLevelMm =
+            rawValueMm - (Number.isFinite(offsetMm) ? offsetMm : 0);
+        return Math.max(0, calibratedLevelMm);
+    }
+
+    const sensorHeightMm = parseNumericValue(tank.sensorHeight);
+    if (!Number.isFinite(sensorHeightMm)) {
+        return Math.max(0, rawValueMm);
+    }
+    return Math.max(0, sensorHeightMm - rawValueMm);
+}
+
+function sanitizePersistedTankData(tankConfig, persistedTankData) {
+    const runtimeData = _.extend({}, persistedTankData || {});
+    const sensorType =
+        typeof tankConfig.sensorType === "string"
+            ? tankConfig.sensorType.toLowerCase()
+            : "";
+
+    if (sensorType === "pressure") {
+        const persistedRawValue = parseNumericValue(runtimeData.rawValue);
+        const persistedFillValue = parseNumericValue(runtimeData.fill);
+        if (
+            !Number.isFinite(persistedRawValue) &&
+            Number.isFinite(persistedFillValue)
+        ) {
+            runtimeData.rawValue = persistedFillValue;
+            console.warn(
+                "Migrated legacy persisted Datacer fill to rawValue for tank '%s'",
+                tankConfig.code,
+            );
+        }
+        delete runtimeData.fill;
+        delete runtimeData.capacity;
+    }
+
+    return runtimeData;
+}
 
 exports.Device = function (
     id,
@@ -57,9 +153,12 @@ const HorizontalCylindricTank = function (self) {
      * @returns {number} The fill of the tank.
      */
     self.getFill = function () {
-        let h = self.sensorHeight - self.rawValue;
-        h = Math.max(0, h); // Ensure h is not negative
-        return HorizontalCylindricTank.getFill(h, self.diameter, self.length);
+        const levelMm = getTankLevelMm(self);
+        return HorizontalCylindricTank.getFill(
+            levelMm,
+            self.diameter,
+            self.length,
+        );
     };
 };
 
@@ -92,11 +191,14 @@ const UShapedTank = function (self) {
         return getFill(self.totalHeight);
     };
     self.getFill = function () {
-        return getFill(self.sensorHeight - self.rawValue);
+        return getFill(getTankLevelMm(self));
     };
 
     function getFill(level) {
         // All measures in millimeters
+        if (isNaN(level)) {
+            return 9999;
+        }
         level = Math.max(0, level); // Ensure level is not negative
         return getBottomFill(level) + getTopFill(level);
     }
@@ -816,13 +918,20 @@ exports.Dashboard = function (config, WebSocketClient) {
                     (t) => t.device === device.name && t.code === data.name,
                 );
                 if (tank) {
+                    const rawValue = parseNumericValue(
+                        typeof data.rawValue !== "undefined"
+                            ? data.rawValue
+                            : data.ReadingValue,
+                    );
                     Object.assign(tank, {
                         isDatacer: true,
-                        rawValue: data.rawValue,
+                        rawValue: Number.isFinite(rawValue)
+                            ? rawValue
+                            : tank.rawValue,
                         depth: data.depth,
-                        capacity: data.capacity,
-                        fill: data.fill,
-                        lastUpdatedAt: data.lastUpdatedAt,
+                        reportedCapacity: data.capacity,
+                        reportedFill: data.fill,
+                        lastUpdatedAt: data.lastUpdatedAt || event.published_at,
                     });
                     event.object = extendTank(tank);
                 } else {
@@ -1166,7 +1275,10 @@ exports.Dashboard = function (config, WebSocketClient) {
 
     function extendTank(tank) {
         tank = _.extend({}, tank);
-        if (!tank.isDatacer) {
+        if (
+            typeof tank.getCapacity === "function" &&
+            typeof tank.getFill === "function"
+        ) {
             tank.capacity = tank.getCapacity();
             tank.fill = tank.getFill();
         }
@@ -1232,12 +1344,15 @@ exports.Dashboard = function (config, WebSocketClient) {
                     return tank.code === tankData.code;
                 })
                 .shift();
+            if (!tankData) {
+                tankData = {};
+            }
             console.log(
                 "Loading configured tank '%s' - '%s' with raw level of %s, last updated at %s",
                 tank.code,
                 tank.name,
-                tank.rawValue,
-                tank.lastUpdatedAt,
+                tankData.rawValue,
+                tankData.lastUpdatedAt,
             );
             var attrsFromConfig = [
                 "name",
@@ -1248,8 +1363,23 @@ exports.Dashboard = function (config, WebSocketClient) {
                 "diameter",
                 "sensorHeight",
                 "totalHeight",
+                "sensorType",
+                "rawUnit",
+                "units",
+                "offset",
+                "scaleFactor",
+                "output",
+                "drain",
+                "ssrRelay",
             ];
-            return new Tank(_.extend(tank, _.omit(tankData, attrsFromConfig)));
+            var runtimeTankData = sanitizePersistedTankData(
+                tank,
+                _.omit(tankData, attrsFromConfig),
+            );
+            var loadedTank = new Tank(_.extend({}, tank, runtimeTankData));
+            loadedTank.capacity = loadedTank.getCapacity();
+            loadedTank.fill = loadedTank.getFill();
+            return loadedTank;
         });
 
         valves = config.valves.map(function (valve) {
