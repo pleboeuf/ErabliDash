@@ -419,6 +419,8 @@
             "length": 10718,
             "diameter": 1651,
             "sensorHeight": 1743,
+            "sensorType": "ultrasonic",
+            "rawUnit": "mm",
             "output": "VaS1",
             "drain": "VaDS1",
             "ssrRelay": "VaES1"
@@ -432,6 +434,8 @@
             "length": 7010,
             "diameter": 1842,
             "sensorHeight": 1863,
+            "sensorType": "ultrasonic",
+            "rawUnit": "mm",
             "output": "VaS2",
             "drain": "VaDS2",
             "ssrRelay": "VaES2"
@@ -445,6 +449,8 @@
             "length": 4128,
             "diameter": 2438,
             "sensorHeight": 2216,
+            "sensorType": "ultrasonic",
+            "rawUnit": "mm",
             "output": "VaS3",
             "drain": "VaDS3",
             "ssrRelay": "VaES3"
@@ -458,6 +464,8 @@
             "length": 3353,
             "diameter": 2438,
             "sensorHeight": 1973,
+            "sensorType": "ultrasonic",
+            "rawUnit": "mm",
             "output": "VaS4",
             "drain": "VaDS4",
             "ssrRelay": "VaAPH1"
@@ -471,6 +479,8 @@
             "diameter": 1219,
             "totalHeight": 1067,
             "sensorHeight": 1140,
+            "sensorType": "ultrasonic",
+            "rawUnit": "mm",
             "output": "VaS5",
             "drain": "VaDS5",
             "ssrRelay": "none"
@@ -484,6 +494,8 @@
             "diameter": 1219,
             "totalHeight": 1067,
             "sensorHeight": 1150,
+            "sensorType": "ultrasonic",
+            "rawUnit": "mm",
             "output": "VaS6",
             "drain": "VaDS6",
             "ssrRelay": "none"
@@ -497,6 +509,8 @@
             "length": 4267,
             "diameter": 1842,
             "sensorHeight": 1872,
+            "sensorType": "ultrasonic",
+            "rawUnit": "mm",
             "output": "VaF2",
             "drain": "VaDF2",
             "ssrRelay": "VaDPH1"
@@ -510,6 +524,8 @@
             "diameter": 1524,
             "totalHeight": 1676,
             "sensorHeight": 1700,
+            "sensorType": "ultrasonic",
+            "rawUnit": "mm",
             "output": "none",
             "drain": "none",
             "ssrRelay": "none"
@@ -523,6 +539,8 @@
             "diameter": 1219,
             "totalHeight": 914,
             "sensorHeight": 986,
+            "sensorType": "ultrasonic",
+            "rawUnit": "mm",
             "output": "none",
             "drain": "none",
             "ssrRelay": "none"
@@ -536,6 +554,8 @@
             "diameter": 1219,
             "totalHeight": 914,
             "sensorHeight": 982,
+            "sensorType": "ultrasonic",
+            "rawUnit": "mm",
             "output": "none",
             "drain": "none",
             "ssrRelay": "none"
@@ -549,6 +569,8 @@
             "length": 3000,
             "diameter": 1270,
             "sensorHeight": 1270,
+            "sensorType": "ultrasonic",
+            "rawUnit": "mm",
             "output": "none",
             "drain": "none",
             "ssrRelay": "none"
@@ -562,7 +584,9 @@
             "length": 10718,
             "diameter": 1651,
             "scaleFactor": 1.0,
-            "offset": 280
+            "offset": 280,
+            "sensorType": "pressure",
+            "rawUnit": "in"
         },
         {
             "code": "RS2",
@@ -573,7 +597,9 @@
             "length": 7010,
             "diameter": 1842,
             "scaleFactor": 1.0,
-            "offset": 240
+            "offset": 240,
+            "sensorType": "pressure",
+            "rawUnit": "in"
         },
         {
             "code": "RS3",
@@ -584,7 +610,9 @@
             "length": 4128,
             "diameter": 2438,
             "scaleFactor": 1.0,
-            "offset": 16
+            "offset": 16,
+            "sensorType": "pressure",
+            "rawUnit": "in"
         },
         {
             "code": "RS4",
@@ -595,7 +623,9 @@
             "length": 3353,
             "diameter": 2438,
             "scaleFactor": 1.0,
-            "offset": 0
+            "offset": 0,
+            "sensorType": "pressure",
+            "rawUnit": "in"
         },
         {
             "code": "RS5",
@@ -606,7 +636,9 @@
             "diameter": 1219,
             "totalHeight": 1067,
             "scaleFactor": 1.0,
-            "offset": 90
+            "offset": 90,
+            "sensorType": "pressure",
+            "rawUnit": "in"
         },
         {
             "code": "RS6",
@@ -617,7 +649,9 @@
             "diameter": 1219,
             "totalHeight": 1067,
             "scaleFactor": 1.0,
-            "offset": 13
+            "offset": 13,
+            "sensorType": "pressure",
+            "rawUnit": "in"
         },
         {
             "code": "RF2",
@@ -628,7 +662,9 @@
             "length": 4267,
             "diameter": 1842,
             "scaleFactor": 1.0,
-            "offset": 325
+            "offset": 325,
+            "sensorType": "pressure",
+            "rawUnit": "in"
         },
         {
             "code": "RF1",
@@ -639,7 +675,9 @@
             "diameter": 1524,
             "totalHeight": 1676,
             "scaleFactor": 1.0,
-            "offset": 420
+            "offset": 420,
+            "sensorType": "pressure",
+            "rawUnit": "in"
         },
         {
             "code": "RC1",
@@ -650,7 +688,9 @@
             "diameter": 1219,
             "totalHeight": 914,
             "scaleFactor": 1.0,
-            "offset": 390
+            "offset": 390,
+            "sensorType": "pressure",
+            "rawUnit": "in"
         },
         {
             "code": "RC2",
@@ -661,7 +701,9 @@
             "diameter": 1219,
             "totalHeight": 914,
             "scaleFactor": 1.0,
-            "offset": 390
+            "offset": 390,
+            "sensorType": "pressure",
+            "rawUnit": "in"
         }
     ],
     "valves": [
