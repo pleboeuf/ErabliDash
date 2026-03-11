@@ -258,11 +258,6 @@ influx -database $dbname -format 'csv' -execute "SELECT MEAN(fill), MAX(fill), M
 	| sed 's/tank_name=//g' | format_output | convert_decimals
 echo
 
-echo -e "Capacité des tanks - Valeur actuelle"
-influx -database $dbname -format 'csv' -execute "SELECT LAST(capacity) FROM Tank_level WHERE time > '$startTime' AND time < '$endTime' GROUP BY tank_name" 2>/dev/null \
-	| sed 's/tank_name=//g' | format_output | convert_decimals
-echo
-
 # ========== SECTION VOLUME D'EAU ==========
 echo
 echo -e "=== VOLUME D'EAU (COMPTEURS) ==="
