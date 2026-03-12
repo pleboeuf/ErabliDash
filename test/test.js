@@ -137,6 +137,7 @@ describe('Dashboard', function() {
       });
     });
   });
+
 });
 
 describe('Dashboard security', function() {
@@ -164,6 +165,7 @@ describe('Dashboard security', function() {
       assert.equal(false, Object.prototype.hasOwnProperty.call(data, 'valveSelectorPassword'));
     });
   });
+
 });
 
 describe('Dashboard with tank A', function() {
@@ -321,6 +323,7 @@ describe('Dashboard with valve', function() {
       });
     });
   });
+
 });
 
 describe('Dashboard with vacuum sensor', function() {
@@ -358,6 +361,7 @@ describe('Dashboard with vacuum sensor', function() {
       });
     });
   });
+
 });
 
 describe('Pump with one cycle', function() {
@@ -584,6 +588,158 @@ describe('Dashboard Datacer tank persisted-data migration', function() {
       })[0];
       assert.equal(legacyFillInches, tank.rawValue);
       assert.ok(Math.abs(500 - tankData.fill) < 0.0001);
+    });
+  });
+});
+
+describe('Dashboard temporary EB-RS1 Datacer fallback', function() {
+  var fs = require('fs');
+  var ws = makeWsClient();
+  var storeFilename = '/tmp/dashboard_eb_rs1_datacer_fallback.json';
+  var config = {
+    "collectors": [{
+      "uri": 'ws://localhost/'
+    }],
+    "store": {
+      "filename": storeFilename
+    },
+    "devices": [{
+      "id": "23001b001847393035313137",
+      "name": "EB-RS1"
+    }, {
+      "id": "BASSIN RF2-RS1-RS2",
+      "name": "BASSIN RF2-RS1-RS2"
+    }],
+    "tanks": [{
+      "code": "RS1",
+      "name": "Réservoir de sève #1",
+      "device": "EB-RS1",
+      "shape": "cylinder",
+      "orientation": "horizontal",
+      "length": 10718,
+      "diameter": 1651,
+      "sensorHeight": 1743,
+      "sensorType": "ultrasonic",
+      "rawUnit": "mm"
+    }, {
+      "code": "RS1",
+      "name": "Réservoir de sève #1",
+      "device": "BASSIN RF2-RS1-RS2",
+      "shape": "cylinder",
+      "orientation": "horizontal",
+      "length": 10718,
+      "diameter": 1651,
+      "scaleFactor": 1.0,
+      "offset": 280,
+      "sensorType": "pressure",
+      "rawUnit": "in"
+    }],
+    "valves": [],
+    "vacuums": [],
+    "pumps": [],
+    "osmose": []
+  };
+
+  function makeDatacerTankMessage(deviceId, generationId, serialNo, tankData) {
+    var data = {
+      "generation": generationId,
+      "noSerie": serialNo,
+      "eName": "Tank/Level",
+      "name": tankData.name,
+      "rawValue": tankData.rawValue,
+      "depth": tankData.depth,
+      "capacity": tankData.capacity,
+      "fill": tankData.fill,
+      "lastUpdatedAt": tankData.lastUpdatedAt
+    };
+    var message = {
+      "coreid": deviceId,
+      "published_at": "2026-02-10T18:00:00.000Z",
+      "data": JSON.stringify(data)
+    };
+    return {
+      "type": 'utf8',
+      "utf8Data": JSON.stringify(message)
+    };
+  }
+
+  beforeEach(function() {
+    try { fs.unlinkSync(storeFilename); } catch(e) { /* ignore */ }
+  });
+  afterEach(function() {
+    try { fs.unlinkSync(storeFilename); } catch(e) { /* ignore */ }
+  });
+
+  it('should mirror Datacer RS1 level into EB-RS1 tank data', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    var msg = makeDatacerTankMessage("BASSIN RF2-RS1-RS2", 1, 1, {
+      "name": "RS1",
+      "rawValue": 35.0,
+      "depth": 300,
+      "capacity": 1000,
+      "fill": 300,
+      "lastUpdatedAt": "2026-02-10T18:00:00.000Z"
+    });
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(msg).then(function() {
+          var tanks = dashboard.getData().tanks;
+          var ebRs1Tank = tanks.filter(function(t) {
+            return t.device === "EB-RS1" && t.code === "RS1";
+          })[0];
+          var datacerRs1Tank = tanks.filter(function(t) {
+            return t.device === "BASSIN RF2-RS1-RS2" && t.code === "RS1";
+          })[0];
+
+          assert.ok(ebRs1Tank, "EB-RS1 tank should exist");
+          assert.ok(datacerRs1Tank, "Datacer RS1 tank should exist");
+          assert.ok(Number.isFinite(ebRs1Tank.rawValue), "EB-RS1 rawValue should be finite");
+          assert.ok(Math.abs(ebRs1Tank.fill - datacerRs1Tank.fill) < 0.0001);
+        });
+      });
+    });
+  });
+
+  it('should keep mirrored RS1 fill after a new EB-RS1 ultrasonic event', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    var datacerMsg = makeDatacerTankMessage("BASSIN RF2-RS1-RS2", 1, 1, {
+      "name": "RS1",
+      "rawValue": 35.0,
+      "depth": 300,
+      "capacity": 1000,
+      "fill": 300,
+      "lastUpdatedAt": "2026-02-10T18:00:00.000Z"
+    });
+    var ebRs1SensorMsg = makeMessage("23001b001847393035313137", 1, 1, {
+      "eName": "sensor/level",
+      "eData": 1743
+    });
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(datacerMsg).then(function() {
+          var tanksAfterDatacer = dashboard.getData().tanks;
+          var datacerRs1Tank = tanksAfterDatacer.filter(function(t) {
+            return t.device === "BASSIN RF2-RS1-RS2" && t.code === "RS1";
+          })[0];
+          var ebRs1TankAfterDatacer = tanksAfterDatacer.filter(function(t) {
+            return t.device === "EB-RS1" && t.code === "RS1";
+          })[0];
+          var mirroredFill = ebRs1TankAfterDatacer.fill;
+          assert.ok(Math.abs(mirroredFill - datacerRs1Tank.fill) < 0.0001);
+          return connection.fakeReceive(ebRs1SensorMsg).then(function() {
+            var tanksAfterUltrasound = dashboard.getData().tanks;
+            var ebRs1TankAfterUltrasound = tanksAfterUltrasound.filter(function(t) {
+              return t.device === "EB-RS1" && t.code === "RS1";
+            })[0];
+            var datacerRs1TankAfterUltrasound = tanksAfterUltrasound.filter(function(t) {
+              return t.device === "BASSIN RF2-RS1-RS2" && t.code === "RS1";
+            })[0];
+            assert.ok(Number.isInteger(ebRs1TankAfterUltrasound.rawValue));
+            assert.ok(Math.abs(ebRs1TankAfterUltrasound.fill - mirroredFill) < 0.0001);
+            assert.ok(Math.abs(ebRs1TankAfterUltrasound.fill - datacerRs1TankAfterUltrasound.fill) < 0.0001);
+          });
+        });
+      });
     });
   });
 });

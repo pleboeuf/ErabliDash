@@ -359,6 +359,42 @@ exports.Dashboard = function (config, WebSocketClient) {
             .shift();
     }
 
+    function applyTemporaryEbRs1DatacerFallback() {
+        // TEMPORARY WORKAROUND (EB-RS1 ultrasonic sensor fault):
+        // Re-apply RS1 value from Datacer after event processing so incoming EB-RS1
+        // ultrasound events (integer raw values) cannot revert displayed fill to invalid state.
+        // Remove this once EB-RS1 ultrasound hardware is fixed.
+        const ebRs1Tank = tanks.find(
+            (tank) => tank.device === "EB-RS1" && tank.code === "RS1",
+        );
+        const datacerRs1Tank = tanks.find(
+            (tank) =>
+                tank.device !== "EB-RS1" &&
+                tank.code === "RS1" &&
+                typeof tank.sensorType === "string" &&
+                tank.sensorType.toLowerCase() === "pressure",
+        );
+
+        if (!ebRs1Tank || !datacerRs1Tank) {
+            return;
+        }
+
+        const datacerLevelMm = getTankLevelMm(datacerRs1Tank);
+        const ebRs1SensorHeightMm = parseNumericValue(ebRs1Tank.sensorHeight);
+        if (
+            !Number.isFinite(datacerLevelMm) ||
+            !Number.isFinite(ebRs1SensorHeightMm)
+        ) {
+            return;
+        }
+
+        ebRs1Tank.rawValue = Math.round(
+            Math.max(0, ebRs1SensorHeightMm - datacerLevelMm),
+        );
+        ebRs1Tank.lastUpdatedAt =
+            datacerRs1Tank.lastUpdatedAt || ebRs1Tank.lastUpdatedAt;
+    }
+
     function addDevice(device) {
         devices.push(device);
         return Promise.resolve(device);
@@ -1057,6 +1093,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                     event,
                 );
         }
+        applyTemporaryEbRs1DatacerFallback();
         return publishData(event, device);
     }
 
@@ -1262,6 +1299,7 @@ exports.Dashboard = function (config, WebSocketClient) {
     }
 
     function getData() {
+        applyTemporaryEbRs1DatacerFallback();
         return {
             devices: devices,
             tanks: tanks.map(extendTank),
