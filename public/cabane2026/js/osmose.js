@@ -200,39 +200,7 @@
       "BrixConc": 10                                                          "BrixConc": 10                                     "BrixConc": 10
     }                                                                       }                                                  }
   ]                                                                       ]                                                  ]
- "osmose": [
-    {
-      "code": "Osm1",
-      "device": "EB-Osm1",
-      "state": 0,
-      "fonction": "   indefini  ",
-      "sequence": "?-?-?-?",
-      "alarmNo": 0,
-      "alarmMsg": " - - - - - - - - - ",
-      "lastUpdatedAt": "2021-03-22T03:25:36.727Z",
-      "TempsOperEnCour": 13,
-      "TempsSeq1234": 0,
-      "TempsSeq4321": 0,
-      "TempsDepuisLavage": 2162,
-      "startStopTime": 1616362763,
-      "runTimeSec": 13,
-      "PC_Conc": 85,
-      "Conc_GPH": 480,
-      "Filtrat_GPH": 2670,
-      "Total_GPH": 3150,
-      "Col1": 15,
-      "Col2": 14,
-      "Col3": 10,
-      "Col4": 5.5,
-      "Conc": 8,
-      "Temp": 5,
-      "Pres": 290,
-      "BrixSeve": 1.1,
-      "BrixConc": 13
-    }
-  ]
 
-  Canada Canada	Canada	UN member state	CA	CAN	124	ISO 3166-2:CA	.ca
 */
 		  osmose= 
 	    {
