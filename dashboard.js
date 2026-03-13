@@ -1048,12 +1048,16 @@ exports.Dashboard = function (config, WebSocketClient) {
             name = "Vacuum/Lignes";
         }
 
+        const logFieldName = name === "Tank/Level" ? "fill" : "value";
+        const logFieldValue = name === "Tank/Level" ? data.fill : value;
+
         device.lastUpdatedAt = event.published_at;
         console.log(
-            "Event '%s' from device: '%s', value: %s",
+            "Event '%s' from device: '%s', %s: %s",
             name,
             device.name,
-            value,
+            logFieldName,
+            logFieldValue,
         );
 
         const [mainTopic, subTopic] = name.split("/");
