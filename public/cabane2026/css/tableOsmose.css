@@ -28,7 +28,7 @@ table.blueTable td, table.blueTable th {
 table.blueTable tbody td {
   font-size: 18px;
   font-weight: bold; 
-  padding: 5px;
+  padding: 6px;
 }
 table.blueTable tr:nth-child(even) {
   background: #c2d6c2;
@@ -46,17 +46,15 @@ table.blueTable tfoot .links a{
   padding: 2px 8px;
   border-radius: 5
   }
-
-
 .container {
-  /* display: grid; */
+  display: grid;
   position: absolute;
   width: 620px;
   height: 360px;
   top: 460px;
   left: 650px;
-  /* grid-template-columns: 1fr ;
-  grid-template-rows: 1fr; */
+  grid-template-columns: 1fr ;
+  grid-template-rows: 1fr;
 /*  grid-template-rows: 40px 1fr 1fr 60px;
    grid-gap: 1rem; */
 }
@@ -66,14 +64,10 @@ table.blueTable tfoot .links a{
   grid-column: 1 / 4;
 }
  */
- div.ex3 {
-  background-color: lightblue;
-  overflow: auto;
-}
-/* .sidebar {
+.sidebar {
   grid-row: 1/ 5;
   grid-column: 1 / 4 ;
-} */
+}
 /* 
 .sidebar2 {
   grid-row: 2 / 4;
@@ -114,19 +108,19 @@ body {
 /*   display: flex;
   justify-content: center;
   align-items: center; */
-     /* display: flex;  */
+     display: flex; 
   justify-content: left;
   align-items: left; 
   font-size: 18px;
   font-weight: bold; 
   color: #ffffff;
 }
-
+/* 
 .header {
-  background-color: #c2d6c2;
+  background-color: #1EAAFC;
   background-image: linear-gradient(160deg, #6C52D9 0%, #9B8AE6 127%);
 }
-/* 
+
 .sidebar {
   background-image: linear-gradient(203deg, #3EDFD7 0%, #29A49D 90%)
 }
