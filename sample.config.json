@@ -597,7 +597,7 @@
             "length": 7010,
             "diameter": 1842,
             "scaleFactor": 1.0,
-            "offset": 240,
+            "offset": 358,
             "sensorType": "pressure",
             "rawUnit": "in"
         },
@@ -636,7 +636,7 @@
             "diameter": 1219,
             "totalHeight": 1067,
             "scaleFactor": 1.0,
-            "offset": 90,
+            "offset": 115,
             "sensorType": "pressure",
             "rawUnit": "in"
         },
@@ -688,7 +688,7 @@
             "diameter": 1219,
             "totalHeight": 914,
             "scaleFactor": 1.0,
-            "offset": 390,
+            "offset": 445,
             "sensorType": "pressure",
             "rawUnit": "in"
         },
