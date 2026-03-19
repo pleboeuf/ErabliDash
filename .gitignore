@@ -11,6 +11,7 @@ config20*.json
 # Data & Logs
 data/
 Datacer/
+public/cabanemap2026
 log/
 pid/
 *.log
