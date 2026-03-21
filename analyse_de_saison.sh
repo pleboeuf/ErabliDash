@@ -124,11 +124,11 @@ format_output() {
 }
 
 # En-tête du fichier
-echo -e "********************************************************************************************************************************************************"
+echo -e "***************************************************************"
 echo -e " Sommaire de la saison $year - Base de données: $dbname"
 echo -e " Importer dans Excel: Données > À partir d'un fichier texte/CSV"
 echo -e " Choisir: Délimiteur TAB, Origine: UNICODE UTF-8"
-echo -e "********************************************************************************************************************************************************"
+echo -e "***************************************************************"
 echo
 
 echo -e "Sommaire de la saison\t\t$year"
@@ -140,7 +140,7 @@ echo
 
 # ========== SECTION COULÉE ==========
 echo
-echo -e "=== COULÉES ==="
+echo -e "'=== COULÉES ==="
 echo
 
 echo -e "Nombre de coulées (volume_total > 15g)"
@@ -150,7 +150,7 @@ echo
 
 # ========== SECTION CYCLES (POMPES) ==========
 echo
-echo -e "=== CYCLES DES POMPES ==="
+echo -e "'=== CYCLES DES POMPES ==="
 echo
 
 echo -e "Nombre de cycles (volume > 15g)"
@@ -158,7 +158,7 @@ influx -database $dbname -format 'csv' -execute "SELECT COUNT(volume) FROM Cycle
 	| format_output | convert_decimals
 echo
 
-echo -e "Statistiques volume des cycles (gal) - Sum, Mean, Max, Min"
+echo -e "Volume des cycles (gal) - Sum, Mean, Max, Min"
 influx -database $dbname -format 'csv' -execute "SELECT SUM(volume), MEAN(volume), MAX(volume), MIN(volume) FROM Cycles WHERE volume > 0 AND time > '$startTime' AND time < '$endTime' GROUP BY deviceName" 2>/dev/null \
 	| format_output | convert_decimals
 echo
@@ -180,7 +180,7 @@ echo
 
 # ========== SECTION VACUUM ==========
 echo
-echo -e "=== VACUUM ==="
+echo -e "'=== VACUUM ==="
 echo
 
 echo -e "Vacuum aux relâcheurs (inHg) - Mean, Min (filtré: -40 à -5)"
@@ -188,7 +188,6 @@ influx -database $dbname -format 'csv' -execute "SELECT MEAN(vacuum), MIN(vacuum
 	| format_output | convert_decimals
 echo
 echo -e "Vacuum sur les lignes (inHg) - Mean, Min (filtré: -40 à -5)"
-influx -database $dbname -format 'csv' -execute "SELECT MEAN(vacuum), MIN(vacuum) FROM Vacuum_ligne WHERE vacuum < -5 AND vacuum > -40 AND time > '$startTime' AND time < '$endTime' GROUP BY line_name" 2>/dev/null \
 influx -database $dbname -format 'csv' -execute "SELECT MEAN(vacuum), MIN(vacuum) FROM Vacuum_ligne WHERE vacuum < -5 AND time > '$startTime' AND time < '$endTime' GROUP BY line_name" 2>/dev/null \
 	| sed 's/line_name=//g' | format_output | convert_decimals
 echo
@@ -210,7 +209,7 @@ echo
 
 # ========== SECTION OSMOSE ==========
 echo
-echo -e "=== SOMMAIRE OSMOSE ==="
+echo -e "'=== SOMMAIRE OSMOSE ==="
 echo
 
 # Fonction pour extraire les valeurs d'une requête Osmose et ajouter le tag
@@ -266,7 +265,7 @@ echo
 
 # ========== SECTION RÉSERVOIRS ==========
 echo
-echo -e "=== RÉSERVOIRS ==="
+echo -e "'=== RÉSERVOIRS ==="
 echo
 
 echo -e "Niveau des réservoirs (gallons) - Mean, Max, Min"
@@ -286,7 +285,7 @@ echo
 
 # ========== SECTION VOLUME D'EAU ==========
 echo
-echo -e "=== VOLUME D'EAU (COMPTEURS) ==="
+echo -e "'=== VOLUME D'EAU (COMPTEURS) ==="
 echo
 
 echo -e "Volume total par compteur (gallons)"
@@ -306,7 +305,7 @@ echo
 
 # ========== SECTION VALVES ==========
 echo
-echo -e "=== VALVES ==="
+echo -e "'=== VALVES ==="
 echo
 
 echo -e "État des valves - Dernière position"
@@ -314,14 +313,9 @@ influx -database $dbname -format 'csv' -execute "SELECT LAST(position) FROM Valv
 	| sed 's/valve_name=//g' | format_output
 echo
 
-echo -e "Code de position des valves - Mean"
-influx -database $dbname -format 'csv' -execute "SELECT MEAN(pos_code) FROM Valves WHERE time > '$startTime' AND time < '$endTime' GROUP BY valve_name" 2>/dev/null \
-	| sed 's/valve_name=//g' | format_output | convert_decimals
-echo
-
 # ========== SECTION SAISON INFO ==========
 echo
-echo -e "=== INFORMATIONS SAISON ==="
+echo -e "'=== INFORMATIONS SAISON ==="
 echo
 
 echo -e "Dates de début par pompe"
@@ -334,6 +328,6 @@ influx -database $dbname -format 'csv' -execute "SELECT LAST(endTime) FROM Saiso
 	| sed 's/pompe=//g' | format_output | convert_dates_in_stream
 echo
 
-echo -e "********************************************************************************************************************************************************"
+echo -e "***************************************************************"
 echo -e " Fin du sommaire"
-echo -e "********************************************************************************************************************************************************"
+echo -e "**************************************************************"
