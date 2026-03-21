@@ -24,16 +24,42 @@ if [ -z "$dbexist" ]; then
 	echo "Erreur: La base de données '$dbname' n'existe pas ou est vide"
 	exit 1
 fi
+# Fonction pour extraire la première valeur de champ non vide d'une requête Influx
+# (gère les colonnes variables: name,time,startTime ou name,time,pompe,startTime)
+extract_first_field_value() {
+	local query="$1"
+	influx -database "$dbname" -format 'csv' -execute "$query" 2>/dev/null \
+		| awk -F ',' '
+			NR==1 {
+				for (i=1; i<=NF; i++) {
+					if ($i != "name" && $i != "time" && $i != "tags" && $i != "pompe") {
+						fieldCol=i
+					}
+				}
+				next
+			}
+			fieldCol > 0 && $fieldCol != "" {
+				gsub(/"/, "", $fieldCol)
+				print $fieldCol
+				exit
+			}
+		'
+}
 
 # Récupère les dates de début et fin de saison depuis SaisonInfo
 # On prend la première date de début parmi toutes les pompes
-startTime=$(influx -database $dbname -format 'csv' -execute "SELECT startTime FROM SaisonInfo WHERE pompe = 'P1' ORDER BY time DESC LIMIT 1" 2>/dev/null | awk -F ',' 'NR==2 {print $3}' | tr -d '"')
+startTime=$(extract_first_field_value "SELECT startTime FROM SaisonInfo WHERE pompe = 'P1' ORDER BY time DESC LIMIT 1")
 
 # Si pas de startTime pour P1, essayer les autres pompes
 if [ -z "$startTime" ] || [ "$startTime" == "" ]; then
-	startTime=$(influx -database $dbname -format 'csv' -execute "SELECT startTime FROM SaisonInfo ORDER BY time ASC LIMIT 1" 2>/dev/null | awk -F ',' 'NR==2 {print $3}' | tr -d '"')
+	startTime=$(extract_first_field_value "SELECT startTime FROM SaisonInfo ORDER BY time ASC LIMIT 1")
 fi
+endTime=$(extract_first_field_value "SELECT endTime FROM SaisonInfo WHERE pompe = 'P1' ORDER BY time DESC LIMIT 1")
 
+# Si pas de endTime pour P1, prendre la dernière date de fin disponible toutes pompes
+if [ -z "$endTime" ] || [ "$endTime" == "" ]; then
+	endTime=$(extract_first_field_value "SELECT endTime FROM SaisonInfo ORDER BY time DESC LIMIT 1")
+fi
 endTime=$(influx -database $dbname -format 'csv' -execute "SELECT endTime FROM SaisonInfo WHERE pompe = 'P1' ORDER BY time DESC LIMIT 1" 2>/dev/null | awk -F ',' 'NR==2 {print $3}' | tr -d '"')
 
 # Si pas de endTime, utiliser maintenant
@@ -157,12 +183,12 @@ echo
 echo -e "=== VACUUM ==="
 echo
 
-echo -e "Vacuum aux relâcheurs (inHg) - Mean, Min"
-influx -database $dbname -format 'csv' -execute "SELECT MEAN(vacuum), MIN(vacuum) FROM Vacuum WHERE vacuum < -5 AND time > '$startTime' AND time < '$endTime' GROUP BY deviceName" 2>/dev/null \
+echo -e "Vacuum aux relâcheurs (inHg) - Mean, Min (filtré: -40 à -5)"
+influx -database $dbname -format 'csv' -execute "SELECT MEAN(vacuum), MIN(vacuum) FROM Vacuum WHERE vacuum < -5 AND vacuum > -40 AND time > '$startTime' AND time < '$endTime' GROUP BY deviceName" 2>/dev/null \
 	| format_output | convert_decimals
 echo
-
-echo -e "Vacuum sur les lignes (inHg) - Mean, Min"
+echo -e "Vacuum sur les lignes (inHg) - Mean, Min (filtré: -40 à -5)"
+influx -database $dbname -format 'csv' -execute "SELECT MEAN(vacuum), MIN(vacuum) FROM Vacuum_ligne WHERE vacuum < -5 AND vacuum > -40 AND time > '$startTime' AND time < '$endTime' GROUP BY line_name" 2>/dev/null \
 influx -database $dbname -format 'csv' -execute "SELECT MEAN(vacuum), MIN(vacuum) FROM Vacuum_ligne WHERE vacuum < -5 AND time > '$startTime' AND time < '$endTime' GROUP BY line_name" 2>/dev/null \
 	| sed 's/line_name=//g' | format_output | convert_decimals
 echo
@@ -253,8 +279,8 @@ influx -database $dbname -format 'csv' -execute "SELECT MEAN(fill_percent), MAX(
 	| format_output | convert_decimals
 echo
 
-echo -e "Niveau des tanks (Tank_level) - Mean, Max, Min"
-influx -database $dbname -format 'csv' -execute "SELECT MEAN(fill), MAX(fill), MIN(fill) FROM Tank_level WHERE time > '$startTime' AND time < '$endTime' GROUP BY tank_name" 2>/dev/null \
+echo -e "Niveau des tanks (Tank_level, gallons) - Mean, Max, Min"
+influx -database $dbname -format 'csv' -execute "SELECT MEAN(fill_gallons), MAX(fill_gallons), MIN(fill_gallons) FROM Tank_level WHERE time > '$startTime' AND time < '$endTime' GROUP BY tank_name" 2>/dev/null \
 	| sed 's/tank_name=//g' | format_output | convert_decimals
 echo
 
