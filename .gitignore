@@ -11,7 +11,10 @@ config20*.json
 # Data & Logs
 data/
 Datacer/
-public/cabanemap2026
+public/cabane*2026/
+public/cabane2026-old/
+public/cabaneMapNew/
+cabanemap2026/
 log/
 pid/
 *.log
