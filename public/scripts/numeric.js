@@ -1700,7 +1700,7 @@ function displayDatacerTanks() {
         }
         const rawValueNumeric = parseFloat(tank.rawValue);
         if (Number.isFinite(rawValueNumeric)) {
-            rawValueElem.innerHTML = rawValueNumeric.toFixed(0);
+            rawValueElem.innerHTML = rawValueNumeric.toFixed(2);
         } else {
             rawValueElem.innerHTML = "---";
         }

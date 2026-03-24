@@ -9,8 +9,10 @@
         "filename": "data/dashboard.json"
     },
     "influxdb": {
-        "host": "rpi4-prod.local",
-        "port": 8086
+        "host": "localhost",
+        "port": 8086,
+        "database": "Saison_2026",
+        "schema": "influxDbSchema.json"
     },
     "devices": [
         {
@@ -22,7 +24,7 @@
         {
             "name": "EB-P2",
             "description": "Pompe et vide relâcheur #2",
-            "id": "330027001547343433313338",
+            "id": "3c002a000447393035313138",
             "maxDelayMinutes": 5
         },
         {
@@ -44,21 +46,46 @@
             "label": "POMPE 1",
             "description": "Pompe a vide #1",
             "id": "POMPE 1",
-            "maxDelayMinutes": 5
+            "maxDelayMinutes": 6
         },
         {
             "name": "POMPE 2",
             "label": "POMPE 2",
             "description": "Pompe a vide #2",
             "id": "POMPE 2",
-            "maxDelayMinutes": 5
+            "maxDelayMinutes": 6
+        },
+        {
+            "name": "CABANE A CLAUDE 2",
+            "label": "CABANE A CLAUDE 2",
+            "description": "Vacuum relâcheur #2",
+            "id": "CABANE A CLAUDE 2",
+            "maxDelayMinutes": 6
         },
         {
             "name": "POMPE PUMP HOUSE",
             "label": "POMPE PUMP HOUSE",
             "description": "Pompe a vide #3",
             "id": "POMPE PUMP HOUSE",
-            "maxDelayMinutes": 5
+            "maxDelayMinutes": 6
+        },
+        {
+            "name": "COMPTEUR-EAU #1",
+            "id": "DATACER-WATER-210",
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "name": "COMPTEUR-EAU #2",
+            "id": "DATACER-WATER-226",
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "name": "COMPTEUR-EAU #3",
+            "id": "DATACER-WATER-212",
+            "scaleFactor": 1.0,
+            "offset": 0
         },
         {
             "name": "EB-V1",
@@ -156,7 +183,7 @@
         {
             "name": "EB-PT2",
             "description": "Pompe de transfert 2 - Pump House",
-            "id": "2b0031001047343432313031",
+            "id": "40002d000547393035313138",
             "maxDelayMinutes": 5
         },
         {
@@ -176,290 +203,210 @@
             "description": "Vacuum lignes A1 à A2",
             "id": "A1-A2",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "A3-A4",
             "description": "Vacuum lignes A3, A4",
             "id": "A3-A4",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "A5-B1-B2",
             "description": "Vacuum lignes A5, B1, B2",
             "id": "A5-B1-B2",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "C1-C2-C3",
             "description": "Vacuum lignes C1 à C3",
             "id": "C1-C2-C3",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "C4-C5-C6",
             "description": "Vacuum lignes C4 à C6",
             "id": "C4-C5-C6",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "C7-C8",
             "description": "Vacuum lignes C7 à C8",
             "id": "C7-C8",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "D1A-D1B-D2A",
             "description": "Vacuum lignes D1A, D1B, D2A",
             "id": "D1A-D1B-D2A",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "D2B",
             "description": "Vacuum lignes D2B",
             "id": "D2B",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
+        },
+        {
+            "name": "BASSIN RF2-RS1-RS2",
+            "description": "Datacer RF2-RS1-RS2",
+            "id": "BASSIN RF2-RS1-RS2",
+            "eventName": "Tank/Level",
+            "maxDelayMinutes": 6
+        },
+        {
+            "name": "BASSIN RS3-RS4",
+            "description": "Datacer RS3-RS4",
+            "id": "BASSIN RS3-RS4",
+            "eventName": "Tank/Level",
+            "maxDelayMinutes": 6
+        },
+        {
+            "name": "BASSIN RS5-RS6",
+            "description": "Datacer RS5-RS6",
+            "id": "BASSIN RS5-RS6",
+            "eventName": "Tank/Level",
+            "maxDelayMinutes": 6
+        },
+        {
+            "name": "BASSIN RC1-RC2-RF1",
+            "description": "Datacer RC1-RC2-RF1",
+            "id": "BASSIN RC1-RC2-RF1",
+            "eventName": "Tank/Level",
+            "maxDelayMinutes": 6
         },
         {
             "name": "E1-E2-E3",
             "description": "Vacuum lignes E1 à E3",
             "id": "E1-E2-E3",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "E4-E5-E6",
             "description": "Vacuum lignes E4 à E6",
             "id": "E4-E5-E6",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "E7-E8-E9",
             "description": "Vacuum lignes E7 à E9",
             "id": "E7-E8-E9",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "E10-E11-E12",
             "description": "Vacuum lignes E10 à E12",
             "id": "E10-E11-E12",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "F1-F2-F3",
             "description": "Vacuum lignes F1 et F3",
             "id": "F1-F2-F3",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "F4-F5-F6",
             "description": "Vacuum lignes F4 à F6",
             "id": "F4-F5-F6",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "F7-F8-F9",
             "description": "Vacuum lignes F7 à F9",
             "id": "F7-F8-F9",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "F10-F11-F12",
             "description": "Vacuum lignes F10 à F12",
             "id": "F10-F11-F12",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "F13-F14-F15",
             "description": "Vacuum lignes F13 à F15",
             "id": "F13-F14-F15",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "H14-G1-G2",
             "description": "Vacuum lignes G1, G2 et H14",
             "id": "H14-G1-G2",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "G3-G4-G5",
             "description": "Vacuum lignes G3 à G5",
             "id": "G3-G4-G5",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "G6-G7-G8",
             "description": "Vacuum lignes G6 à G8",
             "id": "G6-G7-G8",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "G9-G10",
             "description": "Vacuum lignes G9 à G10",
             "id": "G9-G10",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "G11-G12",
             "description": "Vacuum lignes G11 à G12",
             "id": "G11-G12",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "H2-H3-H4",
             "description": "Vacuum lignes H2 à H4",
             "id": "H2-H3-H4",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "H5-H6-H7",
             "description": "Vacuum lignes H5 à H7",
             "id": "H5-H6-H7",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
-            "name": "H8-H9-H10",
-            "description": "Vacuum lignes H8 à H10",
-            "id": "H8-H9-H10",
+            "name": "h8-h9-h10",
+            "description": "Vacuum lignes h8 à h10",
+            "id": "h8-h9-h10",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
+            "maxDelayMinutes": 6
         },
         {
             "name": "H11-H12-H13",
             "description": "Vacuum lignes H11 à H13",
             "id": "H11-H12-H13",
             "eventName": "Vacuum/Lignes",
-            "maxDelayMinutes": 20
-        },
-        {
-            "retired": true,
-            "name": "",
-            "description": "",
-            "id": "240051000a51353335323535"
-        },
-        {
-            "retired": true,
-            "name": "",
-            "description": "",
-            "id": "2f0024000647343339373536"
-        },
-        {
-            "retired": true,
-            "name": "EB-Elec-Dev1",
-            "description": "",
-            "id": "36004f000251353337353037"
-        },
-        {
-            "retired": true,
-            "name": "",
-            "description": "",
-            "id": "42002a000847343339373536"
-        },
-        {
-            "retired": true,
-            "name": "",
-            "description": "",
-            "id": "1f0042000447343337373738"
-        },
-        {
-            "retired": true,
-            "name": "EB-RS1",
-            "description": "Réservoir de sève #1",
-            "id": "1f003f000747343337373738"
-        },
-        {
-            "retired": true,
-            "name": "EB-RS1",
-            "description": "Réservoir de sève #1",
-            "id": "21003a000c47363339343638"
-        },
-        {
-            "retired": true,
-            "name": "EB-RS1",
-            "description": "Réservoir de sève #1",
-            "id": "40003d001047343438323536"
-        },
-        {
-            "retired": true,
-            "name": "EB-RS1",
-            "description": "Réservoir de sève #1",
-            "id": "3b0024001047343438323536"
-        },
-        {
-            "retired": true,
-            "name": "EB-RS2",
-            "description": "Réservoir de sève #2",
-            "id": "240045001447343338333633"
-        },
-        {
-            "retired": true,
-            "name": "EB-RS2",
-            "description": "Réservoir de sève #2",
-            "id": "3b0024001047343438323536"
-        },
-        {
-            "retired": true,
-            "name": "EB-RS2",
-            "description": "Réservoir de sève #2",
-            "id": "410057000b51353335323535"
-        },
-        {
-            "retired": true,
-            "name": "EB-RS3",
-            "description": "Réservoir de sève #3",
-            "id": "33001a000547343233323032"
-        },
-        {
-            "retired": true,
-            "name": "EB-RS4",
-            "description": "Réservoir de sève #4",
-            "id": "3b0028000847343337373738"
-        },
-        {
-            "retired": true,
-            "name": "EB-RF2",
-            "description": "Réservoir de filtrat #2",
-            "id": "3a002e000347343337373739"
-        },
-        {
-            "retired": true,
-            "name": "EB-VEcTk",
-            "description": "Valves VaEC et VaTk",
-            "id": "4b001b000b51353335323535"
-        },
-        {
-            "retired": true,
-            "name": "EB-VEcTk",
-            "description": "Valves VaEC et VaTk",
-            "id": "400032000f47343438323536"
-        },
-        {
-            "retired": true,
-            "name": "EB-RS5",
-            "description": "Réservoir de sève #5 - pump house",
-            "id": "3a0025000847343337373738"
+            "maxDelayMinutes": 6
         }
     ],
     "tanks": [
@@ -472,6 +419,9 @@
             "length": 10718,
             "diameter": 1651,
             "sensorHeight": 1743,
+            "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
+            "rawUnit": "mm",
             "output": "VaS1",
             "drain": "VaDS1",
             "ssrRelay": "VaES1"
@@ -485,6 +435,9 @@
             "length": 7010,
             "diameter": 1842,
             "sensorHeight": 1863,
+            "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
+            "rawUnit": "mm",
             "output": "VaS2",
             "drain": "VaDS2",
             "ssrRelay": "VaES2"
@@ -498,6 +451,9 @@
             "length": 4128,
             "diameter": 2438,
             "sensorHeight": 2216,
+            "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
+            "rawUnit": "mm",
             "output": "VaS3",
             "drain": "VaDS3",
             "ssrRelay": "VaES3"
@@ -511,6 +467,9 @@
             "length": 3353,
             "diameter": 2438,
             "sensorHeight": 1973,
+            "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
+            "rawUnit": "mm",
             "output": "VaS4",
             "drain": "VaDS4",
             "ssrRelay": "VaAPH1"
@@ -524,6 +483,9 @@
             "diameter": 1219,
             "totalHeight": 1067,
             "sensorHeight": 1140,
+            "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
+            "rawUnit": "mm",
             "output": "VaS5",
             "drain": "VaDS5",
             "ssrRelay": "none"
@@ -537,6 +499,9 @@
             "diameter": 1219,
             "totalHeight": 1067,
             "sensorHeight": 1150,
+            "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
+            "rawUnit": "mm",
             "output": "VaS6",
             "drain": "VaDS6",
             "ssrRelay": "none"
@@ -550,6 +515,9 @@
             "length": 4267,
             "diameter": 1842,
             "sensorHeight": 1872,
+            "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
+            "rawUnit": "mm",
             "output": "VaF2",
             "drain": "VaDF2",
             "ssrRelay": "VaDPH1"
@@ -563,6 +531,9 @@
             "diameter": 1524,
             "totalHeight": 1676,
             "sensorHeight": 1700,
+            "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
+            "rawUnit": "mm",
             "output": "none",
             "drain": "none",
             "ssrRelay": "none"
@@ -576,6 +547,9 @@
             "diameter": 1219,
             "totalHeight": 914,
             "sensorHeight": 986,
+            "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
+            "rawUnit": "mm",
             "output": "none",
             "drain": "none",
             "ssrRelay": "none"
@@ -588,7 +562,10 @@
             "length": 3658,
             "diameter": 1219,
             "totalHeight": 914,
-            "sensorHeight": 968,
+            "sensorHeight": 982,
+            "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
+            "rawUnit": "mm",
             "output": "none",
             "drain": "none",
             "ssrRelay": "none"
@@ -602,9 +579,151 @@
             "length": 3000,
             "diameter": 1270,
             "sensorHeight": 1270,
+            "sensorType": "ultrasonic",
+            "rawUnit": "mm",
             "output": "none",
             "drain": "none",
             "ssrRelay": "none"
+        },
+        {
+            "code": "RS1",
+            "name": "Réservoir de sève #1",
+            "device": "BASSIN RF2-RS1-RS2",
+            "shape": "cylinder",
+            "orientation": "horizontal",
+            "length": 10718,
+            "diameter": 1651,
+            "scaleFactor": 1.0,
+            "offset": 240,
+            "sensorType": "pressure",
+            "filterAlpha": 0.4,
+            "rawUnit": "in"
+        },
+        {
+            "code": "RS2",
+            "name": "Réservoir de sève #2",
+            "device": "BASSIN RF2-RS1-RS2",
+            "shape": "cylinder",
+            "orientation": "horizontal",
+            "length": 7010,
+            "diameter": 1842,
+            "scaleFactor": 1.0,
+            "offset": 330,
+            "sensorType": "pressure",
+            "filterAlpha": 0.4,
+            "rawUnit": "in"
+        },
+        {
+            "code": "RS3",
+            "name": "Réservoir de sève #3",
+            "device": "BASSIN RS3-RS4",
+            "shape": "cylinder",
+            "orientation": "horizontal",
+            "length": 4128,
+            "diameter": 2438,
+            "scaleFactor": 1.0,
+            "offset": 16,
+            "sensorType": "pressure",
+            "filterAlpha": 0.4,
+            "rawUnit": "in"
+        },
+        {
+            "code": "RS4",
+            "name": "Réservoir de sève #4",
+            "device": "BASSIN RS3-RS4",
+            "shape": "cylinder",
+            "orientation": "horizontal",
+            "length": 3353,
+            "diameter": 2438,
+            "scaleFactor": 1.0,
+            "offset": 0,
+            "sensorType": "pressure",
+            "filterAlpha": 0.4,
+            "rawUnit": "in"
+        },
+        {
+            "code": "RS5",
+            "name": "Réservoir de sève pump house #1",
+            "device": "BASSIN RS5-RS6",
+            "shape": "u",
+            "length": 3657,
+            "diameter": 1219,
+            "totalHeight": 1067,
+            "scaleFactor": 1.0,
+            "offset": 115,
+            "sensorType": "pressure",
+            "filterAlpha": 0.4,
+            "rawUnit": "in"
+        },
+        {
+            "code": "RS6",
+            "name": "Réservoir de sève pump house #2",
+            "device": "BASSIN RS5-RS6",
+            "shape": "u",
+            "length": 3657,
+            "diameter": 1219,
+            "totalHeight": 1067,
+            "scaleFactor": 1.0,
+            "offset": 13,
+            "sensorType": "pressure",
+            "filterAlpha": 0.4,
+            "rawUnit": "in"
+        },
+        {
+            "code": "RF2",
+            "name": "Réservoir de filtrat #2",
+            "device": "BASSIN RF2-RS1-RS2",
+            "shape": "cylinder",
+            "orientation": "horizontal",
+            "length": 4267,
+            "diameter": 1842,
+            "scaleFactor": 1.0,
+            "offset": 325,
+            "sensorType": "pressure",
+            "filterAlpha": 0.4,
+            "rawUnit": "in"
+        },
+        {
+            "code": "RF1",
+            "name": "Réservoir de filtrat #1",
+            "device": "BASSIN RC1-RC2-RF1",
+            "shape": "u",
+            "length": 4877,
+            "diameter": 1524,
+            "totalHeight": 1676,
+            "scaleFactor": 1.0,
+            "offset": 420,
+            "sensorType": "pressure",
+            "filterAlpha": 0.4,
+            "rawUnit": "in"
+        },
+        {
+            "code": "RC1",
+            "name": "Réservoir de concentré #1",
+            "device": "BASSIN RC1-RC2-RF1",
+            "shape": "u",
+            "length": 3658,
+            "diameter": 1219,
+            "totalHeight": 914,
+            "scaleFactor": 1.0,
+            "offset": 445,
+            "sensorType": "pressure",
+            "filterAlpha": 0.4,
+            "rawUnit": "in"
+        },
+        {
+            "code": "RC2",
+            "name": "Réservoir de concentré #2",
+            "device": "BASSIN RC1-RC2-RF1",
+            "shape": "u",
+            "length": 3658,
+            "diameter": 1219,
+            "totalHeight": 914,
+            "scaleFactor": 1.0,
+            "offset": 390,
+            "sensorType": "pressure",
+            "filterAlpha": 0.4,
+            "rawUnit": "in"
         }
     ],
     "valves": [
@@ -779,9 +898,17 @@
             "ref": "PV3"
         },
         {
+            "code": "Vac3-controle station cabane a claude",
+            "label": "C à Claude",
+            "device": "CABANE A CLAUDE 2",
+            "offset": 0,
+            "ref": "PV2"
+        },
+        {
             "code": "A1",
             "label": "Ligne A1",
             "device": "A1-A2",
+            "input": "A1",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -790,6 +917,7 @@
             "code": "A2",
             "label": "Ligne A2",
             "device": "A1-A2",
+            "input": "A2",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -798,6 +926,7 @@
             "code": "A3",
             "label": "Ligne A3",
             "device": "A3-A4",
+            "input": "A3",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -806,6 +935,7 @@
             "code": "A4",
             "label": "Ligne A4",
             "device": "A3-A4",
+            "input": "A4",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -814,6 +944,7 @@
             "code": "A5",
             "label": "Ligne A5",
             "device": "A5-B1-B2",
+            "input": "A5",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -822,6 +953,7 @@
             "code": "B1",
             "label": "Ligne B1",
             "device": "A5-B1-B2",
+            "input": "B1",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -830,6 +962,7 @@
             "code": "B2",
             "label": "Ligne B2",
             "device": "A5-B1-B2",
+            "input": "B2",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -838,6 +971,7 @@
             "code": "C1",
             "label": "Ligne C1",
             "device": "C1-C2-C3",
+            "input": "C1",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -846,6 +980,7 @@
             "code": "C2",
             "label": "Ligne C2",
             "device": "C1-C2-C3",
+            "input": "C2",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -854,6 +989,7 @@
             "code": "C3",
             "label": "Ligne C3",
             "device": "C1-C2-C3",
+            "input": "C3",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -862,6 +998,7 @@
             "code": "C4",
             "label": "Ligne C4",
             "device": "C4-C5-C6",
+            "input": "C4",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -870,6 +1007,7 @@
             "code": "C5",
             "label": "Ligne C5",
             "device": "C4-C5-C6",
+            "input": "C5",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -878,6 +1016,7 @@
             "code": "C6",
             "label": "Ligne C6",
             "device": "C4-C5-C6",
+            "input": "C6",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -886,6 +1025,7 @@
             "code": "C7",
             "label": "Ligne C7",
             "device": "C7-C8",
+            "input": "C7",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -894,6 +1034,7 @@
             "code": "C8",
             "label": "Ligne C8",
             "device": "C7-C8",
+            "input": "C8",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -902,6 +1043,7 @@
             "code": "D1A",
             "label": "Ligne D1A",
             "device": "D1A-D1B-D2A",
+            "input": "D1A",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -910,6 +1052,7 @@
             "code": "D1B",
             "label": "Ligne D1B",
             "device": "D1A-D1B-D2A",
+            "input": "D1B",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -918,6 +1061,7 @@
             "code": "D2A",
             "label": "Ligne D2A",
             "device": "D1A-D1B-D2A",
+            "input": "D2A",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -926,6 +1070,7 @@
             "code": "D2B",
             "label": "Ligne D2B",
             "device": "D2B",
+            "input": "D2B",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -934,6 +1079,7 @@
             "code": "E1",
             "label": "Ligne E1",
             "device": "E1-E2-E3",
+            "input": "E1",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -942,6 +1088,7 @@
             "code": "E2",
             "label": "Ligne E2",
             "device": "E1-E2-E3",
+            "input": "E2",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -950,6 +1097,7 @@
             "code": "E3",
             "label": "Ligne E3",
             "device": "E1-E2-E3",
+            "input": "E3",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -958,6 +1106,7 @@
             "code": "E4",
             "label": "Ligne E4",
             "device": "E4-E5-E6",
+            "input": "E4",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -966,6 +1115,7 @@
             "code": "E5",
             "label": "Ligne E5",
             "device": "E4-E5-E6",
+            "input": "E5",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -974,6 +1124,7 @@
             "code": "E6",
             "label": "Ligne E6",
             "device": "E4-E5-E6",
+            "input": "E6",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -982,6 +1133,7 @@
             "code": "E7",
             "label": "Ligne E7",
             "device": "E7-E8-E9",
+            "input": "E7",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -990,6 +1142,7 @@
             "code": "E8",
             "label": "Ligne E8",
             "device": "E7-E8-E9",
+            "input": "E8",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -998,6 +1151,7 @@
             "code": "E9",
             "label": "Ligne E9",
             "device": "E7-E8-E9",
+            "input": "E9",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -1006,6 +1160,7 @@
             "code": "E10",
             "label": "Ligne E10",
             "device": "E10-E11-E12",
+            "input": "E10",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -1014,6 +1169,7 @@
             "code": "E11",
             "label": "Ligne E11",
             "device": "E10-E11-E12",
+            "input": "E11",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -1022,6 +1178,7 @@
             "code": "E12",
             "label": "Ligne E12",
             "device": "E10-E11-E12",
+            "input": "E12",
             "rawValue": 0,
             "offset": 0,
             "ref": "V3"
@@ -1030,6 +1187,7 @@
             "code": "F1",
             "label": "Ligne F1",
             "device": "F1-F2-F3",
+            "input": "F1",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1038,6 +1196,7 @@
             "code": "F2",
             "label": "Ligne F2",
             "device": "F1-F2-F3",
+            "input": "F2",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1046,6 +1205,7 @@
             "code": "F3",
             "label": "Ligne F3",
             "device": "F1-F2-F3",
+            "input": "F3",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1054,6 +1214,7 @@
             "code": "F4",
             "label": "Ligne F4",
             "device": "F4-F5-F6",
+            "input": "F4",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1062,6 +1223,7 @@
             "code": "F5",
             "label": "Ligne F5",
             "device": "F4-F5-F6",
+            "input": "F5",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1070,6 +1232,7 @@
             "code": "F6",
             "label": "Ligne F6",
             "device": "F4-F5-F6",
+            "input": "F6",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1078,6 +1241,7 @@
             "code": "F7",
             "label": "Ligne F7",
             "device": "F7-F8-F9",
+            "input": "F7",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1086,6 +1250,7 @@
             "code": "F8",
             "label": "Ligne F8",
             "device": "F7-F8-F9",
+            "input": "F8",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1094,6 +1259,7 @@
             "code": "F9",
             "label": "Ligne F9",
             "device": "F7-F8-F9",
+            "input": "F9",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1102,6 +1268,7 @@
             "code": "F10",
             "label": "Ligne F10",
             "device": "F10-F11-F12",
+            "input": "F10",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1110,6 +1277,7 @@
             "code": "F11",
             "label": "Ligne F11",
             "device": "F10-F11-F12",
+            "input": "F11",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1118,6 +1286,7 @@
             "code": "F12",
             "label": "Ligne F12",
             "device": "F10-F11-F12",
+            "input": "F12",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1126,6 +1295,7 @@
             "code": "F13",
             "label": "Ligne F13",
             "device": "F13-F14-F15",
+            "input": "F13",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1134,6 +1304,7 @@
             "code": "F14",
             "label": "Ligne F14",
             "device": "F13-F14-F15",
+            "input": "F14",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1142,6 +1313,7 @@
             "code": "F15",
             "label": "Ligne F15",
             "device": "F13-F14-F15",
+            "input": "F15",
             "rawValue": 0,
             "offset": 0,
             "ref": "V2"
@@ -1150,6 +1322,7 @@
             "code": "G1",
             "label": "Ligne G1",
             "device": "H14-G1-G2",
+            "input": "G1",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1158,6 +1331,7 @@
             "code": "G2",
             "label": "Ligne G2",
             "device": "H14-G1-G2",
+            "input": "G2",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1166,6 +1340,7 @@
             "code": "G3",
             "label": "Ligne G3",
             "device": "G3-G4-G5",
+            "input": "G3",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1174,6 +1349,7 @@
             "code": "G4",
             "label": "Ligne G4",
             "device": "G3-G4-G5",
+            "input": "G4",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1182,6 +1358,7 @@
             "code": "G5",
             "label": "Ligne G5",
             "device": "G3-G4-G5",
+            "input": "G5",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1190,6 +1367,7 @@
             "code": "G6",
             "label": "Ligne G6",
             "device": "G6-G7-G8",
+            "input": "G6",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1198,6 +1376,7 @@
             "code": "G7",
             "label": "Ligne G7",
             "device": "G6-G7-G8",
+            "input": "G7",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1206,6 +1385,7 @@
             "code": "G8",
             "label": "Ligne G8",
             "device": "G6-G7-G8",
+            "input": "G8",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1214,6 +1394,7 @@
             "code": "G9",
             "label": "Ligne G9",
             "device": "G9-G10",
+            "input": "G9",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1222,6 +1403,7 @@
             "code": "G10",
             "label": "Ligne G10",
             "device": "G9-G10",
+            "input": "G10",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1230,6 +1412,7 @@
             "code": "G11",
             "label": "Ligne G11",
             "device": "G11-G12",
+            "input": "G11",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1238,7 +1421,7 @@
             "code": "G12",
             "label": "Ligne G12",
             "device": "G11-G12",
-            "inputName": "vd",
+            "input": "G12",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1247,6 +1430,7 @@
             "code": "H2",
             "label": "Ligne H2",
             "device": "H2-H3-H4",
+            "input": "H2",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1255,6 +1439,7 @@
             "code": "H3",
             "label": "Ligne H3",
             "device": "H2-H3-H4",
+            "input": "H3",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1263,6 +1448,7 @@
             "code": "H4",
             "label": "Ligne H4",
             "device": "H2-H3-H4",
+            "input": "H4",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1271,6 +1457,7 @@
             "code": "H5",
             "label": "Ligne H5",
             "device": "H5-H6-H7",
+            "input": "H5",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1279,6 +1466,7 @@
             "code": "H6",
             "label": "Ligne H6",
             "device": "H5-H6-H7",
+            "input": "H6",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1287,30 +1475,33 @@
             "code": "H7",
             "label": "Ligne H7",
             "device": "H5-H6-H7",
+            "input": "H7",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
         },
         {
-            "code": "H8",
-            "label": "Ligne H8",
-            "device": "H8-H9-H10",
+            "code": "h8",
+            "label": "Ligne h8",
+            "device": "h8-h9-h10",
+            "input": "h8",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
         },
         {
-            "code": "H9",
-            "label": "Ligne H9",
-            "device": "H8-H9-H10",
+            "code": "h9",
+            "label": "Ligne h9",
+            "device": "h8-h9-h10",
+            "input": "h9",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
         },
         {
-            "code": "H10",
-            "label": "Ligne H10",
-            "device": "H8-H9-H10",
+            "code": "h10",
+            "label": "Ligne h10",
+            "device": "h8-h9-h10",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1319,6 +1510,7 @@
             "code": "H11",
             "label": "Ligne H11",
             "device": "H11-H12-H13",
+            "input": "H11",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1327,6 +1519,7 @@
             "code": "H12",
             "label": "Ligne H12",
             "device": "H11-H12-H13",
+            "input": "H12",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1335,6 +1528,7 @@
             "code": "H13",
             "label": "Ligne H13",
             "device": "H11-H12-H13",
+            "input": "H13",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1343,6 +1537,7 @@
             "code": "H14",
             "label": "Ligne H14",
             "device": "H14-G1-G2",
+            "input": "H14",
             "rawValue": 0,
             "offset": 0,
             "ref": "V1"
@@ -1418,6 +1613,26 @@
         {
             "code": "Osm1",
             "device": "EB-Osm1"
+        }
+    ],
+    "watercounter": [
+        {
+            "code": "210",
+            "device": "COMPTEUR-EAU #1",
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "code": "226",
+            "device": "COMPTEUR-EAU #2",
+            "scaleFactor": 1.0,
+            "offset": 0
+        },
+        {
+            "code": "212",
+            "device": "COMPTEUR-EAU #3",
+            "scaleFactor": 1.0,
+            "offset": 0
         }
     ]
 }
