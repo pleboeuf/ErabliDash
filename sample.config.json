@@ -650,7 +650,7 @@
             "diameter": 1219,
             "totalHeight": 1067,
             "scaleFactor": 1.0,
-            "offset": 115,
+            "offset": 105,
             "sensorType": "pressure",
             "filterAlpha": 0.4,
             "rawUnit": "in"
@@ -664,7 +664,7 @@
             "diameter": 1219,
             "totalHeight": 1067,
             "scaleFactor": 1.0,
-            "offset": 13,
+            "offset": 105,
             "sensorType": "pressure",
             "filterAlpha": 0.4,
             "rawUnit": "in"
