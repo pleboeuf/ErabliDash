@@ -209,6 +209,156 @@ describe('Dashboard with tank A', function() {
 
 });
 
+describe('Dashboard tank exponential filtering', function() {
+  var fs = require('fs');
+
+  afterEach(function() {
+    try { fs.unlinkSync('/tmp/dashboard_ultrasonic_filter.json'); } catch(e) { /* ignore */ }
+    try { fs.unlinkSync('/tmp/dashboard_datacer_filter.json'); } catch(e) { /* ignore */ }
+  });
+
+  it('should apply exponential smoothing for ultrasonic sensor/level events', function() {
+    var ws = makeWsClient();
+    var config = {
+      "collectors": [{
+        "uri": 'ws://localhost/'
+      }],
+      "store": {
+        "filename": "/tmp/dashboard_ultrasonic_filter.json"
+      },
+      "devices": [{
+        "id": "ULTRA-1",
+        "name": "Ultrasonic Device"
+      }],
+      "tanks": [{
+        "code": "U1",
+        "name": "Ultrasonic Tank",
+        "device": "Ultrasonic Device",
+        "shape": "cylinder",
+        "orientation": "horizontal",
+        "filterAlpha": 0.2
+      }],
+      "valves": [],
+      "vacuums": [],
+      "pumps": [],
+      "osmose": []
+    };
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    var firstLevel = makeMessage("ULTRA-1", 1, 1, {
+      "eName": "sensor/level",
+      "eData": 1000
+    });
+    var secondLevel = makeMessage("ULTRA-1", 1, 2, {
+      "eName": "sensor/level",
+      "eData": 500
+    });
+    var expectedFiltered = 900; // 0.2 * 500 + 0.8 * 1000
+
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(firstLevel).then(function() {
+          return connection.fakeReceive(secondLevel).then(function() {
+            var tank = dashboard.getTank("Ultrasonic Tank");
+            assert.equal(500, tank.unfilteredRawValue);
+            assert.ok(Math.abs(expectedFiltered - tank.rawValue) < 0.0001);
+            assert.ok(Math.abs(expectedFiltered - tank.filteredRawValue) < 0.0001);
+          });
+        });
+      });
+    });
+  });
+
+  it('should apply exponential smoothing for Datacer Tank/Level events', function() {
+    var ws = makeWsClient();
+    var config = {
+      "collectors": [{
+        "uri": 'ws://localhost/'
+      }],
+      "store": {
+        "filename": "/tmp/dashboard_datacer_filter.json"
+      },
+      "devices": [{
+        "id": "DATACER-TANK-FILTER",
+        "name": "Datacer Filter Device"
+      }],
+      "tanks": [{
+        "code": "DT1",
+        "name": "Datacer Filter Tank",
+        "device": "Datacer Filter Device",
+        "shape": "cylinder",
+        "orientation": "horizontal",
+        "length": 1000 / Math.PI,
+        "diameter": 2000,
+        "offset": 0,
+        "sensorType": "pressure",
+        "rawUnit": "in",
+        "filterAlpha": 0.25
+      }],
+      "valves": [],
+      "vacuums": [],
+      "pumps": [],
+      "osmose": []
+    };
+
+    function makeDatacerTankMessage(deviceId, generationId, serialNo, tankData) {
+      var data = {
+        "generation": generationId,
+        "noSerie": serialNo,
+        "eName": "Tank/Level",
+        "name": tankData.name,
+        "rawValue": tankData.rawValue,
+        "depth": tankData.depth,
+        "capacity": tankData.capacity,
+        "fill": tankData.fill,
+        "lastUpdatedAt": tankData.lastUpdatedAt
+      };
+      var message = {
+        "coreid": deviceId,
+        "published_at": "2026-02-10T18:00:00.000Z",
+        "data": JSON.stringify(data)
+      };
+      return {
+        "type": 'utf8',
+        "utf8Data": JSON.stringify(message)
+      };
+    }
+
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    var firstRawValue = 40;
+    var secondRawValue = 20;
+    var expectedFiltered = 35; // 0.25 * 20 + 0.75 * 40
+    var firstMsg = makeDatacerTankMessage("DATACER-TANK-FILTER", 1, 1, {
+      "name": "DT1",
+      "rawValue": firstRawValue,
+      "depth": 450,
+      "capacity": 1000,
+      "fill": 450,
+      "lastUpdatedAt": "2026-02-10T18:00:00.000Z"
+    });
+    var secondMsg = makeDatacerTankMessage("DATACER-TANK-FILTER", 1, 2, {
+      "name": "DT1",
+      "rawValue": secondRawValue,
+      "depth": 300,
+      "capacity": 1000,
+      "fill": 300,
+      "lastUpdatedAt": "2026-02-10T18:05:00.000Z"
+    });
+
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(firstMsg).then(function() {
+          return connection.fakeReceive(secondMsg).then(function() {
+            var tank = dashboard.getTank("Datacer Filter Tank");
+            assert.equal(secondRawValue, tank.unfilteredRawValue);
+            assert.ok(Math.abs(expectedFiltered - tank.rawValue) < 0.0001);
+            assert.ok(Math.abs(expectedFiltered - tank.filteredRawValue) < 0.0001);
+          });
+        });
+      });
+    });
+  });
+});
+
 describe('Cylinder tank', function() {
   var Tank = require('../dashboard.js').Tank;
   var tank = new Tank({

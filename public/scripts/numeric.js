@@ -290,7 +290,12 @@ function displayTanks() {
         let tankPercent = ((tank.contents / tank.capacity) * 100).toFixed(0);
         tankElement.setAttribute("data-percent", tankPercent);
         capacityElement.innerHTML = liters2gallons(tank.capacity);
-        rawValueElement.innerHTML = tank.rawValue;
+        const rawValueNumeric = parseFloat(tank.rawValue);
+        if (Number.isFinite(rawValueNumeric)) {
+            rawValueElement.innerHTML = rawValueNumeric.toFixed(0);
+        } else {
+            rawValueElement.innerHTML = "---";
+        }
         percentElement.innerHTML = tankPercent + " % ";
         contentsElement.innerHTML = liters2gallons(tank.contents);
         if (tank.rawValue < 5) {
@@ -1247,11 +1252,7 @@ function displayVacuumErabliere() {
     vacuums.forEach(function (vacuum) {
         // if (vacuum.label.indexOf("Ligne") !== 0) return;
         if (
-            ![
-                "POMPE 1",
-                "POMPE 2",
-                "POMPE PUMP HOUSE",
-            ].includes(vacuum.device)
+            !["POMPE 1", "POMPE 2", "POMPE PUMP HOUSE"].includes(vacuum.device)
         ) {
             return;
         }
@@ -1668,7 +1669,9 @@ function displayDatacerTanks() {
             if (datacerTanklistBody) {
                 datacerTanklistBody.appendChild(tankElem);
             } else {
-                document.getElementById("datacerTanklist").appendChild(tankElem);
+                document
+                    .getElementById("datacerTanklist")
+                    .appendChild(tankElem);
             }
 
             createCell(null, "darker", tankElem).innerHTML = tank.code;
@@ -1697,7 +1700,7 @@ function displayDatacerTanks() {
         }
         const rawValueNumeric = parseFloat(tank.rawValue);
         if (Number.isFinite(rawValueNumeric)) {
-            rawValueElem.innerHTML = rawValueNumeric.toFixed(2);
+            rawValueElem.innerHTML = rawValueNumeric.toFixed(0);
         } else {
             rawValueElem.innerHTML = "---";
         }

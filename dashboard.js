@@ -12,10 +12,18 @@ const _ = require("underscore");
 const readFile = Promise.denodeify(fs.readFile);
 const writeFile = Promise.denodeify(fs.writeFile);
 const MM_PER_INCH = 25.4;
+const DEFAULT_ULTRASONIC_TANK_FILTER_ALPHA = 0.2;
+const DEFAULT_PRESSURE_TANK_FILTER_ALPHA = 0.25;
 
 function parseNumericValue(value) {
     const parsed = parseFloat(value);
     return Number.isFinite(parsed) ? parsed : NaN;
+}
+
+function getTankSensorType(tank) {
+    return typeof tank.sensorType === "string"
+        ? tank.sensorType.toLowerCase()
+        : "ultrasonic";
 }
 
 function getTankRawUnit(tank) {
@@ -51,10 +59,7 @@ function convertRawToMillimeters(rawValue, rawUnit) {
 }
 
 function getTankLevelMm(tank) {
-    const sensorType =
-        typeof tank.sensorType === "string"
-            ? tank.sensorType.toLowerCase()
-            : "ultrasonic";
+    const sensorType = getTankSensorType(tank);
     const rawUnit =
         getTankRawUnit(tank) || (sensorType === "pressure" ? "in" : "mm");
     const scaleFactor = parseNumericValue(tank.scaleFactor);
@@ -79,6 +84,52 @@ function getTankLevelMm(tank) {
         return Math.max(0, rawValueMm);
     }
     return Math.max(0, sensorHeightMm - rawValueMm);
+}
+
+function parseFilterAlpha(value) {
+    const alpha = parseNumericValue(value);
+    if (!Number.isFinite(alpha) || alpha <= 0 || alpha > 1) {
+        return NaN;
+    }
+    return alpha;
+}
+
+function getTankFilterAlpha(tank) {
+    const explicitAlpha = parseFilterAlpha(tank.filterAlpha);
+    if (Number.isFinite(explicitAlpha)) {
+        return explicitAlpha;
+    }
+    return getTankSensorType(tank) === "pressure"
+        ? DEFAULT_PRESSURE_TANK_FILTER_ALPHA
+        : DEFAULT_ULTRASONIC_TANK_FILTER_ALPHA;
+}
+
+function applyTankExponentialFilter(tank, incomingRawValue) {
+    const numericIncomingRawValue = parseNumericValue(incomingRawValue);
+    if (!Number.isFinite(numericIncomingRawValue)) {
+        return NaN;
+    }
+
+    const alpha = getTankFilterAlpha(tank);
+    if (!Number.isFinite(alpha)) {
+        tank.unfilteredRawValue = numericIncomingRawValue;
+        tank.filteredRawValue = numericIncomingRawValue;
+        return numericIncomingRawValue;
+    }
+
+    const previousFilteredRawValue = parseNumericValue(
+        typeof tank.filteredRawValue !== "undefined"
+            ? tank.filteredRawValue
+            : tank.rawValue,
+    );
+    const filteredRawValue = Number.isFinite(previousFilteredRawValue)
+        ? alpha * numericIncomingRawValue +
+          (1 - alpha) * previousFilteredRawValue
+        : numericIncomingRawValue;
+
+    tank.unfilteredRawValue = numericIncomingRawValue;
+    tank.filteredRawValue = filteredRawValue;
+    return filteredRawValue;
 }
 
 function sanitizePersistedTankData(tankConfig, persistedTankData) {
@@ -408,6 +459,8 @@ exports.Dashboard = function (config, WebSocketClient) {
         ebRs1Tank.rawValue = Math.round(
             Math.max(0, ebRs1SensorHeightMm - datacerLevelMm),
         );
+        ebRs1Tank.unfilteredRawValue = ebRs1Tank.rawValue;
+        ebRs1Tank.filteredRawValue = ebRs1Tank.rawValue;
         ebRs1Tank.lastUpdatedAt =
             datacerRs1Tank.lastUpdatedAt || ebRs1Tank.lastUpdatedAt;
     }
@@ -724,7 +777,11 @@ exports.Dashboard = function (config, WebSocketClient) {
         };
 
         const updateTank = (tank, value) => {
-            tank.rawValue = value;
+            const filteredRawValue = applyTankExponentialFilter(tank, value);
+            if (!Number.isFinite(filteredRawValue)) {
+                return;
+            }
+            tank.rawValue = filteredRawValue;
             tank.lastUpdatedAt = event.published_at;
             event.object = extendTank(tank);
         };
@@ -983,10 +1040,14 @@ exports.Dashboard = function (config, WebSocketClient) {
                             ? data.rawValue
                             : data.ReadingValue,
                     );
+                    const filteredRawValue = applyTankExponentialFilter(
+                        tank,
+                        rawValue,
+                    );
                     Object.assign(tank, {
                         isDatacer: true,
-                        rawValue: Number.isFinite(rawValue)
-                            ? rawValue
+                        rawValue: Number.isFinite(filteredRawValue)
+                            ? filteredRawValue
                             : tank.rawValue,
                         depth: data.depth,
                         reportedCapacity: data.capacity,

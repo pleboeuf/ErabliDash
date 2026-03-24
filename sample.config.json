@@ -420,6 +420,7 @@
             "diameter": 1651,
             "sensorHeight": 1743,
             "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
             "rawUnit": "mm",
             "output": "VaS1",
             "drain": "VaDS1",
@@ -435,6 +436,7 @@
             "diameter": 1842,
             "sensorHeight": 1863,
             "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
             "rawUnit": "mm",
             "output": "VaS2",
             "drain": "VaDS2",
@@ -450,6 +452,7 @@
             "diameter": 2438,
             "sensorHeight": 2216,
             "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
             "rawUnit": "mm",
             "output": "VaS3",
             "drain": "VaDS3",
@@ -465,6 +468,7 @@
             "diameter": 2438,
             "sensorHeight": 1973,
             "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
             "rawUnit": "mm",
             "output": "VaS4",
             "drain": "VaDS4",
@@ -480,6 +484,7 @@
             "totalHeight": 1067,
             "sensorHeight": 1140,
             "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
             "rawUnit": "mm",
             "output": "VaS5",
             "drain": "VaDS5",
@@ -495,6 +500,7 @@
             "totalHeight": 1067,
             "sensorHeight": 1150,
             "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
             "rawUnit": "mm",
             "output": "VaS6",
             "drain": "VaDS6",
@@ -510,6 +516,7 @@
             "diameter": 1842,
             "sensorHeight": 1872,
             "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
             "rawUnit": "mm",
             "output": "VaF2",
             "drain": "VaDF2",
@@ -525,6 +532,7 @@
             "totalHeight": 1676,
             "sensorHeight": 1700,
             "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
             "rawUnit": "mm",
             "output": "none",
             "drain": "none",
@@ -540,6 +548,7 @@
             "totalHeight": 914,
             "sensorHeight": 986,
             "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
             "rawUnit": "mm",
             "output": "none",
             "drain": "none",
@@ -555,6 +564,7 @@
             "totalHeight": 914,
             "sensorHeight": 982,
             "sensorType": "ultrasonic",
+            "filterAlpha": 0.18,
             "rawUnit": "mm",
             "output": "none",
             "drain": "none",
@@ -586,6 +596,7 @@
             "scaleFactor": 1.0,
             "offset": 240,
             "sensorType": "pressure",
+            "filterAlpha": 0.4,
             "rawUnit": "in"
         },
         {
@@ -599,6 +610,7 @@
             "scaleFactor": 1.0,
             "offset": 330,
             "sensorType": "pressure",
+            "filterAlpha": 0.4,
             "rawUnit": "in"
         },
         {
@@ -612,6 +624,7 @@
             "scaleFactor": 1.0,
             "offset": 16,
             "sensorType": "pressure",
+            "filterAlpha": 0.4,
             "rawUnit": "in"
         },
         {
@@ -625,6 +638,7 @@
             "scaleFactor": 1.0,
             "offset": 0,
             "sensorType": "pressure",
+            "filterAlpha": 0.4,
             "rawUnit": "in"
         },
         {
@@ -638,6 +652,7 @@
             "scaleFactor": 1.0,
             "offset": 115,
             "sensorType": "pressure",
+            "filterAlpha": 0.4,
             "rawUnit": "in"
         },
         {
@@ -651,6 +666,7 @@
             "scaleFactor": 1.0,
             "offset": 13,
             "sensorType": "pressure",
+            "filterAlpha": 0.4,
             "rawUnit": "in"
         },
         {
@@ -664,6 +680,7 @@
             "scaleFactor": 1.0,
             "offset": 325,
             "sensorType": "pressure",
+            "filterAlpha": 0.4,
             "rawUnit": "in"
         },
         {
@@ -677,6 +694,7 @@
             "scaleFactor": 1.0,
             "offset": 420,
             "sensorType": "pressure",
+            "filterAlpha": 0.4,
             "rawUnit": "in"
         },
         {
@@ -690,6 +708,7 @@
             "scaleFactor": 1.0,
             "offset": 445,
             "sensorType": "pressure",
+            "filterAlpha": 0.4,
             "rawUnit": "in"
         },
         {
@@ -703,6 +722,7 @@
             "scaleFactor": 1.0,
             "offset": 390,
             "sensorType": "pressure",
+            "filterAlpha": 0.4,
             "rawUnit": "in"
         }
     ],
