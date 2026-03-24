@@ -172,18 +172,29 @@ const HorizontalCylindricTank = function (self) {
  */
 HorizontalCylindricTank.getFill = function (level, diameter, length) {
     // All measures in millimeters
-    if (isNaN(level)) {
-        return 9999;
+    const numericLevel = parseNumericValue(level);
+    const numericDiameter = parseNumericValue(diameter);
+    const numericLength = parseNumericValue(length);
+
+    if (
+        !Number.isFinite(numericLevel) ||
+        !Number.isFinite(numericDiameter) ||
+        !Number.isFinite(numericLength) ||
+        numericDiameter <= 0 ||
+        numericLength <= 0
+    ) {
+        return null;
     }
-    level = Math.max(0, level); // Ensure level is not negative
+    level = Math.max(0, Math.min(numericLevel, numericDiameter)); // Ensure level is valid
     let h = level / 1000;
-    let d = diameter / 1000;
+    let d = numericDiameter / 1000;
     let r = d / 2;
-    return (
+    const fill = (
         (Math.pow(r, 2) * Math.acos((r - h) / r) -
             (r - h) * Math.sqrt(d * h - Math.pow(h, 2))) *
-        length
+        numericLength
     );
+    return Number.isFinite(fill) ? fill : null;
 };
 
 const UShapedTank = function (self) {
@@ -196,11 +207,17 @@ const UShapedTank = function (self) {
 
     function getFill(level) {
         // All measures in millimeters
-        if (isNaN(level)) {
-            return 9999;
+        const numericLevel = parseNumericValue(level);
+        if (!Number.isFinite(numericLevel)) {
+            return null;
         }
-        level = Math.max(0, level); // Ensure level is not negative
-        return getBottomFill(level) + getTopFill(level);
+        level = Math.max(0, numericLevel); // Ensure level is not negative
+        const bottomFill = getBottomFill(level);
+        const topFill = getTopFill(level);
+        if (!Number.isFinite(bottomFill) || !Number.isFinite(topFill)) {
+            return null;
+        }
+        return bottomFill + topFill;
     }
 
     /**
@@ -733,6 +750,13 @@ exports.Dashboard = function (config, WebSocketClient) {
             case "level":
                 tanks.forEach((tank) => {
                     if (tank.device === device.name) {
+                        const sensorType =
+                            typeof tank.sensorType === "string"
+                                ? tank.sensorType.toLowerCase()
+                                : "";
+                        if (sensorType === "pressure") {
+                            return;
+                        }
                         updateTank(tank, value);
                     }
                 });

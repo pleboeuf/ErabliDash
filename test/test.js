@@ -247,6 +247,10 @@ describe('Pressure tank', function() {
   it('should use raw inches minus offset to compute fill', function() {
     assert.ok(Math.abs(500 - tank.getFill()) < 0.0001);
   });
+  it('should return null fill when raw value is invalid', function() {
+    tank.rawValue = undefined;
+    assert.equal(null, tank.getFill());
+  });
 });
 
 describe('U-shaped tank', function() {
@@ -279,6 +283,10 @@ describe('U-shaped tank', function() {
     tank.diameter = 1219;
     tank.length = 3657;
     assert.equal(4174, Math.ceil(tank.getCapacity()));
+  });
+  it('should return null fill when raw value is invalid', function() {
+    tank.rawValue = undefined;
+    assert.equal(null, tank.getFill());
   });
 });
 

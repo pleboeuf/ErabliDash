@@ -13,7 +13,6 @@ let controlSessionToken = null;
 
 // Constants
 const LITERS_PER_GALLON = 4.54609188;
-const MM_PER_INCH = 25.4;
 const DISPLAY_DEVICES_INTERVAL_MS = 10000;
 const WEATHER_FETCH_INTERVAL_MS = 600000; // 10 minutes
 const MAXIMUM_AGE_MINUTES = 5;
@@ -1638,93 +1637,6 @@ async function callFunction(devID, fname, fargument) {
 setTimeout(function () {
     window.location.reload(1);
 }, PAGE_RELOAD_INTERVAL_MS);
-function getHorizontalCylinderFillLiters(levelMm, diameterMm, lengthMm) {
-    if (
-        !Number.isFinite(levelMm) ||
-        !Number.isFinite(diameterMm) ||
-        !Number.isFinite(lengthMm) ||
-        diameterMm <= 0 ||
-        lengthMm <= 0
-    ) {
-        return null;
-    }
-    const clampedLevel = Math.max(0, Math.min(levelMm, diameterMm));
-    const h = clampedLevel / 1000;
-    const d = diameterMm / 1000;
-    const r = d / 2;
-    const acosArg = Math.max(-1, Math.min(1, (r - h) / r));
-    const squareRootTerm = Math.max(0, d * h - Math.pow(h, 2));
-    return (
-        (Math.pow(r, 2) * Math.acos(acosArg) -
-            (r - h) * Math.sqrt(squareRootTerm)) *
-        lengthMm
-    );
-}
-
-function getUShapedTankFillLiters(levelMm, diameterMm, lengthMm, totalHeightMm) {
-    if (
-        !Number.isFinite(levelMm) ||
-        !Number.isFinite(diameterMm) ||
-        !Number.isFinite(lengthMm) ||
-        diameterMm <= 0 ||
-        lengthMm <= 0
-    ) {
-        return null;
-    }
-    const clampedLevel = Math.max(0, levelMm);
-    const bottomLevel = Math.min(clampedLevel, diameterMm / 2);
-    const bottomFillLiters = getHorizontalCylinderFillLiters(
-        bottomLevel,
-        diameterMm,
-        lengthMm,
-    );
-    if (!Number.isFinite(bottomFillLiters)) {
-        return null;
-    }
-    let topLevel = Math.max(0, clampedLevel - diameterMm / 2);
-    if (Number.isFinite(totalHeightMm) && totalHeightMm > diameterMm / 2) {
-        topLevel = Math.min(topLevel, totalHeightMm - diameterMm / 2);
-    }
-    const topFillLiters =
-        (((diameterMm / 1000) * lengthMm) / 1000) * topLevel;
-    return bottomFillLiters + topFillLiters;
-}
-
-function getDatacerTankFillGallons(tank) {
-    if (!tank) {
-        return null;
-    }
-    const rawValueInches = parseFloat(tank.rawValue);
-    if (!Number.isFinite(rawValueInches)) {
-        return null;
-    }
-    const offsetMmRaw = parseFloat(tank.offset);
-    const offsetMm = Number.isFinite(offsetMmRaw) ? offsetMmRaw : 0;
-    const levelMm = Math.max(0, rawValueInches * MM_PER_INCH - offsetMm);
-    const diameterMm = parseFloat(tank.diameter);
-    const lengthMm = parseFloat(tank.length);
-    const totalHeightMm = parseFloat(tank.totalHeight);
-
-    let fillLiters = null;
-    if (tank.shape === "cylinder" && tank.orientation === "horizontal") {
-        fillLiters = getHorizontalCylinderFillLiters(
-            levelMm,
-            diameterMm,
-            lengthMm,
-        );
-    } else if (tank.shape === "u") {
-        fillLiters = getUShapedTankFillLiters(
-            levelMm,
-            diameterMm,
-            lengthMm,
-            totalHeightMm,
-        );
-    }
-    if (!Number.isFinite(fillLiters)) {
-        return null;
-    }
-    return fillLiters / LITERS_PER_GALLON;
-}
 
 function displayDatacerTanks() {
     const reservoirOrder = tankDefs.map(function (tankDef) {
@@ -1776,17 +1688,10 @@ function displayDatacerTanks() {
         const updatedElem = document.getElementById(updatedElemId);
 
         const backendFillLiters = parseFloat(tank.fill);
-        const datacerFillGallons = getDatacerTankFillGallons(tank);
         let fillGallons = null;
         if (Number.isFinite(backendFillLiters)) {
             fillGallons = backendFillLiters / LITERS_PER_GALLON;
             fillElem.innerHTML = fillGallons.toFixed(0);
-        } else if (datacerFillGallons !== null) {
-            fillGallons = datacerFillGallons;
-            fillElem.innerHTML = datacerFillGallons.toFixed(0);
-        } else if (tank.fill !== undefined && tank.fill !== null) {
-            fillGallons = parseFloat(tank.fill);
-            fillElem.innerHTML = Math.round(tank.fill);
         } else {
             fillElem.innerHTML = "---";
         }
