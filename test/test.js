@@ -140,6 +140,102 @@ describe('Dashboard', function() {
 
 });
 
+describe('Dashboard persisted tanks with duplicate code', function() {
+  var fs = require('fs');
+  var ws = makeWsClient();
+  var storeFilename = '/tmp/dashboard_duplicate_code_matching.json';
+  var config = {
+    "collectors": [{
+      "uri": 'ws://localhost/'
+    }],
+    "store": {
+      "filename": storeFilename
+    },
+    "devices": [{
+      "id": "ULTRA-RS2",
+      "name": "EB-RS2"
+    }, {
+      "id": "DATACER-RS2",
+      "name": "BASSIN RF2-RS1-RS2"
+    }],
+    "tanks": [{
+      "code": "RS2",
+      "name": "RS2 ultra",
+      "device": "EB-RS2",
+      "shape": "cylinder",
+      "orientation": "horizontal",
+      "length": 7010,
+      "diameter": 1842,
+      "sensorHeight": 1863,
+      "sensorType": "ultrasonic",
+      "rawUnit": "mm"
+    }, {
+      "code": "RS2",
+      "name": "RS2 datacer",
+      "device": "BASSIN RF2-RS1-RS2",
+      "shape": "cylinder",
+      "orientation": "horizontal",
+      "length": 7010,
+      "diameter": 1842,
+      "offset": 330,
+      "sensorType": "pressure",
+      "rawUnit": "in"
+    }],
+    "valves": [],
+    "vacuums": [],
+    "pumps": [],
+    "osmose": []
+  };
+
+  beforeEach(function() {
+    try { fs.unlinkSync(storeFilename); } catch(e) { /* ignore */ }
+  });
+  afterEach(function() {
+    try { fs.unlinkSync(storeFilename); } catch(e) { /* ignore */ }
+  });
+
+  it('should restore persisted rawValue using both code and device', function() {
+    fs.writeFileSync(storeFilename, JSON.stringify({
+      "devices": [{
+        "id": "ULTRA-RS2",
+        "name": "EB-RS2"
+      }, {
+        "id": "DATACER-RS2",
+        "name": "BASSIN RF2-RS1-RS2"
+      }],
+      "tanks": [{
+        "code": "RS2",
+        "name": "RS2 ultra",
+        "device": "EB-RS2",
+        "rawValue": 1280
+      }, {
+        "code": "RS2",
+        "name": "RS2 datacer",
+        "device": "BASSIN RF2-RS1-RS2",
+        "rawValue": 35.2
+      }],
+      "valves": [],
+      "vacuums": [],
+      "pumps": [],
+      "osmose": [],
+      "waterMeters": []
+    }), 'utf8');
+
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    return dashboard.init().then(function() {
+      var tankData = dashboard.getData().tanks;
+      var ultraTank = tankData.filter(function(tank) {
+        return tank.code === "RS2" && tank.device === "EB-RS2";
+      })[0];
+      var datacerTank = tankData.filter(function(tank) {
+        return tank.code === "RS2" && tank.device === "BASSIN RF2-RS1-RS2";
+      })[0];
+      assert.equal(1280, ultraTank.rawValue);
+      assert.equal(35.2, datacerTank.rawValue);
+    });
+  });
+});
+
 describe('Dashboard security', function() {
   var ws = makeWsClient();
   var config = {
@@ -666,8 +762,50 @@ describe('Dashboard with Datacer Tank', function() {
       });
     });
   });
-});
 
+  it('should keep Datacer smoothing and reset an implausible baseline', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    var msg1 = makeDatacerTankMessage("DATACER-TANK-001", 1, 1, {
+      "name": "T1",
+      "rawValue": 40,
+      "depth": 450,
+      "capacity": 1000,
+      "fill": 450,
+      "lastUpdatedAt": "2026-02-10T18:00:00.000Z"
+    });
+    var msg2 = makeDatacerTankMessage("DATACER-TANK-001", 1, 2, {
+      "name": "T1",
+      "rawValue": 30,
+      "depth": 45,
+      "capacity": 1000,
+      "fill": 45,
+      "lastUpdatedAt": "2026-02-10T18:01:00.000Z"
+    });
+    var msg3 = makeDatacerTankMessage("DATACER-TANK-001", 1, 3, {
+      "name": "T1",
+      "rawValue": 10,
+      "depth": 45,
+      "capacity": 1000,
+      "fill": 45,
+      "lastUpdatedAt": "2026-02-10T18:02:00.000Z"
+    });
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(msg1).then(function() {
+          return connection.fakeReceive(msg2).then(function() {
+            var tankAfterSmooth = dashboard.getTank("Tank T1");
+            assert.ok(Math.abs(37.5 - tankAfterSmooth.rawValue) < 0.0001);
+            tankAfterSmooth.filteredRawValue = 500;
+            return connection.fakeReceive(msg3).then(function() {
+              var tankAfterReset = dashboard.getTank("Tank T1");
+              assert.equal(10, tankAfterReset.rawValue);
+            });
+          });
+        });
+      });
+    });
+  });
+});
 describe('Dashboard Datacer tank persisted-data migration', function() {
   var fs = require('fs');
   var ws = makeWsClient();

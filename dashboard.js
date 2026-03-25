@@ -103,6 +103,112 @@ function getTankFilterAlpha(tank) {
         ? DEFAULT_PRESSURE_TANK_FILTER_ALPHA
         : DEFAULT_ULTRASONIC_TANK_FILTER_ALPHA;
 }
+function getTankMaxLevelMm(tank) {
+    if (tank.shape === "u") {
+        const totalHeightMm = parseNumericValue(tank.totalHeight);
+        if (Number.isFinite(totalHeightMm) && totalHeightMm > 0) {
+            return totalHeightMm;
+        }
+    }
+    const diameterMm = parseNumericValue(tank.diameter);
+    if (Number.isFinite(diameterMm) && diameterMm > 0) {
+        return diameterMm;
+    }
+    return NaN;
+}
+
+function convertMillimetersToRaw(mmValue, rawUnit) {
+    if (!Number.isFinite(mmValue)) {
+        return NaN;
+    }
+    switch (rawUnit) {
+        case "in":
+        case "inch":
+        case "inches":
+        case "po":
+        case "pouce":
+        case "pouces":
+            return mmValue / MM_PER_INCH;
+        case "mm":
+        case "millimeter":
+        case "millimeters":
+        case "millimetre":
+        case "millimetres":
+        default:
+            return mmValue;
+    }
+}
+
+function isRawValuePlausibleForTank(tank, rawValue) {
+    const numericRawValue = parseNumericValue(rawValue);
+    if (!Number.isFinite(numericRawValue)) {
+        return false;
+    }
+
+    const sensorType = getTankSensorType(tank);
+    const rawUnit =
+        getTankRawUnit(tank) || (sensorType === "pressure" ? "in" : "mm");
+
+    if (sensorType === "pressure") {
+        const maxLevelMm = getTankMaxLevelMm(tank);
+        if (!Number.isFinite(maxLevelMm)) {
+            return true;
+        }
+        const offsetMm = parseNumericValue(tank.offset);
+        const maxRawMm =
+            maxLevelMm + (Number.isFinite(offsetMm) ? offsetMm : 0);
+        const maxRaw = convertMillimetersToRaw(maxRawMm, rawUnit);
+        if (!Number.isFinite(maxRaw)) {
+            return true;
+        }
+        const margin = Math.max(10, maxRaw * 0.25);
+        return numericRawValue >= -1 && numericRawValue <= maxRaw + margin;
+    }
+
+    const sensorHeightMm = parseNumericValue(tank.sensorHeight);
+    if (!Number.isFinite(sensorHeightMm)) {
+        return true;
+    }
+    const maxRaw = convertMillimetersToRaw(sensorHeightMm, rawUnit);
+    if (!Number.isFinite(maxRaw)) {
+        return true;
+    }
+    const margin = Math.max(200, maxRaw * 0.25);
+    return numericRawValue >= -50 && numericRawValue <= maxRaw + margin;
+}
+
+function getPressureTankMaxRawValue(tank) {
+    if (getTankSensorType(tank) !== "pressure") {
+        return NaN;
+    }
+    const maxLevelMm = getTankMaxLevelMm(tank);
+    if (!Number.isFinite(maxLevelMm)) {
+        return NaN;
+    }
+    const offsetMm = parseNumericValue(tank.offset);
+    const maxRawMm = maxLevelMm + (Number.isFinite(offsetMm) ? offsetMm : 0);
+    const rawUnit = getTankRawUnit(tank) || "in";
+    return convertMillimetersToRaw(maxRawMm, rawUnit);
+}
+
+function getPressureRawJumpThreshold(tank) {
+    const maxRawValue = getPressureTankMaxRawValue(tank);
+    return Number.isFinite(maxRawValue) ? Math.max(5, maxRawValue * 0.2) : 20;
+}
+
+function isPressureRawJumpTooLarge(tank, previousRawValue, incomingRawValue) {
+    if (getTankSensorType(tank) !== "pressure") {
+        return false;
+    }
+    if (
+        !Number.isFinite(previousRawValue) ||
+        !Number.isFinite(incomingRawValue)
+    ) {
+        return false;
+    }
+    const threshold = getPressureRawJumpThreshold(tank);
+    return Math.abs(incomingRawValue - previousRawValue) > threshold;
+}
 
 function applyTankExponentialFilter(tank, incomingRawValue) {
     const numericIncomingRawValue = parseNumericValue(incomingRawValue);
@@ -122,10 +228,47 @@ function applyTankExponentialFilter(tank, incomingRawValue) {
             ? tank.filteredRawValue
             : tank.rawValue,
     );
-    const filteredRawValue = Number.isFinite(previousFilteredRawValue)
-        ? alpha * numericIncomingRawValue +
-          (1 - alpha) * previousFilteredRawValue
-        : numericIncomingRawValue;
+    const incomingIsPlausible = isRawValuePlausibleForTank(
+        tank,
+        numericIncomingRawValue,
+    );
+    const previousIsPlausible = Number.isFinite(previousFilteredRawValue)
+        ? isRawValuePlausibleForTank(tank, previousFilteredRawValue)
+        : true;
+    const jumpTooLarge = isPressureRawJumpTooLarge(
+        tank,
+        previousFilteredRawValue,
+        numericIncomingRawValue,
+    );
+    const shouldResetFilterBaseline =
+        Number.isFinite(previousFilteredRawValue) &&
+        incomingIsPlausible &&
+        (!previousIsPlausible || jumpTooLarge);
+    if (shouldResetFilterBaseline) {
+        const resetReason = !previousIsPlausible
+            ? "persisted_value_implausible"
+            : "pressure_jump_too_large";
+        const rawDelta = Math.abs(
+            numericIncomingRawValue - previousFilteredRawValue,
+        );
+        const jumpThreshold = getPressureRawJumpThreshold(tank);
+        console.warn(
+            "Resetting tank filter baseline for '%s' (%s): reason=%s previousRawValue=%s incomingRawValue=%s delta=%s threshold=%s alpha=%s",
+            tank.code,
+            tank.device,
+            resetReason,
+            previousFilteredRawValue,
+            numericIncomingRawValue,
+            Number.isFinite(rawDelta) ? rawDelta.toFixed(2) : "n/a",
+            Number.isFinite(jumpThreshold) ? jumpThreshold.toFixed(2) : "n/a",
+            alpha.toFixed(3),
+        );
+    }
+    const filteredRawValue =
+        Number.isFinite(previousFilteredRawValue) && !shouldResetFilterBaseline
+            ? alpha * numericIncomingRawValue +
+              (1 - alpha) * previousFilteredRawValue
+            : numericIncomingRawValue;
 
     tank.unfilteredRawValue = numericIncomingRawValue;
     tank.filteredRawValue = filteredRawValue;
@@ -1044,11 +1187,18 @@ exports.Dashboard = function (config, WebSocketClient) {
                         tank,
                         rawValue,
                     );
+                    const nextRawValue = Number.isFinite(filteredRawValue)
+                        ? filteredRawValue
+                        : tank.rawValue;
                     Object.assign(tank, {
                         isDatacer: true,
-                        rawValue: Number.isFinite(filteredRawValue)
-                            ? filteredRawValue
-                            : tank.rawValue,
+                        rawValue: nextRawValue,
+                        unfilteredRawValue: Number.isFinite(rawValue)
+                            ? rawValue
+                            : tank.unfilteredRawValue,
+                        filteredRawValue: Number.isFinite(rawValue)
+                            ? rawValue
+                            : tank.filteredRawValue,
                         depth: data.depth,
                         reportedCapacity: data.capacity,
                         reportedFill: data.fill,
@@ -1466,11 +1616,18 @@ exports.Dashboard = function (config, WebSocketClient) {
         });
 
         tanks = config.tanks.map(function (tank) {
-            var tankData = data.tanks
-                .filter(function (tankData) {
-                    return tank.code === tankData.code;
+            const persistedTanks = Array.isArray(data.tanks) ? data.tanks : [];
+            const codeMatches = persistedTanks.filter(function (tankData) {
+                return tank.code === tankData.code;
+            });
+            var tankData = codeMatches
+                .filter(function (matchedTankData) {
+                    return matchedTankData.device === tank.device;
                 })
                 .shift();
+            if (!tankData && codeMatches.length === 1) {
+                tankData = codeMatches[0];
+            }
             if (!tankData) {
                 tankData = {};
             }
