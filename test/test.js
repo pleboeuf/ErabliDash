@@ -140,6 +140,131 @@ describe('Dashboard', function() {
 
 });
 
+describe('Dashboard stale cursor recovery for EB devices', function() {
+  var fs = require('fs');
+  var ws = makeWsClient();
+  var storeFilename = '/tmp/dashboard_eb_cursor_recovery.json';
+  var ebConfig = {
+    "collectors": [{
+      "uri": 'ws://localhost/'
+    }],
+    "store": {
+      "filename": storeFilename
+    },
+    "devices": [{
+      "id": "440047001051363036373538",
+      "name": "EB-RF2"
+    }],
+    "tanks": [],
+    "valves": [],
+    "vacuums": [],
+    "pumps": [],
+    "osmose": []
+  };
+  var nonEbConfig = {
+    "collectors": [{
+      "uri": 'ws://localhost/'
+    }],
+    "store": {
+      "filename": storeFilename
+    },
+    "devices": [{
+      "id": "NON-EB-1",
+      "name": "RF2"
+    }],
+    "tanks": [],
+    "valves": [],
+    "vacuums": [],
+    "pumps": [],
+    "osmose": []
+  };
+
+  beforeEach(function() {
+    try { fs.unlinkSync(storeFilename); } catch(e) { /* ignore */ }
+  });
+  afterEach(function() {
+    try { fs.unlinkSync(storeFilename); } catch(e) { /* ignore */ }
+  });
+
+  it('should recover from stale generation drift for realtime EB events', function() {
+    var dashboard = require('../dashboard.js').Dashboard(ebConfig, ws);
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(makeMessage(
+          "440047001051363036373538",
+          1875401147,
+          245459,
+          { "eName": "sensor/level", "eData": 264, "replay": 0 }
+        )).then(function() {
+          return connection.fakeReceive(makeMessage(
+            "440047001051363036373538",
+            1773427074,
+            38286,
+            { "eName": "sensor/level", "eData": 264, "replay": 0 }
+          )).then(function() {
+            return dashboard.getDevice("440047001051363036373538").then(function(device) {
+              assert.equal(1773427074, device.generationId);
+              assert.equal(38286, device.lastEventSerial);
+            });
+          });
+        });
+      });
+    });
+  });
+
+  it('should recover from stale serial drift for realtime EB events', function() {
+    var dashboard = require('../dashboard.js').Dashboard(ebConfig, ws);
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(makeMessage(
+          "440047001051363036373538",
+          1773427074,
+          245459,
+          { "eName": "sensor/level", "eData": 264, "replay": 0 }
+        )).then(function() {
+          return connection.fakeReceive(makeMessage(
+            "440047001051363036373538",
+            1773427074,
+            38286,
+            { "eName": "sensor/level", "eData": 264, "replay": 0 }
+          )).then(function() {
+            return dashboard.getDevice("440047001051363036373538").then(function(device) {
+              assert.equal(1773427074, device.generationId);
+              assert.equal(38286, device.lastEventSerial);
+            });
+          });
+        });
+      });
+    });
+  });
+
+  it('should keep rejecting stale serial drift for non-EB devices', function() {
+    var dashboard = require('../dashboard.js').Dashboard(nonEbConfig, ws);
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(makeMessage(
+          "NON-EB-1",
+          1773427074,
+          245459,
+          { "eName": "sensor/level", "eData": 264, "replay": 0 }
+        )).then(function() {
+          return connection.fakeReceive(makeMessage(
+            "NON-EB-1",
+            1773427074,
+            38286,
+            { "eName": "sensor/level", "eData": 264, "replay": 0 }
+          )).then(function() {
+            return dashboard.getDevice("NON-EB-1").then(function(device) {
+              assert.equal(1773427074, device.generationId);
+              assert.equal(245459, device.lastEventSerial);
+            });
+          });
+        });
+      });
+    });
+  });
+});
+
 describe('Dashboard persisted tanks with duplicate code', function() {
   var fs = require('fs');
   var ws = makeWsClient();

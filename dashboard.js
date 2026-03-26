@@ -14,6 +14,8 @@ const writeFile = Promise.denodeify(fs.writeFile);
 const MM_PER_INCH = 25.4;
 const DEFAULT_ULTRASONIC_TANK_FILTER_ALPHA = 0.2;
 const DEFAULT_PRESSURE_TANK_FILTER_ALPHA = 0.25;
+const STALE_EB_GENERATION_DRIFT_THRESHOLD = 1000000;
+const STALE_EB_SERIAL_DRIFT_THRESHOLD = 10000;
 
 function parseNumericValue(value) {
     const parsed = parseFloat(value);
@@ -1342,6 +1344,26 @@ exports.Dashboard = function (config, WebSocketClient) {
         );
     }
 
+    function isRealtimeCollectorEvent(data) {
+        if (!data || typeof data.replay === "undefined") {
+            return false;
+        }
+        const replay = parseNumericValue(data.replay);
+        return Number.isFinite(replay) && replay === 0;
+    }
+
+    function isEbDevice(device) {
+        return (
+            !!device &&
+            typeof device.name === "string" &&
+            device.name.startsWith("EB-")
+        );
+    }
+
+    function shouldRecoverStaleEbCursor(device, data) {
+        return isEbDevice(device) && isRealtimeCollectorEvent(data);
+    }
+
     function handleMessage(message) {
         if (message.name && message.name.startsWith("collector/")) {
             return handleCollectorMessage(message);
@@ -1399,6 +1421,27 @@ exports.Dashboard = function (config, WebSocketClient) {
                         device.lastEventSerial = serialNo;
                         return updateDevice(device).then(handleEventFunc);
                     } else {
+                        const generationDrift =
+                            device.generationId - generationId;
+                        if (
+                            shouldRecoverStaleEbCursor(device, message.data) &&
+                            generationDrift >
+                                STALE_EB_GENERATION_DRIFT_THRESHOLD
+                        ) {
+                            console.warn(
+                                "Detected stale persisted generation for %s (%s): incoming generation %s is behind persisted %s by %s. Resetting cursor to incoming event (%s,%s).",
+                                device.name,
+                                deviceId,
+                                generationId,
+                                device.generationId,
+                                generationDrift,
+                                generationId,
+                                serialNo,
+                            );
+                            device.generationId = generationId;
+                            device.lastEventSerial = serialNo;
+                            return updateDevice(device).then(handleEventFunc);
+                        }
                         return Promise.reject({
                             error: util.format(
                                 "Received event for old generation (%s) of device %s, which is now at generation %s. Ignored!",
@@ -1415,6 +1458,23 @@ exports.Dashboard = function (config, WebSocketClient) {
                 } else if (device.lastEventSerial === serialNo) {
                     // Ignoring duplicate event
                 } else {
+                    const serialDrift = device.lastEventSerial - serialNo;
+                    if (
+                        shouldRecoverStaleEbCursor(device, message.data) &&
+                        serialDrift > STALE_EB_SERIAL_DRIFT_THRESHOLD
+                    ) {
+                        console.warn(
+                            "Detected stale persisted serial for %s (%s): incoming serial %s is behind persisted %s by %s in generation %s. Resetting cursor to incoming event.",
+                            device.name,
+                            deviceId,
+                            serialNo,
+                            device.lastEventSerial,
+                            serialDrift,
+                            generationId,
+                        );
+                        device.lastEventSerial = serialNo;
+                        return updateDevice(device).then(handleEventFunc);
+                    }
                     return Promise.reject({
                         error: util.format(
                             "Received old event for device %s: %d, %s",
