@@ -15,6 +15,7 @@ const MM_PER_INCH = 25.4;
 const DEFAULT_ULTRASONIC_TANK_FILTER_ALPHA = 0.2;
 const DEFAULT_PRESSURE_TANK_FILTER_ALPHA = 0.25;
 const STALE_EB_GENERATION_DRIFT_THRESHOLD = 1000000;
+const STALE_EB_GENERATION_MAX_AGE_SECONDS = 14 * 24 * 60 * 60;
 const STALE_EB_SERIAL_DRIFT_THRESHOLD = 10000;
 
 function parseNumericValue(value) {
@@ -1364,6 +1365,28 @@ exports.Dashboard = function (config, WebSocketClient) {
         return isEbDevice(device) && isRealtimeCollectorEvent(data);
     }
 
+    function getInvalidEbGenerationReason(generationId, nowSeconds) {
+        const numericGenerationId = parseNumericValue(generationId);
+        if (!Number.isFinite(numericGenerationId)) {
+            return "not_numeric";
+        }
+
+        const currentTimestampSeconds = Number.isFinite(nowSeconds)
+            ? nowSeconds
+            : Math.floor(Date.now() / 1000);
+        const minValidGenerationId =
+            currentTimestampSeconds - STALE_EB_GENERATION_MAX_AGE_SECONDS;
+
+        if (numericGenerationId < minValidGenerationId) {
+            return "too_old";
+        }
+        if (numericGenerationId > currentTimestampSeconds) {
+            return "future";
+        }
+
+        return null;
+    }
+
     function handleMessage(message) {
         if (message.name && message.name.startsWith("collector/")) {
             return handleCollectorMessage(message);
@@ -1396,6 +1419,44 @@ exports.Dashboard = function (config, WebSocketClient) {
                 }
             } else {
                 const handleEventFunc = () => handleEvent(device, message);
+                const shouldRecoverStaleCursor = shouldRecoverStaleEbCursor(
+                    device,
+                    message.data,
+                );
+                const nowSeconds = shouldRecoverStaleCursor
+                    ? Math.floor(Date.now() / 1000)
+                    : null;
+                const incomingGenerationInvalidReason = shouldRecoverStaleCursor
+                    ? getInvalidEbGenerationReason(generationId, nowSeconds)
+                    : null;
+                const persistedGenerationInvalidReason =
+                    shouldRecoverStaleCursor &&
+                    typeof device.generationId !== "undefined"
+                        ? getInvalidEbGenerationReason(
+                              device.generationId,
+                              nowSeconds,
+                          )
+                        : null;
+
+                if (incomingGenerationInvalidReason) {
+                    console.warn(
+                        "Ignoring realtime EB event with invalid generation for %s (%s): generation=%s reason=%s serial=%s.",
+                        device.name,
+                        deviceId,
+                        generationId,
+                        incomingGenerationInvalidReason,
+                        serialNo,
+                    );
+                    return Promise.reject({
+                        error: util.format(
+                            "Received event with invalid generation (%s) for EB device %s: %s",
+                            generationId,
+                            deviceId,
+                            incomingGenerationInvalidReason,
+                        ),
+                        message: message,
+                    });
+                }
 
                 if (typeof device.generationId === "undefined") {
                     console.log(
@@ -1424,14 +1485,27 @@ exports.Dashboard = function (config, WebSocketClient) {
                         const generationDrift =
                             device.generationId - generationId;
                         if (
-                            shouldRecoverStaleEbCursor(device, message.data) &&
-                            generationDrift >
-                                STALE_EB_GENERATION_DRIFT_THRESHOLD
+                            shouldRecoverStaleCursor &&
+                            (generationDrift >
+                                STALE_EB_GENERATION_DRIFT_THRESHOLD ||
+                                !!persistedGenerationInvalidReason)
                         ) {
+                            const generationRecoveryReason =
+                                generationDrift >
+                                STALE_EB_GENERATION_DRIFT_THRESHOLD
+                                    ? util.format(
+                                          "drift=%s",
+                                          generationDrift,
+                                      )
+                                    : util.format(
+                                          "persisted_generation_%s",
+                                          persistedGenerationInvalidReason,
+                                      );
                             console.warn(
-                                "Detected stale persisted generation for %s (%s): incoming generation %s is behind persisted %s by %s. Resetting cursor to incoming event (%s,%s).",
+                                "Detected stale persisted generation for %s (%s): reason=%s incoming generation %s is behind persisted %s by %s. Resetting cursor to incoming event (%s,%s).",
                                 device.name,
                                 deviceId,
+                                generationRecoveryReason,
                                 generationId,
                                 device.generationId,
                                 generationDrift,

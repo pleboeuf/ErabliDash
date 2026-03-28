@@ -144,6 +144,10 @@ describe('Dashboard stale cursor recovery for EB devices', function() {
   var fs = require('fs');
   var ws = makeWsClient();
   var storeFilename = '/tmp/dashboard_eb_cursor_recovery.json';
+  var twoWeeksInSeconds = 14 * 24 * 60 * 60;
+  function nowSeconds() {
+    return Math.floor(Date.now() / 1000);
+  }
   var ebConfig = {
     "collectors": [{
       "uri": 'ws://localhost/'
@@ -187,23 +191,25 @@ describe('Dashboard stale cursor recovery for EB devices', function() {
   });
 
   it('should recover from stale generation drift for realtime EB events', function() {
+    var newerGeneration = nowSeconds() - 60;
+    var staleButStillValidGeneration = newerGeneration - 1000001;
     var dashboard = require('../dashboard.js').Dashboard(ebConfig, ws);
     return dashboard.init().then(function() {
       return dashboard.connect().then(function(connection) {
         return connection.fakeReceive(makeMessage(
           "440047001051363036373538",
-          1875401147,
+          newerGeneration,
           245459,
           { "eName": "sensor/level", "eData": 264, "replay": 0 }
         )).then(function() {
           return connection.fakeReceive(makeMessage(
             "440047001051363036373538",
-            1773427074,
+            staleButStillValidGeneration,
             38286,
             { "eName": "sensor/level", "eData": 264, "replay": 0 }
           )).then(function() {
             return dashboard.getDevice("440047001051363036373538").then(function(device) {
-              assert.equal(1773427074, device.generationId);
+              assert.equal(staleButStillValidGeneration, device.generationId);
               assert.equal(38286, device.lastEventSerial);
             });
           });
@@ -213,23 +219,24 @@ describe('Dashboard stale cursor recovery for EB devices', function() {
   });
 
   it('should recover from stale serial drift for realtime EB events', function() {
+    var generation = nowSeconds() - 120;
     var dashboard = require('../dashboard.js').Dashboard(ebConfig, ws);
     return dashboard.init().then(function() {
       return dashboard.connect().then(function(connection) {
         return connection.fakeReceive(makeMessage(
           "440047001051363036373538",
-          1773427074,
+          generation,
           245459,
           { "eName": "sensor/level", "eData": 264, "replay": 0 }
         )).then(function() {
           return connection.fakeReceive(makeMessage(
             "440047001051363036373538",
-            1773427074,
+            generation,
             38286,
             { "eName": "sensor/level", "eData": 264, "replay": 0 }
           )).then(function() {
             return dashboard.getDevice("440047001051363036373538").then(function(device) {
-              assert.equal(1773427074, device.generationId);
+              assert.equal(generation, device.generationId);
               assert.equal(38286, device.lastEventSerial);
             });
           });
@@ -238,24 +245,100 @@ describe('Dashboard stale cursor recovery for EB devices', function() {
     });
   });
 
+  it('should recover from persisted future generation for realtime EB events', function() {
+    var persistedFutureGeneration = nowSeconds() + 300;
+    var validIncomingGeneration = nowSeconds() - 30;
+    fs.writeFileSync(storeFilename, JSON.stringify({
+      "devices": [{
+        "id": "440047001051363036373538",
+        "name": "EB-RF2",
+        "generationId": persistedFutureGeneration,
+        "lastEventSerial": 245459
+      }],
+      "tanks": [],
+      "valves": [],
+      "vacuums": [],
+      "pumps": [],
+      "osmose": [],
+      "waterMeters": []
+    }), 'utf8');
+    var dashboard = require('../dashboard.js').Dashboard(ebConfig, ws);
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(makeMessage(
+          "440047001051363036373538",
+          validIncomingGeneration,
+          38286,
+          { "eName": "sensor/level", "eData": 264, "replay": 0 }
+        )).then(function() {
+          return dashboard.getDevice("440047001051363036373538").then(function(device) {
+            assert.equal(validIncomingGeneration, device.generationId);
+            assert.equal(38286, device.lastEventSerial);
+          });
+        });
+      });
+    });
+  });
+
+  it('should reject realtime EB events with generation older than two weeks', function() {
+    var oldGeneration = nowSeconds() - twoWeeksInSeconds - 60;
+    var dashboard = require('../dashboard.js').Dashboard(ebConfig, ws);
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(makeMessage(
+          "440047001051363036373538",
+          oldGeneration,
+          38286,
+          { "eName": "sensor/level", "eData": 264, "replay": 0 }
+        )).then(function() {
+          return dashboard.getDevice("440047001051363036373538").then(function(device) {
+            assert.equal(undefined, device.generationId);
+            assert.equal(undefined, device.lastEventSerial);
+          });
+        });
+      });
+    });
+  });
+
+  it('should reject realtime EB events with future generation', function() {
+    var futureGeneration = nowSeconds() + 60;
+    var dashboard = require('../dashboard.js').Dashboard(ebConfig, ws);
+    return dashboard.init().then(function() {
+      return dashboard.connect().then(function(connection) {
+        return connection.fakeReceive(makeMessage(
+          "440047001051363036373538",
+          futureGeneration,
+          38286,
+          { "eName": "sensor/level", "eData": 264, "replay": 0 }
+        )).then(function() {
+          return dashboard.getDevice("440047001051363036373538").then(function(device) {
+            assert.equal(undefined, device.generationId);
+            assert.equal(undefined, device.lastEventSerial);
+          });
+        });
+      });
+    });
+  });
+
   it('should keep rejecting stale serial drift for non-EB devices', function() {
+    var generation = nowSeconds() - 120;
     var dashboard = require('../dashboard.js').Dashboard(nonEbConfig, ws);
     return dashboard.init().then(function() {
       return dashboard.connect().then(function(connection) {
         return connection.fakeReceive(makeMessage(
           "NON-EB-1",
-          1773427074,
+          generation,
           245459,
           { "eName": "sensor/level", "eData": 264, "replay": 0 }
         )).then(function() {
           return connection.fakeReceive(makeMessage(
             "NON-EB-1",
-            1773427074,
+            generation,
             38286,
             { "eName": "sensor/level", "eData": 264, "replay": 0 }
           )).then(function() {
             return dashboard.getDevice("NON-EB-1").then(function(device) {
-              assert.equal(1773427074, device.generationId);
+              assert.equal(generation, device.generationId);
               assert.equal(245459, device.lastEventSerial);
             });
           });
