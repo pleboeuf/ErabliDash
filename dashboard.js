@@ -17,6 +17,7 @@ const DEFAULT_PRESSURE_TANK_FILTER_ALPHA = 0.25;
 const STALE_EB_GENERATION_DRIFT_THRESHOLD = 1000000;
 const STALE_EB_GENERATION_MAX_AGE_SECONDS = 14 * 24 * 60 * 60;
 const STALE_EB_SERIAL_DRIFT_THRESHOLD = 10000;
+const TEMPORARY_EB_RSX_DATACER_FALLBACK_CODES = ["RS1", "RS3"];
 
 function parseNumericValue(value) {
     const parsed = parseFloat(value);
@@ -573,42 +574,63 @@ exports.Dashboard = function (config, WebSocketClient) {
             .shift();
     }
 
-    function applyTemporaryEbRs1DatacerFallback() {
-        // TEMPORARY WORKAROUND (EB-RS1 ultrasonic sensor fault):
-        // Re-apply RS1 value from Datacer after event processing so incoming EB-RS1
-        // ultrasound events (integer raw values) cannot revert displayed fill to invalid state.
-        // Remove this once EB-RS1 ultrasound hardware is fixed.
-        const ebRs1Tank = tanks.find(
-            (tank) => tank.device === "EB-RS1" && tank.code === "RS1",
+    function getNormalizedTankCode(tank) {
+        return tank && typeof tank.code === "string" ? tank.code.toUpperCase() : "";
+    }
+
+    function shouldApplyTemporaryEbRsxDatacerFallback(tank) {
+        const normalizedCode = getNormalizedTankCode(tank);
+        return (
+            normalizedCode.length > 0 &&
+            TEMPORARY_EB_RSX_DATACER_FALLBACK_CODES.indexOf(normalizedCode) !== -1 &&
+            typeof tank.device === "string" &&
+            tank.device.toUpperCase() === "EB-" + normalizedCode &&
+            getTankSensorType(tank) !== "pressure"
         );
-        const datacerRs1Tank = tanks.find(
-            (tank) =>
-                tank.device !== "EB-RS1" &&
-                tank.code === "RS1" &&
-                typeof tank.sensorType === "string" &&
-                tank.sensorType.toLowerCase() === "pressure",
+    }
+
+    function applyTemporaryEbRsxDatacerFallback() {
+        // TEMPORARY WORKAROUND (EB-RSx ultrasonic sensor faults):
+        // For listed RSx tanks, re-apply matching Datacer pressure value after event
+        // processing so incoming EB-RSx ultrasound events (integer raw values) cannot
+        // revert displayed fill to invalid state. Add RS codes to
+        // TEMPORARY_EB_RSX_DATACER_FALLBACK_CODES as needed and remove once fixed.
+        const fallbackTanks = tanks.filter(
+            shouldApplyTemporaryEbRsxDatacerFallback,
         );
 
-        if (!ebRs1Tank || !datacerRs1Tank) {
-            return;
-        }
+        fallbackTanks.forEach((ebRsxTank) => {
+            const tankCode = getNormalizedTankCode(ebRsxTank);
+            const datacerTank = tanks.find(
+                (tank) =>
+                    tank !== ebRsxTank &&
+                    getNormalizedTankCode(tank) === tankCode &&
+                    getTankSensorType(tank) === "pressure" &&
+                    tank.device !== ebRsxTank.device,
+            );
 
-        const datacerLevelMm = getTankLevelMm(datacerRs1Tank);
-        const ebRs1SensorHeightMm = parseNumericValue(ebRs1Tank.sensorHeight);
-        if (
-            !Number.isFinite(datacerLevelMm) ||
-            !Number.isFinite(ebRs1SensorHeightMm)
-        ) {
-            return;
-        }
+            if (!datacerTank) {
+                return;
+            }
 
-        ebRs1Tank.rawValue = Math.round(
-            Math.max(0, ebRs1SensorHeightMm - datacerLevelMm),
-        );
-        ebRs1Tank.unfilteredRawValue = ebRs1Tank.rawValue;
-        ebRs1Tank.filteredRawValue = ebRs1Tank.rawValue;
-        ebRs1Tank.lastUpdatedAt =
-            datacerRs1Tank.lastUpdatedAt || ebRs1Tank.lastUpdatedAt;
+            const datacerLevelMm = getTankLevelMm(datacerTank);
+            const ebRsxSensorHeightMm = parseNumericValue(ebRsxTank.sensorHeight);
+            if (
+                !Number.isFinite(datacerLevelMm) ||
+                !Number.isFinite(ebRsxSensorHeightMm)
+            ) {
+                return;
+            }
+
+            const mirroredRawValue = Math.round(
+                Math.max(0, ebRsxSensorHeightMm - datacerLevelMm),
+            );
+            ebRsxTank.rawValue = mirroredRawValue;
+            ebRsxTank.unfilteredRawValue = mirroredRawValue;
+            ebRsxTank.filteredRawValue = mirroredRawValue;
+            ebRsxTank.lastUpdatedAt =
+                datacerTank.lastUpdatedAt || ebRsxTank.lastUpdatedAt;
+        });
     }
 
     function addDevice(device) {
@@ -1335,7 +1357,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                     event,
                 );
         }
-        applyTemporaryEbRs1DatacerFallback();
+        applyTemporaryEbRsxDatacerFallback();
         return publishData(event, device);
     }
 
@@ -1672,7 +1694,7 @@ exports.Dashboard = function (config, WebSocketClient) {
     }
 
     function getData() {
-        applyTemporaryEbRs1DatacerFallback();
+        applyTemporaryEbRsxDatacerFallback();
         return {
             devices: devices,
             tanks: tanks.map(extendTank),
