@@ -212,28 +212,47 @@ app.post("/api/resetPumpMaint", async (req, res) => {
     }
 });
 
-// Weather proxy - Environment Canada
+// Weather proxy - Local weather sensor (Ecowitt)
 app.get("/api/weather", async (req, res) => {
     try {
-        const externalResponse = await fetch(
-            "https://weather.gc.ca/api/app/fr/Location/45.29561,-72.69564"
-        );
+        const applicationKey = process.env.ECOWITT_APPLICATION_KEY;
+        const apiKey = process.env.ECOWITT_API_KEY;
+        const mac = process.env.ECOWITT_MAC;
+        const endpoint =
+            process.env.ECOWITT_ENDPOINT ||
+            "https://api.ecowitt.net/api/v3/device/real_time";
+        if (!applicationKey || !apiKey || !mac) {
+            return res.status(500).json({
+                error: "Ecowitt weather sensor credentials are not configured",
+            });
+        }
+        const params = new URLSearchParams({
+            application_key: applicationKey,
+            api_key: apiKey,
+            mac: mac,
+            call_back: "all",
+        });
+        const externalResponse = await fetch(`${endpoint}?${params.toString()}`, {
+            method: "POST",
+            headers: { Accept: "application/json" },
+        });
         if (!externalResponse.ok) {
             throw new Error(`HTTP error! status: ${externalResponse.status}`);
         }
         const data = await externalResponse.json();
-        const observation = data[0] && data[0].observation;
-        if (observation && observation.temperature) {
+        const tempF = data?.data?.outdoor?.temperature?.value;
+        if (tempF !== undefined && tempF !== null) {
+            const tempC = ((parseFloat(tempF) - 32.0) * 5) / 9;
             res.json({
-                temperature: observation.temperature.metricUnrounded,
-                station: observation.observedAt,
-                timestamp: observation.timeStampText,
+                temperature: tempC,
+                station: "Ecowitt",
+                timestamp: new Date().toISOString(),
             });
         } else {
             res.status(502).json({ error: "No observation data available" });
         }
     } catch (error) {
-        console.error("Error fetching weather from Environment Canada:", error);
+        console.error("Error fetching weather from Ecowitt sensor:", error);
         res.status(500).json({ error: "Error fetching weather data" });
     }
 });
