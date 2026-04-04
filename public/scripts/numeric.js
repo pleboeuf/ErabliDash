@@ -28,6 +28,11 @@ const TANK_PERCENT_HIGH = 90;
 const TANK_PERCENT_MEDIUM = 75;
 const FUEL_TANK_LOW_THRESHOLD = 30;
 const FUEL_TANK_CRITICAL_THRESHOLD = 15;
+const PRESSURE_TREND_EPSILON_KPA = 0.03;
+const UPWARDS_ARROW = "↑";
+const DOWNWARDS_ARROW = "↓";
+const EQUAL_ARROW = "≈";
+let lastWeatherPressureKpa = null;
 
 // Note: Capacity in Liters
 let tankDefs = [
@@ -755,12 +760,14 @@ function displayOsmoseAlarm(alarmNo, alarmMsg) {
         osmoseAlarmElement.innerHTML = "Alarme Osmose: " + alarmMsg;
         osmoseAlarmElement.style.backgroundColor = "red";
         osmoseAlarmElement.style.color = "white";
-        osmoseAlarmElement.style.padding = "0.5rem";
+        osmoseAlarmElement.style.padding = "0.2rem 0.35rem";
         osmoseAlarmElement.style.borderRadius = "4px";
+        osmoseAlarmElement.style.fontSize = "0.9rem";
     } else {
         osmoseAlarmElement.innerHTML = "";
         osmoseAlarmElement.style.backgroundColor = "";
         osmoseAlarmElement.style.padding = "";
+        osmoseAlarmElement.style.fontSize = "";
     }
 }
 
@@ -2385,17 +2392,59 @@ window.addEventListener("click", function (event) {
     }
 });
 
-// Fetch temperature from local weather sensor via server proxy
+function CtoF(tempC) {
+    return (9.0 / 5.0) * tempC + 32.0;
+}
+
+function TempEbulition(pressureKpa) {
+    const K = 273.15;
+    const mmHgPerKpa = 7.500615613;
+    const pressureMmHg = pressureKpa * mmHgPerKpa;
+    return -5132 / (Math.log(pressureMmHg) - 20.386) - K;
+}
+
+function getPressureTrendSymbol(currentPressureKpa) {
+    if (!Number.isFinite(currentPressureKpa)) {
+        return EQUAL_ARROW;
+    }
+    if (!Number.isFinite(lastWeatherPressureKpa)) {
+        lastWeatherPressureKpa = currentPressureKpa;
+        return EQUAL_ARROW;
+    }
+    const delta = currentPressureKpa - lastWeatherPressureKpa;
+    lastWeatherPressureKpa = currentPressureKpa;
+    if (delta > PRESSURE_TREND_EPSILON_KPA) {
+        return UPWARDS_ARROW;
+    }
+    if (delta < -PRESSURE_TREND_EPSILON_KPA) {
+        return DOWNWARDS_ARROW;
+    }
+    return EQUAL_ARROW;
+}
+
+// Fetch temperature and pressure from local weather sensor via server proxy
 async function fetchWeatherTemperature() {
     try {
         const response = await fetch("/api/weather");
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         const tempEl = document.getElementById("ecTemperature");
+        const boilingEl = document.getElementById("ebullitionTemp");
         if (tempEl && data.temperature != null) {
             const temp = parseFloat(data.temperature);
-            tempEl.textContent = `${temp.toFixed(1)} °C`;
+            const pressureKpa = parseFloat(data.pressureKpa);
+            const trendArrow = getPressureTrendSymbol(pressureKpa);
+            const pressureText = Number.isFinite(pressureKpa)
+                ? `  ${pressureKpa.toFixed(2)} kPa ${trendArrow}`
+                : "";
+            tempEl.textContent = `${temp.toFixed(1)} °C / ${pressureText}`;
             tempEl.title = `Capteur local (${data.station || "Ecowitt"}) – ${data.timestamp || "maintenant"}`;
+            if (boilingEl && Number.isFinite(pressureKpa)) {
+                const syrupBoilingPointF = CtoF(
+                    TempEbulition(pressureKpa) + 3.9,
+                );
+                boilingEl.textContent = `/ Ébul.: ${syrupBoilingPointF.toFixed(1)} °F`;
+            }
         }
     } catch (err) {
         console.error("Error fetching local weather:", err);

@@ -368,12 +368,18 @@
                     gap: 1rem;
                 "
             >
-                <span
-                    id="ecTemperature"
-                    title="Température Env. Canada (Granby)"
-                    style="font-size: 1.1rem; white-space: nowrap"
-                ></span>
-                Érablière Brunelle
+                <span style="white-space: nowrap">Érablière Brunelle</span>
+                <span style="white-space: nowrap; font-size: 1rem">
+                    <span
+                        id="ecTemperature"
+                        title="Température capteur local"
+                        style="font-size: 1.1rem; white-space: nowrap"
+                    ></span>
+                    <span
+                        id="ebullitionTemp"
+                        style="font-size: 1rem; white-space: nowrap"
+                    ></span>
+                </span>
             </div>
 
             <!-- Left zone: Alarms -->
@@ -387,7 +393,12 @@
                 id="ZoneGauche"
             >
                 <h4
-                    style="margin: 0; padding: 0.2rem; font-weight: bold"
+                    style="
+                        margin: 0;
+                        padding: 0.1rem 0.2rem;
+                        font-weight: bold;
+                        font-size: 0.95rem;
+                    "
                     id="osmoseAlarm"
                 ></h4>
             </div>
@@ -402,7 +413,14 @@
                 "
                 id="coulee"
             >
-                <h4 style="margin: 0; padding: 0.2rem; font-weight: bold">
+                <h4
+                    style="
+                        margin: 0;
+                        padding: 0.1rem 0.2rem;
+                        font-weight: bold;
+                        font-size: 0.95rem;
+                    "
+                >
                     <span id="c_text"></span> <span id="compteurDeTemps"></span>
                 </h4>
             </div>

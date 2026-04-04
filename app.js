@@ -82,7 +82,7 @@ app.get("/cabaneMap2026/mapbox-config.js", (req, res) => {
     res.type("application/javascript");
     res.send(`var MAPBOX_TOKEN = "${process.env.MAPBOX_TOKEN}";`);
 });
-app.get("/cabaneMapNew/mapbox-config.js", (req, res) => {
+app.get("/cabaneMap2026/mapbox-config.js", (req, res) => {
     res.type("application/javascript");
     res.send(`var MAPBOX_TOKEN = "${process.env.MAPBOX_TOKEN}";`);
 });
@@ -90,7 +90,7 @@ app.get("/cabaneMapNew/mapbox-config.js", (req, res) => {
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
     "/bower_components",
-    express.static(path.join(__dirname, "bower_components"))
+    express.static(path.join(__dirname, "bower_components")),
 );
 app.use("/", express.static(path.join(__dirname, "index.html")));
 
@@ -126,7 +126,9 @@ app.post("/api/auth/verify-control-code", (req, res) => {
                 .json({ error: "Control code is not configured on server" });
         }
         if (typeof code !== "string" || code.length === 0) {
-            return res.status(400).json({ error: "Missing required field: code" });
+            return res
+                .status(400)
+                .json({ error: "Missing required field: code" });
         }
         if (code !== configuredCode) {
             return res.status(401).json({ error: "Invalid control code" });
@@ -150,7 +152,9 @@ app.post("/api/particle/function", async (req, res) => {
         if (!deviceId || !functionName) {
             return res
                 .status(400)
-                .json({ error: "Missing required fields: deviceId, functionName" });
+                .json({
+                    error: "Missing required fields: deviceId, functionName",
+                });
         }
         if (!process.env.PARTICLE_TOKEN) {
             return res
@@ -176,7 +180,9 @@ app.post("/api/particle/function", async (req, res) => {
         });
         const particleData = await particleResponse
             .json()
-            .catch(() => ({ error: "Invalid JSON response from Particle API" }));
+            .catch(() => ({
+                error: "Invalid JSON response from Particle API",
+            }));
 
         if (!particleResponse.ok) {
             return res.status(particleResponse.status).json({
@@ -198,13 +204,20 @@ app.post("/api/resetPumpMaint", async (req, res) => {
     try {
         const { code } = req.body;
         if (!code) {
-            return res.status(400).json({ error: "Missing required field: code" });
+            return res
+                .status(400)
+                .json({ error: "Missing required field: code" });
         }
         const result = await dashboard.resetPumpMaintCounter(code);
         if (result) {
-            res.json({ success: true, message: `Maintenance counter reset for ${code}` });
+            res.json({
+                success: true,
+                message: `Maintenance counter reset for ${code}`,
+            });
         } else {
-            res.status(404).json({ error: `Vacuum sensor '${code}' not found` });
+            res.status(404).json({
+                error: `Vacuum sensor '${code}' not found`,
+            });
         }
     } catch (error) {
         console.error("Error resetting pump maintenance counter:", error);
@@ -232,21 +245,30 @@ app.get("/api/weather", async (req, res) => {
             mac: mac,
             call_back: "all",
         });
-        const externalResponse = await fetch(`${endpoint}?${params.toString()}`, {
-            method: "POST",
-            headers: { Accept: "application/json" },
-        });
+        const externalResponse = await fetch(
+            `${endpoint}?${params.toString()}`,
+            {
+                method: "POST",
+                headers: { Accept: "application/json" },
+            },
+        );
         if (!externalResponse.ok) {
             throw new Error(`HTTP error! status: ${externalResponse.status}`);
         }
         const data = await externalResponse.json();
         const tempF = data?.data?.outdoor?.temperature?.value;
+        const pressureInHg = data?.data?.pressure?.relative?.value;
         if (tempF !== undefined && tempF !== null) {
             const tempC = ((parseFloat(tempF) - 32.0) * 5) / 9;
+            const pressureKpa =
+                pressureInHg !== undefined && pressureInHg !== null
+                    ? parseFloat(pressureInHg) * 3.386388
+                    : null;
             res.json({
                 temperature: tempC,
                 station: "Ecowitt",
                 timestamp: new Date().toISOString(),
+                pressureKpa: pressureKpa,
             });
         } else {
             res.status(502).json({ error: "No observation data available" });
@@ -271,18 +293,18 @@ app.get("/api/saison-info", async (req, res) => {
     try {
         const database = exportConfig.influxdb.database;
         const influx = getInfluxClient(database);
-        
+
         // Check if database exists
         const databases = await influx.getDatabaseNames();
         if (!databases.includes(database)) {
             return res.json({ exists: false, data: {} });
         }
-        
+
         // Query SaisonInfo measurement - get all entries to merge startTime and endTime
         // Since they are written as separate points, we need to get all and merge
         const query = `SELECT * FROM SaisonInfo`;
         const results = await influx.query(query);
-        
+
         const data = {};
         results.forEach((row) => {
             const pompe = row.pompe;
@@ -295,7 +317,7 @@ app.get("/api/saison-info", async (req, res) => {
                 if (row.endTime) data[pompe].endTime = row.endTime;
             }
         });
-        
+
         res.json({ exists: true, data });
     } catch (error) {
         console.error("Error reading SaisonInfo:", error);
@@ -311,33 +333,44 @@ app.get("/api/saison-info", async (req, res) => {
 app.post("/api/saison-info", async (req, res) => {
     try {
         const { pompe, field, value } = req.body;
-        
+
         if (!pompe || !field || !value) {
-            return res.status(400).json({ error: "Missing required fields: pompe, field, value" });
+            return res
+                .status(400)
+                .json({
+                    error: "Missing required fields: pompe, field, value",
+                });
         }
-        
-        if (!['startTime', 'endTime'].includes(field)) {
-            return res.status(400).json({ error: "Field must be 'startTime' or 'endTime'" });
+
+        if (!["startTime", "endTime"].includes(field)) {
+            return res
+                .status(400)
+                .json({ error: "Field must be 'startTime' or 'endTime'" });
         }
-        
+
         const database = exportConfig.influxdb.database;
         const influx = getInfluxClient(database);
-        
+
         // Check if database exists
         const databases = await influx.getDatabaseNames();
         if (!databases.includes(database)) {
-            return res.status(500).json({ error: `Database '${database}' does not exist` });
+            return res
+                .status(500)
+                .json({ error: `Database '${database}' does not exist` });
         }
-        
+
         // Write the point with precision 'ms' for better timestamp handling
-        await influx.writePoints([
-            {
-                measurement: 'SaisonInfo',
-                tags: { pompe: pompe },
-                fields: { [field]: value },
-            }
-        ], { precision: 'ms' });
-        
+        await influx.writePoints(
+            [
+                {
+                    measurement: "SaisonInfo",
+                    tags: { pompe: pompe },
+                    fields: { [field]: value },
+                },
+            ],
+            { precision: "ms" },
+        );
+
         console.log(`SaisonInfo: ${field} saved for ${pompe} = ${value}`);
         res.json({ success: true, message: `${field} saved for ${pompe}` });
     } catch (error) {
@@ -351,78 +384,100 @@ app.get("/api/saison-info/check-ready", async (req, res) => {
     try {
         const database = exportConfig.influxdb.database;
         const influx = getInfluxClient(database);
-        
+
         // Check if database exists
         const databases = await influx.getDatabaseNames();
         if (!databases.includes(database)) {
-            return res.json({ ready: false, error: `Base de données '${database}' inexistante` });
+            return res.json({
+                ready: false,
+                error: `Base de données '${database}' inexistante`,
+            });
         }
-        
+
         // Query SaisonInfo to check for startTime entries
         const query = `SELECT * FROM SaisonInfo`;
         const results = await influx.query(query);
-        
+
         if (results.length === 0) {
-            return res.json({ 
-                ready: false, 
-                error: "Aucune information de saison enregistrée. Veuillez d'abord enregistrer les dates de début de saison."
+            return res.json({
+                ready: false,
+                error: "Aucune information de saison enregistrée. Veuillez d'abord enregistrer les dates de début de saison.",
             });
         }
-        
+
         // Check if at least one pump has startTime
-        const hasStartTime = results.some(row => row.startTime);
+        const hasStartTime = results.some((row) => row.startTime);
         if (!hasStartTime) {
-            return res.json({ 
-                ready: false, 
-                error: "Aucune date de début de saison enregistrée. Veuillez enregistrer au moins une date de début."
+            return res.json({
+                ready: false,
+                error: "Aucune date de début de saison enregistrée. Veuillez enregistrer au moins une date de début.",
             });
         }
-        
+
         res.json({ ready: true, database: database });
     } catch (error) {
         console.error("Error checking SaisonInfo readiness:", error);
         if (error.message && error.message.includes("measurement not found")) {
-            return res.json({ 
-                ready: false, 
-                error: "Aucune information de saison enregistrée. Veuillez d'abord enregistrer les dates de début de saison."
+            return res.json({
+                ready: false,
+                error: "Aucune information de saison enregistrée. Veuillez d'abord enregistrer les dates de début de saison.",
             });
         }
-        res.status(500).json({ ready: false, error: "Erreur lors de la vérification" });
+        res.status(500).json({
+            ready: false,
+            error: "Erreur lors de la vérification",
+        });
     }
 });
 
 // Generate season analysis TSV file
 app.get("/api/generate-saison-analysis", async (req, res) => {
     try {
-        const { exec } = require('child_process');
+        const { exec } = require("child_process");
         const year = req.query.year || new Date().getFullYear();
-        const scriptPath = path.join(__dirname, 'analyse_de_saison.sh');
-        
+        const scriptPath = path.join(__dirname, "analyse_de_saison.sh");
+
         // Validate year
         const currentYear = new Date().getFullYear();
         if (year < 2021 || year > currentYear) {
             return res.status(400).json({ error: `Année invalide: ${year}` });
         }
-        
+
         // Execute the analysis script
-        exec(`bash "${scriptPath}" ${year}`, { encoding: 'utf8', maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
-            if (error) {
-                console.error('Error executing analysis script:', error);
-                return res.status(500).json({ error: `Erreur lors de l'exécution du script: ${stderr || error.message}` });
-            }
-            
-            // Set headers for TSV file download with UTF-8 BOM for Excel compatibility
-            const filename = `Sommaire_de_Saison_${year}.tsv`;
-            res.setHeader('Content-Type', 'text/tab-separated-values; charset=utf-8');
-            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-            
-            // Add UTF-8 BOM for Excel compatibility
-            const bom = '\uFEFF';
-            res.send(bom + stdout);
-        });
+        exec(
+            `bash "${scriptPath}" ${year}`,
+            { encoding: "utf8", maxBuffer: 1024 * 1024 * 10 },
+            (error, stdout, stderr) => {
+                if (error) {
+                    console.error("Error executing analysis script:", error);
+                    return res
+                        .status(500)
+                        .json({
+                            error: `Erreur lors de l'exécution du script: ${stderr || error.message}`,
+                        });
+                }
+
+                // Set headers for TSV file download with UTF-8 BOM for Excel compatibility
+                const filename = `Sommaire_de_Saison_${year}.tsv`;
+                res.setHeader(
+                    "Content-Type",
+                    "text/tab-separated-values; charset=utf-8",
+                );
+                res.setHeader(
+                    "Content-Disposition",
+                    `attachment; filename="${filename}"`,
+                );
+
+                // Add UTF-8 BOM for Excel compatibility
+                const bom = "\uFEFF";
+                res.send(bom + stdout);
+            },
+        );
     } catch (error) {
         console.error("Error generating season analysis:", error);
-        res.status(500).json({ error: "Erreur lors de la génération de l'analyse" });
+        res.status(500).json({
+            error: "Erreur lors de la génération de l'analyse",
+        });
     }
 });
 
@@ -442,7 +497,7 @@ wsServer.on("request", (request) => {
             console.log(
                 `${new Date()} Connection from origin ${
                     request.origin
-                } rejected.`
+                } rejected.`,
             );
             return;
         }
@@ -451,7 +506,7 @@ wsServer.on("request", (request) => {
         console.log(
             `${new Date()} Connection accepted from ${
                 connection.remoteAddress
-            }. Connections: ${connectedClients.length}`
+            }. Connections: ${connectedClients.length}`,
         );
 
         connection.on("message", (message) => {
@@ -465,7 +520,7 @@ wsServer.on("request", (request) => {
             console.log(
                 `${new Date()} Peer ${
                     connection.remoteAddress
-                } disconnected. Connections: ${connectedClients.length}`
+                } disconnected. Connections: ${connectedClients.length}`,
             );
         });
 
@@ -485,7 +540,7 @@ server.listen(port, () => {
     console.log(`HTTP Server started: http://localhost:${port}`);
     // Signal PM2 that the app is ready (only when running under PM2)
     if (process.send) {
-        process.send('ready');
+        process.send("ready");
     }
 });
 
@@ -520,7 +575,9 @@ process.on("SIGINT", async () => {
 
     // Force exit after 10 seconds if graceful shutdown fails
     setTimeout(() => {
-        console.error("Could not close connections in time, forcefully shutting down");
+        console.error(
+            "Could not close connections in time, forcefully shutting down",
+        );
         process.exit(1);
     }, 10000);
 });
