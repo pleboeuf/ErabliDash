@@ -346,6 +346,7 @@ describe('Dashboard stale cursor recovery for EB devices', function() {
       });
     });
   });
+
 });
 
 describe('Dashboard persisted tanks with duplicate code', function() {
@@ -470,6 +471,85 @@ describe('Dashboard security', function() {
     });
   });
 
+});
+
+describe('Dashboard boiling point offset', function() {
+  var fs = require('fs');
+  var ws = makeWsClient();
+  var storeFilename = '/tmp/dashboard_boiling_offset.json';
+  var config = {
+    "collectors": [{
+      "uri": 'ws://localhost/'
+    }],
+    "store": {
+      "filename": storeFilename
+    },
+    "devices": [],
+    "tanks": [],
+    "valves": [],
+    "vacuums": [],
+    "pumps": [],
+    "osmose": []
+  };
+
+  beforeEach(function() {
+    try { fs.unlinkSync(storeFilename); } catch(e) { /* ignore */ }
+  });
+  afterEach(function() {
+    try { fs.unlinkSync(storeFilename); } catch(e) { /* ignore */ }
+  });
+
+  it('should persist boiling point offset in dashboard.json and reload it', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    return dashboard.init().then(function() {
+      assert.equal(0, dashboard.getBoilingPointOffset());
+      return dashboard.setBoilingPointOffset(0.6).then(function(savedOffset) {
+        assert.equal(0.6, savedOffset);
+        assert.equal(0.6, dashboard.getBoilingPointOffset());
+        var storedData = JSON.parse(fs.readFileSync(storeFilename, 'utf8'));
+        assert.ok(storedData.meteo, 'meteo group should exist');
+        assert.equal(0.6, storedData.meteo.boilingPointOffsetF);
+        assert.equal(0.6, storedData.boilingPointOffsetF);
+
+        var reloadedDashboard = require('../dashboard.js').Dashboard(config, ws);
+        return reloadedDashboard.init().then(function() {
+          assert.equal(0.6, reloadedDashboard.getBoilingPointOffset());
+        });
+      });
+    });
+  });
+
+  it('should clamp boiling point offset to [-1.0, +1.0]', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    return dashboard.init().then(function() {
+      return dashboard.setBoilingPointOffset(2.4).then(function() {
+        assert.equal(1.0, dashboard.getBoilingPointOffset());
+        return dashboard.setBoilingPointOffset(-3.8).then(function() {
+          assert.equal(-1.0, dashboard.getBoilingPointOffset());
+        });
+      });
+    });
+  });
+
+  it('should persist meteo group with boiling, outdoor temperature and pressure', function() {
+    var dashboard = require('../dashboard.js').Dashboard(config, ws);
+    return dashboard.init().then(function() {
+      return dashboard.setBoilingPointOffset(0.5).then(function() {
+        return dashboard.updateMeteoData(4.34, 101.276).then(function(meteo) {
+          assert.equal(4.3, meteo.outdoorTempC);
+          assert.equal(101.28, meteo.pressureKpa);
+          assert.equal(219.5, meteo.boilingPointTempF);
+          assert.equal(0.5, meteo.boilingPointOffsetF);
+          var storedData = JSON.parse(fs.readFileSync(storeFilename, 'utf8'));
+          assert.ok(storedData.meteo, 'meteo group should be persisted');
+          assert.equal(4.3, storedData.meteo.outdoorTempC);
+          assert.equal(101.28, storedData.meteo.pressureKpa);
+          assert.equal(219.5, storedData.meteo.boilingPointTempF);
+          assert.equal(0.5, storedData.meteo.boilingPointOffsetF);
+        });
+      });
+    });
+  });
 });
 
 describe('Dashboard with tank A', function() {

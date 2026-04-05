@@ -18,10 +18,79 @@ const STALE_EB_GENERATION_DRIFT_THRESHOLD = 1000000;
 const STALE_EB_GENERATION_MAX_AGE_SECONDS = 14 * 24 * 60 * 60;
 const STALE_EB_SERIAL_DRIFT_THRESHOLD = 10000;
 const TEMPORARY_EB_RSX_DATACER_FALLBACK_CODES = ["RS1", "RS3"];
+const BOILING_POINT_OFFSET_MIN_F = -1.0;
+const BOILING_POINT_OFFSET_MAX_F = 1.0;
+const DEFAULT_BOILING_POINT_OFFSET_F = 0.0;
+const SYRUP_BOILING_POINT_CELSIUS_OFFSET = 3.9;
 
 function parseNumericValue(value) {
     const parsed = parseFloat(value);
     return Number.isFinite(parsed) ? parsed : NaN;
+}
+
+function normalizeBoilingPointOffset(offsetValue) {
+    const numericOffset = parseNumericValue(offsetValue);
+    if (!Number.isFinite(numericOffset)) {
+        return NaN;
+    }
+    const clampedOffset = Math.min(
+        BOILING_POINT_OFFSET_MAX_F,
+        Math.max(BOILING_POINT_OFFSET_MIN_F, numericOffset),
+    );
+    const roundedOffset = Math.round(clampedOffset * 10) / 10;
+    return Object.is(roundedOffset, -0) ? 0 : roundedOffset;
+}
+
+function normalizeMeteoTemperatureC(value) {
+    const numericValue = parseNumericValue(value);
+    if (!Number.isFinite(numericValue)) {
+        return null;
+    }
+    return Math.round(numericValue * 10) / 10;
+}
+
+function normalizeMeteoPressureKpa(value) {
+    const numericValue = parseNumericValue(value);
+    if (!Number.isFinite(numericValue)) {
+        return null;
+    }
+    return Math.round(numericValue * 100) / 100;
+}
+
+function normalizeMeteoBoilingPointTempF(value) {
+    const numericValue = parseNumericValue(value);
+    if (!Number.isFinite(numericValue)) {
+        return null;
+    }
+    return Math.round(numericValue * 10) / 10;
+}
+
+function celsiusToFahrenheit(tempC) {
+    return (9.0 / 5.0) * tempC + 32.0;
+}
+
+function getBoilingTemperatureCFromPressureKpa(pressureKpa) {
+    const numericPressureKpa = parseNumericValue(pressureKpa);
+    if (!Number.isFinite(numericPressureKpa) || numericPressureKpa <= 0) {
+        return NaN;
+    }
+    const K = 273.15;
+    const mmHgPerKpa = 7.500615613;
+    const pressureMmHg = numericPressureKpa * mmHgPerKpa;
+    return -5132 / (Math.log(pressureMmHg) - 20.386) - K;
+}
+
+function computeSyrupBoilingPointF(pressureKpa, offsetF) {
+    const boilingTemperatureC = getBoilingTemperatureCFromPressureKpa(pressureKpa);
+    if (!Number.isFinite(boilingTemperatureC)) {
+        return NaN;
+    }
+    const numericOffset = parseNumericValue(offsetF);
+    return (
+        celsiusToFahrenheit(
+            boilingTemperatureC + SYRUP_BOILING_POINT_CELSIUS_OFFSET,
+        ) + (Number.isFinite(numericOffset) ? numericOffset : 0)
+    );
 }
 
 function getTankSensorType(tank) {
@@ -559,6 +628,13 @@ exports.Dashboard = function (config, WebSocketClient) {
     var pumps = [];
     var theOsmose = [];
     var waterMeters = [];
+    var boilingPointOffsetF = DEFAULT_BOILING_POINT_OFFSET_F;
+    var meteo = {
+        boilingPointOffsetF: DEFAULT_BOILING_POINT_OFFSET_F,
+        boilingPointTempF: null,
+        outdoorTempC: null,
+        pressureKpa: null,
+    };
     const pendingRequests = {};
 
     var dir = path.dirname(filename);
@@ -1703,6 +1779,8 @@ exports.Dashboard = function (config, WebSocketClient) {
             pumps: pumps.map(extendPump),
             osmose: theOsmose,
             waterMeters: waterMeters,
+            meteo: _.extend({}, meteo),
+            boilingPointOffsetF: boilingPointOffsetF,
         };
     }
 
@@ -1889,6 +1967,29 @@ exports.Dashboard = function (config, WebSocketClient) {
             console.log("Loaded %d water meter(s) from stored data", waterMeters.length);
         }
 
+        const persistedMeteo =
+            data.meteo && typeof data.meteo === "object" ? data.meteo : {};
+        const persistedBoilingPointOffset = normalizeBoilingPointOffset(
+            typeof persistedMeteo.boilingPointOffsetF !== "undefined"
+                ? persistedMeteo.boilingPointOffsetF
+                : data.boilingPointOffsetF,
+        );
+        if (Number.isFinite(persistedBoilingPointOffset)) {
+            boilingPointOffsetF = persistedBoilingPointOffset;
+        } else {
+            boilingPointOffsetF = DEFAULT_BOILING_POINT_OFFSET_F;
+        }
+        meteo = {
+            boilingPointOffsetF: boilingPointOffsetF,
+            boilingPointTempF: normalizeMeteoBoilingPointTempF(
+                persistedMeteo.boilingPointTempF,
+            ),
+            outdoorTempC: normalizeMeteoTemperatureC(
+                persistedMeteo.outdoorTempC,
+            ),
+            pressureKpa: normalizeMeteoPressureKpa(persistedMeteo.pressureKpa),
+        };
+
         return Promise.resolve();
     }
 
@@ -1928,6 +2029,91 @@ exports.Dashboard = function (config, WebSocketClient) {
         return store().then(function () {
             return true;
         });
+    }
+
+    function updateMeteoData(outdoorTempC, pressureKpa) {
+        const normalizedOutdoorTempC = normalizeMeteoTemperatureC(outdoorTempC);
+        const normalizedPressureKpa = normalizeMeteoPressureKpa(pressureKpa);
+        const normalizedBoilingPointTempF = Number.isFinite(normalizedPressureKpa)
+            ? normalizeMeteoBoilingPointTempF(
+                  computeSyrupBoilingPointF(
+                      normalizedPressureKpa,
+                      boilingPointOffsetF,
+                  ),
+              )
+            : null;
+        const hasChanged =
+            meteo.outdoorTempC !== normalizedOutdoorTempC ||
+            meteo.pressureKpa !== normalizedPressureKpa ||
+            meteo.boilingPointTempF !== normalizedBoilingPointTempF ||
+            meteo.boilingPointOffsetF !== boilingPointOffsetF;
+        if (!hasChanged) {
+            return Promise.resolve(_.extend({}, meteo));
+        }
+        meteo.outdoorTempC = normalizedOutdoorTempC;
+        meteo.pressureKpa = normalizedPressureKpa;
+        meteo.boilingPointTempF = normalizedBoilingPointTempF;
+        meteo.boilingPointOffsetF = boilingPointOffsetF;
+        return store()
+            .then(function () {
+                return publishData(
+                    {
+                        name: "dashboard/meteo",
+                        published_at: new Date().toISOString(),
+                        data: {
+                            eName: "dashboard/meteo",
+                            meteo: _.extend({}, meteo),
+                        },
+                    },
+                    null,
+                );
+            })
+            .then(function () {
+                return _.extend({}, meteo);
+            });
+    }
+
+    function setBoilingPointOffset(offsetValue) {
+        const normalizedOffset = normalizeBoilingPointOffset(offsetValue);
+        if (!Number.isFinite(normalizedOffset)) {
+            return Promise.reject(
+                new Error("Invalid boiling point offset value"),
+            );
+        }
+        const recalculatedBoilingPointTempF = Number.isFinite(meteo.pressureKpa)
+            ? normalizeMeteoBoilingPointTempF(
+                  computeSyrupBoilingPointF(meteo.pressureKpa, normalizedOffset),
+              )
+            : meteo.boilingPointTempF;
+        const hasChanged =
+            normalizedOffset !== boilingPointOffsetF ||
+            meteo.boilingPointOffsetF !== normalizedOffset ||
+            meteo.boilingPointTempF !== recalculatedBoilingPointTempF;
+        if (!hasChanged) {
+            return Promise.resolve(boilingPointOffsetF);
+        }
+
+        boilingPointOffsetF = normalizedOffset;
+        meteo.boilingPointOffsetF = normalizedOffset;
+        meteo.boilingPointTempF = recalculatedBoilingPointTempF;
+        return store()
+            .then(function () {
+                return publishData(
+                    {
+                        name: "dashboard/boiling-offset",
+                        published_at: new Date().toISOString(),
+                        data: {
+                            eName: "dashboard/boiling-offset",
+                            offsetF: boilingPointOffsetF,
+                            meteo: _.extend({}, meteo),
+                        },
+                    },
+                    null,
+                );
+            })
+            .then(function () {
+                return boilingPointOffsetF;
+            });
     }
 
     function checkStore() {
@@ -1989,6 +2175,11 @@ exports.Dashboard = function (config, WebSocketClient) {
         getVacuumSensorByCode: getVacuumSensorByCode,
         getVacuumSensorOfLineVacuumDevice: getVacuumSensorOfLineVacuumDevice,
         getData: getData,
+        updateMeteoData: updateMeteoData,
+        getBoilingPointOffset: function () {
+            return boilingPointOffsetF;
+        },
+        setBoilingPointOffset: setBoilingPointOffset,
         resetPumpMaintCounter: resetPumpMaintCounter,
         getEventsSinceStore: function () {
             return eventsSinceStore;

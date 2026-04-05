@@ -30,7 +30,18 @@ app.use(cors());
 // Parse JSON body
 app.use(express.json());
 const CONTROL_SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes
+const BOILING_POINT_OFFSET_MIN_F = -1.0;
+const BOILING_POINT_OFFSET_MAX_F = 1.0;
 const controlSessions = new Map();
+
+function normalizeBoilingPointOffset(value) {
+    const numericValue = parseFloat(value);
+    if (!Number.isFinite(numericValue)) {
+        return NaN;
+    }
+    const roundedValue = Math.round(numericValue * 10) / 10;
+    return Object.is(roundedValue, -0) ? 0 : roundedValue;
+}
 
 function cleanupExpiredControlSessions() {
     const now = Date.now();
@@ -264,11 +275,23 @@ app.get("/api/weather", async (req, res) => {
                 pressureInHg !== undefined && pressureInHg !== null
                     ? parseFloat(pressureInHg) * 3.386388
                     : null;
+            let meteoData = null;
+            try {
+                meteoData = await dashboard.updateMeteoData(tempC, pressureKpa);
+            } catch (meteoError) {
+                console.error(
+                    "Error updating dashboard meteo readings:",
+                    meteoError,
+                );
+            }
             res.json({
                 temperature: tempC,
                 station: "Ecowitt",
                 timestamp: new Date().toISOString(),
                 pressureKpa: pressureKpa,
+                boilingPointF: meteoData
+                    ? meteoData.boilingPointTempF
+                    : null,
             });
         } else {
             res.status(502).json({ error: "No observation data available" });
@@ -276,6 +299,45 @@ app.get("/api/weather", async (req, res) => {
     } catch (error) {
         console.error("Error fetching weather from Ecowitt sensor:", error);
         res.status(500).json({ error: "Error fetching weather data" });
+    }
+});
+
+app.get("/api/boiling-offset", (req, res) => {
+    try {
+        const offsetF = dashboard.getBoilingPointOffset();
+        res.json({ offsetF: offsetF });
+    } catch (error) {
+        console.error("Error reading boiling offset:", error);
+        res.status(500).json({ error: "Error reading boiling offset" });
+    }
+});
+
+app.post("/api/boiling-offset", async (req, res) => {
+    try {
+        const sessionToken = req.body?.sessionToken;
+        if (!isControlSessionTokenValid(sessionToken)) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        const normalizedOffset = normalizeBoilingPointOffset(req.body?.offsetF);
+        if (!Number.isFinite(normalizedOffset)) {
+            return res
+                .status(400)
+                .json({ error: "offsetF must be a numeric value" });
+        }
+        if (
+            normalizedOffset < BOILING_POINT_OFFSET_MIN_F ||
+            normalizedOffset > BOILING_POINT_OFFSET_MAX_F
+        ) {
+            return res.status(400).json({
+                error: `offsetF must be between ${BOILING_POINT_OFFSET_MIN_F.toFixed(1)} and ${BOILING_POINT_OFFSET_MAX_F.toFixed(1)}`,
+            });
+        }
+
+        const offsetF = await dashboard.setBoilingPointOffset(normalizedOffset);
+        res.json({ success: true, offsetF: offsetF });
+    } catch (error) {
+        console.error("Error updating boiling offset:", error);
+        res.status(500).json({ error: "Error updating boiling offset" });
     }
 });
 

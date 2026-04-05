@@ -357,6 +357,7 @@
 
             <!-- Temperature + Title -->
             <div
+                class="header-title-weather"
                 style="
                     display: flex;
                     align-items: center;
@@ -368,17 +369,46 @@
                     gap: 1rem;
                 "
             >
-                <span style="white-space: nowrap">Érablière Brunelle</span>
-                <span style="white-space: nowrap; font-size: 1rem">
+                <span class="header-site-name" style="white-space: nowrap"
+                    >Érablière Brunelle</span
+                >
+                <span class="header-weather-block" style="font-size: 1rem">
                     <span
                         id="ecTemperature"
                         title="Température capteur local"
                         style="font-size: 1.1rem; white-space: nowrap"
                     ></span>
-                    <span
-                        id="ebullitionTemp"
-                        style="font-size: 1rem; white-space: nowrap"
-                    ></span>
+                    <span class="weather-boiling-wrap">
+                        <span
+                            id="ebullitionTemp"
+                            style="font-size: 1rem; white-space: nowrap"
+                        ></span>
+                        <span class="boiling-offset-controls">
+                            <button
+                                type="button"
+                                id="boilingOffsetPlus"
+                                class="boiling-offset-button"
+                                aria-label="Augmenter l'offset du point d’ébullition"
+                            >
+                                +
+                            </button>
+                            <input
+                                type="text"
+                                id="boilingOffsetValue"
+                                class="boiling-offset-value"
+                                aria-label="Offset du point d’ébullition"
+                                readonly
+                            />
+                            <button
+                                type="button"
+                                id="boilingOffsetMinus"
+                                class="boiling-offset-button"
+                                aria-label="Diminuer l'offset du point d’ébullition"
+                            >
+                                -
+                            </button>
+                        </span>
+                    </span>
                 </span>
             </div>
 

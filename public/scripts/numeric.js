@@ -29,10 +29,16 @@ const TANK_PERCENT_MEDIUM = 75;
 const FUEL_TANK_LOW_THRESHOLD = 30;
 const FUEL_TANK_CRITICAL_THRESHOLD = 15;
 const PRESSURE_TREND_EPSILON_KPA = 0.03;
+const BOILING_OFFSET_STEP_F = 0.1;
+const BOILING_OFFSET_MIN_F = -1.0;
+const BOILING_OFFSET_MAX_F = 1.0;
 const UPWARDS_ARROW = "↑";
 const DOWNWARDS_ARROW = "↓";
 const EQUAL_ARROW = "≈";
 let lastWeatherPressureKpa = null;
+let lastWeatherPressureForBoilingKpa = null;
+let boilingOffsetF = 0.0;
+let boilingOffsetUpdateInProgress = false;
 
 // Note: Capacity in Liters
 let tankDefs = [
@@ -1439,6 +1445,15 @@ function openSocket() {
     websocket.onmessage = function (msg) {
         try {
             const data = JSON.parse(msg.data);
+            const incomingBoilingPointOffset = parseFloat(
+                data.meteo &&
+                    typeof data.meteo.boilingPointOffsetF !== "undefined"
+                    ? data.meteo.boilingPointOffsetF
+                    : data.boilingPointOffsetF,
+            );
+            if (Number.isFinite(incomingBoilingPointOffset)) {
+                applyBoilingOffsetFromServer(incomingBoilingPointOffset);
+            }
             const incomingTanks = data.tanks || [];
             const incomingDevices = data.devices || [];
             const datacerDeviceNames = new Set(
@@ -2422,6 +2437,166 @@ function getPressureTrendSymbol(currentPressureKpa) {
     return EQUAL_ARROW;
 }
 
+function roundToOneDecimal(value) {
+    return Math.round(value * 10) / 10;
+}
+
+function clampBoilingOffset(offsetF) {
+    const roundedOffset = roundToOneDecimal(offsetF);
+    return Math.min(
+        BOILING_OFFSET_MAX_F,
+        Math.max(BOILING_OFFSET_MIN_F, roundedOffset),
+    );
+}
+
+function formatBoilingOffset(offsetF) {
+    const safeOffset = Object.is(offsetF, -0) ? 0 : offsetF;
+    const sign = safeOffset >= 0 ? "+" : "";
+    return `${sign}${safeOffset.toFixed(1)} °F`;
+}
+
+function updateBoilingOffsetButtonsState() {
+    const plusButton = document.getElementById("boilingOffsetPlus");
+    const minusButton = document.getElementById("boilingOffsetMinus");
+    if (plusButton) {
+        plusButton.disabled = boilingOffsetF >= BOILING_OFFSET_MAX_F;
+    }
+    if (minusButton) {
+        minusButton.disabled = boilingOffsetF <= BOILING_OFFSET_MIN_F;
+    }
+}
+
+function updateBoilingOffsetField() {
+    const offsetField = document.getElementById("boilingOffsetValue");
+    if (offsetField) {
+        offsetField.value = formatBoilingOffset(boilingOffsetF);
+    }
+    updateBoilingOffsetButtonsState();
+}
+function applyBoilingOffsetFromServer(offsetF) {
+    boilingOffsetF = clampBoilingOffset(offsetF);
+    updateBoilingOffsetField();
+    updateBoilingPointDisplay();
+}
+
+async function fetchBoilingOffsetFromServer() {
+    try {
+        const response = await fetch("/api/boiling-offset");
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        const result = await response.json();
+        const serverOffsetF = parseFloat(result.offsetF);
+        if (Number.isFinite(serverOffsetF)) {
+            applyBoilingOffsetFromServer(serverOffsetF);
+        }
+        return true;
+    } catch (err) {
+        console.error("Unable to fetch boiling offset from backend:", err);
+    }
+}
+
+async function saveBoilingOffsetToServer(sessionToken, allowRetry = true) {
+    try {
+        const response = await fetch("/api/boiling-offset", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                offsetF: boilingOffsetF,
+                sessionToken: sessionToken,
+            }),
+        });
+        if (response.status === 401) {
+            controlSessionToken = null;
+            if (allowRetry) {
+                const renewedSessionToken = await requestControlSession(
+                    "Entrer le code",
+                    true,
+                );
+                if (!renewedSessionToken) {
+                    return false;
+                }
+                return saveBoilingOffsetToServer(renewedSessionToken, false);
+            }
+            return false;
+        }
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        const result = await response.json();
+        const serverOffsetF = parseFloat(result.offsetF);
+        if (Number.isFinite(serverOffsetF)) {
+            applyBoilingOffsetFromServer(serverOffsetF);
+        }
+        return true;
+    } catch (err) {
+        console.error("Unable to save boiling offset to backend:", err);
+        return false;
+    }
+}
+
+function updateBoilingPointDisplay() {
+    const boilingEl = document.getElementById("ebullitionTemp");
+    if (!boilingEl) {
+        return;
+    }
+    if (!Number.isFinite(lastWeatherPressureForBoilingKpa)) {
+        boilingEl.textContent = "";
+        return;
+    }
+    const syrupBoilingPointF =
+        CtoF(TempEbulition(lastWeatherPressureForBoilingKpa) + 3.9) +
+        boilingOffsetF;
+    boilingEl.textContent = `/ Ébul.: ${syrupBoilingPointF.toFixed(1)} °F`;
+}
+
+async function adjustBoilingOffset(deltaF) {
+    if (boilingOffsetUpdateInProgress) {
+        return;
+    }
+    const nextOffset = clampBoilingOffset(boilingOffsetF + deltaF);
+    if (nextOffset === boilingOffsetF) {
+        updateBoilingOffsetField();
+        return;
+    }
+    const sessionToken = await requestControlSession("Entrer le code");
+    if (!sessionToken) {
+        updateBoilingOffsetField();
+        return;
+    }
+    const previousOffset = boilingOffsetF;
+    boilingOffsetUpdateInProgress = true;
+    try {
+        boilingOffsetF = nextOffset;
+        updateBoilingOffsetField();
+        updateBoilingPointDisplay();
+        const saveSucceeded = await saveBoilingOffsetToServer(sessionToken);
+        if (!saveSucceeded) {
+            boilingOffsetF = previousOffset;
+            updateBoilingOffsetField();
+            updateBoilingPointDisplay();
+        }
+    } finally {
+        boilingOffsetUpdateInProgress = false;
+    }
+}
+
+function initBoilingOffsetControls() {
+    updateBoilingOffsetField();
+    fetchBoilingOffsetFromServer();
+    const plusButton = document.getElementById("boilingOffsetPlus");
+    const minusButton = document.getElementById("boilingOffsetMinus");
+    if (plusButton) {
+        plusButton.addEventListener("click", function () {
+            adjustBoilingOffset(BOILING_OFFSET_STEP_F);
+        });
+    }
+    if (minusButton) {
+        minusButton.addEventListener("click", function () {
+            adjustBoilingOffset(-BOILING_OFFSET_STEP_F);
+        });
+    }
+}
 // Fetch temperature and pressure from local weather sensor via server proxy
 async function fetchWeatherTemperature() {
     try {
@@ -2439,11 +2614,11 @@ async function fetchWeatherTemperature() {
                 : "";
             tempEl.textContent = `${temp.toFixed(1)} °C / ${pressureText}`;
             tempEl.title = `Capteur local (${data.station || "Ecowitt"}) – ${data.timestamp || "maintenant"}`;
-            if (boilingEl && Number.isFinite(pressureKpa)) {
-                const syrupBoilingPointF = CtoF(
-                    TempEbulition(pressureKpa) + 3.9,
-                );
-                boilingEl.textContent = `/ Ébul.: ${syrupBoilingPointF.toFixed(1)} °F`;
+            if (boilingEl) {
+                lastWeatherPressureForBoilingKpa = Number.isFinite(pressureKpa)
+                    ? pressureKpa
+                    : null;
+                updateBoilingPointDisplay();
             }
         }
     } catch (err) {
@@ -2456,6 +2631,7 @@ window.addEventListener("load", initSeasonMenuLabels, false);
 window.addEventListener(
     "load",
     function () {
+        initBoilingOffsetControls();
         fetchWeatherTemperature();
         setInterval(fetchWeatherTemperature, WEATHER_FETCH_INTERVAL_MS);
     },
