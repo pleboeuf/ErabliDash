@@ -519,11 +519,11 @@ describe('Dashboard boiling point offset', function() {
     });
   });
 
-  it('should clamp boiling point offset to [-1.0, +1.0]', function() {
+  it('should clamp boiling point offset to [-1.0, +2.0]', function() {
     var dashboard = require('../dashboard.js').Dashboard(config, ws);
     return dashboard.init().then(function() {
       return dashboard.setBoilingPointOffset(2.4).then(function() {
-        assert.equal(1.0, dashboard.getBoilingPointOffset());
+        assert.equal(2.0, dashboard.getBoilingPointOffset());
         return dashboard.setBoilingPointOffset(-3.8).then(function() {
           assert.equal(-1.0, dashboard.getBoilingPointOffset());
         });

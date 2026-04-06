@@ -31,7 +31,7 @@ app.use(cors());
 app.use(express.json());
 const CONTROL_SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes
 const BOILING_POINT_OFFSET_MIN_F = -1.0;
-const BOILING_POINT_OFFSET_MAX_F = 1.0;
+const BOILING_POINT_OFFSET_MAX_F = 2.0;
 const controlSessions = new Map();
 
 function normalizeBoilingPointOffset(value) {
