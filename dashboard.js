@@ -15,8 +15,8 @@ const MM_PER_INCH = 25.4;
 const DEFAULT_ULTRASONIC_TANK_FILTER_ALPHA = 0.2;
 const DEFAULT_PRESSURE_TANK_FILTER_ALPHA = 0.25;
 const STALE_EB_GENERATION_DRIFT_THRESHOLD = 1000000;
-const STALE_EB_GENERATION_MAX_AGE_SECONDS = 14 * 24 * 60 * 60;
-const STALE_EB_SERIAL_DRIFT_THRESHOLD = 10000;
+const STALE_EB_GENERATION_MAX_AGE_SECONDS = 3 * 30 * 24 * 60 * 60;
+const STALE_EB_SERIAL_DRIFT_THRESHOLD = 100000;
 const TEMPORARY_EB_RSX_DATACER_FALLBACK_CODES = ["RS1", "RS3"];
 const BOILING_POINT_OFFSET_MIN_F = -1.0;
 const BOILING_POINT_OFFSET_MAX_F = 2.0;
@@ -81,7 +81,8 @@ function getBoilingTemperatureCFromPressureKpa(pressureKpa) {
 }
 
 function computeSyrupBoilingPointF(pressureKpa, offsetF) {
-    const boilingTemperatureC = getBoilingTemperatureCFromPressureKpa(pressureKpa);
+    const boilingTemperatureC =
+        getBoilingTemperatureCFromPressureKpa(pressureKpa);
     if (!Number.isFinite(boilingTemperatureC)) {
         return NaN;
     }
@@ -456,11 +457,10 @@ HorizontalCylindricTank.getFill = function (level, diameter, length) {
     let h = level / 1000;
     let d = numericDiameter / 1000;
     let r = d / 2;
-    const fill = (
+    const fill =
         (Math.pow(r, 2) * Math.acos((r - h) / r) -
             (r - h) * Math.sqrt(d * h - Math.pow(h, 2))) *
-        numericLength
-    );
+        numericLength;
     return Number.isFinite(fill) ? fill : null;
 };
 
@@ -651,14 +651,17 @@ exports.Dashboard = function (config, WebSocketClient) {
     }
 
     function getNormalizedTankCode(tank) {
-        return tank && typeof tank.code === "string" ? tank.code.toUpperCase() : "";
+        return tank && typeof tank.code === "string"
+            ? tank.code.toUpperCase()
+            : "";
     }
 
     function shouldApplyTemporaryEbRsxDatacerFallback(tank) {
         const normalizedCode = getNormalizedTankCode(tank);
         return (
             normalizedCode.length > 0 &&
-            TEMPORARY_EB_RSX_DATACER_FALLBACK_CODES.indexOf(normalizedCode) !== -1 &&
+            TEMPORARY_EB_RSX_DATACER_FALLBACK_CODES.indexOf(normalizedCode) !==
+                -1 &&
             typeof tank.device === "string" &&
             tank.device.toUpperCase() === "EB-" + normalizedCode &&
             getTankSensorType(tank) !== "pressure"
@@ -690,7 +693,9 @@ exports.Dashboard = function (config, WebSocketClient) {
             }
 
             const datacerLevelMm = getTankLevelMm(datacerTank);
-            const ebRsxSensorHeightMm = parseNumericValue(ebRsxTank.sensorHeight);
+            const ebRsxSensorHeightMm = parseNumericValue(
+                ebRsxTank.sensorHeight,
+            );
             if (
                 !Number.isFinite(datacerLevelMm) ||
                 !Number.isFinite(ebRsxSensorHeightMm)
@@ -916,9 +921,12 @@ exports.Dashboard = function (config, WebSocketClient) {
                 pump.couleeEnCour = true;
                 pump.debutDeCouleeTS = data.timestamp;
                 // Snapshot water meter readings at coulée start (first pump to start)
-                if (!waterMeters.some(m => m.couleeStartVolume !== undefined)) {
-                    waterMeters.forEach(m => {
-                        m.couleeStartVolume = parseFloat(m.volume_since_reset) || 0;
+                if (
+                    !waterMeters.some((m) => m.couleeStartVolume !== undefined)
+                ) {
+                    waterMeters.forEach((m) => {
+                        m.couleeStartVolume =
+                            parseFloat(m.volume_since_reset) || 0;
                     });
                     store();
                 }
@@ -927,7 +935,9 @@ exports.Dashboard = function (config, WebSocketClient) {
                     pump.lastUpdatedAt = event.published_at;
                     event.object = extendPump(pump);
                     // Attach current water meter readings for ErabliExport
-                    event.object.waterMeters = waterMeters.map(m => ({ ...m }));
+                    event.object.waterMeters = waterMeters.map((m) => ({
+                        ...m,
+                    }));
                 }
                 break;
             case "finDeCoulee":
@@ -937,13 +947,15 @@ exports.Dashboard = function (config, WebSocketClient) {
                     pump.lastUpdatedAt = event.published_at;
                     event.object = extendPump(pump);
                     // Attach current water meter readings for ErabliExport
-                    event.object.waterMeters = waterMeters.map(m => ({ ...m }));
+                    event.object.waterMeters = waterMeters.map((m) => ({
+                        ...m,
+                    }));
                 }
                 pump.duty = 0;
                 pump.volume = 0;
                 // Clear snapshot when no pump is still in coulée
-                if (!pumps.some(p => p.couleeEnCour)) {
-                    waterMeters.forEach(m => {
+                if (!pumps.some((p) => p.couleeEnCour)) {
+                    waterMeters.forEach((m) => {
                         delete m.couleeStartVolume;
                     });
                     store();
@@ -1339,7 +1351,8 @@ exports.Dashboard = function (config, WebSocketClient) {
                 );
                 if (meter) {
                     // Save previous reading for flow rate calculation
-                    meter.prevVolume = parseFloat(meter.volume_since_reset) || 0;
+                    meter.prevVolume =
+                        parseFloat(meter.volume_since_reset) || 0;
                     meter.prevTime = meter.lastUpdatedAt;
                     Object.assign(meter, {
                         volume_since_reset: data.volume_since_reset,
@@ -1497,15 +1510,24 @@ exports.Dashboard = function (config, WebSocketClient) {
         return getDevice(deviceId).then((device) => {
             eventsSinceStore++;
             if (!device) {
-                // For Datacer synthetic events (Tank/Level, Water/Volume, Vacuum/Lignes), 
+                // For Datacer synthetic events (Tank/Level, Water/Volume, Vacuum/Lignes),
                 // create a temporary device object to allow processing
-                const eventName = message.data.eName || '';
-                if (eventName === 'Tank/Level' || eventName === 'Water/Volume' || eventName === 'Vacuum/Lignes') {
-                    console.log("Processing Datacer event from new device: " + deviceId);
+                const eventName = message.data.eName || "";
+                if (
+                    eventName === "Tank/Level" ||
+                    eventName === "Water/Volume" ||
+                    eventName === "Vacuum/Lignes"
+                ) {
+                    console.log(
+                        "Processing Datacer event from new device: " + deviceId,
+                    );
                     // Create a temporary device object for Datacer events
                     const tempDevice = {
                         id: deviceId,
-                        name: message.data.name || message.data.device || deviceId,
+                        name:
+                            message.data.name ||
+                            message.data.device ||
+                            deviceId,
                         generationId: generationId,
                         lastEventSerial: serialNo,
                     };
@@ -1591,10 +1613,7 @@ exports.Dashboard = function (config, WebSocketClient) {
                             const generationRecoveryReason =
                                 generationDrift >
                                 STALE_EB_GENERATION_DRIFT_THRESHOLD
-                                    ? util.format(
-                                          "drift=%s",
-                                          generationDrift,
-                                      )
+                                    ? util.format("drift=%s", generationDrift)
                                     : util.format(
                                           "persisted_generation_%s",
                                           persistedGenerationInvalidReason,
@@ -1726,11 +1745,11 @@ exports.Dashboard = function (config, WebSocketClient) {
                 if (message.type === "utf8") {
                     //console.log("Received: '" + message.utf8Data + "'");
                     try {
-                        return handleMessage(JSON.parse(message.utf8Data)).catch(
-                            function (err) {
-                                console.error(err);
-                            },
-                        );
+                        return handleMessage(
+                            JSON.parse(message.utf8Data),
+                        ).catch(function (err) {
+                            console.error(err);
+                        });
                     } catch (exception) {
                         console.error(
                             "Failed to handle message: " + message.utf8Data,
@@ -1964,7 +1983,10 @@ exports.Dashboard = function (config, WebSocketClient) {
 
         if (data.waterMeters && Array.isArray(data.waterMeters)) {
             waterMeters = data.waterMeters;
-            console.log("Loaded %d water meter(s) from stored data", waterMeters.length);
+            console.log(
+                "Loaded %d water meter(s) from stored data",
+                waterMeters.length,
+            );
         }
 
         const persistedMeteo =
@@ -2014,7 +2036,8 @@ exports.Dashboard = function (config, WebSocketClient) {
 
     function resetPumpMaintCounter(sensorCode) {
         const sensor = vacuumSensors.find(
-            (s) => s.code === sensorCode && TRACKED_PUMP_SENSORS.includes(s.code),
+            (s) =>
+                s.code === sensorCode && TRACKED_PUMP_SENSORS.includes(s.code),
         );
         if (!sensor) {
             return Promise.resolve(false);
@@ -2024,7 +2047,10 @@ exports.Dashboard = function (config, WebSocketClient) {
         sensor.NeedMaintenance = false;
         sensor.pumpOn = false;
         sensor.lastPumpCheckAt = undefined;
-        console.log("Pump maintenance counter reset for sensor '%s'", sensorCode);
+        console.log(
+            "Pump maintenance counter reset for sensor '%s'",
+            sensorCode,
+        );
 
         return store().then(function () {
             return true;
@@ -2034,7 +2060,9 @@ exports.Dashboard = function (config, WebSocketClient) {
     function updateMeteoData(outdoorTempC, pressureKpa) {
         const normalizedOutdoorTempC = normalizeMeteoTemperatureC(outdoorTempC);
         const normalizedPressureKpa = normalizeMeteoPressureKpa(pressureKpa);
-        const normalizedBoilingPointTempF = Number.isFinite(normalizedPressureKpa)
+        const normalizedBoilingPointTempF = Number.isFinite(
+            normalizedPressureKpa,
+        )
             ? normalizeMeteoBoilingPointTempF(
                   computeSyrupBoilingPointF(
                       normalizedPressureKpa,
@@ -2082,7 +2110,10 @@ exports.Dashboard = function (config, WebSocketClient) {
         }
         const recalculatedBoilingPointTempF = Number.isFinite(meteo.pressureKpa)
             ? normalizeMeteoBoilingPointTempF(
-                  computeSyrupBoilingPointF(meteo.pressureKpa, normalizedOffset),
+                  computeSyrupBoilingPointF(
+                      meteo.pressureKpa,
+                      normalizedOffset,
+                  ),
               )
             : meteo.boilingPointTempF;
         const hasChanged =
