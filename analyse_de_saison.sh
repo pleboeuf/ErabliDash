@@ -148,6 +148,11 @@ influx -database $dbname -format 'csv' -execute "SELECT COUNT(volume_total) FROM
 	| format_output | convert_decimals
 echo
 
+couleeDays=$(influx -database $dbname -format 'csv' -execute "SELECT COUNT(volume_total) FROM Coulee WHERE etat = 'stop' AND volume_total > 15 AND time > '$startTime' AND time < '$endTime' GROUP BY time(1d)" 2>/dev/null \
+	| awk -F ',' 'NR>1 && $NF != "" && $NF != "count" && $NF+0 > 0 {days++} END {print days+0}')
+echo -e "Nombre de jours avec au moins une coulée\t$couleeDays"
+echo
+
 # ========== SECTION CYCLES (POMPES) ==========
 echo
 echo -e "'=== CYCLES DES POMPES ==="
@@ -288,8 +293,8 @@ echo
 echo -e "'=== VOLUME D'EAU (COMPTEURS) ==="
 echo
 
-echo -e "Volume total par compteur (gallons)"
-influx -database $dbname -format 'csv' -execute "SELECT MAX(volume_total) FROM Water_volume WHERE time > '$startTime' AND time < '$endTime' GROUP BY meter_name" 2>/dev/null \
+echo -e "Volume_since_reset par compteur (gallons)"
+influx -database $dbname -format 'csv' -execute "SELECT MAX(volume_since_reset) FROM Water_volume WHERE time > '$startTime' AND time < '$endTime' GROUP BY meter_name" 2>/dev/null \
 	| sed 's/meter_name=//g' | format_output | convert_decimals
 echo
 
@@ -328,6 +333,6 @@ influx -database $dbname -format 'csv' -execute "SELECT LAST(endTime) FROM Saiso
 	| sed 's/pompe=//g' | format_output | convert_dates_in_stream
 echo
 
-echo -e "***************************************************************"
+echo -e "************************************"
 echo -e " Fin du sommaire"
-echo -e "**************************************************************"
+echo -e "************************************"
